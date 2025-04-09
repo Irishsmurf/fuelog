@@ -136,7 +136,7 @@ function HistoryPage(): JSX.Element {
       setCopyStatus('Copying...');
       const headers = [ "Date", "Brand", "Cost (€)", "Distance (Km)", "Fuel (L)", "km/L", "L/100km", "MPG (UK)", "Cost/Mile" ].join('\t');
       const dataRows = filteredLogs.map(log => { // Use filteredLogs here
-          const dateStr = log.timestamp?.toDate().toLocaleDateString('en-IE') ?? ''; const brandStr = log.brand?.replace(/\t|\n|\r/g, ' ') ?? '';
+          const dateStr = log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit' }) ?? ''; const brandStr = log.brand?.replace(/\t|\n|\r/g, ' ') ?? '';
           const costStr = log.cost?.toFixed(2) ?? ''; const distanceKmStr = log.distanceKm?.toFixed(1) ?? ''; const fuelLitersStr = log.fuelAmountLiters?.toFixed(2) ?? '';
           const kmLStr = formatKmL(log.distanceKm, log.fuelAmountLiters); const l100kmStr = formatL100km(log.distanceKm, log.fuelAmountLiters);
           const mpgStr = formatMPG(log.distanceKm, log.fuelAmountLiters); const costPerMileStr = formatCostPerMile(log.cost, log.distanceKm).replace('€','');

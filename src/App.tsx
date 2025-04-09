@@ -34,7 +34,8 @@ import ImportPage from './pages/ImportPage';
                   Log Fuel
                 </Link>
                 {/* Placeholder link for History page */}
-                {/* <Link to="/history" className="px-2 py-1 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 rounded-md transition duration-150 ease-in-out">History</Link> */}
+                <Link to="/history" className="px-2 py-1 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 rounded-md transition duration-150 ease-in-out">History</Link>
+                <Link to="/import" className="px-2 py-1 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 rounded-md transition duration-150 ease-in-out">Import</Link>
 
                 {/* User Info - hidden on extra small screens */}
                 <span className="text-sm text-gray-600 hidden sm:inline">

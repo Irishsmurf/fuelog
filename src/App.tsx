@@ -1,9 +1,10 @@
     // src/App.jsx
-    import React from 'react';
     import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
     import { AuthProvider, useAuth } from './context/AuthContext';
-    import Login from './components/Login'; // Ensure path is correct
-    import QuickLogPage from './pages/QuickLogPage'; // Ensure path is correct
+    import Login from './components/Login';
+    import QuickLogPage from './pages/QuickLogPage';
+    import HistoryPage from './pages/HistoryPage'; // Import HistoryPage when created
+
     // Import HistoryPage later when created
     // import HistoryPage from './pages/HistoryPage';
 
@@ -53,8 +54,7 @@
             {/* --- Define Routes Here --- */}
             <Routes>
               <Route path="/" element={<QuickLogPage />} />
-              {/* Add route for History page when ready */}
-              {/* <Route path="/history" element={<HistoryPage />} /> */}
+              <Route path="/history" element={<HistoryPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

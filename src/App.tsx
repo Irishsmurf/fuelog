@@ -54,11 +54,11 @@ function AuthenticatedApp(): JSX.Element {
       <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700 sticky top-0 z-10">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <Link to="/" className="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition duration-150 ease-in-out">
-            Fuel Logger
+            Fuelog
           </Link>
           <div className="flex items-center space-x-3 sm:space-x-4">
             {/* Navigation Links (styles updated via getNavLinkClass) */}
-            <Link to="/" className={getNavLinkClass("/")}>Log Fuel</Link>
+            <Link to="/" className={getNavLinkClass("/")}>Log</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
 

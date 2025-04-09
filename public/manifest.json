@@ -57,7 +57,7 @@
         "sizes": "96x96",
         "type": "image/png",
         "purpose": "maskable"
-      }
+      },
       {
         "src": "/icon_maskable_x192.png",
         "sizes": "192x192",

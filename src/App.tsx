@@ -2,13 +2,14 @@
 import { JSX } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 // Import Theme context provider and hook
-import { ThemeProvider, useTheme } from './context/ThemeContext'; // Adjust path if needed
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import QuickLogPage from './pages/QuickLogPage';
 import HistoryPage from './pages/HistoryPage';
 import ImportPage from './pages/ImportPage';
 import { Analytics } from '@vercel/analytics/react';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 /**
  * Simple Sun/Moon Icon component for the toggle button
@@ -54,11 +55,11 @@ function AuthenticatedApp(): JSX.Element {
       <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700 sticky top-0 z-10">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <Link to="/" className="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition duration-150 ease-in-out">
-            Fuel Logger
+            Fuelog
           </Link>
           <div className="flex items-center space-x-3 sm:space-x-4">
             {/* Navigation Links (styles updated via getNavLinkClass) */}
-            <Link to="/" className={getNavLinkClass("/")}>Log Fuel</Link>
+            <Link to="/" className={getNavLinkClass("/")}>Log</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
 
@@ -91,9 +92,18 @@ function AuthenticatedApp(): JSX.Element {
           <Route path="/" element={<QuickLogPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/import" element={<ImportPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8 py-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              © {new Date().getFullYear()} Fuelog | {/* Add Link to Privacy Policy */}
+              <Link to="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
+                  Privacy Policy
+              </Link>
+          </div>
+      </footer>
     </div>
   );
 }

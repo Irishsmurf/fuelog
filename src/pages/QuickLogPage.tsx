@@ -1,11 +1,11 @@
 // src/pages/QuickLogPage.tsx
-import React, { useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import React, { JSX, useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 
 // Types
-type MessageType = 'success' | 'error' | 'info'; // Added 'info' type
+type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
 interface MessageState {
   type: MessageType;
   text: string;

@@ -1,5 +1,5 @@
 // src/components/Login.tsx
-import React, { JSX, useState } from 'react';
+import { JSX, useState } from 'react';
 import { useAuth } from '../context/AuthContext'; // Assuming AuthContext is now AuthContext.tsx
 
 // Define the component's return type

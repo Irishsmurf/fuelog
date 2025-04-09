@@ -1,5 +1,5 @@
 // src/pages/ImportPage.tsx
-import React, { JSX, useState, ChangeEvent } from 'react';
+import { JSX, useState, ChangeEvent } from 'react';
 import { collection, writeBatch, Timestamp, doc } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';

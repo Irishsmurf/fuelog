@@ -2,13 +2,14 @@
 import { JSX } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 // Import Theme context provider and hook
-import { ThemeProvider, useTheme } from './context/ThemeContext'; // Adjust path if needed
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import QuickLogPage from './pages/QuickLogPage';
 import HistoryPage from './pages/HistoryPage';
 import ImportPage from './pages/ImportPage';
 import { Analytics } from '@vercel/analytics/react';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 /**
  * Simple Sun/Moon Icon component for the toggle button
@@ -91,9 +92,18 @@ function AuthenticatedApp(): JSX.Element {
           <Route path="/" element={<QuickLogPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/import" element={<ImportPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8 py-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
+              © {new Date().getFullYear()} Fuelog | {/* Add Link to Privacy Policy */}
+              <Link to="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
+                  Privacy Policy
+              </Link>
+          </div>
+      </footer>
     </div>
   );
 }

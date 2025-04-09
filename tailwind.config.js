@@ -1,7 +1,7 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // <--- Add or update this line
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -9,5 +9,8 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  // Add the typography plugin here
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }

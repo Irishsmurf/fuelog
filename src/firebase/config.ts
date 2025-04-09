@@ -1,17 +1,24 @@
 // src/firebase/config.ts
-import { initializeApp, FirebaseApp } from "firebase/app"; // Import FirebaseApp type
-// Import types for Auth and Firestore services and specific functions/providers
+import { initializeApp, FirebaseApp } from "firebase/app";
 import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  Auth, // Type for auth instance
-  UserCredential // Type for signInWithPopup result
+  Auth,
+  UserCredential
 } from "firebase/auth";
-import { getFirestore, Firestore } from "firebase/firestore"; // Import Firestore type
+// Import updated Firestore functions and types for persistence
+import {
+    initializeFirestore, // Use initializeFirestore instead of getFirestore
+    Firestore,
+    persistentLocalCache, // Factory for persistent cache settings
+    persistentSingleTabManager, // Use single tab manager (most common for web)
+    // persistentMultipleTabManager // Alternative if multi-tab support needed
+    FirestoreSettings // Type for settings object
+} from "firebase/firestore";
 
-// Define an interface for the config object for clarity (optional but good practice)
+// Config interface (remains the same)
 interface FirebaseConfig {
   apiKey: string | undefined;
   authDomain: string | undefined;
@@ -21,7 +28,7 @@ interface FirebaseConfig {
   appId: string | undefined;
 }
 
-// Load variables using import.meta.env for Vite
+// Load environment variables (remains the same)
 const firebaseConfig: FirebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -31,60 +38,59 @@ const firebaseConfig: FirebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// --- Input Validation ---
+// Input Validation (remains the same)
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-  console.error(
-    "Firebase configuration is missing or incomplete. " +
-    "Ensure your .env file is set up correctly in the project root, " +
-    "variables start with VITE_, and the Vite server was restarted after changes."
-  );
-  // Handle error appropriately in a real app, maybe throw an error
+  console.error("Firebase configuration is missing or incomplete.");
+  // Handle error appropriately
 }
 
-// Initialize Firebase
-// Type the app instance
-const app: FirebaseApp = initializeApp(firebaseConfig as any); // Use 'as any' or ensure all keys are defined before init if strict
+// Initialize Firebase App (remains the same)
+const app: FirebaseApp = initializeApp(firebaseConfig as any);
 
-// Initialize Firebase Services and type them
+// Initialize Firebase Auth (remains the same)
 const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
+
+// --- Initialize Firestore with Offline Persistence Settings ---
+let db: Firestore; // Declare db variable
+
+try {
+  // Define the settings for Firestore, enabling offline persistence
+  const firestoreSettings: FirestoreSettings = {
+    // Use persistentLocalCache with persistentSingleTabManager
+    // This enables IndexedDB persistence for the current browser tab.
+    localCache: persistentLocalCache({ tabManager: persistentSingleTabManager({}) })
+    // If you needed multi-tab offline sync (more complex), you might use:
+    // localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+  };
+
+  // Initialize Firestore WITH the settings object
+  db = initializeFirestore(app, firestoreSettings);
+  console.log("Firestore initialized with offline persistence enabled.");
+
+} catch (error: any) {
+  // Catch potential errors during initialization (e.g., persistence unavailable)
+  console.error("Firestore initialization with persistence failed:", error);
+  // Fallback: Initialize Firestore without persistence if enabling fails
+  // This allows the app to continue working online.
+  console.warn("Falling back to initializing Firestore without offline persistence.");
+  db = initializeFirestore(app, {}); // Initialize with default settings
+}
+// --- End Firestore Initialization ---
+
+
+// Google Auth Provider (remains the same)
 const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();
 
-// --- Authentication Functions --- (Add explicit types)
 
-/**
- * Initiates Google Sign-In using a popup window.
- * @returns {Promise<UserCredential>} A promise that resolves with the user credential upon successful sign-in.
- */
-const signInWithGoogle = async (): Promise<UserCredential> => {
-  try {
-    const result: UserCredential = await signInWithPopup(auth, googleProvider);
-    console.log("Google Sign-In Successful:", result.user.displayName);
-    return result;
-  } catch (error) {
-    console.error("Google Sign-In Error:", error);
-    throw error; // Re-throw for handling in UI component
-  }
-};
+// --- Authentication Functions (remain the same) ---
+const signInWithGoogle = async (): Promise<UserCredential> => { try { const result: UserCredential = await signInWithPopup(auth, googleProvider); console.log("Google Sign-In Successful:", result.user.displayName); return result; } catch (error) { console.error("Google Sign-In Error:", error); throw error; } };
+const logout = async (): Promise<void> => { try { await signOut(auth); console.log("User signed out successfully."); } catch (error) { console.error("Sign Out Error:", error); throw error; } };
 
-/**
- * Signs the current user out.
- * @returns {Promise<void>} A promise that resolves when sign-out is complete.
- */
-const logout = async (): Promise<void> => {
-  try {
-    await signOut(auth);
-    console.log("User signed out successfully.");
-  } catch (error) {
-    console.error("Sign Out Error:", error);
-    throw error;
-  }
-};
 
-// Export the necessary instances and functions
+// Export the necessary instances and functions (db is now initialized above)
 export {
   auth,
-  db,
+  db, // Export the initialized db instance
   googleProvider,
   signInWithGoogle,
   logout

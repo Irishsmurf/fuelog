@@ -3,7 +3,7 @@ import { JSX } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 // Import Theme context provider and hook
 import { ThemeProvider, useTheme } from './context/ThemeContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth, AuthContext } from './context/AuthContext';
 import Login from './components/Login';
 import QuickLogPage from './pages/QuickLogPage';
 import HistoryPage from './pages/HistoryPage';
@@ -48,8 +48,7 @@ function AuthenticatedApp(): JSX.Element {
     return `${baseClass} ${location.pathname === path ? activeClass : inactiveClass}`;
   };
 
-  return (
-    // Apply dark mode text/bg colors to the main container
+  return (<>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Update header background/shadow for dark mode */}
       <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700 sticky top-0 z-10">
@@ -105,7 +104,7 @@ function AuthenticatedApp(): JSX.Element {
           </div>
       </footer>
     </div>
-  );
+  </>);
 }
 
 /** Component deciding Login vs AuthenticatedApp */

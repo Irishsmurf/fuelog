@@ -16,6 +16,7 @@ import {
 import LogCard from '../components/LogCard'; // Adjust path if necessary
 import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode } from '../utils/types';
 import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
+import { useTheme } from '../context/ThemeContext';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -23,6 +24,8 @@ function HistoryPage(): JSX.Element {
     const { user } = useAuth();
 
     // --- Component State ---
+    const { theme } = useTheme();
+
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [isLoading, setIsLoading] = useState<boolean>(true); // Tracks if logs are currently being fetched
     const [error, setError] = useState<string | null>(null); // Stores any error message during data fetching
@@ -210,14 +213,14 @@ function HistoryPage(): JSX.Element {
 
     // --- Render Logic ---
     return (
-        <div className="space-y-8"> {/* Vertical spacing between sections */}
-            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Fuel History & Trends</h2>
+        <div className={`space-y-8 ${theme === 'dark' ? 'dark' : ''}`}> {/* Vertical spacing between sections */}
+            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-white">Fuel History & Trends</h2>
 
             {/* --- Filter Controls Section --- */}
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
-                <h3 className="text-md font-medium text-gray-700 mb-3">Filters</h3>
+            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3">Filters</h3>
                 {/* Grid layout for filter controls */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end ">
                     {/* Start Date Input */}
                     <div>
                         <label htmlFor="filterStartDate" className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
@@ -231,7 +234,7 @@ function HistoryPage(): JSX.Element {
                     {/* Brand Select Dropdown */}
                     <div>
                         <label htmlFor="filterBrand" className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                        <select id="filterBrand" value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} className="w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white appearance-none"> {/* Added appearance-none */}
+                        <select id="filterBrand" value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300 appearance-none"> {/* Added appearance-none */}
                             <option value="">All Brands</option>
                             {/* Populate options from uniqueBrands state */}
                             {uniqueBrands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
@@ -241,7 +244,7 @@ function HistoryPage(): JSX.Element {
                     <div className="flex justify-end">
                         <button
                             onClick={() => setViewMode(prev => prev === 'table' ? 'cards' : 'table')}
-                            className="px-3 py-1.5 text-sm font-medium rounded-md shadow-sm transition duration-150 ease-in-out bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500"
+                            className="px-3 py-1.5 text-sm font-medium rounded-md shadow-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500"
                             title={`Switch to ${viewMode === 'table' ? 'Card' : 'Table'} View`}
                         >
                             {/* Display appropriate text based on current view mode */}
@@ -255,8 +258,8 @@ function HistoryPage(): JSX.Element {
             {/* --- Charts Section (Uses filtered data via chartData) --- */}
             {/* Render chart only if not loading, no error, and enough filtered data exists */}
             {filteredLogs.length > 1 && !isLoading && !error ? (
-                <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200">
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">MPG (UK) Over Time (Filtered)</h3>
+                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">MPG (UK) Over Time (Filtered)</h3>
                     <ResponsiveContainer width="100%" height={300}>
                         <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -269,24 +272,23 @@ function HistoryPage(): JSX.Element {
                     </ResponsiveContainer>
                 </div>
             ) : (
-                // Show message if chart isn't rendered due to insufficient filtered data
-                !isLoading && !error && logs.length > 0 && filteredLogs.length <= 1 && <div className="text-center text-gray-500 text-sm p-4">Need at least two logs in the filtered range to show trends.</div>
+                !isLoading && !error && logs.length > 0 && filteredLogs.length <= 1 && <div className="text-center text-gray-500 dark:text-gray-400 text-sm p-4">Need at least two logs in the filtered range to show trends.</div>
             )}
 
             {/* --- Table / Cards Section --- */}
-            <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200">
+            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
                 {/* Section Header with Title (showing filtered count) and Copy Button */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
-                    <h3 className="text-lg font-medium text-gray-700 mb-2 sm:mb-0">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
                         Log Details {filteredLogs.length !== logs.length ? `(${filteredLogs.length} of ${logs.length} shown)` : `(${logs.length} total)`}
                     </h3>
-                    <button onClick={copyTableData} disabled={copyStatus !== 'Copy Table Data' || filteredLogs.length === 0} className={`px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${copyStatus === 'Copied!' ? 'bg-green-100 text-green-700' : copyStatus === 'Copy Failed!' || copyStatus === 'Clipboard unavailable' ? 'bg-red-100 text-red-700 cursor-not-allowed' : copyStatus === 'Copying...' || copyStatus === 'No data' ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'}`}>{copyStatus}</button>
+                    <button onClick={copyTableData} disabled={copyStatus !== 'Copy Table Data' || filteredLogs.length === 0} className={`px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${copyStatus === 'Copied!' ? 'bg-green-100 text-green-700' : copyStatus === 'Copy Failed!' || copyStatus === 'Clipboard unavailable' ? 'bg-red-100 text-red-700 cursor-not-allowed' : copyStatus === 'Copying...' || copyStatus === 'No data' ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'bg-indigo-100 dark:bg-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-600'}`}>{copyStatus}</button>
                 </div>
 
                 {/* Centralized Loading/Error/Empty states */}
-                {isLoading && <div className="text-center py-10"><p className="text-gray-500 animate-pulse">Loading fuel history...</p></div>}
+                {isLoading && <div className="text-center py-10"><p className="text-gray-500 dark:text-gray-400 animate-pulse">Loading fuel history...</p></div>}
                 {error && <div className="text-center py-10 px-4"><p className="text-red-600 bg-red-100 p-4 rounded-md">{error}</p></div>}
-                {!isLoading && !error && filteredLogs.length === 0 && <div className="text-center py-10"><p className="text-gray-600">{logs.length > 0 ? 'No logs match the current filters.' : 'No fuel logs found. Add your first entry!'}</p></div>}
+                {!isLoading && !error && filteredLogs.length === 0 && <div className="text-center py-10"><p className="text-gray-600 dark:text-gray-400">{logs.length > 0 ? 'No logs match the current filters.' : 'No fuel logs found. Add your first entry!'}</p></div>}
 
                 {/* Conditional Rendering based on viewMode - only render if not loading, no error, and filtered logs exist */}
                 {!isLoading && !error && filteredLogs.length > 0 && (
@@ -294,25 +296,25 @@ function HistoryPage(): JSX.Element {
                         // --- Table View ---
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 border border-gray-200">
-                                <thead className="bg-gray-50"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cost (€)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th></tr></thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost (€)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
+                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
-                                        <tr key={log.id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700">{log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A'}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900">{log.brand}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-right">{log.cost?.toFixed(2)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-right">{log.distanceKm?.toFixed(1)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-right">{log.fuelAmountLiters?.toFixed(2)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 font-medium text-right">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 font-medium text-right">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 font-medium text-right">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 text-right">{formatCostPerMile(log.cost, log.distanceKm)}</td>
+                                        <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A'}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.brand}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.cost?.toFixed(2)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.distanceKm?.toFixed(1)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.fuelAmountLiters?.toFixed(2)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{formatCostPerMile(log.cost, log.distanceKm)}</td>
                                             {/* Actions Cell with Edit/Delete Buttons */}
                                             <td className="px-3 py-3 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                                 <button
                                                     onClick={() => handleOpenEditModal(log)}
-                                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 p-1 rounded hover:bg-indigo-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 p-1 rounded hover:bg-indigo-100 dark:hover:bg-gray-600 transition duration-150 ease-in-out"
                                                     title="Edit Log"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -323,7 +325,7 @@ function HistoryPage(): JSX.Element {
                                                 {/* Delete Button with Trash Icon */}
                                                 <button
                                                     onClick={() => handleDeleteLog(log.id)}
-                                                    className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1 rounded hover:bg-red-100 dark:hover:bg-gray-700 transition duration-150 ease-in-out"
+                                                    className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-1 rounded hover:bg-red-100 dark:hover:bg-gray-600 transition duration-150 ease-in-out"
                                                     title="Delete Log"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -358,22 +360,22 @@ function HistoryPage(): JSX.Element {
             {/* --- Edit Modal --- */}
             {/* Conditionally render the modal based on isModalOpen state */}
             {isModalOpen && editingLog && (
-                <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-600 bg-opacity-75 transition-opacity flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md m-4 space-y-4 transform transition-all">
-                        <h3 className="text-lg font-medium leading-6 text-gray-900" id="modal-title">Edit Log Entry ({editingLog.timestamp.toDate().toLocaleDateString('en-IE')})</h3>
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-600 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md m-4 space-y-4 transform transition-all">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300" id="modal-title">Edit Log Entry ({editingLog.timestamp.toDate().toLocaleDateString('en-IE')})</h3>
                         {/* Edit Form */}
                         <form onSubmit={handleUpdateLog} className="space-y-4">
                             {/* Form Inputs (Brand, Cost, Distance, Fuel) */}
-                            <div><label htmlFor="edit-brand" className="block text-sm font-medium text-gray-700">Brand</label><input type="text" name="brand" id="edit-brand" value={editFormData.brand} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
-                            <div><label htmlFor="edit-cost" className="block text-sm font-medium text-gray-700">Cost (€)</label><input type="number" inputMode="decimal" name="cost" id="edit-cost" value={editFormData.cost} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
-                            <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700">Distance (Km)</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
-                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700">Fuel (L)</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                            <div><label htmlFor="edit-brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Brand</label><input type="text" name="brand" id="edit-brand" value={editFormData.brand} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                            <div><label htmlFor="edit-cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cost (€)</label><input type="number" inputMode="decimal" name="cost" id="edit-cost" value={editFormData.cost} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                            <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Distance (Km)</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fuel (L)</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             {/* Modal Error Message */}
-                            {modalError && <p className="text-sm text-red-600">{modalError}</p>}
+                            {modalError && <p className="text-sm text-red-600 dark:text-red-400">{modalError}</p>}
                             {/* Modal Action Buttons */}
-                            <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
-                                <button type="submit" disabled={isUpdating} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm disabled:opacity-50">{isUpdating ? 'Saving...' : 'Save Changes'}</button>
-                                <button type="button" onClick={handleCloseModal} disabled={isUpdating} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm disabled:opacity-50">Cancel</button>
+                            <div className="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense ">
+                                <button type="submit" disabled={isUpdating} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-base font-medium text-white dark:text-gray-200 hover:bg-indigo-700 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm disabled:opacity-50">{isUpdating ? 'Saving...' : 'Save Changes'}</button>
+                                <button type="button" onClick={handleCloseModal} disabled={isUpdating} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-700 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm disabled:opacity-50">Cancel</button>
                             </div>
                         </form>
                     </div>

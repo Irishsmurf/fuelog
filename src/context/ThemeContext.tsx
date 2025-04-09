@@ -1,9 +1,9 @@
 // src/context/ThemeContext.tsx
-import { JSX, createContext, useState, useEffect, useContext, useMemo, ReactNode } from 'react';
+import { JSX, createContext, useState, useEffect, useContext, useMemo, ReactNode, useCallback } from 'react';
 
 // Define the possible theme values
 type Theme = 'light' | 'dark';
-
+const THEME_STORAGE_KEY = "theme";
 // Define the shape of the context value
 interface ThemeContextType {
   theme: Theme;
@@ -20,29 +20,47 @@ interface ThemeProviderProps {
 
 // Create a provider component
 export function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
-  // State to hold the current theme
-  // Initialize based on localStorage or system preference
   const [theme, setTheme] = useState<Theme>(() => {
-    const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
-      return storedTheme;
+    try {
+      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
+      if (storedTheme === 'dark' || storedTheme === 'light') {
+        return storedTheme
+      } else {
+          // Check system preference if no theme stored
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+      return 'light';
+
     }
-    // Check system preference if no theme stored
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
-  // Effect to apply the theme class to the <html> element and save to localStorage
+  // Apply theme to root element and persist in localStorage
   useEffect(() => {
-    const root = window.document.documentElement; // Get the <html> element
-    const previousTheme = theme === 'dark' ? 'light' : 'dark';
+    try {
+      const root = document.documentElement;
+      
+      if (theme === 'dark') {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.add('light');
+        root.classList.remove('dark');
+      }
 
-    root.classList.remove(previousTheme); // Remove the opposite theme class
-    root.classList.add(theme); // Add the current theme class
 
-    // Save the user's preference to localStorage
-    localStorage.setItem('theme', theme);
+      
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+      console.log('Theme changed', theme);
 
-    console.log(`Theme changed to: ${theme}`); // Log theme changes
+
+    } catch (error) {
+      console.error("Error applying theme or accessing localStorage:", error);
+    }
+
+
 
   }, [theme]); // Run this effect whenever the theme state changes
 
@@ -50,12 +68,13 @@ export function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
+  
+  const memoizedToggleTheme = useCallback(toggleTheme, []);
 
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo(() => ({
-    theme,
-    toggleTheme
-  }), [theme]);
+    theme, toggleTheme: memoizedToggleTheme
+  }), [theme, memoizedToggleTheme]);
 
   return (
     <ThemeContext.Provider value={value}>

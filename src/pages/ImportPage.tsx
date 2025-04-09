@@ -3,6 +3,7 @@ import { JSX, useState, ChangeEvent } from 'react';
 import { collection, writeBatch, Timestamp, doc } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 type ImportStatus = 'idle' | 'reading' | 'parsing' | 'importing' | 'success' | 'error';
 interface ImportMessage {
@@ -14,6 +15,7 @@ interface ImportMessage {
 
 function ImportPage(): JSX.Element {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [status, setStatus] = useState<ImportStatus>('idle');
   const [message, setMessage] = useState<ImportMessage | null>(null);
@@ -107,26 +109,25 @@ function ImportPage(): JSX.Element {
   const messageClasses = message?.type === 'error' ? 'text-red-600 bg-red-100' : message?.type === 'success' ? 'text-green-700 bg-green-100' : 'text-blue-700 bg-blue-100';
 
   return (
-    <div className="container mx-auto max-w-2xl">
-      <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200 space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-800 text-center">Import Fuel Logs</h2>
-        <p className="text-sm text-gray-600">
-          Select a Tab-Separated Value (.tsv or .txt) file. Ensure headers include: <code className="text-xs bg-gray-100 p-1 rounded">Date</code>, <code className="text-xs bg-gray-100 p-1 rounded">Litres</code>, <code className="text-xs bg-gray-100 p-1 rounded">Total Cost</code>, <code className="text-xs bg-gray-100 p-1 rounded">Garage</code>, and <code className="text-xs bg-gray-100 p-1 rounded">Distance since fueled</code> (in Km).
+    <div className={`container mx-auto max-w-2xl ${theme === 'dark' ? 'dark' : ''}`}>
+      <div className={`bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'} space-y-6`}>
+        <h2 className={`text-2xl font-semibold text-center ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Import Fuel Logs</h2>
+        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+          Select a Tab-Separated Value (.tsv or .txt) file. Ensure headers include: <code className={`text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100'} p-1 rounded`}>Date</code>, <code className={`text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100'} p-1 rounded`}>Litres</code>, <code className={`text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100'} p-1 rounded`}>Total Cost</code>, <code className={`text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100'} p-1 rounded`}>Garage</code>, and <code className={`text-xs ${theme === 'dark' ? 'bg-gray-700 text-gray-300' : 'bg-gray-100'} p-1 rounded`}>Distance since fueled</code> (in Km).
         </p>
         {/* File Input (No change) */}
         <div>
-          <label htmlFor="tsvFile" className="block text-sm font-medium text-gray-700 mb-1">TSV File</label>
-          <input type="file" id="tsvFile" accept=".tsv,.txt,text/tab-separated-values" onChange={handleFileChange}
-            className="block w-full text-sm text-gray-500 border border-gray-300 rounded-md cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+          <label htmlFor="tsvFile" className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-1`}>TSV File</label>
+          <input type="file" id="tsvFile" accept=".tsv,.txt,text/tab-separated-values" onChange={handleFileChange} className={`block w-full text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-500'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'} rounded-md cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:${theme === 'dark' ? 'bg-indigo-800 text-indigo-300' : 'bg-indigo-50 text-indigo-700'} hover:file:${theme === 'dark' ? 'bg-indigo-700' : 'bg-indigo-100'}`}
             disabled={status === 'reading' || status === 'parsing' || status === 'importing'}/>
         </div>
         {/* Import Button (No change) */}
         <button onClick={handleImport} disabled={!selectedFile || !user || status === 'reading' || status === 'parsing' || status === 'importing'}
-          className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+          className={`w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${theme === 'dark' ? 'bg-green-700 hover:bg-green-800 focus:ring-green-600' : 'bg-green-600 hover:bg-green-700 focus:ring-green-500'} focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out`}>
           {status === 'importing' ? `Importing... (${importedCount})` : status === 'parsing' ? 'Parsing...' : status === 'reading' ? 'Reading...' : 'Import Data'}
         </button>
         {/* Status/Result Message (No change) */}
-        {message && ( <div className={`mt-4 p-3 rounded-md text-sm ${messageClasses}`}>{message.text}</div> )}
+        {message && ( <div className={`mt-4 p-3 rounded-md text-sm ${messageClasses} ${theme === 'dark' ? 'dark' : ''}`}>{message.text}</div> )}
       </div>
     </div>
   );

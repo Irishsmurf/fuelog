@@ -148,14 +148,14 @@ function QuickLogPage(): JSX.Element {
   const messageStyle = message.type === 'error' ? 'text-red-600' : message.type === 'success' ? 'text-green-600' : 'text-blue-600'; // Blue for info
 
   return (
-    <div className="container mx-auto max-w-lg">
-        <div className="bg-white shadow-lg rounded-xl p-8 border border-gray-200">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Log New Fuel Entry</h2>
+    <div className="container mx-auto max-w-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6 text-center">Log New Fuel Entry</h2>
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
                 {/* Brand Input with Datalist (same as before) */}
                 <div>
-                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-1">Filling Station Brand <span className="text-gray-500 text-xs">(Optional)</span></label>
-                    <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder="e.g., Circle K, Maxol (start typing...)" className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off"/>
+                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filling Station Brand <span className="text-gray-500 dark:text-gray-400 text-xs">(Optional)</span></label>
+                    <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder="e.g., Circle K, Maxol (start typing...)" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off"/>
                     <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
                 </div>
                 {/* Cost Input (same as before) */}
@@ -164,17 +164,17 @@ function QuickLogPage(): JSX.Element {
                     <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="e.g., 65.50" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out" disabled={isSaving} aria-describedby="cost-description"/>
                     <p id="cost-description" className="mt-1 text-xs text-gray-500">Enter the total amount paid.</p>
                 </div>
-                {/* Distance Input (same as before) */}
+                 {/* Distance Input (same as before) */}
                 <div>
-                    <label htmlFor="distance" className="block text-sm font-medium text-gray-700 mb-1">Distance Covered (Km) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="e.g., 500.5" step="0.1" min="0.1" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out" disabled={isSaving} aria-describedby="distance-description"/>
-                    <p id="distance-description" className="mt-1 text-xs text-gray-500">Kilometers driven since last fill-up.</p>
+                    <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Distance Covered (Km) <span className="text-red-500">*</span></label>
+                    <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="e.g., 500.5" step="0.1" min="0.1" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="distance-description"/>
+                    <p id="distance-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Kilometers driven since last fill-up.</p>
                 </div>
                 {/* Fuel Amount Input (same as before) */}
                 <div className="pb-2">
-                    <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 mb-1">Fuel Added (Litres) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="e.g., 42.80" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out" disabled={isSaving} aria-describedby="fuel-description"/>
-                    <p id="fuel-description" className="mt-1 text-xs text-gray-500">Amount of fuel added, in Litres.</p>
+                    <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuel Added (Litres) <span className="text-red-500">*</span></label>
+                    <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="e.g., 42.80" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="fuel-description"/>
+                    <p id="fuel-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Amount of fuel added, in Litres.</p>
                 </div>
 
                 {/* Submit Button - Text updates based on state */}

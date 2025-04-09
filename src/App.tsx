@@ -4,6 +4,7 @@
     import Login from './components/Login';
     import QuickLogPage from './pages/QuickLogPage';
     import HistoryPage from './pages/HistoryPage'; // Import HistoryPage when created
+import ImportPage from './pages/ImportPage';
 
     // Import HistoryPage later when created
     // import HistoryPage from './pages/HistoryPage';
@@ -55,6 +56,7 @@
             <Routes>
               <Route path="/" element={<QuickLogPage />} />
               <Route path="/history" element={<HistoryPage />} />
+              <Route path="/import" element={<ImportPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>

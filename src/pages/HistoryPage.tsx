@@ -1,5 +1,5 @@
 // src/pages/HistoryPage.tsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { JSX, useState, useEffect, useMemo } from 'react';
 import { collection, query, where, orderBy, onSnapshot, Timestamp } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';

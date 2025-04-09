@@ -3,7 +3,7 @@ import { JSX } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 // Import Theme context provider and hook
 import { ThemeProvider, useTheme } from './context/ThemeContext';
-import { AuthProvider, useAuth, AuthContext } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import QuickLogPage from './pages/QuickLogPage';
 import HistoryPage from './pages/HistoryPage';

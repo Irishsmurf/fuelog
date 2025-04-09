@@ -15,6 +15,7 @@ interface AuthContextType {
 // Create the context with an initial value of null or a default shape
 // Using null is common when the provider guarantees a value
 const AuthContext = createContext<AuthContextType | null>(null);
+export default AuthContext
 
 // Define props for the provider component
 interface AuthProviderProps {

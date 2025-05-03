@@ -1,5 +1,5 @@
 // src/firebase/firestoreService.ts
-import { collection, query, where, getDocs, Timestamp, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db, auth } from './config'; // db and auth from your config file
 import { Log } from '../utils/types'; // Adjust path as needed
 

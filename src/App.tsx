@@ -10,6 +10,7 @@ import HistoryPage from './pages/HistoryPage';
 import ImportPage from './pages/ImportPage';
 import { Analytics } from '@vercel/analytics/react';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import FuelMapPage from './components/FuelMapPage';
 
 /**
  * Simple Sun/Moon Icon component for the toggle button
@@ -61,6 +62,7 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/" className={getNavLinkClass("/")}>Log</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
+            <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
 
             {/* Theme Toggle Button */}
             <button
@@ -92,6 +94,7 @@ function AuthenticatedApp(): JSX.Element {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/import" element={<ImportPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/map" element={<FuelMapPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

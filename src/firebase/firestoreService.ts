@@ -1,5 +1,5 @@
 // src/firebase/firestoreService.ts
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, orderBy } from 'firebase/firestore';
 import { db, auth } from './config'; // db and auth from your config file
 import { Log } from '../utils/types'; // Adjust path as needed
 
@@ -14,8 +14,8 @@ export const fetchFuelLocations = async (): Promise<Log[]> => {
   const q = query(
       logsCollection,
       where('userId', '==', auth.currentUser.uid),
-      where('latitude', '!=', null) // Directly query for logs with latitude
-      // Add where('longitude', '!=', null) if necessary, though latitude check might suffice
+      where('latitude', '!=', null), // Directly query for logs with latitude
+      orderBy('timestamp', 'desc'), // Order by timestamp if needed
   );
 
 

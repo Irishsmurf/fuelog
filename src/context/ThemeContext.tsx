@@ -1,6 +1,6 @@
 // src/context/ThemeContext.tsx
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { remoteConfig, activateRemoteConfig, getValue } from '../firebase/remoteConfigService';
+import { remoteConfig, activateRemoteConfig, getValue, isDarkModeEnabled } from '../firebase/remoteConfigService';
 
 type Theme = 'light' | 'dark';
 

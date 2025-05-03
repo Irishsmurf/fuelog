@@ -9,7 +9,7 @@ import FuelMapPage from './FuelMapPage';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 
 
-
+/** Main authenticated app component */
 function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
   const location = useLocation();

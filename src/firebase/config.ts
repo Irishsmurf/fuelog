@@ -89,6 +89,7 @@ const logout = async (): Promise<void> => { try { await signOut(auth); console.l
 
 // Export the necessary instances and functions (db is now initialized above)
 export {
+  app,
   auth,
   db, // Export the initialized db instance
   googleProvider,

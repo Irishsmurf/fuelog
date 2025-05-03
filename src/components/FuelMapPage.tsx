@@ -1,44 +1,42 @@
 // src/components/FuelMapPage.tsx
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
-import L from 'leaflet'; // Import L directly now that types are installed
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'; // Added Marker, Popup
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.heat'; // Make sure this is correctly installed and imported
+// Removed 'leaflet.heat' import
 
-import { fetchFuelLocations } from '../firebase/firestoreService'; // Adjusted path
+import { fetchFuelLocations } from '../firebase/firestoreService'; // Adjust path if needed
 import { Log } from '../utils/types';
 
-// Heatmap Layer Component (using L directly with types)
-const HeatmapLayer = ({ points }: { points: Log[] }) => {
-  const map = useMap();
+// --- Fix for Default Leaflet Icon ---
+// (This prevents the default icon from appearing broken)
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
-  useEffect(() => {
-    if (!map || points.length === 0) return;
+delete (L.Icon.Default.prototype as any)._getIconUrl; // Delete the broken default method
 
-    const heatPoints = points
-    .filter(p => p.latitude !== undefined && p.longitude !== undefined)
-    .map(p => [p.latitude!, p.longitude!, 0.5] as [number, number, number]); // Use basic tuple
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: iconRetinaUrl,
+  iconUrl: iconUrl,
+  shadowUrl: shadowUrl,
+});
+// --- End Icon Fix ---
 
 
-    const heatLayer = L.heatLayer(heatPoints, {
-        radius: 25,
-        blur: 15,
-        maxZoom: 18,
-      }).addTo(map);
- 
+// Optional: Component to adjust map view based on markers
+const FitBoundsToMarkers = ({ points }: { points: Log[] }) => {
+   const map = useMap();
+   useEffect(() => {
+     if (!map || points.length === 0) return;
 
-    // Fit map bounds
-    if (heatPoints.length > 0) {
-      const bounds = L.latLngBounds(heatPoints.map(p => [p[0], p[1]]));
-      map.fitBounds(bounds.pad(0.1));
-    }
-
-    return () => {
-      map.removeLayer(heatLayer);
-    };
-  }, [map, points]);
-
-  return null;
+     const validPoints = points.filter(p => p.latitude !== undefined && p.longitude !== undefined);
+     if (validPoints.length > 0) {
+       const bounds = L.latLngBounds(validPoints.map(p => [p.latitude!, p.longitude!]));
+       map.fitBounds(bounds.pad(0.1)); // Add some padding
+     }
+   }, [map, points]);
+   return null;
 };
 
 
@@ -48,12 +46,13 @@ const FuelMapPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ... (your existing data fetching logic) ...
-    const loadData = async () => {
+   const loadData = async () => {
        setLoading(true);
        setError(null);
        try {
            const data = await fetchFuelLocations();
+           // Optional: Sort data if needed, e.g., by date
+           // data.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
            setLocations(data);
        } catch (err) {
            setError("Failed to load locations.");
@@ -61,27 +60,47 @@ const FuelMapPage: React.FC = () => {
        } finally {
            setLoading(false);
        }
-       };
-       loadData();
+   };
+   loadData();
   }, []);
 
   if (loading) return <div>Loading map data...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
   if (locations.length === 0) return <div>No fuel locations with coordinates found.</div>;
 
-  const initialCenter: L.LatLngExpression = locations.length > 0
-      ? [locations[0].latitude!, locations[0].longitude!]
-      : [53.3498, -6.2603]; // Fallback, use LatLngExpression type
+  // Calculate initial center (can still be based on first point or a default)
+  const validLocations = locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined);
+  const initialCenter: L.LatLngExpression = validLocations.length > 0
+      ? [validLocations[0].latitude!, validLocations[0].longitude!]
+      : [53.3498, -6.2603]; // Fallback Dublin center
 
   return (
     <div className="w-full h-[600px] my-4">
-       {/* MapContainer should now accept 'center' */}
-       <MapContainer center={initialCenter} zoom={7} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
+      <MapContainer center={initialCenter} zoom={7} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <HeatmapLayer points={locations} />
+
+        {/* Map over locations and create a Marker for each */}
+        {validLocations.map((log) => (
+          <Marker key={log.id} position={[log.latitude!, log.longitude!]}>
+            <Popup>
+              <div>
+                <p><strong>Date:</strong> {log.timestamp.toDate().toLocaleDateString()}</p>
+                <p><strong>Brand:</strong> {log.brand || 'N/A'}</p>
+                <p><strong>Cost:</strong> €{log.cost.toFixed(2)}</p>
+                <p><strong>Litres:</strong> {log.fuelAmountLiters.toFixed(2)} L</p>
+                <p><strong>Distance:</strong> {log.distanceKm.toFixed(1)} km</p>
+                {/* Add more details if desired */}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
+        {/* Add the component to fit bounds */}
+        <FitBoundsToMarkers points={validLocations} />
+
       </MapContainer>
     </div>
   );

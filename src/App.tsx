@@ -2,7 +2,7 @@
 import { JSX } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 // Import Theme context provider and hook
-import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import QuickLogPage from './pages/QuickLogPage';
@@ -11,34 +11,11 @@ import ImportPage from './pages/ImportPage';
 import { Analytics } from '@vercel/analytics/react';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import FuelMapPage from './components/FuelMapPage';
-
-/**
- * Simple Sun/Moon Icon component for the toggle button
- */
-function ThemeIcon({ theme }: { theme: 'light' | 'dark' }) {
-    if (theme === 'dark') {
-        // Moon Icon (Example using SVG)
-        return (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-            </svg>
-        );
-    } else {
-        // Sun Icon (Example using SVG)
-        return (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M12 6.75V4.5" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z" />
-            </svg>
-        );
-    }
-}
-
+import ThemeToggle from './components/ThemeToggle';
 
 /** Component shown when the user IS authenticated */
 function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme(); // Use the theme context
   const location = useLocation();
 
   const getNavLinkClass = (path: string): string => {
@@ -65,13 +42,7 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
 
             {/* Theme Toggle Button */}
-            <button
-                onClick={toggleTheme}
-                className="p-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 transition duration-150 ease-in-out"
-                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            >
-                <ThemeIcon theme={theme} /> {/* Display Sun or Moon icon */}
-            </button>
+            <ThemeToggle />
 
             <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
               Hi, {user?.displayName?.split(' ')[0] || 'User'}!

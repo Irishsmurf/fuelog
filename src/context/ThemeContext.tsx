@@ -1,93 +1,102 @@
 // src/context/ThemeContext.tsx
-import { JSX, createContext, useState, useEffect, useContext, useMemo, ReactNode, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { remoteConfig, activateRemoteConfig, getValue } from '../firebase/remoteConfigService';
 
-// Define the possible theme values
 type Theme = 'light' | 'dark';
-const THEME_STORAGE_KEY = "theme";
-// Define the shape of the context value
-interface ThemeContextType {
+
+interface ThemeContextProps {
   theme: Theme;
+  isDarkModeEnabledRemotely: boolean; // From Remote Config
   toggleTheme: () => void;
+  setThemeExplicitly: (theme: Theme) => void;
 }
 
-// Create the context
-const ThemeContext = createContext<ThemeContextType | null>(null);
+const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
-// Define props for the provider component
-interface ThemeProviderProps {
-  children: ReactNode;
-}
-
-// Create a provider component
-export function ThemeProvider({ children }: ThemeProviderProps): JSX.Element {
+export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    try {
-      const storedTheme = localStorage.getItem(THEME_STORAGE_KEY) as Theme | null;
-      if (storedTheme === 'dark' || storedTheme === 'light') {
-        return storedTheme
-      } else {
-          // Check system preference if no theme stored
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-
-    } catch (error) {
-      console.error("Error accessing localStorage:", error);
-      return 'light';
-
-    }
+    // Initialize theme from localStorage or system preference
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    // Initially assume dark mode *might* be enabled until RC loads
+    // Or just default to light until RC confirms
+    return savedTheme || 'light';
   });
 
-  // Apply theme to root element and persist in localStorage
+  const [isDarkModeEnabledRemotely, setIsDarkModeEnabledRemotely] = useState<boolean>(false);
+  const [rcLoading, setRcLoading] = useState(true);
+
+  // Fetch Remote Config on mount
   useEffect(() => {
-    try {
-      const root = document.documentElement;
-      
-      if (theme === 'dark') {
-        root.classList.add('dark');
-        root.classList.remove('light');
+    const initializeThemeFromRC = async () => {
+      await activateRemoteConfig(); // Fetch and activate
+      const enabled = getValue(remoteConfig, "darkModeEnabled").asBoolean();
+      setIsDarkModeEnabledRemotely(enabled);
+      console.log("Remote Config - darkModeEnabled:", enabled);
+
+      // If RC disables dark mode, force light mode
+      if (!enabled) {
+        setThemeState('light');
       } else {
-        root.classList.add('light');
-        root.classList.remove('dark');
+        // If RC enables it, respect localStorage or default
+        const savedTheme = localStorage.getItem('theme') as Theme | null;
+        setThemeState(savedTheme || 'light'); // Or check prefers-color-scheme
       }
+      setRcLoading(false);
+    };
+    initializeThemeFromRC();
+  }, []);
 
+  // Function to apply theme changes (add/remove 'dark' class, save to localStorage)
+  const setThemeState = (newTheme: Theme) => {
+    const root = window.document.documentElement;
+    const isDark = newTheme === 'dark';
 
-      
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-      console.log('Theme changed', theme);
+    root.classList.remove(isDark ? 'light' : 'dark');
+    root.classList.add(newTheme);
 
-
-    } catch (error) {
-      console.error("Error applying theme or accessing localStorage:", error);
-    }
-
-
-
-  }, [theme]); // Run this effect whenever the theme state changes
-
-  // Function to toggle the theme
-  const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    localStorage.setItem('theme', newTheme);
+    setTheme(newTheme);
   };
-  
-  const memoizedToggleTheme = useCallback(toggleTheme, []);
 
-  // Memoize the context value to prevent unnecessary re-renders
-  const value = useMemo(() => ({
-    theme, toggleTheme: memoizedToggleTheme
-  }), [theme, memoizedToggleTheme]);
+  // Toggle function, only works if enabled remotely
+  const toggleTheme = () => {
+    if (isDarkModeEnabledRemotely) {
+      setThemeState(theme === 'light' ? 'dark' : 'light');
+    } else {
+      console.warn("Dark mode toggling disabled by Remote Config.");
+      setThemeState('light'); // Ensure it stays light if disabled
+    }
+  };
+
+  // Function to set theme directly (used by RC check)
+  const setThemeExplicitly = (newTheme: Theme) => {
+    setThemeState(newTheme);
+  };
+
+  // Apply initial theme class on mount (after initial state is set)
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove(theme === 'light' ? 'dark' : 'light');
+    root.classList.add(theme);
+  }, [theme]); // Re-run if theme changes
+
+  // Don't render children until RC check is complete to avoid theme flash
+  if (rcLoading) {
+      // Optional: Render a minimal loading state or null
+      return null;
+  }
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={{ theme, isDarkModeEnabledRemotely, toggleTheme, setThemeExplicitly }}>
       {children}
     </ThemeContext.Provider>
   );
-}
+};
 
-// Custom hook to easily consume the ThemeContext
-export function useTheme(): ThemeContextType {
+export const useTheme = (): ThemeContextProps => {
   const context = useContext(ThemeContext);
-  if (context === null) {
+  if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider');
   }
   return context;
-}
+};

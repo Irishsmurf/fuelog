@@ -31,6 +31,12 @@ interface Log extends FuelLogData {
     id: string;
 }
 
+interface ProcessedLog extends Omit<Log, 'distanceKm'> {
+    distanceKm: number; // Ensure distanceKm is always a number for display/calculation components
+    // odometerKm remains optional as it might not always be present/relevant for display
+    odometerKm?: number;
+}
+
 // Defines the structure of data points prepared specifically for the Recharts library
 interface ChartDataPoint {
     date: string;
@@ -63,5 +69,6 @@ export type {
     ChartDataPoint, 
     ViewMode, 
     EditFormData, 
-    EditingLogState
+    EditingLogState,
+    ProcessedLog
 };

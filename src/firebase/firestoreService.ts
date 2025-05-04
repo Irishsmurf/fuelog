@@ -61,22 +61,34 @@ export const fetchVehicles = async (): Promise<Vehicle[]> => {
 
 export const addVehicle = async (vehicleData: Omit<Vehicle, 'id' | 'userId' | 'lastOdometerKm'>): Promise<string | null> => {
     if (!auth.currentUser) {
-        console.error("No user logged in");
-        return null;
+      console.error("No user logged in");
+      return null;
     }
-
+  
+    // Construct the data object EXACTLY matching the allowed fields in security rules
+    const dataToSend = {
+        registrationPlate: vehicleData.registrationPlate,
+        make: vehicleData.make,
+        model: vehicleData.model,
+        fuelType: vehicleData.fuelType,
+        initialOdometerKm: vehicleData.initialOdometerKm,
+        // Initialize lastOdometerKm based on initial reading
+        lastOdometerKm: vehicleData.initialOdometerKm,
+        // Add the userId
+        userId: auth.currentUser.uid,
+        // DO NOT include 'currentOdometerKm' or other extra fields here
+    };
+  
+  
     try {
-        const docRef = await addDoc(collection(db, 'vehicles'), {
-            ...vehicleData,
-            userId: auth.currentUser.uid,
-            lastOdometerKm: vehicleData.initialOdometerKm, // Initialize last reading
-            // Add a timestamp if you want to know when it was added
-            // createdAt: Timestamp.now()
-        });
-        console.log("Vehicle added with ID: ", docRef.id);
-        return docRef.id; // Return the new document ID
+      // Add the correctly structured data object to the 'vehicles' collection
+      const docRef = await addDoc(collection(db, 'vehicles'), dataToSend);
+      console.log("Vehicle added with ID: ", docRef.id);
+      return docRef.id; // Return the new document ID
     } catch (error) {
-        console.error("Error adding vehicle: ", error);
-        return null;
+      console.error("Error adding vehicle: ", error);
+      // Log the data that failed if needed for debugging
+      // console.error("Data attempted:", dataToSend);
+      return null;
     }
-};
+  };

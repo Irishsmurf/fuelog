@@ -1,17 +1,17 @@
 // src/pages/QuickLogPage.tsx (or similar component name)
-import React, { useState, useEffect, FormEvent, useCallback } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Timestamp, addDoc, collection, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase/config'; // Adjust path
 import { useAuth } from '../context/AuthContext'; // Adjust path
 import { useVehicle } from '../context/VehicleContext'; // Import the vehicle context hook
-import { FuelLogData, Log } from '../utils/types'; // Adjust path
+import { FuelLogData } from '../utils/types'; // Adjust path
 import { Fuel, Droplet, MapPin, Milestone, Gauge } from 'lucide-react'; // Example icons
 import VehicleSelector from '../components/VehicleSelector';
 
 const QuickLogPage: React.FC = () => {
     const { user } = useAuth();
     // Get vehicle state and functions from the context
-    const { vehicles, selectedVehicle, setSelectedVehicleById, isLoadingVehicles, vehicleError } = useVehicle();
+    const { selectedVehicle, isLoadingVehicles } = useVehicle();
 
     // Form state
     const [brand, setBrand] = useState('');

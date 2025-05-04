@@ -1,5 +1,5 @@
 import { JSX } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 import Navbar from './NavBar';
 

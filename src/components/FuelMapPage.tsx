@@ -95,7 +95,7 @@ const FuelMapPage: React.FC = () => {
                   <p><strong>Brand:</strong> {log.brand || 'N/A'}</p>
                   <p><strong>Cost:</strong> €{log.cost.toFixed(2)}</p>
                   <p><strong>Litres:</strong> {log.fuelAmountLiters.toFixed(2)} L</p>
-                  <p><strong>Distance:</strong> {log.distanceKm.toFixed(1)} km</p>
+                  <p><strong>Distance:</strong> {log.distanceKm !== undefined ? log.distanceKm.toFixed(1) : 'N/A'} km</p>
                 </div>
               </Popup>
             </Marker>

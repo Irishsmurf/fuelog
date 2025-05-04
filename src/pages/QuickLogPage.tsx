@@ -1,193 +1,378 @@
-// src/pages/QuickLogPage.tsx
-import React, { JSX, useState, ChangeEvent, FormEvent, useEffect } from 'react';
-import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
-import { db } from '../firebase/config';
-import { useAuth } from '../context/AuthContext';
+// src/pages/QuickLogPage.tsx (or similar component name)
+import React, { useState, FormEvent } from 'react';
+import { Timestamp, addDoc, collection, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase/config'; // Adjust path
+import { useAuth } from '../context/AuthContext'; // Adjust path
+import { useVehicle } from '../context/VehicleContext'; // Import the vehicle context hook
+import { FuelLogData } from '../utils/types'; // Adjust path
+import { Fuel, Droplet, MapPin, Milestone, Gauge } from 'lucide-react'; // Example icons
+import VehicleSelector from '../components/VehicleSelector';
 
-// Types
-type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
-interface MessageState {
-  type: MessageType;
-  text: string;
-}
-// Type for location data we want to store
-interface LocationData {
-    latitude: number;
-    longitude: number;
-    locationAccuracy: number;
-}
+const QuickLogPage: React.FC = () => {
+    const { user } = useAuth();
+    // Get vehicle state and functions from the context
+    const { selectedVehicle, isLoadingVehicles } = useVehicle();
 
+    // Form state
+    const [brand, setBrand] = useState('');
+    const [cost, setCost] = useState('');
+    const [fuelAmountLiters, setFuelAmountLiters] = useState('');
+    // Mileage input state
+    const [mileageInputMethod, setMileageInputMethod] = useState<'distance' | 'odometer'>('distance');
+    const [distanceKm, setDistanceKm] = useState('');
+    const [odometerKm, setOdometerKm] = useState('');
+    // Location state
+    const [isGettingLocation, setIsGettingLocation] = useState(false);
+    const [locationError, setLocationError] = useState<string | null>(null);
+    const [currentLatitude, setCurrentLatitude] = useState<number | undefined>(undefined);
+    const [currentLongitude, setCurrentLongitude] = useState<number | undefined>(undefined);
+    const [locationAccuracy, setLocationAccuracy] = useState<number | undefined>(undefined);
+    // Submission state
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
-function QuickLogPage(): JSX.Element {
-  const { user } = useAuth();
-  const [brand, setBrand] = useState<string>('');
-  const [cost, setCost] = useState<string>('');
-  const [distanceKmInput, setDistanceKmInput] = useState<string>('');
-  const [fuelAmountLiters, setFuelAmountLiters] = useState<string>('');
-  const [isSaving, setIsSaving] = useState<boolean>(false); // Combined loading state
-  const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
-  const [knownBrands, setKnownBrands] = useState<string[]>([]);
-  const [isLoadingBrands, setIsLoadingBrands] = useState<boolean>(false);
-
-  // --- Fetch known brands effect (same as before) ---
-  useEffect(() => {
-    if (!user) { setKnownBrands([]); return; }
-    const fetchBrands = async () => {
-      setIsLoadingBrands(true);
-      try {
-        const q = query(collection(db, "fuelLogs"), where("userId", "==", user.uid));
-        const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(q);
-        const brands = new Set<string>();
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.brand && data.brand.toLowerCase() !== 'unknown') { brands.add(data.brand.trim()); }
-        });
-        const sortedBrands = Array.from(brands).sort((a, b) => a.localeCompare(b));
-        setKnownBrands(sortedBrands);
-      } catch (error) { console.error("Error fetching known brands:", error); }
-      finally { setIsLoadingBrands(false); }
+    // Reset form fields
+    const resetForm = () => {
+        setBrand('');
+        setCost('');
+        setFuelAmountLiters('');
+        setDistanceKm('');
+        setOdometerKm('');
+        // Keep mileageInputMethod? Or reset? setMileageInputMethod('distance');
+        setLocationError(null);
+        setSubmitError(null);
+        setSubmitSuccess(null);
+        setCurrentLatitude(undefined);
+        setCurrentLongitude(undefined);
+        setLocationAccuracy(undefined);
     };
-    fetchBrands();
-  }, [user]);
 
-  // --- Input Change Handler (same as before) ---
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => { setter(e.target.value); };
-
-  // --- Function to get Geolocation wrapped in a Promise ---
-  const getCurrentLocation = (): Promise<LocationData | null> => {
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        console.warn("Geolocation is not supported by this browser.");
-        resolve(null); // Resolve with null if API not available
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // Success: resolve with coordinates and accuracy
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            locationAccuracy: position.coords.accuracy,
-          });
-        },
-        (error) => {
-          // Error: log the error and resolve with null
-          console.warn(`Geolocation error (${error.code}): ${error.message}`);
-          resolve(null);
-        },
-        {
-          // Options: enable high accuracy, set timeout, max age
-          enableHighAccuracy: true, // Try for more accurate GPS reading
-          timeout: 10000, // 10 seconds timeout
-          maximumAge: 60000 // Accept cached position up to 1 minute old
+    // Get location handler
+    const handleGetLocation = () => {
+        if (!navigator.geolocation) {
+            setLocationError("Geolocation is not supported by your browser.");
+            return;
         }
-      );
-    });
-  };
+
+        setIsGettingLocation(true);
+        setLocationError(null);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setCurrentLatitude(position.coords.latitude);
+                setCurrentLongitude(position.coords.longitude);
+                setLocationAccuracy(position.coords.accuracy);
+                setIsGettingLocation(false);
+                console.log("Location acquired:", position.coords);
+            },
+            (error) => {
+                console.error("Geolocation error:", error);
+                setLocationError(`Failed to get location: ${error.message}`);
+                setIsGettingLocation(false);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 } // Options
+        );
+    };
+
+    // Firestore function to add the log (consider moving to firestoreService)
+    const addFuelLog = async (logData: FuelLogData): Promise<boolean> => {
+        try {
+            // Ensure no undefined values are passed (Firestore SDK might handle some, but explicit is safer)
+            const dataToSend = { ...logData };
+            Object.keys(dataToSend).forEach(key => {
+                if (dataToSend[key as keyof FuelLogData] === undefined) {
+                    delete dataToSend[key as keyof FuelLogData];
+                }
+            });
+
+            await addDoc(collection(db, 'fuelLogs'), dataToSend);
+            console.log("Fuel log added successfully.");
+            return true;
+        } catch (error) {
+            console.error("Error adding fuel log: ", error);
+            setSubmitError(`Error saving log: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            return false;
+        }
+    };
+
+     // Firestore function to update vehicle odometer (consider moving to firestoreService)
+     const updateVehicleOdometer = async (vehicleDocId: string, newOdometerReading: number): Promise<boolean> => {
+        if (!vehicleDocId) return false;
+        try {
+            const vehicleRef = doc(db, 'vehicles', vehicleDocId);
+            await updateDoc(vehicleRef, {
+                lastOdometerKm: newOdometerReading
+            });
+            console.log(`Vehicle ${vehicleDocId} odometer updated to ${newOdometerReading}`);
+            return true;
+        } catch (error) {
+            console.error(`Error updating odometer for vehicle ${vehicleDocId}:`, error);
+            // Don't necessarily block log submission, but log the error
+            setSubmitError(prev => prev ? `${prev}\nFailed to update vehicle odometer.` : "Failed to update vehicle odometer.");
+            return false;
+        }
+    };
+
+    // Form submission handler
+    const handleAddLog = async (e: FormEvent) => {
+        e.preventDefault();
+        setSubmitError(null);
+        setSubmitSuccess(null);
+
+        if (!user) {
+            setSubmitError("You must be logged in to add a log.");
+            return;
+        }
+        // Ensure a vehicle is selected
+        if (!selectedVehicle) {
+            setSubmitError("Please select a vehicle.");
+            return;
+        }
+        // Basic validation
+        const costVal = parseFloat(cost);
+        const litersVal = parseFloat(fuelAmountLiters);
+        // Parse values, NaN if invalid or empty
+        const distanceVal = mileageInputMethod === 'distance' ? parseFloat(distanceKm) : NaN;
+        const odometerVal = mileageInputMethod === 'odometer' ? parseFloat(odometerKm) : NaN;
+
+        if (isNaN(costVal) || costVal <= 0 || isNaN(litersVal) || litersVal <= 0) {
+            setSubmitError("Please enter valid positive numbers for Cost and Litres.");
+            return;
+        }
+        // Validate the relevant mileage field based on the selected method
+        if (mileageInputMethod === 'distance' && (isNaN(distanceVal) || distanceVal < 0)) {
+             setSubmitError("Please enter a valid non-negative number for Distance.");
+             return;
+        }
+         if (mileageInputMethod === 'odometer' && (isNaN(odometerVal) || odometerVal < selectedVehicle.lastOdometerKm)) {
+             setSubmitError(`Odometer reading must be a valid number and cannot be less than the last reading (${selectedVehicle.lastOdometerKm.toLocaleString()} km).`);
+             return;
+         }
 
 
-  // --- Form Submit Handler (Updated for Geolocation) ---
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Basic validation (same as before)
-    if (!user) { setMessage({ type: 'error', text: 'You must be logged in to save.' }); return; }
-    if (!cost || !distanceKmInput || !fuelAmountLiters) { setMessage({ type: 'error', text: 'Please fill in Cost, Distance, and Fuel Amount.' }); return; }
-    const parsedCost = parseFloat(cost); const parsedDistanceKm = parseFloat(distanceKmInput); const parsedFuel = parseFloat(fuelAmountLiters);
-    if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) { setMessage({ type: 'error', text: 'Cost, Distance (Km), and Fuel Amount must be valid positive numbers.' }); return; }
+        setIsSubmitting(true);
 
-    setIsSaving(true); // Indicate process started
-    setMessage({ type: 'info', text: 'Attempting to get location...' }); // New info message
+        // --- FIX: Conditionally build the data object ---
+        const newLogData: FuelLogData = {
+            userId: user.uid,
+            vehicleId: selectedVehicle.id,
+            timestamp: Timestamp.now(),
+            brand: brand.trim() || 'Unknown',
+            cost: costVal,
+            fuelAmountLiters: litersVal,
+            mileageInputMethod: mileageInputMethod,
+            // Only include fields if they have valid values
+            ...(currentLatitude !== undefined && { latitude: currentLatitude }),
+            ...(currentLongitude !== undefined && { longitude: currentLongitude }),
+            ...(locationAccuracy !== undefined && { locationAccuracy: locationAccuracy }),
+            ...(mileageInputMethod === 'distance' && !isNaN(distanceVal) && { distanceKm: distanceVal }),
+            ...(mileageInputMethod === 'odometer' && !isNaN(odometerVal) && { odometerKm: odometerVal }),
+        };
+        // --- End FIX ---
 
-    // --- Get Location ---
-    const locationData = await getCurrentLocation();
-    let locationMessage = "Location not captured."; // Default message if location fails
-    if (locationData) {
-        locationMessage = `Location captured (Accuracy: ${locationData.locationAccuracy.toFixed(0)}m).`;
-    } else if (!navigator.geolocation) {
-        locationMessage = "Location not supported by browser.";
-    }
-    // --- End Get Location ---
+        const logAdded = await addFuelLog(newLogData);
 
-    setMessage({ type: 'info', text: `${locationMessage} Saving log...` }); // Update message
+        let odometerUpdated = false;
+        if (logAdded) {
+            // If log added successfully, update the vehicle's odometer
+            let newOdometerReading: number | undefined;
+            // Use the validated numeric values directly
+            if (mileageInputMethod === 'odometer' && !isNaN(odometerVal)) {
+                newOdometerReading = odometerVal;
+            } else if (mileageInputMethod === 'distance' && !isNaN(distanceVal)) {
+                // Ensure distanceVal is treated as a number here
+                newOdometerReading = selectedVehicle.lastOdometerKm + distanceVal;
+            }
 
-    try {
-      // Prepare data object, including location if available
-      const logData: any = { // Use 'any' or define a more specific type including optional location
-        userId: user.uid,
-        timestamp: Timestamp.now(),
-        brand: brand.trim() || 'Unknown',
-        cost: parsedCost,
-        distanceKm: parsedDistanceKm,
-        fuelAmountLiters: parsedFuel,
-      };
-      if (locationData) {
-        logData.latitude = locationData.latitude;
-        logData.longitude = locationData.longitude;
-        logData.locationAccuracy = locationData.locationAccuracy;
-      }
+            if (newOdometerReading !== undefined) {
+                 odometerUpdated = await updateVehicleOdometer(selectedVehicle.id, newOdometerReading);
+                 // Optionally refresh vehicle context if update succeeded
+                 // if (odometerUpdated) { refreshVehicles(); } // Might cause quick re-render, consider if needed
+            } else {
+                odometerUpdated = true; // No update needed is also a "success"
+            }
+        }
 
-      // Save to Firestore
-      await addDoc(collection(db, "fuelLogs"), logData);
 
-      // Clear form on success
-      setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
-      setMessage({ type: 'success', text: `Log saved successfully! ${locationData ? '' : '(Location not captured)'}` }); // Indicate if location was missed
+        setIsSubmitting(false);
 
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      setMessage({ type: 'error', text: 'Error saving log. Please try again.' });
-    } finally {
-      setIsSaving(false); // Indicate process finished
-      setTimeout(() => setMessage({ type: '', text: '' }), 5000); // Longer timeout for message
-    }
-  };
+        if (logAdded && odometerUpdated) {
+            setSubmitSuccess("Fuel log added successfully!");
+            resetForm();
+            // Maybe navigate away or clear success message after a delay
+            setTimeout(() => setSubmitSuccess(null), 3000);
+        }
+        // Error message is set within addFuelLog or updateVehicleOdometer if they fail
+    };
 
-  // --- Render Logic ---
-  const messageStyle = message.type === 'error' ? 'text-red-600' : message.type === 'success' ? 'text-green-600' : 'text-blue-600'; // Blue for info
+    return (
+        <div className="container mx-auto p-4 md:p-6 max-w-lg">
+            <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-200">Quick Fuel Log</h1>
 
-  return (
-    <div className="container mx-auto max-w-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6 text-center">Log New Fuel Entry</h2>
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                {/* Brand Input with Datalist (same as before) */}
+            <form onSubmit={handleAddLog} className="space-y-5 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+
+                {/* Vehicle Selector */}
+                <VehicleSelector />
+
+                {/* Brand */}
                 <div>
-                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filling Station Brand <span className="text-gray-500 dark:text-gray-400 text-xs">(Optional)</span></label>
-                    <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder="e.g., Circle K, Maxol (start typing...)" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off"/>
-                    <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
-                </div>
-                {/* Cost Input (same as before) */}
-                <div>
-                    <label htmlFor="cost" className="block text-sm font-medium text-gray-700 mb-1">Total Cost (€) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="e.g., 65.50" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out" disabled={isSaving} aria-describedby="cost-description"/>
-                    <p id="cost-description" className="mt-1 text-xs text-gray-500">Enter the total amount paid.</p>
-                </div>
-                 {/* Distance Input (same as before) */}
-                <div>
-                    <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Distance Covered (Km) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="e.g., 500.5" step="0.1" min="0.1" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="distance-description"/>
-                    <p id="distance-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Kilometers driven since last fill-up.</p>
-                </div>
-                {/* Fuel Amount Input (same as before) */}
-                <div className="pb-2">
-                    <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuel Added (Litres) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="e.g., 42.80" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="fuel-description"/>
-                    <p id="fuel-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Amount of fuel added, in Litres.</p>
+                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filling Station Brand</label>
+                    <input
+                        type="text"
+                        id="brand"
+                        value={brand}
+                        onChange={(e) => setBrand(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-200"
+                        placeholder="e.g., Circle K, Maxol"
+                        list="brand-suggestions"
+                    />
+                    {/* Add datalist for suggestions if needed */}
                 </div>
 
-                {/* Submit Button - Text updates based on state */}
-                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
-                    {isSaving ? (message.text.includes('location') ? 'Getting Location...' : 'Saving...') : 'Save Fuel Log'}
-                </button>
+                {/* Cost */}
+                <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                     <span className="pl-3 pr-2 text-gray-500 dark:text-gray-400">€</span>
+                    <input
+                        type="number"
+                        id="cost"
+                        value={cost}
+                        onChange={(e) => setCost(e.target.value)}
+                        required
+                        min="0.01"
+                        step="0.01"
+                        className="flex-1 px-1 py-2 border-0 rounded-r-md focus:ring-0 dark:bg-gray-700 dark:text-gray-200"
+                        placeholder="Total Cost"
+                    />
+                </div>
 
-                {/* Feedback Message */}
-                {message.text && ( <p className={`mt-4 text-center text-sm ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>{message.text}</p> )}
+                {/* Fuel Amount */}
+                 <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                     <span className="pl-3 pr-2 text-gray-500 dark:text-gray-400"><Droplet size={16}/></span>
+                    <input
+                        type="number"
+                        id="fuelAmountLiters"
+                        value={fuelAmountLiters}
+                        onChange={(e) => setFuelAmountLiters(e.target.value)}
+                        required
+                        min="0.01"
+                        step="0.01"
+                        className="flex-1 px-1 py-2 border-0 focus:ring-0 dark:bg-gray-700 dark:text-gray-200"
+                        placeholder="Fuel Added"
+                    />
+                     <span className="px-3 text-gray-500 dark:text-gray-400">Litres</span>
+                </div>
+
+                {/* Mileage Input Method Toggle */}
+                <div className="pt-2">
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mileage Input Method</label>
+                     <div className="flex rounded-md shadow-sm">
+                        <button
+                            type="button"
+                            onClick={() => setMileageInputMethod('distance')}
+                            className={`flex-1 py-2 px-4 text-sm font-medium rounded-l-md focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:outline-none ${mileageInputMethod === 'distance' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500'}`}
+                        >
+                            <Milestone size={16} className="inline mr-1" /> Distance Driven
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setMileageInputMethod('odometer')}
+                            className={`flex-1 py-2 px-4 text-sm font-medium rounded-r-md focus:z-10 focus:ring-2 focus:ring-indigo-500 focus:outline-none ${mileageInputMethod === 'odometer' ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-500 border border-gray-300 dark:border-gray-500 -ml-px'}`}
+                        >
+                           <Gauge size={16} className="inline mr-1" /> Odometer Reading
+                        </button>
+                     </div>
+                </div>
+
+                {/* Conditional Mileage Input */}
+                {mileageInputMethod === 'distance' ? (
+                    <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                        <span className="pl-3 pr-2 text-gray-500 dark:text-gray-400"><Milestone size={16}/></span>
+                        <input
+                            type="number"
+                            id="distanceKm"
+                            value={distanceKm}
+                            onChange={(e) => setDistanceKm(e.target.value)}
+                            required={mileageInputMethod === 'distance'} // Only require if this method is selected
+                            min="0"
+                            step="0.1"
+                            className="flex-1 px-1 py-2 border-0 focus:ring-0 dark:bg-gray-700 dark:text-gray-200"
+                            placeholder="Distance Since Last Fill"
+                        />
+                        <span className="px-3 text-gray-500 dark:text-gray-400">km</span>
+                    </div>
+                ) : (
+                     <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                        <span className="pl-3 pr-2 text-gray-500 dark:text-gray-400"><Gauge size={16}/></span>
+                        <input
+                            type="number"
+                            id="odometerKm"
+                            value={odometerKm}
+                            onChange={(e) => setOdometerKm(e.target.value)}
+                            required={mileageInputMethod === 'odometer'} // Only require if this method is selected
+                            min={selectedVehicle ? selectedVehicle.lastOdometerKm : 0} // Prevent going backwards
+                            step="0.1"
+                            className="flex-1 px-1 py-2 border-0 focus:ring-0 dark:bg-gray-700 dark:text-gray-200"
+                            placeholder={`Current Odometer (last: ${selectedVehicle?.lastOdometerKm.toLocaleString() ?? 'N/A'})`}
+                            disabled={!selectedVehicle} // Disable if no vehicle selected
+                        />
+                         <span className="px-3 text-gray-500 dark:text-gray-400">km</span>
+                    </div>
+                )}
+
+                {/* Location */}
+                <div className="pt-2">
+                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Location (Optional)</label>
+                     <button
+                        type="button"
+                        onClick={handleGetLocation}
+                        disabled={isGettingLocation}
+                        className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
+                     >
+                        {isGettingLocation ? (
+                             <>
+                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                Getting Location...
+                             </>
+                        ) : currentLatitude ? (
+                             <>
+                                <MapPin size={16} className="mr-2 text-green-500" /> Location Acquired (Accuracy: {locationAccuracy?.toFixed(0)}m)
+                             </>
+                        ) : (
+                             <>
+                                <MapPin size={16} className="mr-2" /> Get Current Location
+                             </>
+                        )}
+                     </button>
+                     {locationError && <p className="text-red-500 text-xs mt-1">{locationError}</p>}
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-3">
+                    <button
+                        type="submit"
+                        disabled={isSubmitting || !selectedVehicle || isLoadingVehicles} // Disable if submitting or no vehicle selected/loading
+                        className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 dark:focus:ring-offset-gray-800"
+                    >
+                        {isSubmitting ? (
+                             <>
+                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                Submitting...
+                             </>
+                        ) : (
+                            <>
+                                <Fuel size={18} className="mr-2" /> Add Fuel Log
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                {/* Status Messages */}
+                {submitError && <p className="text-red-600 dark:text-red-400 text-sm mt-2 text-center">{submitError}</p>}
+                {submitSuccess && <p className="text-green-600 dark:text-green-400 text-sm mt-2 text-center">{submitSuccess}</p>}
+
             </form>
         </div>
-    </div>
-  );
-}
+    );
+};
 
 export default QuickLogPage;

@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext'; // Adjust path
 import { useVehicle } from '../context/VehicleContext'; // Import the vehicle context hook
 import { FuelLogData, Log } from '../utils/types'; // Adjust path
 import { Fuel, Droplet, MapPin, Milestone, Gauge } from 'lucide-react'; // Example icons
+import VehicleSelector from '../components/VehicleSelector';
 
 const QuickLogPage: React.FC = () => {
     const { user } = useAuth();
@@ -71,12 +72,6 @@ const QuickLogPage: React.FC = () => {
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 } // Options
         );
-    };
-
-    // Handle vehicle selection change
-    const handleVehicleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const vehicleId = event.target.value;
-        setSelectedVehicleById(vehicleId || null); // Update context
     };
 
     // Firestore function to add the log (consider moving to firestoreService)
@@ -217,37 +212,7 @@ const QuickLogPage: React.FC = () => {
             <form onSubmit={handleAddLog} className="space-y-5 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
 
                 {/* Vehicle Selector */}
-                <div>
-                    <label htmlFor="vehicleSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        Select Vehicle <span className="text-red-500">*</span>
-                    </label>
-                    {isLoadingVehicles ? (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Loading vehicles...</p>
-                    ) : vehicleError ? (
-                         <p className="text-sm text-red-500">{vehicleError}</p>
-                    ) : (
-                        <select
-                            id="vehicleSelect"
-                            value={selectedVehicle?.id || ''} // Use selected vehicle from context
-                            onChange={handleVehicleChange} // Update context on change
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-gray-200 disabled:opacity-50 disabled:bg-gray-100 dark:disabled:bg-gray-700"
-                            disabled={vehicles.length === 0}
-                        >
-                            <option value="" disabled>
-                                {vehicles.length === 0 ? 'No vehicles found' : '-- Select a Vehicle --'}
-                            </option>
-                            {vehicles.map((vehicle) => (
-                                <option key={vehicle.id} value={vehicle.id}>
-                                    {vehicle.make} {vehicle.model} ({vehicle.registrationPlate})
-                                </option>
-                            ))}
-                        </select>
-                    )}
-                     {vehicles.length === 0 && !isLoadingVehicles && !vehicleError && (
-                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Go to 'Manage Vehicles' to add one.</p>
-                     )}
-                </div>
+                <VehicleSelector />
 
                 {/* Brand */}
                 <div>

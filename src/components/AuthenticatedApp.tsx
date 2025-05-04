@@ -1,12 +1,8 @@
 import { JSX } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
-import QuickLogPage from '../pages/QuickLogPage';
-import HistoryPage from '../pages/HistoryPage';
-import ImportPage from '../pages/ImportPage';
-import PrivacyPolicyPage from '../pages/PrivacyPolicyPage';
-import FuelMapPage from './FuelMapPage';
-import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import AppRoutes from './AppRoutes';
 
 
 /** Main authenticated app component */
@@ -36,6 +32,7 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
             <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
+            <Link to="/vehicles" className={getNavLinkClass("/vehicles")}>Vehicles</Link>
 
             {/* Theme Toggle Button */}
             <ThemeToggle />
@@ -56,14 +53,7 @@ function AuthenticatedApp(): JSX.Element {
       </header>
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Routes remain the same */}
-        <Routes>
-          <Route path="/" element={<QuickLogPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/import" element={<ImportPage />} />
-          <Route path="/privacy" element={<PrivacyPolicyPage />} />
-          <Route path="/map" element={<FuelMapPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <AppRoutes />
       </main>
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8 py-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">

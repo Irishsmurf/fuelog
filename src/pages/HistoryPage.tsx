@@ -34,7 +34,14 @@ function HistoryPage(): JSX.Element {
     // --- State for Edit Modal ---
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Controls visibility of the edit modal
     const [editingLog, setEditingLog] = useState<EditingLogState>(null); // Stores the full log object being edited
-    const [editFormData, setEditFormData] = useState<EditFormData>({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '' }); // Holds the current values in the edit form inputs
+    const [editFormData, setEditFormData] = useState<EditFormData>({
+        brand: '',
+        cost: '',
+        distanceKm: '',
+        fuelAmountLiters: '',
+        mileageInputMethod: '', // Provide a default value for mileageInputMethod
+        vehicleId: '' // Provide a default value for vehicleId
+    }); // Holds the current values in the edit form inputs
     const [isUpdating, setIsUpdating] = useState<boolean>(false); // Tracks if an update operation is in progress
     const [modalError, setModalError] = useState<string | null>(null); // Stores error messages specific to the edit modal form
 
@@ -125,9 +132,9 @@ function HistoryPage(): JSX.Element {
         return sortedLogs.map(log => ({
             date: log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit' }) ?? 'N/A',
             timestampValue: log.timestamp?.toMillis(),
-            mpg: getNumericMPG(log.distanceKm, log.fuelAmountLiters),
-            cost: log.cost > 0 ? log.cost : null,
-            fuelPrice: getNumericFuelPrice(log.cost, log.fuelAmountLiters)
+            mpg: getNumericMPG(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0),
+            cost: log.cost ?? null,
+            fuelPrice: getNumericFuelPrice(log.cost ?? 0, log.fuelAmountLiters ?? 0)
         }));
     }, [filteredLogs]); // Recalculate only when filteredLogs change
 
@@ -141,8 +148,10 @@ function HistoryPage(): JSX.Element {
         const dataRows = filteredLogs.map(log => { // Use filteredLogs here
             const dateStr = log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit' }) ?? ''; const brandStr = log.brand?.replace(/\t|\n|\r/g, ' ') ?? '';
             const costStr = log.cost?.toFixed(2) ?? ''; const distanceKmStr = log.distanceKm?.toFixed(1) ?? ''; const fuelLitersStr = log.fuelAmountLiters?.toFixed(2) ?? '';
-            const kmLStr = formatKmL(log.distanceKm, log.fuelAmountLiters); const l100kmStr = formatL100km(log.distanceKm, log.fuelAmountLiters);
-            const mpgStr = formatMPG(log.distanceKm, log.fuelAmountLiters); const costPerMileStr = formatCostPerMile(log.cost, log.distanceKm).replace('€', '');
+            const kmLStr = formatKmL(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0);
+            const l100kmStr = formatL100km(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0);
+            const mpgStr = formatMPG(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0);
+            const costPerMileStr = formatCostPerMile(log.cost ?? 0, log.distanceKm ?? 0).replace('€', '');
             return [dateStr, brandStr, costStr, distanceKmStr, fuelLitersStr, kmLStr, l100kmStr, mpgStr, costPerMileStr].join('\t');
         });
         const tsvString = [headers, ...dataRows].join('\n');
@@ -172,16 +181,27 @@ function HistoryPage(): JSX.Element {
     const handleOpenEditModal = (log: Log) => {
         setEditingLog(log);
         setEditFormData({
-            brand: log.brand || '', cost: log.cost?.toString() || '',
-            distanceKm: log.distanceKm?.toString() || '', fuelAmountLiters: log.fuelAmountLiters?.toString() || ''
+            brand: log.brand || '', 
+            cost: log.cost?.toString() || '',
+            distanceKm: log.distanceKm?.toString() || '', 
+            fuelAmountLiters: log.fuelAmountLiters?.toString() || '',
+            mileageInputMethod: log.mileageInputMethod || '', 
+            vehicleId: log.vehicleId || ''
         });
         setModalError(null); setIsModalOpen(true);
     };
-
+        setEditFormData({ 
+            brand: '', 
+            cost: '', 
+            distanceKm: '', 
+            fuelAmountLiters: '', 
+            mileageInputMethod: '', 
+            vehicleId: '' 
+        });
     /** Closes the edit modal and resets state. */
     const handleCloseModal = () => {
         setIsModalOpen(false); setEditingLog(null);
-        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '' });
+        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', mileageInputMethod: '', vehicleId: '' });
         setModalError(null); setIsUpdating(false);
     };
 
@@ -306,10 +326,10 @@ function HistoryPage(): JSX.Element {
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.cost?.toFixed(2)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.distanceKm?.toFixed(1)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.fuelAmountLiters?.toFixed(2)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{formatCostPerMile(log.cost, log.distanceKm)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatKmL(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatL100km(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatMPG(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{formatCostPerMile(log.cost ?? 0, log.distanceKm ?? 0)}</td>
                                             {/* Actions Cell with Edit/Delete Buttons */}
                                             <td className="px-3 py-3 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                                 <button

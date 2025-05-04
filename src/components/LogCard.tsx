@@ -1,9 +1,8 @@
 // src/components/LogCard.tsx
 import { JSX } from 'react';
-import { Timestamp } from 'firebase/firestore';
+import { Log } from '../utils/types'; // Assuming you have a types file for your Log type
 
 // --- Replicated Types & Functions (Should be moved to shared utils) ---
-interface Log { id: string; userId: string; timestamp: Timestamp; brand: string; cost: number; distanceKm: number; fuelAmountLiters: number; latitude?: number; longitude?: number; locationAccuracy?: number; }
 const LITRES_TO_UK_GALLONS = 4.54609; const KM_TO_MILES = 1 / 1.60934;
 const formatMPG = (distanceKm: number, fuelAmountLiters: number): string => { if (!distanceKm || distanceKm <= 0 || !fuelAmountLiters || fuelAmountLiters <= 0) return 'N/A'; try { const distanceMiles = distanceKm * KM_TO_MILES; const gallonsUK = fuelAmountLiters / LITRES_TO_UK_GALLONS; const mpg = distanceMiles / gallonsUK; return mpg.toFixed(2); } catch { return 'Error'; } };
 const formatCostPerMile = (cost: number, distanceKm: number): string => { if (!cost || cost <= 0 || !distanceKm || distanceKm <= 0) return 'N/A'; try { const distanceMiles = distanceKm * KM_TO_MILES; const costPerMile = cost / distanceMiles; return `€${costPerMile.toFixed(3)}`; } catch { return 'Error'; } };
@@ -37,14 +36,14 @@ function LogCard({ log, onEdit, onDelete }: LogCardProps): JSX.Element {
 
       {/* Card Body - Data Rows (styles handled by renderDataRow) */}
       <div className="space-y-1">
-        {renderDataRow("Cost", log.cost?.toFixed(2), " €")}
-        {renderDataRow("Distance", log.distanceKm?.toFixed(1), " Km")}
-        {renderDataRow("Fuel", log.fuelAmountLiters?.toFixed(2), " L")}
+        {renderDataRow("Cost", log.cost?.toFixed(2) ?? "0.00", " €")}
+        {renderDataRow("Distance", log.distanceKm?.toFixed(1) ?? "0.0", " Km")}
+        {renderDataRow("Fuel", log.fuelAmountLiters?.toFixed(2) ?? "0.00", " L")}
         <hr className="my-2 border-gray-100 dark:border-gray-700"/> {/* Separator */}
-        {renderDataRow("km/L", formatKmL(log.distanceKm, log.fuelAmountLiters))}
-        {renderDataRow("L/100km", formatL100km(log.distanceKm, log.fuelAmountLiters))}
-        {renderDataRow("MPG (UK)", formatMPG(log.distanceKm, log.fuelAmountLiters))}
-        {renderDataRow("Cost/Mile", formatCostPerMile(log.cost, log.distanceKm))}
+        {renderDataRow("km/L", formatKmL(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0))}
+        {renderDataRow("L/100km", formatL100km(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0))}
+        {renderDataRow("MPG (UK)", formatMPG(log.distanceKm ?? 0, log.fuelAmountLiters ?? 0))}
+        {renderDataRow("Cost/Mile", formatCostPerMile(log.cost ?? 0, log.distanceKm ?? 0))}
       </div>
 
       {/* Card Footer - Actions - Add dark mode hover colors */}

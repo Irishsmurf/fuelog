@@ -1,18 +1,33 @@
 import { Timestamp } from 'firebase/firestore';
 
+interface Vehicle {
+    id: string;
+    registrationPlate: string;
+    userId: string;
+    make: string;
+    model: string;
+    fuelType: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid' | 'Other';
+    initialOdometerKm: number;
+    currentOdometerKm: number;
+    lastOdometerKm: number;
+}
+
 interface FuelLogData {
     userId: string;
+    vehicleId: string;
     timestamp: Timestamp;
     brand: string;
     cost: number;
-    distanceKm: number;
+    distanceKm?: number;
+    odometerKm?: number;
+    mileageInputMethod?: 'distance' | 'odometer';
     fuelAmountLiters: number;
     latitude?: number;
     longitude?: number;
     locationAccuracy?: number;
-  }
+}
 
-  interface Log extends FuelLogData {
+interface Log extends FuelLogData {
     id: string;
 }
 
@@ -23,6 +38,7 @@ interface ChartDataPoint {
     mpg: number | null;
     cost: number | null;
     fuelPrice: number | null;
+    vehicleId?: string;
 }
 // Type for the state holding the specific log currently being edited in the modal
 type EditingLogState = Log | null;
@@ -30,11 +46,22 @@ type EditingLogState = Log | null;
 interface EditFormData {
     brand: string;
     cost: string;
-    distanceKm: string;
     fuelAmountLiters: string;
+    odometerKm?: string;
+    distanceKm?: string;
+    mileageInputMethod: 'distance' | 'odometer' | '';
+    vehicleId: string;
 }
 // Type for view mode state
 type ViewMode = 'table' | 'cards';
 
 
-export type { FuelLogData, Log, ChartDataPoint, ViewMode, EditFormData, EditingLogState };
+export type {
+    Vehicle,
+    FuelLogData, 
+    Log, 
+    ChartDataPoint, 
+    ViewMode, 
+    EditFormData, 
+    EditingLogState
+};

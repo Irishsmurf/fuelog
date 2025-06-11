@@ -6,6 +6,7 @@ import HistoryPage from '../pages/HistoryPage';
 import ImportPage from '../pages/ImportPage';
 import PrivacyPolicyPage from '../pages/PrivacyPolicyPage';
 import FuelMapPage from './FuelMapPage';
+import VehiclesPage from '../pages/VehiclesPage'; // Adjust path if necessary
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 
 
@@ -36,6 +37,7 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
             <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
+            <Link to="/vehicles" className={getNavLinkClass("/vehicles")}>My Vehicles</Link>
 
             {/* Theme Toggle Button */}
             <ThemeToggle />
@@ -62,6 +64,7 @@ function AuthenticatedApp(): JSX.Element {
           <Route path="/import" element={<ImportPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/map" element={<FuelMapPage />} />
+          <Route path="/vehicles" element={<VehiclesPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

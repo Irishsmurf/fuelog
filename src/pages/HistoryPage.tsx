@@ -14,9 +14,11 @@ import {
 } from 'recharts';
 // Import the LogCard component
 import LogCard from '../components/LogCard'; // Adjust path if necessary
-import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode } from '../utils/types';
+import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode, Vehicle } from '../utils/types'; // Added Vehicle
+import { fetchUserVehicles } from '../firebase/firestoreService'; // Added
 import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
 import { useTheme } from '../context/ThemeContext';
+import { Link } from 'react-router-dom'; // For linking to vehicles page if none exist
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -43,6 +45,11 @@ function HistoryPage(): JSX.Element {
     const [filterEndDate, setFilterEndDate] = useState<string>('');     // Format: YYYY-MM-DD
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
     const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
+    const [userVehiclesMap, setUserVehiclesMap] = useState<Map<string, string>>(new Map()); // New: Map vehicleId to name
+    const [userVehicles, setUserVehicles] = useState<Vehicle[]>([]); // New: For filter dropdown
+    const [filterVehicleId, setFilterVehicleId] = useState<string>(''); // New: For vehicle filter
+    const [isLoadingVehicles, setIsLoadingVehicles] = useState<boolean>(true); // New
+
 
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
@@ -84,7 +91,35 @@ function HistoryPage(): JSX.Element {
         return () => unsubscribe();
     }, [user]); // Dependency array ensures effect runs when user changes
 
-    // --- Filtering Logic using useMemo ---
+
+    // --- Effect for fetching vehicles ---
+    useEffect(() => {
+        if (!user) {
+            setUserVehicles([]);
+            setUserVehiclesMap(new Map());
+            setIsLoadingVehicles(false);
+            return;
+        }
+        setIsLoadingVehicles(true);
+        const loadUserVehicles = async () => {
+            try {
+                const vehicles = await fetchUserVehicles();
+                setUserVehicles(vehicles); // For the filter dropdown
+                const vehicleMap = new Map<string, string>();
+                vehicles.forEach(v => vehicleMap.set(v.id, v.name));
+                setUserVehiclesMap(vehicleMap);
+            } catch (err) {
+                console.error("Error fetching user vehicles for history:", err);
+                // Optionally set an error state for vehicles
+            } finally {
+                setIsLoadingVehicles(false);
+            }
+        };
+        loadUserVehicles();
+    }, [user]);
+
+
+    // --- Filtering Logic using useMemo (updated) ---
     // Creates a memoized array of logs based on the current filter state.
     // This avoids re-filtering on every render unless logs or filters change.
     const filteredLogs = useMemo(() => {
@@ -113,8 +148,17 @@ function HistoryPage(): JSX.Element {
             tempLogs = tempLogs.filter(log => log.brand === filterBrand);
         }
 
+        // Filter by Vehicle ID
+        if (filterVehicleId) {
+            tempLogs = tempLogs.filter(log => log.vehicleId === filterVehicleId);
+        }
+        // If filterVehicleId is "" (All Vehicles), no specific vehicle filter is applied.
+        // However, if you want to filter logs that DON'T have a vehicleId when "All Vehicles" isn't explicitly chosen,
+        // you might need more complex logic here or a different filter option like "Logs with no vehicle".
+        // For now, "" means no vehicle filtering. Logs without vehicleId will appear unless a specific vehicle is chosen.
+
         return tempLogs; // Return the filtered array
-    }, [logs, filterStartDate, filterEndDate, filterBrand]); // Dependencies for recalculation
+    }, [logs, filterStartDate, filterEndDate, filterBrand, filterVehicleId]); // Added filterVehicleId
 
     // --- Prepare Chart Data (Uses filteredLogs) ---
     // Memoized calculation for chart data based on the *filtered* logs.
@@ -137,13 +181,17 @@ function HistoryPage(): JSX.Element {
         if (!filteredLogs || filteredLogs.length === 0) { setCopyStatus('No data'); setTimeout(() => setCopyStatus('Copy Table Data'), 2000); return; }
         if (!navigator.clipboard || !navigator.clipboard.writeText) { setCopyStatus('Clipboard unavailable'); setTimeout(() => setCopyStatus('Copy Table Data'), 3000); console.error('Clipboard API not available.'); return; }
         setCopyStatus('Copying...');
-        const headers = ["Date", "Brand", "Cost (€)", "Distance (Km)", "Fuel (L)", "km/L", "L/100km", "MPG (UK)", "Cost/Mile"].join('\t');
+        // Add "Vehicle" to headers
+        const headers = ["Date", "Vehicle", "Brand", "Cost (€)", "Distance (Km)", "Fuel (L)", "km/L", "L/100km", "MPG (UK)", "Cost/Mile"].join('\t');
         const dataRows = filteredLogs.map(log => { // Use filteredLogs here
-            const dateStr = log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit' }) ?? ''; const brandStr = log.brand?.replace(/\t|\n|\r/g, ' ') ?? '';
+            const dateStr = log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit' }) ?? '';
+            const vehicleName = log.vehicleId ? userVehiclesMap.get(log.vehicleId) || 'N/A' : 'N/A';
+            const brandStr = log.brand?.replace(/\t|\n|\r/g, ' ') ?? '';
             const costStr = log.cost?.toFixed(2) ?? ''; const distanceKmStr = log.distanceKm?.toFixed(1) ?? ''; const fuelLitersStr = log.fuelAmountLiters?.toFixed(2) ?? '';
             const kmLStr = formatKmL(log.distanceKm, log.fuelAmountLiters); const l100kmStr = formatL100km(log.distanceKm, log.fuelAmountLiters);
             const mpgStr = formatMPG(log.distanceKm, log.fuelAmountLiters); const costPerMileStr = formatCostPerMile(log.cost, log.distanceKm).replace('€', '');
-            return [dateStr, brandStr, costStr, distanceKmStr, fuelLitersStr, kmLStr, l100kmStr, mpgStr, costPerMileStr].join('\t');
+            // Add vehicleName to the row data
+            return [dateStr, vehicleName, brandStr, costStr, distanceKmStr, fuelLitersStr, kmLStr, l100kmStr, mpgStr, costPerMileStr].join('\t');
         });
         const tsvString = [headers, ...dataRows].join('\n');
         try { await navigator.clipboard.writeText(tsvString); setCopyStatus('Copied!'); } catch (err) { console.error('Failed to copy data to clipboard:', err); setCopyStatus('Copy Failed!'); } finally { setTimeout(() => setCopyStatus('Copy Table Data'), 2000); }
@@ -220,7 +268,8 @@ function HistoryPage(): JSX.Element {
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                 <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3">Filters</h3>
                 {/* Grid layout for filter controls */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end ">
+                {/* --- Filter Controls Section (updated) --- */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end "> {/* Adjusted grid for new filter */}
                     {/* Start Date Input */}
                     <div>
                         <label htmlFor="filterStartDate" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Start Date</label>
@@ -234,11 +283,35 @@ function HistoryPage(): JSX.Element {
                     {/* Brand Select Dropdown */}
                     <div>
                         <label htmlFor="filterBrand" className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
-                        <select id="filterBrand" value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300 appearance-none"> {/* Added appearance-none */}
+                        <select id="filterBrand" value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300 appearance-none">
                             <option value="">All Brands</option>
-                            {/* Populate options from uniqueBrands state */}
                             {uniqueBrands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
                         </select>
+                    </div>
+                    {/* Vehicle Filter Dropdown */}
+                    <div>
+                        <label htmlFor="filterVehicle" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Vehicle</label>
+                        <select
+                            id="filterVehicle"
+                            value={filterVehicleId}
+                            onChange={(e) => setFilterVehicleId(e.target.value)}
+                            className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300 appearance-none"
+                            disabled={isLoadingVehicles || userVehicles.length === 0}
+                        >
+                            <option value="">All Vehicles</option>
+                            {userVehicles.map(vehicle => (
+                                <option key={vehicle.id} value={vehicle.id}>
+                                    {vehicle.name} ({vehicle.make} {vehicle.model})
+                                </option>
+                            ))}
+                        </select>
+                        {isLoadingVehicles && <p className="text-xs text-gray-500 dark:text-gray-400">Loading vehicles...</p>}
+                         {!isLoadingVehicles && userVehicles.length === 0 && !user && <p className="text-xs text-gray-500 dark:text-gray-400">Login to see vehicles.</p>}
+                        {!isLoadingVehicles && userVehicles.length === 0 && user && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                No vehicles found. <Link to="/vehicles" className="text-indigo-600 hover:underline">Add one?</Link>
+                            </p>
+                        )}
                     </div>
                     {/* View Toggle Button */}
                     <div className="flex justify-end">
@@ -296,12 +369,12 @@ function HistoryPage(): JSX.Element {
                         // --- Table View ---
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 border border-gray-200">
-                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost (€)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
+                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost (€)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
                                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A'}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.vehicleId ? userVehiclesMap.get(log.vehicleId) || 'N/A' : 'N/A'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.brand}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.cost?.toFixed(2)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.distanceKm?.toFixed(1)}</td>
@@ -310,7 +383,6 @@ function HistoryPage(): JSX.Element {
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{formatCostPerMile(log.cost, log.distanceKm)}</td>
-                                            {/* Actions Cell with Edit/Delete Buttons */}
                                             <td className="px-3 py-3 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                                 <button
                                                     onClick={() => handleOpenEditModal(log)}
@@ -348,6 +420,7 @@ function HistoryPage(): JSX.Element {
                                 <LogCard
                                     key={log.id}
                                     log={log}
+                                    vehicleName={log.vehicleId ? userVehiclesMap.get(log.vehicleId) : undefined}
                                     onEdit={handleOpenEditModal} // Pass edit handler down
                                     onDelete={handleDeleteLog}   // Pass delete handler down
                                 />

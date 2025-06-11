@@ -1,22 +1,17 @@
 // src/pages/QuickLogPage.tsx
+// src/pages/QuickLogPage.tsx
 import React, { JSX, useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom'; // Added for linking to vehicles page
+import { Vehicle } from '../utils/types'; // Added
+import { fetchUserVehicles } from '../firebase/firestoreService'; // Added
 
-// Types
-type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
-interface MessageState {
-  type: MessageType;
-  text: string;
-}
-// Type for location data we want to store
-interface LocationData {
-    latitude: number;
-    longitude: number;
-    locationAccuracy: number;
-}
-
+// Types (MessageState, LocationData remain the same)
+type MessageType = 'success' | 'error' | 'info' | '';
+interface MessageState { type: MessageType; text: string; }
+interface LocationData { latitude: number; longitude: number; locationAccuracy: number; }
 
 function QuickLogPage(): JSX.Element {
   const { user } = useAuth();
@@ -24,12 +19,17 @@ function QuickLogPage(): JSX.Element {
   const [cost, setCost] = useState<string>('');
   const [distanceKmInput, setDistanceKmInput] = useState<string>('');
   const [fuelAmountLiters, setFuelAmountLiters] = useState<string>('');
-  const [isSaving, setIsSaving] = useState<boolean>(false); // Combined loading state
+
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>(''); // New state for selected vehicle
+  const [userVehicles, setUserVehicles] = useState<Vehicle[]>([]); // New state for user's vehicles
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState<boolean>(false); // New state for loading vehicles
+
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
   const [knownBrands, setKnownBrands] = useState<string[]>([]);
   const [isLoadingBrands, setIsLoadingBrands] = useState<boolean>(false);
 
-  // --- Fetch known brands effect (same as before) ---
+  // Fetch known brands (existing useEffect) - no changes here
   useEffect(() => {
     if (!user) { setKnownBrands([]); return; }
     const fetchBrands = async () => {
@@ -50,12 +50,42 @@ function QuickLogPage(): JSX.Element {
     fetchBrands();
   }, [user]);
 
-  // --- Input Change Handler (same as before) ---
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => { setter(e.target.value); };
+  // --- Fetch user's vehicles ---
+  useEffect(() => {
+    if (!user) {
+      setUserVehicles([]);
+      setSelectedVehicleId('');
+      return;
+    }
+    const loadVehicles = async () => {
+      setIsLoadingVehicles(true);
+      try {
+        const vehicles = await fetchUserVehicles();
+        setUserVehicles(vehicles);
+        if (vehicles.length > 0) {
+          // Optionally, pre-select the first vehicle or a "default" vehicle
+          // For now, let's not pre-select to make user choice explicit
+           setSelectedVehicleId(''); // Or vehicles[0].id if you want to pre-select
+        } else {
+            setSelectedVehicleId('');
+        }
+      } catch (error) {
+        console.error("Error fetching user vehicles:", error);
+        setMessage({ type: 'error', text: 'Could not load your vehicles.' });
+      } finally {
+        setIsLoadingVehicles(false);
+      }
+    };
+    loadVehicles();
+  }, [user]);
 
-  // --- Function to get Geolocation wrapped in a Promise ---
+  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) =>
+    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { // Updated to include HTMLSelectElement
+      setter(e.target.value);
+    };
+
   const getCurrentLocation = (): Promise<LocationData | null> => {
+    // ... (existing getCurrentLocation function - no changes)
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
         console.warn("Geolocation is not supported by this browser.");
@@ -91,14 +121,17 @@ function QuickLogPage(): JSX.Element {
   // --- Form Submit Handler (Updated for Geolocation) ---
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Basic validation (same as before)
     if (!user) { setMessage({ type: 'error', text: 'You must be logged in to save.' }); return; }
+    // if (userVehicles.length > 0 && !selectedVehicleId) { // Optional: make vehicle selection mandatory if vehicles exist
+    //   setMessage({ type: 'error', text: 'Please select a vehicle for this log.' });
+    //   return;
+    // }
     if (!cost || !distanceKmInput || !fuelAmountLiters) { setMessage({ type: 'error', text: 'Please fill in Cost, Distance, and Fuel Amount.' }); return; }
     const parsedCost = parseFloat(cost); const parsedDistanceKm = parseFloat(distanceKmInput); const parsedFuel = parseFloat(fuelAmountLiters);
     if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) { setMessage({ type: 'error', text: 'Cost, Distance (Km), and Fuel Amount must be valid positive numbers.' }); return; }
 
-    setIsSaving(true); // Indicate process started
-    setMessage({ type: 'info', text: 'Attempting to get location...' }); // New info message
+    setIsSaving(true);
+    setMessage({ type: 'info', text: 'Attempting to get location...' });
 
     // --- Get Location ---
     const locationData = await getCurrentLocation();
@@ -127,13 +160,14 @@ function QuickLogPage(): JSX.Element {
         logData.longitude = locationData.longitude;
         logData.locationAccuracy = locationData.locationAccuracy;
       }
+      if (selectedVehicleId) { // Add vehicleId if selected
+        logData.vehicleId = selectedVehicleId;
+      }
 
-      // Save to Firestore
       await addDoc(collection(db, "fuelLogs"), logData);
 
-      // Clear form on success
-      setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
-      setMessage({ type: 'success', text: `Log saved successfully! ${locationData ? '' : '(Location not captured)'}` }); // Indicate if location was missed
+      setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters(''); setSelectedVehicleId(''); // Clear vehicle selection
+      setMessage({ type: 'success', text: `Log saved successfully! ${locationData ? '' : '(Location not captured)'}` });
 
     } catch (error) {
       console.error("Error adding document: ", error);
@@ -152,17 +186,50 @@ function QuickLogPage(): JSX.Element {
         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 border border-gray-200 dark:border-gray-700">
             <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6 text-center">Log New Fuel Entry</h2>
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                {/* Brand Input with Datalist (same as before) */}
+                {/* Vehicle Selector */}
+                <div>
+                    <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Vehicle <span className="text-gray-500 dark:text-gray-400 text-xs">(Optional)</span>
+                    </label>
+                    {isLoadingVehicles ? (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Loading your vehicles...</p>
+                    ) : userVehicles.length > 0 ? (
+                        <select
+                            id="vehicle"
+                            value={selectedVehicleId}
+                            onChange={handleInputChange(setSelectedVehicleId)}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                            disabled={isSaving}
+                        >
+                            <option value="">Select a Vehicle (Optional)</option>
+                            {userVehicles.map(vehicle => (
+                                <option key={vehicle.id} value={vehicle.id}>
+                                    {vehicle.name} ({vehicle.make} {vehicle.model})
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            No vehicles found. You can still save this log, or{' '}
+                            <Link to="/vehicles" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                                add a vehicle
+                            </Link>
+                            {' '}first.
+                        </p>
+                    )}
+                </div>
+
+                {/* Brand Input (existing) */}
                 <div>
                     <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filling Station Brand <span className="text-gray-500 dark:text-gray-400 text-xs">(Optional)</span></label>
-                    <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder="e.g., Circle K, Maxol (start typing...)" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off"/>
+                    <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder="e.g., Circle K, Maxol" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off"/>
                     <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
                 </div>
-                {/* Cost Input (same as before) */}
+                {/* Cost Input (existing) */}
                 <div>
-                    <label htmlFor="cost" className="block text-sm font-medium text-gray-700 mb-1">Total Cost (€) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="e.g., 65.50" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out" disabled={isSaving} aria-describedby="cost-description"/>
-                    <p id="cost-description" className="mt-1 text-xs text-gray-500">Enter the total amount paid.</p>
+                    <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Cost (€) <span className="text-red-500">*</span></label>
+                    <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="e.g., 65.50" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="cost-description"/>
+                    <p id="cost-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Enter the total amount paid.</p>
                 </div>
                  {/* Distance Input (same as before) */}
                 <div>
@@ -170,15 +237,14 @@ function QuickLogPage(): JSX.Element {
                     <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="e.g., 500.5" step="0.1" min="0.1" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="distance-description"/>
                     <p id="distance-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Kilometers driven since last fill-up.</p>
                 </div>
-                {/* Fuel Amount Input (same as before) */}
+                {/* Fuel Amount Input (existing) */}
                 <div className="pb-2">
                     <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuel Added (Litres) <span className="text-red-500">*</span></label>
                     <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="e.g., 42.80" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="fuel-description"/>
                     <p id="fuel-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Amount of fuel added, in Litres.</p>
                 </div>
 
-                {/* Submit Button - Text updates based on state */}
-                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+                <button type="submit" disabled={isSaving || isLoadingBrands || isLoadingVehicles} className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
                     {isSaving ? (message.text.includes('location') ? 'Getting Location...' : 'Saving...') : 'Save Fuel Log'}
                 </button>
 

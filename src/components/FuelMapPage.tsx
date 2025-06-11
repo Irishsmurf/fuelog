@@ -61,12 +61,12 @@ const FuelMapPage: React.FC = () => {
        loadData();
   }, []);
 
-  if (loading) return <div>Loading map data...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading) return <div className="dark:text-gray-300">Loading map data...</div>;
+  if (error) return <div className="text-red-500 dark:text-red-400">{error}</div>;
 
   const validLocations = locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined);
 
-  if (validLocations.length === 0) return <div>No fuel locations with coordinates found.</div>;
+  if (validLocations.length === 0) return <div className="dark:text-gray-300">No fuel locations with coordinates found.</div>;
 
   const initialCenter: L.LatLngExpression = validLocations.length > 0
       ? [validLocations[0].latitude!, validLocations[0].longitude!]

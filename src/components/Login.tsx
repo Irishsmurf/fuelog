@@ -27,16 +27,16 @@ function Login(): JSX.Element {
 
   return (
     // Full screen container, centers content using Flexbox (Tailwind)
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
       {/* Card container with Tailwind styling */}
-      <div className="max-w-md w-full bg-white shadow-lg rounded-xl p-8 border border-gray-200 space-y-6">
+      <div className="max-w-md w-full bg-white shadow-lg rounded-xl p-8 border border-gray-200 space-y-6 dark:bg-gray-800 dark:border-gray-700">
         {/* Header Section */}
         <div className="text-center">
           {/* Optional: Add a logo here */}
-          <h2 className="mt-4 text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             Fuel Logger
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
             Sign in with Google to track your fuel usage.
           </p>
         </div>
@@ -63,7 +63,7 @@ function Login(): JSX.Element {
 
         {/* Error Message Area */}
         {error && (
-          <p className="mt-2 text-center text-sm text-red-600">
+          <p className="mt-2 text-center text-sm text-red-600 dark:text-red-400">
             {error}
           </p>
         )}

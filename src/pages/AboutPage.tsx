@@ -8,11 +8,11 @@ const AboutPage: React.FC = () => (
       <title>About Fuel Tracker</title>
       <meta name="description" content="Learn more about Fuel Tracker, a web app for tracking fuel consumption and costs." />
     </Helmet>
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold text-center mb-4">About Fuel Tracker</h1>
-      <p className="text-lg mb-4">Fuel Tracker is a web app that helps you track your fuel consumption and costs.</p>
-      <h2 className="text-2xl font-semibold mb-2">Features</h2>
-      <ul className="list-disc list-inside">
+    <div className="container mx-auto py-8 dark:bg-gray-900 dark:text-gray-100">
+      <h1 className="text-3xl font-bold text-center mb-4 dark:text-white">About Fuel Tracker</h1>
+      <p className="text-lg mb-4 dark:text-gray-300">Fuel Tracker is a web app that helps you track your fuel consumption and costs.</p>
+      <h2 className="text-2xl font-semibold mb-2 dark:text-gray-200">Features</h2>
+      <ul className="list-disc list-inside dark:text-gray-300">
         <li>Track fuel consumption and costs</li>
         <li>View history of fuel logs</li>
         <li>Import fuel logs from a CSV file</li>

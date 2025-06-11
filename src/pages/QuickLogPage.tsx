@@ -145,7 +145,7 @@ function QuickLogPage(): JSX.Element {
   };
 
   // --- Render Logic ---
-  const messageStyle = message.type === 'error' ? 'text-red-600' : message.type === 'success' ? 'text-green-600' : 'text-blue-600'; // Blue for info
+  const messageStyle = message.type === 'error' ? 'text-red-600 dark:text-red-400' : message.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'; // Blue for info
 
   return (
     <div className="container mx-auto max-w-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">

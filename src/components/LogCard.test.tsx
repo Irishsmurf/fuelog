@@ -1,5 +1,4 @@
 // src/components/LogCard.test.tsx
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react'; // Added fireEvent
 import '@testing-library/jest-dom';
 import LogCard from './LogCard';
@@ -31,7 +30,7 @@ describe('LogCard', () => {
     // Check for a few other key elements to ensure basic rendering
     expect(screen.getByText(/cost/i)).toBeInTheDocument();
     // Note: The component formats numbers, so check for the formatted string
-    expect(screen.getByText((content, element) => content.includes('50.00') && content.includes('€'))).toBeInTheDocument();
+    expect(screen.getByText((content, _element) => content.includes('50.00') && content.includes('€'))).toBeInTheDocument();
   });
 
   it('displays the vehicle name when vehicleName prop is provided', () => {
@@ -53,7 +52,7 @@ describe('LogCard', () => {
     expect(screen.getByText('Shell')).toBeInTheDocument();
     expect(screen.getByText(/distance/i)).toBeInTheDocument();
     // Note: The component formats numbers, so check for the formatted string including unit
-    expect(screen.getByText((content, element) => content.includes('300.0') && content.includes('Km'))).toBeInTheDocument();
+    expect(screen.getByText((content, _element) => content.includes('300.0') && content.includes('Km'))).toBeInTheDocument();
     expect(screen.queryByText(/vehicle:/i)).not.toBeInTheDocument();
   });
 

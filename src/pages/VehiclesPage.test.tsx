@@ -1,5 +1,4 @@
 // src/pages/VehiclesPage.test.tsx
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter as Router } from 'react-router-dom'; // Needed if Link is used

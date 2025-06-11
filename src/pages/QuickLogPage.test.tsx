@@ -1,5 +1,4 @@
 // src/pages/QuickLogPage.test.tsx
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom'; // For Link component
@@ -11,34 +10,29 @@ import { Vehicle } from '../utils/types';
 // Mock firestoreService
 jest.mock('../firebase/firestoreService', () => ({
   fetchUserVehicles: jest.fn(),
-  fetchFuelLocations: jest.fn(), // Mock if it's indirectly called or part of other logic on page
-  // addDoc will be mocked via 'firebase/firestore'
+  fetchFuelLocations: jest.fn(),
 }));
 
-// Mock 'firebase/firestore' specifically for addDoc used in handleSubmit
-const mockAddDocFirestore = jest.fn(); // Renamed to avoid conflict
+const mockAddDocFirestore = jest.fn();
 jest.mock('firebase/firestore', () => {
     const originalModule = jest.requireActual('firebase/firestore');
     return {
         ...originalModule,
-        addDoc: mockAddDocFirestore, // Use the renamed mock here
+        addDoc: mockAddDocFirestore,
         Timestamp: {
             now: jest.fn(() => ({
                 toDate: () => new Date(),
-                // Add other methods if your code uses them, e.g., toMillis, toSeconds
                 toMillis: () => new Date().getTime(),
             })),
         },
-        // Mock other Firestore exports if QuickLogPage uses them directly
-        collection: jest.fn().mockImplementation((db, path) => ({ path })), // Basic mock for collection
+        collection: jest.fn().mockImplementation((_db, path) => ({ path })),
         query: jest.fn(),
         where: jest.fn(),
-        getDocs: jest.fn().mockResolvedValue({ docs: [] }), // Default mock for getDocs
+        getDocs: jest.fn().mockResolvedValue({ docs: [] }),
     };
 });
 
 
-// Mock useAuth hook
 const mockUseAuth = jest.spyOn(AuthContext, 'useAuth');
 
 const mockVehicles: Vehicle[] = [
@@ -56,21 +50,18 @@ describe('QuickLogPage - Vehicle Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseAuth.mockReturnValue({ user: { uid: 'user1' }, loading: false } as any);
-    (FirestoreService.fetchUserVehicles as jest.Mock).mockResolvedValue([...mockVehicles]); // Spread to avoid mutation issues
+    (FirestoreService.fetchUserVehicles as jest.Mock).mockResolvedValue([...mockVehicles]);
 
-    // Reset mock for getDocs from 'firebase/firestore' if it was spied on directly
-    // For this setup, it's part of the module mock, so it resets with jest.clearAllMocks if correctly set up.
-    // If you directly spied on getDocs (e.g. jest.spyOn(require('firebase/firestore'), 'getDocs')), reset it here.
-    // For now, relying on module mock's behavior.
-
-    // Mock getCurrentLocation
-    global.navigator.geolocation = {
-        getCurrentPosition: jest.fn().mockImplementationOnce((successCb) => successCb({ // Renamed for clarity
-            coords: { latitude: 50, longitude: 50, accuracy: 10 }
-        })),
-        watchPosition: jest.fn(),
-        clearWatch: jest.fn()
-    };
+    Object.defineProperty(global.navigator, 'geolocation', {
+        value: {
+            getCurrentPosition: jest.fn().mockImplementationOnce((successCb) => successCb({
+                coords: { latitude: 50, longitude: 50, accuracy: 10 }
+            })),
+            watchPosition: jest.fn(),
+            clearWatch: jest.fn()
+        },
+        configurable: true
+    });
   });
 
   it('fetches and displays vehicles in the dropdown', async () => {
@@ -139,15 +130,13 @@ describe('QuickLogPage - Vehicle Integration', () => {
       expect(mockAddDocFirestore).toHaveBeenCalled();
       const submittedData = mockAddDocFirestore.mock.calls[0][1];
       expect(submittedData).not.toHaveProperty('vehicleId');
-      expect(screen.getByText(/log saved successfully!/i)).toBeInTheDocument(); // Updated to match actual success message
+      expect(screen.getByText(/log saved successfully!/i)).toBeInTheDocument();
     });
   });
 
   it('shows loading state for vehicle dropdown', async () => {
     (FirestoreService.fetchUserVehicles as jest.Mock).mockImplementationOnce(() => new Promise(() => {}));
     render(<BrowserRouter><QuickLogPage /></BrowserRouter>);
-    // Need to ensure the rest of the page doesn't throw error due to missing brand loading logic
-    // For this test, we are focusing on vehicle loading state
     await waitFor(() => expect(screen.getByText(/loading your vehicles.../i)).toBeInTheDocument());
   });
 

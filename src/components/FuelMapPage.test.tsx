@@ -1,5 +1,4 @@
 // src/components/FuelMapPage.test.tsx
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { BrowserRouter as Router } from 'react-router-dom'; // For Link component
@@ -141,9 +140,9 @@ describe('FuelMapPage', () => {
             const markers = screen.getAllByTestId('marker');
             expect(markers).toHaveLength(2);
             // Check marker by latitude (unique enough for this mock data)
-            expect(screen.getByTestId('marker', { selector: '[data-latitude="53.1"]' })).toBeInTheDocument();
-            expect(screen.getByTestId('marker', { selector: '[data-latitude="53.3"]' })).toBeInTheDocument();
-            expect(screen.queryByTestId('marker', { selector: '[data-latitude="53.2"]' })).not.toBeInTheDocument();
+            expect(document.querySelector('[data-testid="marker"][data-latitude="53.1"]')).toBeInTheDocument();
+            expect(document.querySelector('[data-testid="marker"][data-latitude="53.3"]')).toBeInTheDocument();
+            expect(document.querySelector('[data-testid="marker"][data-latitude="53.2"]')).not.toBeInTheDocument();
         });
     });
 
@@ -161,20 +160,25 @@ describe('FuelMapPage', () => {
         mockFetchFuelLocations.mockResolvedValueOnce([mockLogs[0]]); // log1 (v1)
         mockFetchUserVehicles.mockResolvedValueOnce([mockVehicles[0]]); // v1 (My Sedan)
 
-        render(<Router><FuelMapPage /></Router>); // Re-render with specific mocks for this test
+        const { container } = render(<Router><FuelMapPage /></Router>); // Re-render and get container
 
         await waitFor(() => {
-            expect(screen.getByTestId('marker')).toBeInTheDocument();
+            // Use container for querySelector to ensure it's looking within this render
+            expect(container.querySelector('[data-testid="marker"][data-latitude="53.1"]')).toBeInTheDocument();
         });
 
-        // The popup content is inside the marker.
-        const markerForV1 = screen.getByTestId('marker', { selector: '[data-latitude="53.1"]' });
+        const markerForV1 = container.querySelector('[data-testid="marker"][data-latitude="53.1"]');
         expect(markerForV1).toBeInTheDocument();
 
-        // Check for popup content within this specific marker
-        const popupContent = within(markerForV1).getByTestId('popup');
-        expect(popupContent).toHaveTextContent('Date:');
-        expect(popupContent).toHaveTextContent(`Vehicle: ${mockVehicles[0].name}`);
+        if (markerForV1) { // Type guard for markerForV1
+            // Check for popup content within this specific marker
+            const popupContent = within(markerForV1 as HTMLElement).getByTestId('popup');
+            expect(popupContent).toHaveTextContent('Date:');
+            expect(popupContent).toHaveTextContent(`Vehicle: ${mockVehicles[0].name}`);
+        } else {
+            // Fail test if marker not found, as the popup check depends on it
+            throw new Error("Marker for V1 (latitude 53.1) not found in the DOM");
+        }
     });
 
     it('shows "no locations found for selected vehicle" when filter results in no markers', async () => {
@@ -187,8 +191,7 @@ describe('FuelMapPage', () => {
 
         await waitFor(() => {
             expect(screen.getByLabelText(/filter by vehicle/i)).toBeInTheDocument();
-            // Initially, one marker (log4)
-            expect(screen.getAllByTestId('marker')).toHaveLength(1);
+            expect(screen.getAllByTestId('marker')).toHaveLength(1); // Initially, one marker (log4)
         });
 
         fireEvent.change(screen.getByLabelText(/filter by vehicle/i), { target: { value: 'v1' } }); // Select 'My Sedan' (v1)

@@ -1,5 +1,4 @@
 // src/components/VehicleForm.test.tsx
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import VehicleForm from './VehicleForm';
@@ -7,8 +6,6 @@ import { Vehicle } from '../utils/types';
 
 const mockOnSave = jest.fn();
 const mockOnCancel = jest.fn();
-
-// Removed unused emptyVehicleData
 
 const mockVehicleToEdit: Vehicle = {
   id: '1',

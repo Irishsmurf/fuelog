@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase/firestore';
 
 // Add this new interface
-export interface Vehicle {
+interface Vehicle {
   id: string;
   userId: string;
   name: string; // User-defined name, e.g., "My Sedan"
@@ -13,7 +13,7 @@ export interface Vehicle {
   // e.g., fuelType?: 'petrol' | 'diesel' | 'electric';
 }
 
-export interface FuelLogData {
+interface FuelLogData {
     userId: string;
     timestamp: Timestamp;
     brand: string;
@@ -26,13 +26,13 @@ export interface FuelLogData {
     vehicleId?: string; // Added optional vehicleId
   }
 
-  export interface Log extends FuelLogData { // Ensure Log extends the updated FuelLogData
+  interface Log extends FuelLogData { // Ensure Log extends the updated FuelLogData
     id: string;
     // vehicleId is inherited from FuelLogData
 }
 
 // Defines the structure of data points prepared specifically for the Recharts library
-export interface ChartDataPoint { // Keep ChartDataPoint as is unless vehicle info is needed here
+interface ChartDataPoint { // Keep ChartDataPoint as is unless vehicle info is needed here
     date: string;
     timestampValue: number;
     mpg: number | null;
@@ -40,16 +40,16 @@ export interface ChartDataPoint { // Keep ChartDataPoint as is unless vehicle in
     fuelPrice: number | null;
 }
 // Type for the state holding the specific log currently being edited in the modal
-export type EditingLogState = Log | null; // Keep as is
+type EditingLogState = Log | null; // Keep as is
 // Type for the state managing the input values within the Edit modal form
-export interface EditFormData { // Keep as is, or update if vehicle info is edited here
+interface EditFormData { // Keep as is, or update if vehicle info is edited here
     brand: string;
     cost: string;
     distanceKm: string;
     fuelAmountLiters: string;
 }
 // Type for view mode state
-export type ViewMode = 'table' | 'cards'; // Keep as is
+type ViewMode = 'table' | 'cards'; // Keep as is
 
 
 // Export Vehicle along with other types

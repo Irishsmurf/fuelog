@@ -33,23 +33,34 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicleToEdit, onSave, onCanc
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim()) {
-      // Basic validation: name is required
       alert('Vehicle name is required.');
       return;
     }
-    const currentYear = new Date().getFullYear();
-    const parsedYear = year ? parseInt(year, 10) : undefined;
 
-    if (year && (isNaN(parsedYear) || parsedYear < 1900 || parsedYear > currentYear + 1)) {
-        alert(`Please enter a valid year (e.g., between 1900 and ${currentYear + 1}).`);
-        return;
+    const currentYear = new Date().getFullYear();
+    let yearToSave: number | undefined = undefined;
+
+    if (year) { // If year string is not empty
+        const tempParsedYear = parseInt(year, 10);
+        if (isNaN(tempParsedYear)) {
+            // Show alert only if year string is not empty AND it's not a valid number
+            alert('Year must be a valid number if provided.');
+            return;
+        }
+        // Check range only if it's a valid number
+        if (tempParsedYear < 1900 || tempParsedYear > currentYear + 1) {
+            alert(`Please enter a valid year (e.g., between 1900 and ${currentYear + 1}).`);
+            return;
+        }
+        yearToSave = tempParsedYear; // It's a valid number
     }
+    // If year string was empty, yearToSave remains undefined, which is fine.
 
     onSave({
       name: name.trim(),
-      make: make.trim() || undefined, // Store as undefined if empty
-      model: model.trim() || undefined, // Store as undefined if empty
-      year: parsedYear,
+      make: make.trim() || undefined,
+      model: model.trim() || undefined,
+      year: yearToSave, // Use the explicitly typed and validated yearToSave
     });
   };
 

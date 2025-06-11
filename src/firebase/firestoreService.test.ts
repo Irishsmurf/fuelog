@@ -5,42 +5,45 @@ import {
   updateVehicle,
   deleteVehicle,
 } from './firestoreService'; // Adjust path as needed
-import { auth, db } from './config'; // We'll mock parts of these
+import { auth } from './config'; // We'll mock parts of these
 import {
-  collection,
   addDoc,
   getDocs,
-  query,
-  where,
-  orderBy,
+  query, // query is used by fetchUserVehicles
   doc,
   updateDoc,
   deleteDoc,
-  serverTimestamp, // Mock if used, though serverTimestamp itself doesn't need complex mock
 } from 'firebase/firestore';
 import { Vehicle } from '../utils/types';
 
 // Mock Firebase external dependencies
-jest.mock('firebase/firestore', () => ({
-  ...jest.requireActual('firebase/firestore'), // Import and retain default behavior
-  collection: jest.fn(),
-  addDoc: jest.fn(),
-  getDocs: jest.fn(),
-  query: jest.fn(),
-  where: jest.fn(),
-  orderBy: jest.fn(),
-  doc: jest.fn().mockImplementation((db, collectionName, id) => ({ id, path: `${collectionName}/${id}` })), // Mock doc to return a basic object
-  updateDoc: jest.fn(),
-  deleteDoc: jest.fn(),
-  serverTimestamp: jest.fn(() => ({ type: 'timestamp' })), // Simple mock for serverTimestamp
-}));
+jest.mock('firebase/firestore', () => {
+  const originalFirestore = jest.requireActual('firebase/firestore');
+  return {
+    ...originalFirestore,
+    collection: jest.fn().mockName('collection'), // Mocked as it's used by the service
+    addDoc: jest.fn().mockName('addDoc'),
+    getDocs: jest.fn().mockName('getDocs'),
+    query: jest.fn().mockName('query'),
+    where: jest.fn().mockName('where'),
+    orderBy: jest.fn().mockName('orderBy'),
+    doc: jest.fn().mockImplementation((_db, collectionName, id) => ({ id, path: `${collectionName}/${id}` })).mockName('doc'), // _db marked as unused
+    updateDoc: jest.fn().mockName('updateDoc'),
+    deleteDoc: jest.fn().mockName('deleteDoc'),
+    serverTimestamp: jest.fn(() => ({ type: 'timestamp' })).mockName('serverTimestamp'),
+  };
+});
 
 // Mock auth module from './config'
 jest.mock('./config', () => ({
   auth: {
     currentUser: null, // Default to no user
   },
-  db: {}, // db object itself doesn't need deep mocking for these tests
+  // db is not explicitly used by the service functions themselves,
+  // but firestore operations like doc() require it as the first argument.
+  // The mock for doc() above handles this by accepting _db.
+  // If collection() or other direct calls needed db, we'd provide a mock for it.
+  db: { type: 'mockFirestoreDb' },
 }));
 
 const mockVehicleData: Omit<Vehicle, 'id' | 'userId'> = {
@@ -55,22 +58,22 @@ const mockUserId = 'testUser123';
 
 describe('firestoreService - Vehicle Management', () => {
   beforeEach(() => {
-    // Reset mocks before each test
     jest.clearAllMocks();
-    // Default to user being logged in for most tests
     (auth.currentUser as any) = { uid: mockUserId };
   });
 
-  // Tests for addVehicle
   describe('addVehicle', () => {
     it('should add a vehicle and return its ID if user is logged in', async () => {
       (addDoc as jest.Mock).mockResolvedValueOnce({ id: mockVehicleId });
       const result = await addVehicle(mockVehicleData);
-      expect(addDoc).toHaveBeenCalledWith(undefined, { // collection mock returns undefined
-        ...mockVehicleData,
-        userId: mockUserId,
-        createdAt: { type: 'timestamp' },
-      });
+      expect(addDoc).toHaveBeenCalledWith(
+        expect.anything(), // This is the CollectionReference
+        {
+          ...mockVehicleData,
+          userId: mockUserId,
+          createdAt: { type: 'timestamp' }, // From serverTimestamp mock
+        }
+      );
       expect(result).toBe(mockVehicleId);
     });
 
@@ -88,7 +91,6 @@ describe('firestoreService - Vehicle Management', () => {
     });
   });
 
-  // Tests for fetchUserVehicles
   describe('fetchUserVehicles', () => {
     it('should fetch and return vehicles for the logged-in user', async () => {
       const mockDocs = [
@@ -98,7 +100,7 @@ describe('firestoreService - Vehicle Management', () => {
       (getDocs as jest.Mock).mockResolvedValueOnce({ docs: mockDocs });
       const result = await fetchUserVehicles();
       expect(getDocs).toHaveBeenCalled();
-      expect(query).toHaveBeenCalled(); // Ensure query was called
+      expect(query).toHaveBeenCalled();
       expect(result).toEqual([
         { id: 'v1', name: 'Car 1', make: 'Tesla', userId: mockUserId },
         { id: 'v2', name: 'Car 2', make: 'Toyota', userId: mockUserId },
@@ -125,19 +127,18 @@ describe('firestoreService - Vehicle Management', () => {
     });
   });
 
-  // Tests for updateVehicle
   describe('updateVehicle', () => {
     it('should update a vehicle and return true if user is logged in', async () => {
       (updateDoc as jest.Mock).mockResolvedValueOnce(undefined);
       const mockVehicleDocRef = { id: mockVehicleId, path: `vehicles/${mockVehicleId}` };
-      (doc as jest.Mock).mockReturnValueOnce(mockVehicleDocRef); // Ensure doc returns the expected ref
+      (doc as jest.Mock).mockReturnValueOnce(mockVehicleDocRef);
 
       const result = await updateVehicle(mockVehicleId, { name: 'Updated Name' });
 
-      expect(doc).toHaveBeenCalledWith(undefined, 'vehicles', mockVehicleId); // db mock is undefined
+      expect(doc).toHaveBeenCalledWith(expect.objectContaining({type: 'mockFirestoreDb'}), 'vehicles', mockVehicleId);
       expect(updateDoc).toHaveBeenCalledWith(mockVehicleDocRef, {
         name: 'Updated Name',
-        updatedAt: { type: 'timestamp' },
+        updatedAt: { type: 'timestamp' }, // From serverTimestamp mock
       });
       expect(result).toBe(true);
     });
@@ -156,16 +157,14 @@ describe('firestoreService - Vehicle Management', () => {
     });
   });
 
-  // Tests for deleteVehicle
   describe('deleteVehicle', () => {
     it('should delete a vehicle and return true if user is logged in', async () => {
       (deleteDoc as jest.Mock).mockResolvedValueOnce(undefined);
       const mockVehicleDocRef = { id: mockVehicleId, path: `vehicles/${mockVehicleId}` };
       (doc as jest.Mock).mockReturnValueOnce(mockVehicleDocRef);
 
-
       const result = await deleteVehicle(mockVehicleId);
-      expect(doc).toHaveBeenCalledWith(undefined, 'vehicles', mockVehicleId);
+      expect(doc).toHaveBeenCalledWith(expect.objectContaining({type: 'mockFirestoreDb'}), 'vehicles', mockVehicleId);
       expect(deleteDoc).toHaveBeenCalledWith(mockVehicleDocRef);
       expect(result).toBe(true);
     });

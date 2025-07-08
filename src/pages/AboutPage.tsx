@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
+import { getBoolean } from '../firebase/remoteConfigService'; // Import the getter
 
 const AboutPage: React.FC = () => (
   <>
@@ -18,6 +19,18 @@ const AboutPage: React.FC = () => (
         <li>Import fuel logs from a CSV file</li>
         <li>Quickly log fuel purchases</li>
       </ul>
+
+      {/* Example Feature Flag Usage */}
+      {getBoolean("exampleFeatureFlagEnabled") && (
+        <div className="mt-6 p-4 border border-blue-300 dark:border-blue-700 rounded-md bg-blue-50 dark:bg-blue-900">
+          <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 New Feature Showcase!</h3>
+          <p className="text-blue-600 dark:text-blue-200">
+            This section is displayed because the 'exampleFeatureFlagEnabled' is currently active in Remote Config!
+            You can toggle this in the Firebase console to see it appear or disappear after the app fetches the latest config.
+          </p>
+        </div>
+      )}
+
       <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
         <p>
           To access more features, please{' '}

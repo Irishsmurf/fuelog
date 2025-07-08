@@ -1,6 +1,6 @@
 // src/context/ThemeContext.tsx
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { activateRemoteConfig, isDarkModeEnabled } from '../firebase/remoteConfigService';
+import { activateRemoteConfig, getBoolean } from '../firebase/remoteConfigService'; // Updated import
 
 type Theme = 'light' | 'dark';
 
@@ -29,7 +29,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     const initializeThemeFromRC = async () => {
       await activateRemoteConfig(); // Fetch and activate
-      const enabled = isDarkModeEnabled();
+      const enabled = getBoolean('darkModeEnabled'); // Updated to use getBoolean
       setIsDarkModeEnabledRemotely(enabled);
       console.log("Remote Config - darkModeEnabled:", enabled);
 

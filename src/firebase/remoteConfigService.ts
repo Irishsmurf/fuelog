@@ -19,6 +19,7 @@ const remoteConfigInstance: RemoteConfig = getRemoteConfig(app);
 remoteConfigInstance.defaultConfig = {
   "darkModeEnabled": false,
   "exampleFeatureFlagEnabled": false, // Added for the example in step 3
+  "costPerLitreGraphEnabled": false, // Feature flag for Cost Per Litre graph
   // Add other remote config defaults here as key-value pairs
   // e.g., "showNewDashboard": false,
   //       "apiEndpoint": "https://api.example.com/v1"

@@ -5,6 +5,7 @@ import QuickLogPage from '../pages/QuickLogPage';
 import HistoryPage from '../pages/HistoryPage';
 import ImportPage from '../pages/ImportPage';
 import PrivacyPolicyPage from '../pages/PrivacyPolicyPage';
+import AboutPage from '../pages/AboutPage'; // Import AboutPage
 import FuelMapPage from './FuelMapPage';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 
@@ -61,13 +62,17 @@ function AuthenticatedApp(): JSX.Element {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/import" element={<ImportPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/about" element={<AboutPage />} /> {/* Add route for AboutPage */}
           <Route path="/map" element={<FuelMapPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-8 py-4">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
-              © {new Date().getFullYear()} Fuelog | {/* Add Link to Privacy Policy */}
+               © {new Date().getFullYear()} Fuelog | {' '}
+               <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
+                   About
+               </Link> | {' '}
               <Link to="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
                   Privacy Policy
               </Link>

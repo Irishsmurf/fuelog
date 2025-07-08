@@ -269,13 +269,22 @@ function HistoryPage(): JSX.Element {
                             <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
                             <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
                             <YAxis tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} domain={['auto', 'auto']} label={{ value: 'MPG (UK)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }} />
-                            <Tooltip contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#2D3748' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0' }} formatter={(value: number) => value?.toFixed(2)} />
+                            <Tooltip
+                                contentStyle={{
+                                    fontSize: '12px',
+                                    padding: '5px',
+                                    backgroundColor: theme === 'dark' ? '#2D3748' : 'white',
+                                    color: theme === 'dark' ? 'white' : 'black',
+                                    border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0'
+                                }}
+                                formatter={(value: number) => value?.toFixed(2)}
+                            />
                             <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
                             <Line type="monotone" dataKey="mpg" name="MPG (UK)" stroke="#8884d8" strokeWidth={2} activeDot={{ r: 6 }} connectNulls />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
-            )}
+            ) : null}
 
             {/* Conditionally render Cost Per Litre Graph if feature flag is enabled and data exists */}
             {costPerLitreGraphEnabled && filteredLogs.length > 1 && !isLoading && !error && (

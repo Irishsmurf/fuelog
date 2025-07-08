@@ -17,6 +17,7 @@ import LogCard from '../components/LogCard'; // Adjust path if necessary
 import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode } from '../utils/types';
 import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
 import { useTheme } from '../context/ThemeContext';
+import { getBoolean } from '../firebase/remoteConfigService'; // Import for feature flag
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -25,6 +26,9 @@ function HistoryPage(): JSX.Element {
 
     // --- Component State ---
     const { theme } = useTheme();
+
+    // --- Feature Flag ---
+    const costPerLitreGraphEnabled = getBoolean("costPerLitreGraphEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [isLoading, setIsLoading] = useState<boolean>(true); // Tracks if logs are currently being fetched
@@ -265,14 +269,51 @@ function HistoryPage(): JSX.Element {
                             <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
                             <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
                             <YAxis tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} domain={['auto', 'auto']} label={{ value: 'MPG (UK)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }} />
-                            <Tooltip contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#2D3748' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0' }} formatter={(value: number) => value?.toFixed(2)} />
+                            <Tooltip
+                                contentStyle={{
+                                    fontSize: '12px',
+                                    padding: '5px',
+                                    backgroundColor: theme === 'dark' ? '#2D3748' : 'white',
+                                    color: theme === 'dark' ? 'white' : 'black',
+                                    border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0'
+                                }}
+                                formatter={(value: number) => value?.toFixed(2)}
+                            />
                             <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
                             <Line type="monotone" dataKey="mpg" name="MPG (UK)" stroke="#8884d8" strokeWidth={2} activeDot={{ r: 6 }} connectNulls />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>
-            ) : (
-                !isLoading && !error && logs.length > 0 && filteredLogs.length <= 1 && <div className="text-center text-gray-500 dark:text-gray-400 text-sm p-4">Need at least two logs in the filtered range to show trends.</div>
+            ) : null}
+
+            {/* Conditionally render Cost Per Litre Graph if feature flag is enabled and data exists */}
+            {costPerLitreGraphEnabled && filteredLogs.length > 1 && !isLoading && !error && (
+                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 mt-8">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">Fuel Cost Per Litre Over Time (Filtered)</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
+                            <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
+                            <YAxis
+                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
+                                domain={['auto', 'auto']}
+                                label={{ value: 'Cost Per Litre (€)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }}
+                                tickFormatter={(value) => value.toFixed(3)} // Format Y-axis ticks to 3 decimal places
+                            />
+                            <Tooltip
+                                contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#2D3748' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0' }}
+                                formatter={(value: number) => `€${value.toFixed(3)}`} // Format tooltip value
+                            />
+                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
+                            <Line type="monotone" dataKey="fuelPrice" name="Cost Per Litre" stroke="#82ca9d" strokeWidth={2} activeDot={{ r: 6 }} connectNulls />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            )}
+
+            {/* Message for insufficient data for ANY active graph */}
+            {filteredLogs.length <= 1 && !isLoading && !error && logs.length > 0 && (
+                 <div className="text-center text-gray-500 dark:text-gray-400 text-sm p-4">Need at least two logs in the filtered range to show trends.</div>
             )}
 
             {/* --- Table / Cards Section --- */}

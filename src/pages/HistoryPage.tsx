@@ -17,7 +17,7 @@ import LogCard from '../components/LogCard'; // Adjust path if necessary
 import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode } from '../utils/types';
 import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
 import { useTheme } from '../context/ThemeContext';
-import { getBoolean } from '../firebase/remoteConfigService'; // Import for feature flag
+import { getBoolean } from '../firebase/remoteConfigService'; // Import for feature flags
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -27,8 +27,9 @@ function HistoryPage(): JSX.Element {
     // --- Component State ---
     const { theme } = useTheme();
 
-    // --- Feature Flag ---
+    // --- Feature Flags ---
     const costPerLitreGraphEnabled = getBoolean("costPerLitreGraphEnabled");
+    const totalSpentDisplayEnabled = getBoolean("totalSpentDisplayEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [isLoading, setIsLoading] = useState<boolean>(true); // Tracks if logs are currently being fetched
@@ -133,6 +134,13 @@ function HistoryPage(): JSX.Element {
             cost: log.cost > 0 ? log.cost : null,
             fuelPrice: getNumericFuelPrice(log.cost, log.fuelAmountLiters)
         }));
+    }, [filteredLogs]); // Recalculate only when filteredLogs change
+
+    // --- Calculate Total Cost of Filtered Logs ---
+    // Memoized calculation for the total cost based on the *filtered* logs.
+    const totalCostOfFilteredLogs = useMemo((): number => {
+        if (!filteredLogs || filteredLogs.length === 0) return 0;
+        return filteredLogs.reduce((sum, log) => sum + (log.cost || 0), 0);
     }, [filteredLogs]); // Recalculate only when filteredLogs change
 
     // --- Copy Table Data Function (Uses filteredLogs) ---
@@ -258,6 +266,15 @@ function HistoryPage(): JSX.Element {
                 </div>
             </div>
 
+            {/* --- Total Spent Display --- */}
+            {totalSpentDisplayEnabled && filteredLogs.length > 0 && !isLoading && !error && (
+                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Total Spent (Filtered)</h3>
+                    <p className="text-3xl sm:text-4xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
+                        €{totalCostOfFilteredLogs.toFixed(2)}
+                    </p>
+                </div>
+            )}
 
             {/* --- Charts Section (Uses filtered data via chartData) --- */}
             {/* Render chart only if not loading, no error, and enough filtered data exists */}

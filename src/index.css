@@ -1,3 +1,14 @@
 /* src/index.css */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+/* Dark mode map tiles */
+.dark .leaflet-tile-pane {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+/* Dark mode popup styles */
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+    background-color: #1f2937; /* gray-800 */
+    color: #f3f4f6; /* gray-100 */
+}

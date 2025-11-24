@@ -136,12 +136,25 @@ function HistoryPage(): JSX.Element {
         }));
     }, [filteredLogs]); // Recalculate only when filteredLogs change
 
-    // --- Calculate Total Cost of Filtered Logs ---
-    // Memoized calculation for the total cost based on the *filtered* logs.
-    const totalCostOfFilteredLogs = useMemo((): number => {
-        if (!filteredLogs || filteredLogs.length === 0) return 0;
-        return filteredLogs.reduce((sum, log) => sum + (log.cost || 0), 0);
-    }, [filteredLogs]); // Recalculate only when filteredLogs change
+    // --- Calculate Summary Metrics (Uses filteredLogs) ---
+    // Memoized calculation for the total cost, average MPG, and average cost based on the *filtered* logs.
+    const summaryMetrics = useMemo(() => {
+        if (!filteredLogs || filteredLogs.length === 0) {
+            return { totalCost: 0, averageMPG: 'N/A', averageCost: 0 };
+        }
+
+        const totals = filteredLogs.reduce((acc, log) => ({
+            cost: acc.cost + (log.cost || 0),
+            distance: acc.distance + (log.distanceKm || 0),
+            fuel: acc.fuel + (log.fuelAmountLiters || 0)
+        }), { cost: 0, distance: 0, fuel: 0 });
+
+        return {
+            totalCost: totals.cost,
+            averageMPG: formatMPG(totals.distance, totals.fuel),
+            averageCost: totals.cost / filteredLogs.length
+        };
+    }, [filteredLogs]);
 
     // --- Copy Table Data Function (Uses filteredLogs) ---
     // Formats the *currently filtered* logs as TSV and copies to clipboard.
@@ -266,13 +279,34 @@ function HistoryPage(): JSX.Element {
                 </div>
             </div>
 
-            {/* --- Total Spent Display --- */}
-            {totalSpentDisplayEnabled && filteredLogs.length > 0 && !isLoading && !error && (
-                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Total Spent (Filtered)</h3>
-                    <p className="text-3xl sm:text-4xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
-                        €{totalCostOfFilteredLogs.toFixed(2)}
-                    </p>
+            {/* --- Summary Metrics Display --- */}
+            {filteredLogs.length > 0 && !isLoading && !error && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* Total Spent */}
+                    {totalSpentDisplayEnabled && (
+                        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                            <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Total Spent (Filtered)</h3>
+                            <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
+                                €{summaryMetrics.totalCost.toFixed(2)}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Average MPG (UK) */}
+                    <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Average MPG (UK) (Filtered)</h3>
+                        <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
+                            {summaryMetrics.averageMPG}
+                        </p>
+                    </div>
+
+                    {/* Average Cost */}
+                    <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                        <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Average Cost (Filtered)</h3>
+                        <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
+                            €{summaryMetrics.averageCost.toFixed(2)}
+                        </p>
+                    </div>
                 </div>
             )}
 

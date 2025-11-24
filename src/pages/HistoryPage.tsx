@@ -152,7 +152,7 @@ function HistoryPage(): JSX.Element {
         return {
             totalCost: totals.cost,
             averageMPG: formatMPG(totals.distance, totals.fuel),
-            averageCost: totals.cost / filteredLogs.length
+            averageCost: totals.fuel > 0 ? totals.cost / totals.fuel : 0
         };
     }, [filteredLogs]);
 
@@ -302,9 +302,9 @@ function HistoryPage(): JSX.Element {
 
                     {/* Average Cost */}
                     <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Average Cost (Filtered)</h3>
+                        <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Average Cost / Litre (Filtered)</h3>
                         <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
-                            €{summaryMetrics.averageCost.toFixed(2)}
+                            €{summaryMetrics.averageCost.toFixed(3)}
                         </p>
                     </div>
                 </div>

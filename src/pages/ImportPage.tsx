@@ -94,10 +94,10 @@ function ImportPage(): JSX.Element {
         setStatus('importing'); setMessage({ type: 'info', text: `Importing ${logsToImport.length} valid logs...` });
         const batchSize = 499; let importedCountTotal = 0;
         for (let i = 0; i < logsToImport.length; i += batchSize) {
-            const batch = writeBatch(db); const chunk = logsToImport.slice(i, i + batchSize);
-            chunk.forEach((logData) => { const logRef = doc(collection(db, "fuelLogs")); batch.set(logRef, logData); });
-            await batch.commit(); importedCountTotal += chunk.length;
-            setMessage({ type: 'info', text: `Importing... (${importedCountTotal}/${logsToImport.length})` });
+          const batch = writeBatch(db); const chunk = logsToImport.slice(i, i + batchSize);
+          chunk.forEach((logData) => { const logRef = doc(collection(db, "fuelLogs")); batch.set(logRef, logData); });
+          await batch.commit(); importedCountTotal += chunk.length;
+          setMessage({ type: 'info', text: `Importing... (${importedCountTotal}/${logsToImport.length})` });
         }
         setImportedCount(importedCountTotal); setStatus('success'); setMessage({ type: 'success', text: `Successfully imported ${importedCountTotal} logs!` });
       } catch (error: any) { console.error("Import Error:", error); setStatus('error'); setMessage({ type: 'error', text: `Import failed: ${error.message}` }); }
@@ -119,7 +119,7 @@ function ImportPage(): JSX.Element {
         <div>
           <label htmlFor="tsvFile" className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} mb-1`}>TSV File</label>
           <input type="file" id="tsvFile" accept=".tsv,.txt,text/tab-separated-values" onChange={handleFileChange} className={`block w-full text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-500'} border ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'} rounded-md cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:${theme === 'dark' ? 'bg-indigo-800 text-indigo-300' : 'bg-indigo-50 text-indigo-700'} hover:file:${theme === 'dark' ? 'bg-indigo-700' : 'bg-indigo-100'}`}
-            disabled={status === 'reading' || status === 'parsing' || status === 'importing'}/>
+            disabled={status === 'reading' || status === 'parsing' || status === 'importing'} />
         </div>
         {/* Import Button (No change) */}
         <button onClick={handleImport} disabled={!selectedFile || !user || status === 'reading' || status === 'parsing' || status === 'importing'}
@@ -127,7 +127,7 @@ function ImportPage(): JSX.Element {
           {status === 'importing' ? `Importing... (${importedCount})` : status === 'parsing' ? 'Parsing...' : status === 'reading' ? 'Reading...' : 'Import Data'}
         </button>
         {/* Status/Result Message (No change) */}
-        {message && ( <div className={`mt-4 p-3 rounded-md text-sm ${messageClasses} ${theme === 'dark' ? 'dark' : ''}`}>{message.text}</div> )}
+        {message && (<div className={`mt-4 p-3 rounded-md text-sm ${messageClasses} ${theme === 'dark' ? 'dark' : ''}`}>{message.text}</div>)}
       </div>
     </div>
   );

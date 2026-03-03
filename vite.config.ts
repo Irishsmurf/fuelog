@@ -87,6 +87,23 @@ export default defineConfig({
                 statuses: [0, 200]
               }
             }
+          },
+          {
+            urlPattern: ({ url }) => url.origin === 'https://api.frankfurter.app',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'frankfurter-api-cache',
+              networkTimeoutSeconds: 5,
+              backgroundSync: {
+                name: 'frankfurter-sync-queue',
+                options: {
+                  maxRetentionTime: 24 * 60 // Retry for 24 hours
+                }
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
         ]
       }

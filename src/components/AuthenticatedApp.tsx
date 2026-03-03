@@ -4,6 +4,7 @@ import ThemeToggle from './ThemeToggle';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import InstallPrompt from './InstallPrompt';
 import BottomNav from './BottomNav';
+import SyncStatus from './SyncStatus';
 
 // Lazy load pages for performance
 const QuickLogPage = lazy(() => import('../pages/QuickLogPage'));
@@ -69,6 +70,8 @@ function AuthenticatedApp(): JSX.Element {
           </div>
         </nav>
       </header>
+
+      <SyncStatus />
 
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-5xl">
         <Suspense fallback={<PageLoader />}>

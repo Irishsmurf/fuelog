@@ -67,9 +67,12 @@ function ProfilePage(): JSX.Element {
       setMessage({ type: 'success', text: 'Vehicle added successfully!' });
       setFormData({ name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol', isDefault: false });
       fetchVehicles();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding vehicle:", error);
-      setMessage({ type: 'error', text: 'Failed to add vehicle.' });
+      const errorMsg = error.code === 'permission-denied' 
+        ? 'Permission denied. Please check Firestore security rules.' 
+        : 'Failed to add vehicle. Please try again.';
+      setMessage({ type: 'error', text: errorMsg });
     } finally {
       setIsUpdating(false);
     }
@@ -80,7 +83,13 @@ function ProfilePage(): JSX.Element {
     try {
       await deleteDoc(doc(db, "vehicles", id));
       fetchVehicles();
-    } catch (error) { console.error("Error deleting:", error); }
+    } catch (error: any) { 
+      console.error("Error deleting vehicle:", error); 
+      const errorMsg = error.code === 'permission-denied' 
+        ? 'Permission denied to delete.' 
+        : 'Failed to delete vehicle.';
+      setMessage({ type: 'error', text: errorMsg });
+    }
   };
 
   const handleSetDefault = async (vehicle: Vehicle) => {
@@ -91,7 +100,13 @@ function ProfilePage(): JSX.Element {
       });
       await batch.commit();
       fetchVehicles();
-    } catch (error) { console.error("Error setting default:", error); }
+    } catch (error: any) { 
+      console.error("Error setting default vehicle:", error); 
+      const errorMsg = error.code === 'permission-denied' 
+        ? 'Permission denied to update defaults.' 
+        : 'Failed to set default vehicle.';
+      setMessage({ type: 'error', text: errorMsg });
+    }
   };
 
   return (

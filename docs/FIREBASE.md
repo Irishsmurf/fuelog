@@ -20,6 +20,17 @@
 | `longitude` | `number` | (Optional) GPS Longitude. |
 | `locationAccuracy` | `number` | (Optional) GPS accuracy in meters. |
 
+### Collection: `vehicles`
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `userId` | `string` | UID of the owner. |
+| `name` | `string` | Nickname for the vehicle. |
+| `make` | `string` | e.g., "Volkswagen". |
+| `model` | `string` | e.g., "Polo". |
+| `year` | `string` | Manufacturing year. |
+| `fuelType` | `string` | Petrol, Diesel, Hybrid, or Electric. |
+| `isDefault` | `boolean` | Whether this is the primary vehicle for logging. |
+
 ## Security Rules (Firestore)
 The following rules ensure that users can only read and write their own data.
 
@@ -27,12 +38,15 @@ The following rules ensure that users can only read and write their own data.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Rules for Fuel Logs
     match /fuelLogs/{logId} {
-      // Allow read/write only if the user is authenticated 
-      // AND the document's userId matches the authenticated user's UID.
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
-      
-      // Allow creation if the userId in the new data matches the authenticated user's UID.
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Rules for Vehicles
+    match /vehicles/{vehicleId} {
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
   }

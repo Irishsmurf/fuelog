@@ -1,8 +1,10 @@
 // src/pages/ImportPage.tsx
-import { JSX, useState, ChangeEvent } from 'react';
-import { collection, writeBatch, Timestamp, doc } from "firebase/firestore";
+import { JSX, useState, useEffect, ChangeEvent } from 'react';
+import { collection, writeBatch, Timestamp, doc, query, where, getDocs } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
+import { Vehicle } from '../utils/types';
+import { Link } from 'react-router-dom';
 
 type ImportStatus = 'idle' | 'reading' | 'parsing' | 'importing' | 'success' | 'error';
 interface ImportMessage {
@@ -10,14 +12,45 @@ interface ImportMessage {
   text: string;
 }
 
-// Removed KM_TO_MILES as we save Km directly now
-
 function ImportPage(): JSX.Element {
   const { user } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [status, setStatus] = useState<ImportStatus>('idle');
   const [message, setMessage] = useState<ImportMessage | null>(null);
   const [importedCount, setImportedCount] = useState<number>(0);
+
+  // --- Multi-Vehicle State ---
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState<boolean>(true);
+
+  // --- Fetch Vehicles ---
+  useEffect(() => {
+    if (!user) return;
+    const fetchVehicles = async () => {
+      setIsLoadingVehicles(true);
+      try {
+        const q = query(collection(db, "vehicles"), where("userId", "==", user.uid));
+        const snap = await getDocs(q);
+        const list: Vehicle[] = [];
+        snap.forEach(doc => {
+            const data = doc.data();
+            if (!data.isArchived) {
+                list.push({ ...data, id: doc.id } as Vehicle);
+            }
+        });
+        const sorted = list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        setVehicles(sorted);
+        const defaultVehicle = sorted.find(v => v.isDefault) || sorted[0];
+        if (defaultVehicle) setSelectedVehicleId(defaultVehicle.id);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+      } finally {
+        setIsLoadingVehicles(false);
+      }
+    };
+    fetchVehicles();
+  }, [user]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -42,6 +75,8 @@ function ImportPage(): JSX.Element {
 
   const handleImport = async () => {
     if (!selectedFile || !user) { setMessage({ type: 'error', text: 'Please select a TSV file and ensure you are logged in.' }); return; }
+    if (!selectedVehicleId) { setMessage({ type: 'error', text: 'Please select a vehicle for this import.' }); return; }
+    
     setStatus('reading'); setMessage({ type: 'info', text: 'Reading file...' }); setImportedCount(0);
     const reader = new FileReader();
 
@@ -80,8 +115,12 @@ function ImportPage(): JSX.Element {
 
           // NO conversion here, save distanceKm directly
           logsToImport.push({
-            userId: user.uid, timestamp: timestamp, brand: garageStr.trim() || 'Unknown',
-            cost: cost, distanceKm: distanceKm, // Save distanceKm
+            userId: user.uid,
+            vehicleId: selectedVehicleId, // Link to vehicle
+            timestamp: timestamp,
+            brand: garageStr.trim() || 'Unknown',
+            cost: cost,
+            distanceKm: distanceKm,
             fuelAmountLiters: fuelAmountLiters,
           });
         }
@@ -114,33 +153,87 @@ function ImportPage(): JSX.Element {
     <div className="container mx-auto max-w-2xl px-4">
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 space-y-6">
         <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white">Import Fuel Logs</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-          Select a Tab-Separated Value (.tsv or .txt) file. Ensure headers include: 
-          <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Date</code>, 
-          <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Litres</code>, 
-          <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Total Cost</code>, 
-          <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Garage</code>, and 
-          <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Distance since fueled</code> (in Km).
-        </p>
-        {/* File Input */}
-        <div>
-          <label htmlFor="tsvFile" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">TSV File</label>
-          <input 
-            type="file" 
-            id="tsvFile" 
-            accept=".tsv,.txt,text/tab-separated-values" 
-            onChange={handleFileChange} 
-            className="block w-full text-sm text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/70"
-            disabled={status === 'reading' || status === 'parsing' || status === 'importing'}
-          />
-        </div>
-        {/* Import Button */}
-        <button onClick={handleImport} disabled={!selectedFile || !user || status === 'reading' || status === 'parsing' || status === 'importing'}
-          className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
-          {status === 'importing' ? `Importing... (${importedCount})` : status === 'parsing' ? 'Parsing...' : status === 'reading' ? 'Reading...' : 'Import Data'}
-        </button>
-        {/* Status/Result Message */}
-        {message && ( <div className={`mt-4 p-3 rounded-md text-sm border ${messageClasses}`}>{message.text}</div> )}
+        
+        {isLoadingVehicles ? (
+          <div className="text-center py-4 animate-pulse text-gray-500">Loading vehicles...</div>
+        ) : vehicles.length === 0 ? (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-center space-y-3">
+            <p className="text-amber-800 dark:text-amber-300 text-sm font-medium">No active vehicles found.</p>
+            <p className="text-xs text-amber-700/70 dark:text-amber-400/70">You need an active vehicle to import logs.</p>
+            <Link to="/profile" className="inline-block bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-bold py-2 px-4 rounded-md transition duration-150">
+              Go to Profile
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+                <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Target Vehicle
+                </label>
+                <select
+                  id="vehicle"
+                  value={selectedVehicleId}
+                  onChange={(e) => setSelectedVehicleId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm"
+                  disabled={status === 'reading' || status === 'parsing' || status === 'importing'}
+                >
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name} ({v.make} {v.model})
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-[10px] text-gray-500 italic">All logs in the file will be assigned to this vehicle.</p>
+            </div>
+
+            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed pt-2">
+              Select a Tab-Separated Value (.tsv or .txt) file. Ensure headers include: 
+              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Date</code>, 
+              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Litres</code>, 
+              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Total Cost</code>, 
+              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Garage</code>, and 
+              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Distance since fueled</code> (in Km).
+            </p>
+            
+            <div className="space-y-2">
+              <label htmlFor="tsvFile" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                TSV File
+              </label>
+              <input 
+                type="file" 
+                id="tsvFile" 
+                accept=".tsv,.txt,text/tab-separated-values" 
+                onChange={handleFileChange} 
+                className="block w-full text-sm text-gray-500 dark:text-gray-400
+                  file:mr-4 file:py-2.5 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-indigo-50 file:text-indigo-700
+                  dark:file:bg-indigo-900/50 dark:file:text-indigo-300
+                  hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900/70
+                  border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer
+                  focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400"
+                disabled={status === 'reading' || status === 'parsing' || status === 'importing'}
+              />
+            </div>
+
+            <button 
+              onClick={handleImport} 
+              disabled={!selectedFile || !user || !selectedVehicleId || status === 'reading' || status === 'parsing' || status === 'importing'}
+              className="w-full brand-button-primary py-3"
+            >
+              {status === 'importing' ? `Importing... (${importedCount})` : 
+               status === 'parsing' ? 'Parsing...' : 
+               status === 'reading' ? 'Reading...' : 'Process & Import Data'}
+            </button>
+          </div>
+        )}
+
+        {message && ( 
+          <div className={`mt-4 p-4 rounded-lg border text-sm font-medium ${messageClasses}`}>
+            {message.text}
+          </div> 
+        )}
       </div>
     </div>
   );

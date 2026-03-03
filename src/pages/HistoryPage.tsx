@@ -161,7 +161,7 @@ function HistoryPage(): JSX.Element {
         }
 
         return tempLogs; // Return the filtered array
-    }, [logs, filterStartDate, filterEndDate, filterBrand]); // Dependencies for recalculation
+    }, [logs, filterStartDate, filterEndDate, filterBrand, filterVehicleId]); // Dependencies for recalculation
 
     const vehicleMap = useMemo(() => {
         const map: Record<string, string> = {};

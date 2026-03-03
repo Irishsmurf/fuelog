@@ -23,6 +23,14 @@
   }
 }
 
+/* Custom Utilities for Safe Areas (Mobile notches) */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
 /* Base Styles */
 @layer base {
   html {
@@ -35,7 +43,7 @@
   }
 }
 
-/* Glassmorphism Utilities */
+/* Glassmorphism & Brand Components */
 @layer components {
   .glass-header {
     @apply sticky top-0 z-40 bg-white/80 dark:bg-brand-dark-surface/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm;
@@ -45,12 +53,9 @@
     @apply fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-brand-dark-surface/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe;
   }
 
-  .brand-button {
-    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-xl font-bold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
-  }
-
+  /* Define button styles without relying on recursive @apply */
   .brand-button-primary {
-    @apply brand-button bg-brand-primary text-white hover:bg-brand-primary-hover shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40;
+    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-xl font-bold transition-all bg-brand-primary text-white hover:bg-brand-primary-hover shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
   }
 }
 

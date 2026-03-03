@@ -4,6 +4,8 @@ import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, Do
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
+import { Vehicle } from '../utils/types';
+import { Link } from 'react-router-dom';
 
 // Types
 type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
@@ -30,10 +32,37 @@ function QuickLogPage(): JSX.Element {
   const [knownBrands, setKnownBrands] = useState<string[]>([]);
   const [isLoadingBrands, setIsLoadingBrands] = useState<boolean>(false);
 
+  // --- Multi-Vehicle State ---
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState<boolean>(true);
+
   // --- Multi-Currency State ---
   const [currency, setCurrency] = useState<string>('EUR'); // Transaction Currency
   const [exchangeRate, setExchangeRate] = useState<number>(1.0);
   const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
+
+  // --- Fetch Vehicles ---
+  useEffect(() => {
+    if (!user) return;
+    const fetchVehicles = async () => {
+      setIsLoadingVehicles(true);
+      try {
+        const q = query(collection(db, "vehicles"), where("userId", "==", user.uid));
+        const snap = await getDocs(q);
+        const list: Vehicle[] = [];
+        snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
+        setVehicles(list.sort((a, b) => a.name.localeCompare(b.name)));
+        const defaultVehicle = list.find(v => v.isDefault) || list[0];
+        if (defaultVehicle) setSelectedVehicleId(defaultVehicle.id);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+      } finally {
+        setIsLoadingVehicles(false);
+      }
+    };
+    fetchVehicles();
+  }, [user]);
 
   // --- Fetch Exchange Rate when currency changes ---
   useEffect(() => {
@@ -126,11 +155,20 @@ function QuickLogPage(): JSX.Element {
   // --- Form Submit Handler (Updated for Geolocation) ---
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Basic validation (same as before)
+    // Basic validation
     if (!user) { setMessage({ type: 'error', text: 'You must be logged in to save.' }); return; }
+    if (vehicles.length === 0) { setMessage({ type: 'error', text: 'Please add a vehicle in your Profile first.' }); return; }
+    if (!selectedVehicleId) { setMessage({ type: 'error', text: 'Please select a vehicle.' }); return; }
     if (!cost || !distanceKmInput || !fuelAmountLiters) { setMessage({ type: 'error', text: 'Please fill in Cost, Distance, and Fuel Amount.' }); return; }
-    const parsedCost = parseFloat(cost); const parsedDistanceKm = parseFloat(distanceKmInput); const parsedFuel = parseFloat(fuelAmountLiters);
-    if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) { setMessage({ type: 'error', text: 'Cost, Distance (Km), and Fuel Amount must be valid positive numbers.' }); return; }
+    
+    const parsedCost = parseFloat(cost); 
+    const parsedDistanceKm = parseFloat(distanceKmInput); 
+    const parsedFuel = parseFloat(fuelAmountLiters);
+    
+    if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) { 
+      setMessage({ type: 'error', text: 'Cost, Distance (Km), and Fuel Amount must be valid positive numbers.' }); 
+      return; 
+    }
 
     setIsSaving(true); // Indicate process started
     setMessage({ type: 'info', text: 'Attempting to get location...' }); // New info message
@@ -154,6 +192,7 @@ function QuickLogPage(): JSX.Element {
       // Prepare data object, including location if available
       const logData: any = { 
         userId: user.uid,
+        vehicleId: selectedVehicleId, // Link to vehicle
         timestamp: Timestamp.now(),
         brand: brand.trim() || 'Unknown',
         cost: costHomeCurrency, // Store normalized cost
@@ -196,7 +235,38 @@ function QuickLogPage(): JSX.Element {
     <div className="container mx-auto max-w-lg px-4">
         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">Log New Fuel Entry</h2>
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            
+            {isLoadingVehicles ? (
+              <div className="text-center py-4 animate-pulse">Loading vehicles...</div>
+            ) : vehicles.length === 0 ? (
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-center space-y-3 mb-6">
+                <p className="text-amber-800 dark:text-amber-300 text-sm">You haven't added any vehicles yet.</p>
+                <Link to="/profile" className="inline-block bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2 px-4 rounded-md transition duration-150">
+                  Setup Your Profile
+                </Link>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate className="space-y-5">
+                {/* Vehicle Selection */}
+                <div>
+                    <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Vehicle
+                    </label>
+                    <select
+                      id="vehicle"
+                      value={selectedVehicleId}
+                      onChange={handleInputChange(setSelectedVehicleId as any)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out"
+                      disabled={isSaving}
+                    >
+                      {vehicles.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.name} ({v.make} {v.model})
+                        </option>
+                      ))}
+                    </select>
+                </div>
+
                 {/* Brand Input */}
                 <div>
                     <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -344,6 +414,7 @@ function QuickLogPage(): JSX.Element {
                   </div> 
                 )}
             </form>
+            )}
         </div>
     </div>
   );

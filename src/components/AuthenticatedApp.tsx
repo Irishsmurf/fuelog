@@ -4,6 +4,7 @@ import ThemeToggle from './ThemeToggle';
 import QuickLogPage from '../pages/QuickLogPage';
 import HistoryPage from '../pages/HistoryPage';
 import ImportPage from '../pages/ImportPage';
+import ProfilePage from '../pages/ProfilePage';
 import PrivacyPolicyPage from '../pages/PrivacyPolicyPage';
 import AboutPage from '../pages/AboutPage'; // Import AboutPage
 import FuelMapPage from './FuelMapPage';
@@ -36,6 +37,7 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/" className={getNavLinkClass("/")}>Log</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
+            <Link to="/profile" className={getNavLinkClass("/profile")}>Profile</Link>
             <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
 
             {/* Theme Toggle Button */}
@@ -61,6 +63,7 @@ function AuthenticatedApp(): JSX.Element {
           <Route path="/" element={<QuickLogPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/import" element={<ImportPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/about" element={<AboutPage />} /> {/* Add route for AboutPage */}
           <Route path="/map" element={<FuelMapPage />} />

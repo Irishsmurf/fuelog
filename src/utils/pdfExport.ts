@@ -8,8 +8,9 @@ import { formatMPG } from './calculations';
  * @param logs Array of logs to include in the report.
  * @param userName Name of the user (e.g., for the header).
  * @param dateRange Description of the date range (e.g., "01/01/2024 - 31/01/2024").
+ * @param vehicleName Optional name of the vehicle being filtered.
  */
-export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string) => {
+export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string, vehicleName?: string) => {
   const doc = new jsPDF();
 
   // --- PDF Styling & Header ---
@@ -21,8 +22,9 @@ export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string
   doc.setFontSize(10);
   doc.setTextColor(100);
   doc.text(`User: ${userName}`, 14, 30);
-  doc.text(`Date Range: ${dateRange}`, 14, 35);
-  doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 40);
+  if (vehicleName) doc.text(`Vehicle: ${vehicleName}`, 14, 35);
+  doc.text(`Date Range: ${dateRange}`, 14, vehicleName ? 40 : 35);
+  doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, vehicleName ? 45 : 40);
 
   // --- Summary Section ---
   const totalCost = logs.reduce((sum, log) => sum + (log.cost || 0), 0);

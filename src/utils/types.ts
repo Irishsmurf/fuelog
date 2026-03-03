@@ -1,5 +1,18 @@
 import { Timestamp } from 'firebase/firestore';
 
+type VehicleFuelType = 'Petrol' | 'Diesel' | 'Hybrid' | 'Electric';
+
+interface Vehicle {
+    id: string;
+    userId: string;
+    name: string; // Nickname for the vehicle
+    make: string;
+    model: string;
+    year: string; // Kept as string for easier form handling, though numeric in usage
+    fuelType: VehicleFuelType;
+    isDefault: boolean;
+}
+
 interface FuelLogData {
     userId: string;
     timestamp: Timestamp;
@@ -15,6 +28,9 @@ interface FuelLogData {
     currency?: string;          // e.g., "GBP"
     originalCost?: number;      // Amount in the transaction currency
     exchangeRate?: number;      // Rate used: 1 Transaction Currency = X Home Currency
+
+    // Multi-vehicle support
+    vehicleId?: string;         // Link to the vehicle (optional for backward compatibility)
   }
 
   interface Log extends FuelLogData {
@@ -37,9 +53,10 @@ interface EditFormData {
     cost: string;
     distanceKm: string;
     fuelAmountLiters: string;
+    vehicleId?: string; // Multi-vehicle support
 }
 // Type for view mode state
 type ViewMode = 'table' | 'cards';
 
 
-export type { FuelLogData, Log, ChartDataPoint, ViewMode, EditFormData, EditingLogState };
+export type { FuelLogData, Log, ChartDataPoint, ViewMode, EditFormData, EditingLogState, Vehicle, VehicleFuelType };

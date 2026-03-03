@@ -2,8 +2,8 @@
 import { JSX, useState, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
 // Import Firestore functions for reading, updating, and deleting documents
 import {
-    collection, query, where, orderBy, onSnapshot,
-    doc, deleteDoc, updateDoc, DocumentData, QuerySnapshot // Ensure getDocs is imported if used elsewhere, though onSnapshot is primary here
+    collection, query, where, orderBy, onSnapshot, getDocs,
+    doc, deleteDoc, updateDoc, DocumentData, QuerySnapshot
 } from "firebase/firestore";
 // Import Firebase config and Auth hook
 import { db } from '../firebase/config';
@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 // Import the LogCard component
 import LogCard from '../components/LogCard'; // Adjust path if necessary
-import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode } from '../utils/types';
+import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode, Vehicle } from '../utils/types';
 import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
 import { useTheme } from '../context/ThemeContext';
 import { getBoolean } from '../firebase/remoteConfigService'; // Import for feature flags
@@ -37,10 +37,14 @@ function HistoryPage(): JSX.Element {
     const [error, setError] = useState<string | null>(null); // Stores any error message during data fetching
     const [copyStatus, setCopyStatus] = useState<string>('Copy Table Data'); // Manages the text/state of the copy button
 
+    // --- Multi-Vehicle State ---
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+    const [filterVehicleId, setFilterVehicleId] = useState<string>(''); // '' means all vehicles
+
     // --- State for Edit Modal ---
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Controls visibility of the edit modal
     const [editingLog, setEditingLog] = useState<EditingLogState>(null); // Stores the full log object being edited
-    const [editFormData, setEditFormData] = useState<EditFormData>({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '' }); // Holds the current values in the edit form inputs
+    const [editFormData, setEditFormData] = useState<EditFormData>({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', vehicleId: '' }); // Holds the current values in the edit form inputs
     const [isUpdating, setIsUpdating] = useState<boolean>(false); // Tracks if an update operation is in progress
     const [modalError, setModalError] = useState<string | null>(null); // Stores error messages specific to the edit modal form
 
@@ -49,6 +53,27 @@ function HistoryPage(): JSX.Element {
     const [filterEndDate, setFilterEndDate] = useState<string>('');     // Format: YYYY-MM-DD
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
     const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
+
+    // --- Fetch Vehicles Effect ---
+    useEffect(() => {
+        if (!user) { setVehicles([]); return; }
+        const fetchVehicles = async () => {
+            try {
+                const q = query(collection(db, "vehicles"), where("userId", "==", user.uid));
+                const snap = await getDocs(q);
+                const list: Vehicle[] = [];
+                snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
+                const sorted = list.sort((a, b) => a.name.localeCompare(b.name));
+                setVehicles(sorted);
+                // Default to the user's default vehicle if they have one
+                const defaultV = sorted.find(v => v.isDefault);
+                if (defaultV) setFilterVehicleId(defaultV.id);
+            } catch (err) {
+                console.error("Error fetching vehicles:", err);
+            }
+        };
+        fetchVehicles();
+    }, [user]);
 
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
@@ -96,6 +121,11 @@ function HistoryPage(): JSX.Element {
     const filteredLogs = useMemo(() => {
         let tempLogs = [...logs]; // Start with a copy of all fetched logs
 
+        // Filter by Vehicle
+        if (filterVehicleId) {
+            tempLogs = tempLogs.filter(log => log.vehicleId === filterVehicleId);
+        }
+
         // Filter by Start Date
         if (filterStartDate) {
             try {
@@ -121,6 +151,12 @@ function HistoryPage(): JSX.Element {
 
         return tempLogs; // Return the filtered array
     }, [logs, filterStartDate, filterEndDate, filterBrand]); // Dependencies for recalculation
+
+    const vehicleMap = useMemo(() => {
+        const map: Record<string, string> = {};
+        vehicles.forEach(v => map[v.id] = v.name);
+        return map;
+    }, [vehicles]);
 
     // --- Prepare Chart Data (Uses filteredLogs) ---
     // Memoized calculation for chart data based on the *filtered* logs.
@@ -183,7 +219,8 @@ function HistoryPage(): JSX.Element {
             ? `${filterStartDate} to ${filterEndDate}`
             : filterStartDate ? `Since ${filterStartDate}` : filterEndDate ? `Until ${filterEndDate}` : "All History";
         
-        exportLogsToPDF(filteredLogs, user?.displayName || user?.email || "User", dateRangeText);
+        const vehicleName = filterVehicleId ? vehicleMap[filterVehicleId] : "All Vehicles";
+        exportLogsToPDF(filteredLogs, user?.displayName || user?.email || "User", dateRangeText, vehicleName);
     };
 
     // --- Delete Function ---
@@ -209,8 +246,11 @@ function HistoryPage(): JSX.Element {
     const handleOpenEditModal = (log: Log) => {
         setEditingLog(log);
         setEditFormData({
-            brand: log.brand || '', cost: log.cost?.toString() || '',
-            distanceKm: log.distanceKm?.toString() || '', fuelAmountLiters: log.fuelAmountLiters?.toString() || ''
+            brand: log.brand || '', 
+            cost: log.cost?.toString() || '',
+            distanceKm: log.distanceKm?.toString() || '', 
+            fuelAmountLiters: log.fuelAmountLiters?.toString() || '',
+            vehicleId: log.vehicleId || ''
         });
         setModalError(null); setIsModalOpen(true);
     };
@@ -239,7 +279,13 @@ function HistoryPage(): JSX.Element {
         setIsUpdating(true); setModalError(null);
         try {
             const logRef = doc(db, "fuelLogs", editingLog.id);
-            const updatedData = { brand: brand.trim() || 'Unknown', cost: parsedCost, distanceKm: parsedDistanceKm, fuelAmountLiters: parsedFuel };
+            const updatedData = { 
+                brand: brand.trim() || 'Unknown', 
+                cost: parsedCost, 
+                distanceKm: parsedDistanceKm, 
+                fuelAmountLiters: parsedFuel,
+                vehicleId: editFormData.vehicleId
+            };
             await updateDoc(logRef, updatedData);
             console.log(`Log ${editingLog.id} updated successfully.`);
             handleCloseModal(); // Close modal on success
@@ -257,7 +303,20 @@ function HistoryPage(): JSX.Element {
             <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
                 <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3">Filters</h3>
                 {/* Grid layout for filter controls */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end ">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end ">
+                    {/* Vehicle Filter */}
+                    <div>
+                        <label htmlFor="filterVehicle" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Vehicle</label>
+                        <select 
+                            id="filterVehicle" 
+                            value={filterVehicleId} 
+                            onChange={(e) => setFilterVehicleId(e.target.value)} 
+                            className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300"
+                        >
+                            <option value="">All Vehicles</option>
+                            {vehicles.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                        </select>
+                    </div>
                     {/* Start Date Input */}
                     <div>
                         <label htmlFor="filterStartDate" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Start Date</label>
@@ -409,12 +468,13 @@ function HistoryPage(): JSX.Element {
                         // --- Table View ---
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200 border border-gray-200">
-                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost (Home)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
+                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost (Home)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
                                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A'}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-indigo-600 dark:text-indigo-400">{vehicleMap[log.vehicleId || ''] || '-'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.brand}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">
                                                 <div className="flex flex-col items-end">
@@ -472,6 +532,7 @@ function HistoryPage(): JSX.Element {
                                     log={log}
                                     onEdit={handleOpenEditModal} // Pass edit handler down
                                     onDelete={handleDeleteLog}   // Pass delete handler down
+                                    vehicleName={vehicleMap[log.vehicleId || '']}
                                 />
                             ))}
                         </div>
@@ -487,6 +548,19 @@ function HistoryPage(): JSX.Element {
                         <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300" id="modal-title">Edit Log Entry ({editingLog.timestamp.toDate().toLocaleDateString('en-IE')})</h3>
                         {/* Edit Form */}
                         <form onSubmit={handleUpdateLog} className="space-y-4">
+                            {/* Vehicle Selection */}
+                            <div>
+                                <label htmlFor="edit-vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle</label>
+                                <select 
+                                    name="vehicleId" 
+                                    id="edit-vehicle" 
+                                    value={editFormData.vehicleId} 
+                                    onChange={handleEditFormChange as any} 
+                                    className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                >
+                                    {vehicles.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                                </select>
+                            </div>
                             {/* Form Inputs (Brand, Cost, Distance, Fuel) */}
                             <div><label htmlFor="edit-brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Brand</label><input type="text" name="brand" id="edit-brand" value={editFormData.brand} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             <div><label htmlFor="edit-cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cost (€)</label><input type="number" inputMode="decimal" name="cost" id="edit-cost" value={editFormData.cost} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>

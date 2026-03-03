@@ -3,9 +3,14 @@ import { JSX } from 'react';
 import { Log } from '../utils/types';
 import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
 
-interface LogCardProps { log: Log; onEdit: (log: Log) => void; onDelete: (logId: string) => void; }
+interface LogCardProps { 
+  log: Log; 
+  onEdit: (log: Log) => void; 
+  onDelete: (logId: string) => void; 
+  vehicleName?: string;
+}
 
-function LogCard({ log, onEdit, onDelete }: LogCardProps): JSX.Element {
+function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Element {
 
   const renderDataRow = (label: string, value: string | number | undefined | null, unit: string = '', subtitle?: string) => {
     const displayValue = value !== undefined && value !== null && value !== 'N/A' && value !== 'Error' ? `${value}${unit}` : '-';
@@ -35,6 +40,7 @@ function LogCard({ log, onEdit, onDelete }: LogCardProps): JSX.Element {
 
       {/* Card Body - Data Rows (styles handled by renderDataRow) */}
       <div className="space-y-1">
+        {vehicleName && renderDataRow("Vehicle", vehicleName)}
         {renderDataRow("Cost", log.cost?.toFixed(2), " €", costSubtitle)}
         {renderDataRow("Distance", log.distanceKm?.toFixed(1), " Km")}
         {renderDataRow("Fuel", log.fuelAmountLiters?.toFixed(2), " L")}

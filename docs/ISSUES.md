@@ -12,7 +12,12 @@
 - [x] Implement fix (likely `overflow-x-auto` on the table container).
 - [x] Verify fix on mobile viewport.
 
-### Fix Summary:
-1.  **`HistoryPage.tsx`**: Added `w-full` and `overflow-x-auto` to the table's container to ensure it scrolls horizontally instead of expanding its parent.
-2.  **`AuthenticatedApp.tsx`**: Added `min-w-0` and `w-full` to the `<main>` flex item to prevent it from growing beyond the viewport width.
-3.  **`AuthenticatedApp.tsx`**: Added `overflow-x-hidden` to the root layout div as a safeguard against horizontal scrolling on mobile.
+## Bug: PWA Maskable Icons not dynamic
+**Description:** `icon-512x512.png` and other icons were not marked as maskable in the manifest, causing them to not render dynamically as PWA icons.
+**Status:** Completed
+**Priority:** Medium
+
+### Tasks:
+- [x] Update `vite.config.ts` to include all maskable icon sizes.
+- [x] Set `purpose: "any maskable"` for main icons and `purpose: "maskable"` for dedicated maskable icons.
+- [x] Verify manifest generation via `npm run build`.

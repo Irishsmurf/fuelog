@@ -17,7 +17,7 @@ const remoteConfigInstance: RemoteConfig = getRemoteConfig(app);
  * "maxItemsPerPage": 10
  */
 remoteConfigInstance.defaultConfig = {
-  "darkModeEnabled": false,
+  "darkModeEnabled": true,
   "exampleFeatureFlagEnabled": false, // Added for the example in step 3
   "costPerLitreGraphEnabled": false, // Feature flag for Cost Per Litre graph
   "totalSpentDisplayEnabled": false, // Feature flag for the Total Spent display

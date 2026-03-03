@@ -1,6 +1,7 @@
 // src/components/Login.tsx
 import { JSX, useState } from 'react';
 import { useAuth } from '../context/AuthContext'; // Assuming AuthContext is now AuthContext.tsx
+import ThemeToggle from './ThemeToggle';
 
 // Define the component's return type
 function Login(): JSX.Element {
@@ -27,7 +28,11 @@ function Login(): JSX.Element {
 
   return (
     // Full screen container, centers content using Flexbox (Tailwind)
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8 dark:bg-brand-dark-surface">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8 dark:bg-brand-dark-surface relative">
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
+      
       {/* Card container with Tailwind styling */}
       <div className="max-w-md w-full bg-white shadow-2xl rounded-3xl p-8 sm:p-12 border border-gray-100 space-y-8 dark:bg-gray-900 dark:border-gray-800 transition-all">
         {/* Header Section */}

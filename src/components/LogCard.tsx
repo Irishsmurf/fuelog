@@ -66,66 +66,70 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
 
   return (
     <div 
-      className="relative w-full h-[280px] perspective-1000 group"
+      className="relative w-full h-[320px] perspective-1000 group"
       onClick={handleFlip}
     >
       <div className={`relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}>
         
         {/* FRONT: Log Details */}
-        <div className="absolute inset-0 backface-hidden bg-white dark:bg-gray-800 shadow-md rounded-2xl p-5 border border-gray-100 dark:border-gray-700/50 flex flex-col space-y-4">
-          <div className="flex justify-between items-start">
-            <div className="space-y-0.5">
+        <div className="absolute inset-0 backface-hidden bg-white dark:bg-gray-800 shadow-md rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-gray-700/50 flex flex-col">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-3">
+            <div className="space-y-0.5 min-w-0 flex-grow">
               <div className="flex items-center space-x-1.5">
-                <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest truncate">
                     {log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' }) ?? 'N/A'}
                 </p>
-                {hasGeo && <MapPin size={10} className="text-brand-primary animate-pulse" />}
+                {hasGeo && <MapPin size={10} className="text-brand-primary shrink-0 animate-pulse" />}
               </div>
-              <h4 className="text-lg font-bold text-gray-900 dark:text-white leading-tight truncate max-w-[180px]">
+              <h4 className="text-lg font-black tracking-tight text-gray-900 dark:text-white leading-tight truncate">
                 {log.brand || 'Unknown Station'}
               </h4>
               {vehicleName && (
-                <span className="inline-block bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] px-2 py-0.5 rounded-full font-medium mt-1">
+                <span className="inline-block bg-brand-primary/5 text-brand-primary text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 border border-brand-primary/10">
                   {vehicleName}
                 </span>
               )}
             </div>
             
-            <div className="text-right">
-              <p className="text-xl font-black text-gray-900 dark:text-white font-mono">{homeCurrencySymbol}{costValue}</p>
+            <div className="text-right shrink-0 ml-2">
+              <p className="text-xl font-black text-gray-900 dark:text-white font-mono leading-none">{homeCurrencySymbol}{costValue}</p>
               {originalCostInfo && (
-                <p className="text-[10px] text-gray-400 font-medium italic font-mono">{originalCostInfo}</p>
+                <p className="text-[9px] text-gray-400 font-bold italic font-mono mt-1 uppercase">{originalCostInfo}</p>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 py-3 border-y border-gray-50 dark:border-gray-700/50">
+          {/* Metrics Grid */}
+          <div className="grid grid-cols-2 gap-3 py-3 border-y border-gray-50 dark:border-gray-700/50 mb-3">
             {renderMetric("Distance", log.distanceKm?.toFixed(1), " Km")}
             {renderMetric("Fuel Added", log.fuelAmountLiters?.toFixed(2), " L")}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {/* Efficiency Grid */}
+          <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-4">
             {renderMetric("MPG", formatMPG(log.distanceKm, log.fuelAmountLiters))}
             {renderMetric("km/L", formatKmL(log.distanceKm, log.fuelAmountLiters))}
             {renderMetric("L/100km", formatL100km(log.distanceKm, log.fuelAmountLiters))}
             {renderMetric("Cost/Mile", formatCostPerMile(log.cost, log.distanceKm))}
           </div>
 
-          <div className="flex justify-between items-center pt-2 mt-auto">
-            <span className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
-                {hasGeo ? "Tap to view map" : "No location data"}
+          {/* Footer Actions */}
+          <div className="flex justify-between items-center pt-3 border-t border-gray-50 dark:border-gray-700/50 mt-auto">
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                {hasGeo ? "Tap to view map" : "No location"}
             </span>
             <div className="flex space-x-2">
                 <button
                 onClick={(e) => { e.stopPropagation(); onEdit(log); }}
-                className="flex items-center justify-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-gray-500 hover:text-brand-primary dark:text-gray-400 dark:hover:text-brand-primary rounded-xl transition-colors"
+                className="flex items-center justify-center p-2 bg-gray-50 dark:bg-gray-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-gray-500 hover:text-brand-primary dark:text-gray-400 dark:hover:text-brand-primary rounded-xl transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50"
                 title="Edit Entry"
                 >
                 <Edit3 size={16} />
                 </button>
                 <button
                 onClick={(e) => { e.stopPropagation(); onDelete(log.id); }}
-                className="flex items-center justify-center p-2.5 bg-gray-50 dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded-xl transition-colors"
+                className="flex items-center justify-center p-2 bg-gray-50 dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded-xl transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
                 title="Delete Entry"
                 >
                 <Trash2 size={16} />

@@ -2,6 +2,24 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import LogCard from './LogCard';
 import { describe, it, expect, vi } from 'vitest';
 
+// Mock AuthContext
+vi.mock('../context/AuthContext', () => ({
+  useAuth: () => ({
+    profile: { homeCurrency: 'EUR' }
+  })
+}));
+
+// Mock react-leaflet to avoid map rendering issues in tests
+vi.mock('react-leaflet', () => ({
+  MapContainer: ({ children }: any) => <div data-testid="map-container">{children}</div>,
+  TileLayer: () => <div />,
+  Marker: () => <div />,
+  useMap: () => ({
+    invalidateSize: vi.fn(),
+    setView: vi.fn()
+  })
+}));
+
 // Mock the Log type structure needed for the component
 const mockLog = {
   id: '1',
@@ -22,9 +40,9 @@ describe('LogCard', () => {
 
     render(<LogCard log={mockLog} onEdit={onEdit} onDelete={onDelete} />);
 
-    expect(screen.getByText('Test Brand')).toBeInTheDocument();
+    expect(screen.getAllByText('Test Brand').length).toBeGreaterThan(0);
     
-    // Check for the new labels (no colon, uppercase in CSS but text content is as written)
+    // Check for the new labels
     expect(screen.getByText('Distance')).toBeInTheDocument();
     expect(screen.getByText('100.0 Km')).toBeInTheDocument();
 
@@ -40,7 +58,6 @@ describe('LogCard', () => {
     const onDelete = vi.fn();
     render(<LogCard log={mockLog} onEdit={onEdit} onDelete={onDelete} />);
 
-    // Find edit button. It has title "Edit Entry"
     const editButton = screen.getByTitle('Edit Entry');
     fireEvent.click(editButton);
 

@@ -8,6 +8,7 @@ import ProfilePage from '../pages/ProfilePage';
 import PrivacyPolicyPage from '../pages/PrivacyPolicyPage';
 import AboutPage from '../pages/AboutPage'; // Import AboutPage
 import FuelMapPage from './FuelMapPage';
+import InstallPrompt from './InstallPrompt';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 
 
@@ -81,6 +82,7 @@ function AuthenticatedApp(): JSX.Element {
               </Link>
           </div>
       </footer>
+      <InstallPrompt />
     </div>
   </>);
 }

@@ -215,6 +215,11 @@ function QuickLogPage(): JSX.Element {
       setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
       setMessage({ type: 'success', text: `Log saved successfully! ${locationData ? '' : '(Location not captured)'}` }); // Indicate if location was missed
 
+      // Haptic feedback for mobile
+      if ('vibrate' in navigator) {
+        window.navigator.vibrate(50); // Short pulse
+      }
+
     } catch (error) {
       console.error("Error adding document: ", error);
       setMessage({ type: 'error', text: 'Error saving log. Please try again.' });
@@ -237,179 +242,93 @@ function QuickLogPage(): JSX.Element {
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">Log New Fuel Entry</h2>
             
             {isLoadingVehicles ? (
-              <div className="text-center py-4 animate-pulse">Loading vehicles...</div>
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
+                <p className="mt-2 text-sm text-gray-500 animate-pulse">Loading vehicles...</p>
+              </div>
             ) : vehicles.length === 0 ? (
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-center space-y-3 mb-6">
-                <p className="text-amber-800 dark:text-amber-300 text-sm">You haven't added any vehicles yet.</p>
-                <Link to="/profile" className="inline-block bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2 px-4 rounded-md transition duration-150">
-                  Setup Your Profile
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 text-center space-y-4 mb-6">
+                <div className="bg-amber-100 dark:bg-amber-800/40 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-amber-600 dark:text-amber-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.091-1.124l-.303-4.919a1.125 1.125 0 0 0-1.121-1.056H11.25m9 4.5H16.5m-9-4.5V3.375c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125V9.75M8.25 14.25h11.25M8.25 14.25 5.25 9.75" />
+                  </svg>
+                </div>
+                <p className="text-amber-800 dark:text-amber-300 font-medium">No vehicles found</p>
+                <p className="text-amber-700/70 dark:text-amber-400/70 text-xs">You need at least one vehicle to start logging fuel.</p>
+                <Link to="/profile" className="block w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-150 shadow-md">
+                  Add Your First Vehicle
                 </Link>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} noValidate className="space-y-5">
-                {/* Vehicle Selection */}
-                <div>
-                    <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Vehicle
-                    </label>
-                    <select
-                      id="vehicle"
-                      value={selectedVehicleId}
-                      onChange={handleInputChange(setSelectedVehicleId as any)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out"
-                      disabled={isSaving}
-                    >
-                      {vehicles.map((v) => (
-                        <option key={v.id} value={v.id}>
-                          {v.name} ({v.make} {v.model})
-                        </option>
-                      ))}
-                    </select>
+              <form onSubmit={handleSubmit} noValidate className="space-y-6">
+                
+                {/* Section 1: Vehicle & Station */}
+                <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Vehicle & Station</h3>
+                  
+                  <div>
+                      <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle</label>
+                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
+                        {vehicles.map((v) => ( <option key={v.id} value={v.id}>{v.name} ({v.make})</option> ))}
+                      </select>
+                  </div>
+
+                  <div>
+                      <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filling Station <span className="text-gray-400 font-normal text-xs">(Optional)</span></label>
+                      <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder="e.g., Circle K, Maxol" className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off" />
+                      <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
+                  </div>
                 </div>
 
-                {/* Brand Input */}
-                <div>
-                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Filling Station Brand <span className="text-gray-500 dark:text-gray-400 text-xs font-normal">(Optional)</span>
-                    </label>
-                    <input 
-                      type="text" 
-                      id="brand" 
-                      value={brand} 
-                      onChange={handleInputChange(setBrand)} 
-                      placeholder="e.g., Circle K, Maxol" 
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
-                      disabled={isSaving || isLoadingBrands} 
-                      list="brand-suggestions" 
-                      autoComplete="off"
-                    />
-                    <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
-                </div>
-                
-                {/* Cost and Currency Input */}
-                <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2">
-                        <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Total Cost <span className="text-red-500">*</span>
-                        </label>
-                        <input 
-                          type="number" 
-                          inputMode="decimal" 
-                          id="cost" 
-                          value={cost} 
-                          onChange={handleInputChange(setCost)} 
-                          placeholder="e.g., 65.50" 
-                          step="0.01" 
-                          min="0.01" 
-                          required 
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
-                          disabled={isSaving} 
-                        />
+                {/* Section 2: Transaction Details */}
+                <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Fuel & Cost</h3>
+                  
+                  <div className="grid grid-cols-3 gap-3">
+                      <div className="col-span-2">
+                          <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Total Cost</label>
+                          <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
+                      </div>
+                      <div>
+                          <label htmlFor="currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Currency</label>
+                          <select id="currency" value={currency} onChange={handleInputChange(setCurrency as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
+                            {COMMON_CURRENCIES.map((curr) => ( <option key={curr.code} value={curr.code}>{curr.code}</option> ))}
+                          </select>
+                      </div>
+                  </div>
+
+                  {currency !== 'EUR' && (
+                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-tighter">Rate (1 {currency} = X EUR)</label>
+                        {isFetchingRate && <span className="text-[10px] text-indigo-600 dark:text-indigo-400 animate-pulse">Fetching...</span>}
+                      </div>
+                      <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-3 py-2 border border-indigo-200 dark:border-indigo-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm" disabled={isSaving} />
+                      <p className="text-[10px] text-indigo-700 dark:text-indigo-400 font-medium">Converted: €{(parseFloat(cost || '0') * exchangeRate).toFixed(2)}</p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                        <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dist (Km)</label>
+                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
                     </div>
                     <div>
-                        <label htmlFor="currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Currency
-                        </label>
-                        <select
-                          id="currency"
-                          value={currency}
-                          onChange={handleInputChange(setCurrency as any)}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out"
-                          disabled={isSaving}
-                        >
-                          {COMMON_CURRENCIES.map((curr) => (
-                            <option key={curr.code} value={curr.code}>
-                              {curr.code} ({curr.symbol})
-                            </option>
-                          ))}
-                        </select>
+                        <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuel (L)</label>
+                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
                     </div>
-                </div>
-
-                {/* Exchange Rate Input (Conditional) */}
-                {currency !== 'EUR' && (
-                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-100 dark:border-indigo-800 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div className="flex justify-between items-center">
-                      <label htmlFor="exchangeRate" className="block text-sm font-medium text-indigo-900 dark:text-indigo-300">
-                        Exchange Rate (1 {currency} = X EUR)
-                      </label>
-                      {isFetchingRate && (
-                        <span className="text-xs text-indigo-600 dark:text-indigo-400 animate-pulse">Fetching latest rate...</span>
-                      )}
-                    </div>
-                    <input 
-                      type="number" 
-                      inputMode="decimal" 
-                      id="exchangeRate" 
-                      value={exchangeRate} 
-                      onChange={handleRateChange} 
-                      step="0.0001" 
-                      min="0.0001" 
-                      className="w-full px-3 py-2 border border-indigo-300 dark:border-indigo-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm"
-                      disabled={isSaving}
-                    />
-                    <p className="text-xs text-indigo-700 dark:text-indigo-400">
-                      Converted Total: <span className="font-bold">€{(parseFloat(cost || '0') * exchangeRate).toFixed(2)}</span>
-                    </p>
                   </div>
-                )}
-
-                 {/* Distance Input */}
-                <div>
-                    <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Distance Covered (Km) <span className="text-red-500">*</span>
-                    </label>
-                    <input 
-                      type="number" 
-                      inputMode="decimal" 
-                      id="distance" 
-                      value={distanceKmInput} 
-                      onChange={handleInputChange(setDistanceKmInput)} 
-                      placeholder="e.g., 500.5" 
-                      step="0.1" 
-                      min="0.1" 
-                      required 
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
-                      disabled={isSaving} 
-                      aria-describedby="distance-description"
-                    />
-                    <p id="distance-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-normal">Kilometers driven since last fill-up.</p>
-                </div>
-
-                {/* Fuel Amount Input */}
-                <div>
-                    <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Fuel Added (Litres) <span className="text-red-500">*</span>
-                    </label>
-                    <input 
-                      type="number" 
-                      inputMode="decimal" 
-                      id="fuelAmount" 
-                      value={fuelAmountLiters} 
-                      onChange={handleInputChange(setFuelAmountLiters)} 
-                      placeholder="e.g., 42.80" 
-                      step="0.01" 
-                      min="0.01" 
-                      required 
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
-                      disabled={isSaving} 
-                      aria-describedby="fuel-description"
-                    />
-                    <p id="fuel-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-normal">Amount of fuel added, in Litres.</p>
                 </div>
 
                 {/* Submit Button */}
-                <button 
-                  type="submit" 
-                  disabled={isSaving || isLoadingBrands} 
-                  className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-bold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out"
-                >
-                    {isSaving ? (message.text.includes('location') ? 'Getting Location...' : 'Saving...') : 'Save Fuel Log'}
+                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center items-center py-3.5 px-4 border border-transparent shadow-lg text-base font-bold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+                    {isSaving && <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
+                    {isSaving ? (message.text.includes('location') ? 'Locating...' : 'Saving Log...') : 'Save Fuel Log'}
                 </button>
 
                 {/* Feedback Message */}
                 {message.text && ( 
-                  <div className={`mt-4 p-4 rounded-lg border text-sm font-medium text-center ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>
+                  <div className={`mt-4 p-4 rounded-xl border text-sm font-medium text-center shadow-sm ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>
                     {message.text}
                   </div> 
                 )}

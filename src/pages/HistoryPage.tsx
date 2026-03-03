@@ -78,6 +78,17 @@ function HistoryPage(): JSX.Element {
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
 
+    // --- Screen Size Effect ---
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) { setViewMode('cards'); }
+            else { setViewMode('table'); }
+        };
+        handleResize(); // Initial check
+        // We don't add listener to avoid jarring view changes while rotating,
+        // but initial load should be correct.
+    }, []);
+
     // --- Firestore Listener Effect ---
     // Fetches all logs for the user and listens for real-time updates.
     // Also extracts unique brands for the filter dropdown.

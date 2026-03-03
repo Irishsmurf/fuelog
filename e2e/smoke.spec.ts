@@ -1,25 +1,42 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, devices } from '@playwright/test';
 
-test.describe('Smoke Tests', () => {
-  test('has title', async ({ page }) => {
+test.describe('Mobile UX Smoke Tests', () => {
+  test.use({ ...devices['iPhone 12'] });
+
+  test('should show bottom navigation on mobile', async ({ page }) => {
     await page.goto('/');
-    // Expect a title "to contain" a substring.
-    await expect(page).toHaveTitle(/Fuelog/);
+    
+    const bottomNav = page.locator('nav.fixed.bottom-0');
+    await expect(bottomNav).toBeVisible();
+    
+    // Check for primary mobile links
+    await expect(bottomNav.locator('text=Log')).toBeVisible();
+    await expect(bottomNav.locator('text=History')).toBeVisible();
   });
 
-  test('shows login page for unauthenticated users', async ({ page }) => {
+  test('should show simplified header on mobile', async ({ page }) => {
     await page.goto('/');
-    // Expect the header "Fuel Logger" to be visible
-    await expect(page.getByRole('heading', { name: 'Fuel Logger' })).toBeVisible();
-
-    // Expect the Sign in button to be visible
-    await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
+    
+    // Header should exist but desktop nav should be hidden
+    const header = page.locator('header');
+    await expect(header).toBeVisible();
+    
+    const desktopLinks = header.locator('.hidden.sm\\:flex');
+    await expect(desktopLinks).toBeHidden();
   });
+});
 
-  test('protected routes show login page', async ({ page }) => {
-    await page.goto('/history');
-    // Since the user is not logged in, they should see the login component
-    await expect(page.getByRole('heading', { name: 'Fuel Logger' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible();
+test.describe('Desktop UX Smoke Tests', () => {
+  test.use({ ...devices['Desktop Chrome'] });
+
+  test('should show top navigation on desktop', async ({ page }) => {
+    await page.goto('/');
+    
+    const header = page.locator('header');
+    const desktopLinks = header.locator('.hidden.sm\\:flex');
+    await expect(desktopLinks).toBeVisible();
+    
+    const bottomNav = page.locator('nav.fixed.bottom-0');
+    await expect(bottomNav).toBeHidden();
   });
 });

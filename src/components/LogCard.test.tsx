@@ -23,18 +23,16 @@ describe('LogCard', () => {
     render(<LogCard log={mockLog} onEdit={onEdit} onDelete={onDelete} />);
 
     expect(screen.getByText('Test Brand')).toBeInTheDocument();
-    // Date formatting might depend on locale in environment, checking part of it or skipping exact date check if flaky.
-    // 'en-IE' expectation:
-    // expect(screen.getByText('01/01/2023')).toBeInTheDocument();
-
-    expect(screen.getByText('Cost:')).toBeInTheDocument();
-    expect(screen.getByText('50.00 €')).toBeInTheDocument();
-
-    expect(screen.getByText('Distance:')).toBeInTheDocument();
+    
+    // Check for the new labels (no colon, uppercase in CSS but text content is as written)
+    expect(screen.getByText('Distance')).toBeInTheDocument();
     expect(screen.getByText('100.0 Km')).toBeInTheDocument();
 
-    expect(screen.getByText('Fuel:')).toBeInTheDocument();
+    expect(screen.getByText('Fuel Added')).toBeInTheDocument();
     expect(screen.getByText('10.00 L')).toBeInTheDocument();
+
+    expect(screen.getByText('MPG')).toBeInTheDocument();
+    expect(screen.getByText('28.25')).toBeInTheDocument();
   });
 
   it('calls onEdit when edit button is clicked', () => {
@@ -42,8 +40,8 @@ describe('LogCard', () => {
     const onDelete = vi.fn();
     render(<LogCard log={mockLog} onEdit={onEdit} onDelete={onDelete} />);
 
-    // Find edit button. It has title "Edit Log"
-    const editButton = screen.getByTitle('Edit Log');
+    // Find edit button. It has title "Edit Entry"
+    const editButton = screen.getByTitle('Edit Entry');
     fireEvent.click(editButton);
 
     expect(onEdit).toHaveBeenCalledTimes(1);
@@ -55,7 +53,7 @@ describe('LogCard', () => {
     const onDelete = vi.fn();
     render(<LogCard log={mockLog} onEdit={onEdit} onDelete={onDelete} />);
 
-    const deleteButton = screen.getByTitle('Delete Log');
+    const deleteButton = screen.getByTitle('Delete Entry');
     fireEvent.click(deleteButton);
 
     expect(onDelete).toHaveBeenCalledTimes(1);

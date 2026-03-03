@@ -18,6 +18,7 @@ import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMo
 import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
 import { useTheme } from '../context/ThemeContext';
 import { getBoolean } from '../firebase/remoteConfigService'; // Import for feature flags
+import { exportLogsToPDF } from '../utils/pdfExport'; // Import PDF Export utility
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -174,6 +175,15 @@ function HistoryPage(): JSX.Element {
         });
         const tsvString = [headers, ...dataRows].join('\n');
         try { await navigator.clipboard.writeText(tsvString); setCopyStatus('Copied!'); } catch (err) { console.error('Failed to copy data to clipboard:', err); setCopyStatus('Copy Failed!'); } finally { setTimeout(() => setCopyStatus('Copy Table Data'), 2000); }
+    };
+
+    const handleDownloadPDF = () => {
+        if (filteredLogs.length === 0) return;
+        const dateRangeText = filterStartDate && filterEndDate 
+            ? `${filterStartDate} to ${filterEndDate}`
+            : filterStartDate ? `Since ${filterStartDate}` : filterEndDate ? `Until ${filterEndDate}` : "All History";
+        
+        exportLogsToPDF(filteredLogs, user?.displayName || user?.email || "User", dateRangeText);
     };
 
     // --- Delete Function ---
@@ -376,7 +386,16 @@ function HistoryPage(): JSX.Element {
                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
                         Log Details {filteredLogs.length !== logs.length ? `(${filteredLogs.length} of ${logs.length} shown)` : `(${logs.length} total)`}
                     </h3>
-                    <button onClick={copyTableData} disabled={copyStatus !== 'Copy Table Data' || filteredLogs.length === 0} className={`px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${copyStatus === 'Copied!' ? 'bg-green-100 text-green-700' : copyStatus === 'Copy Failed!' || copyStatus === 'Clipboard unavailable' ? 'bg-red-100 text-red-700 cursor-not-allowed' : copyStatus === 'Copying...' || copyStatus === 'No data' ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'bg-indigo-100 dark:bg-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-600'}`}>{copyStatus}</button>
+                    <div className="flex space-x-2">
+                        <button 
+                            onClick={handleDownloadPDF} 
+                            disabled={filteredLogs.length === 0} 
+                            className="px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Download PDF
+                        </button>
+                        <button onClick={copyTableData} disabled={copyStatus !== 'Copy Table Data' || filteredLogs.length === 0} className={`px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${copyStatus === 'Copied!' ? 'bg-green-100 text-green-700' : copyStatus === 'Copy Failed!' || copyStatus === 'Clipboard unavailable' ? 'bg-red-100 text-red-700 cursor-not-allowed' : copyStatus === 'Copying...' || copyStatus === 'No data' ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'bg-indigo-100 dark:bg-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-600'}`}>{copyStatus}</button>
+                    </div>
                 </div>
 
                 {/* Centralized Loading/Error/Empty states */}

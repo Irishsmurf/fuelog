@@ -11,6 +11,7 @@ interface Vehicle {
     year: string; // Kept as string for easier form handling, though numeric in usage
     fuelType: VehicleFuelType;
     isDefault: boolean;
+    isArchived?: boolean; // Multi-vehicle support: Archive rentals/sold cars
 }
 
 interface FuelLogData {

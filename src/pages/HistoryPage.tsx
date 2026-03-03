@@ -325,7 +325,11 @@ function HistoryPage(): JSX.Element {
                             className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300"
                         >
                             <option value="">All Vehicles</option>
-                            {vehicles.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                            {vehicles.map(v => (
+                                <option key={v.id} value={v.id}>
+                                    {v.name}{v.isArchived ? ' (Archived)' : ''}
+                                </option>
+                            ))}
                         </select>
                     </div>
                     {/* Start Date Input */}

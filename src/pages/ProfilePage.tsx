@@ -1,8 +1,9 @@
 import { JSX, useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle, VehicleFuelType } from '../utils/types';
+import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw } from 'lucide-react';
 
 function ProfilePage(): JSX.Element {
   const { user } = useAuth();
@@ -10,6 +11,7 @@ function ProfilePage(): JSX.Element {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsUpdating] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -61,7 +63,8 @@ function ProfilePage(): JSX.Element {
       await addDoc(collection(db, "vehicles"), {
         ...formData,
         userId: user.uid,
-        isDefault: vehicles.length === 0 ? true : formData.isDefault // First vehicle is always default
+        isArchived: false,
+        isDefault: vehicles.filter(v => !v.isArchived).length === 0 ? true : formData.isDefault
       });
 
       setMessage({ type: 'success', text: 'Vehicle added successfully!' });
@@ -92,7 +95,25 @@ function ProfilePage(): JSX.Element {
     }
   };
 
+  const handleArchiveVehicle = async (vehicle: Vehicle) => {
+    try {
+      const isNowArchived = !vehicle.isArchived;
+      const updates: any = { isArchived: isNowArchived };
+      
+      // If we are archiving a default vehicle, remove default status
+      if (isNowArchived && vehicle.isDefault) {
+        updates.isDefault = false;
+      }
+
+      await updateDoc(doc(db, "vehicles", vehicle.id), updates);
+      fetchVehicles();
+    } catch (error: any) {
+      console.error("Error archiving vehicle:", error);
+    }
+  };
+
   const handleSetDefault = async (vehicle: Vehicle) => {
+    if (vehicle.isArchived) return; // Cannot set archived as default
     try {
       const batch = writeBatch(db);
       vehicles.forEach(v => {
@@ -109,80 +130,183 @@ function ProfilePage(): JSX.Element {
     }
   };
 
+  const activeVehicles = vehicles.filter(v => !v.isArchived);
+  const archivedVehicles = vehicles.filter(v => v.isArchived);
+
+  const renderVehicleCard = (v: Vehicle) => (
+    <div key={v.id} className={`group relative bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md ${v.isDefault ? 'border-brand-primary ring-1 ring-brand-primary/20' : 'border-gray-100 dark:border-gray-700'}`}>
+      <div className="p-5 flex items-start space-x-4">
+        {/* Car Icon Accent */}
+        <div className={`p-3 rounded-xl transition-colors ${v.isDefault ? 'bg-brand-primary/10 text-brand-primary' : 'bg-gray-50 dark:bg-gray-900 text-gray-400'}`}>
+          <Car size={24} />
+        </div>
+
+        <div className="flex-grow min-w-0">
+          <div className="flex justify-between items-start">
+            <h4 className="text-lg font-black tracking-tight truncate text-gray-900 dark:text-white">{v.name}</h4>
+            {v.isDefault && (
+              <span className="shrink-0 flex items-center text-[10px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">
+                Primary
+              </span>
+            )}
+          </div>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">{v.make} • {v.model}</p>
+          
+          <div className="flex items-center space-x-3 mt-3">
+            <div className="flex items-center text-[10px] font-bold text-gray-500 dark:text-gray-400">
+              <span className="w-2 h-2 rounded-full bg-indigo-400 mr-1.5"></span>
+              {v.year}
+            </div>
+            <div className="flex items-center text-[10px] font-bold text-gray-500 dark:text-gray-400">
+              <span className={`w-2 h-2 rounded-full mr-1.5 ${v.fuelType === 'Electric' ? 'bg-green-400' : 'bg-amber-400'}`}></span>
+              {v.fuelType}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Overlay/Bar */}
+      <div className="flex border-t border-gray-50 dark:border-gray-700 divide-x divide-gray-50 dark:divide-gray-700">
+        {!v.isArchived && !v.isDefault && (
+          <button 
+            onClick={() => handleSetDefault(v)} 
+            className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-brand-primary hover:bg-brand-primary/5 transition-all flex items-center justify-center space-x-1.5"
+          >
+            <CheckCircle2 size={12} />
+            <span>Make Default</span>
+          </button>
+        )}
+        <button 
+          onClick={() => handleArchiveVehicle(v)} 
+          className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all flex items-center justify-center space-x-1.5"
+          title={v.isArchived ? "Restore Vehicle" : "Archive Vehicle"}
+        >
+          <Archive size={12} />
+          <span>{v.isArchived ? "Restore" : "Archive"}</span>
+        </button>
+        <button 
+          onClick={() => handleDeleteVehicle(v.id)} 
+          className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all flex items-center justify-center space-x-1.5"
+        >
+          <Trash2 size={12} />
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="container mx-auto max-w-4xl px-4 space-y-8">
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Manage Your Vehicles</h2>
+    <div className="container mx-auto max-w-4xl px-4 space-y-10 pb-12">
+      <div>
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <h2 className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white">Vehicle Fleet</h2>
+            <p className="text-sm font-medium text-gray-500">Manage your cars and rentals.</p>
+          </div>
+          {archivedVehicles.length > 0 && (
+            <button 
+              onClick={() => setShowArchived(!showArchived)}
+              className="text-xs font-black uppercase tracking-widest text-brand-primary hover:underline"
+            >
+              {showArchived ? "Hide Archived" : `Show Archived (${archivedVehicles.length})`}
+            </button>
+          )}
+        </div>
         
-        {/* Vehicle List */}
-        <div className="space-y-4 mb-8">
+        {/* Active Vehicle Grid */}
+        <div className="space-y-4">
           {isLoading ? (
-            <p className="text-center animate-pulse">Loading vehicles...</p>
-          ) : vehicles.length === 0 ? (
-            <p className="text-gray-500 text-center italic">No vehicles added yet.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[1, 2].map(i => <div key={i} className="h-32 bg-gray-100 dark:bg-gray-800 animate-pulse rounded-2xl"></div>)}
+            </div>
+          ) : activeVehicles.length === 0 ? (
+            <div className="bg-white dark:bg-gray-800/50 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-3xl p-12 text-center">
+              <div className="bg-gray-50 dark:bg-gray-900 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-300">
+                <Car size={32} />
+              </div>
+              <p className="text-gray-500 font-bold">No active vehicles.</p>
+              <p className="text-gray-400 text-xs mt-1">Add a vehicle below to start tracking.</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {vehicles.map(v => (
-                <div key={v.id} className={`p-4 rounded-lg border flex justify-between items-center ${v.isDefault ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-gray-200 dark:border-gray-700'}`}>
-                  <div>
-                    <h4 className="font-bold text-lg">{v.name} {v.isDefault && <span className="ml-2 text-xs bg-indigo-600 text-white px-2 py-0.5 rounded-full">Default</span>}</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{v.year} {v.make} {v.model} ({v.fuelType})</p>
-                  </div>
-                  <div className="flex space-x-2">
-                    {!v.isDefault && (
-                      <button onClick={() => handleSetDefault(v)} className="text-xs text-indigo-600 hover:underline">Set Default</button>
-                    )}
-                    <button onClick={() => handleDeleteVehicle(v.id)} className="text-xs text-red-600 hover:underline">Delete</button>
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {activeVehicles.map(renderVehicleCard)}
             </div>
           )}
         </div>
 
-        <hr className="my-8 border-gray-200 dark:border-gray-700" />
+        {/* Archived Vehicle Grid */}
+        {showArchived && archivedVehicles.length > 0 && (
+          <div className="mt-10 animate-in fade-in slide-in-from-top-4">
+            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center">
+              <Archive size={14} className="mr-2" /> Archived Fleet
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
+              {archivedVehicles.map(renderVehicleCard)}
+            </div>
+          </div>
+        )}
+      </div>
 
-        {/* Add Vehicle Form */}
-        <h3 className="text-xl font-bold mb-4">Add New Vehicle</h3>
-        <form onSubmit={handleAddVehicle} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium mb-1">Nickname / Name</label>
-            <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder="e.g. My Polo" className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" />
+      {/* Add Vehicle Section */}
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 sm:p-10 border border-gray-100 dark:border-gray-700/50">
+        <div className="flex items-center space-x-3 mb-8">
+          <div className="bg-brand-primary/10 p-2 rounded-lg text-brand-primary">
+            <PlusCircle size={20} />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Make</label>
-            <input type="text" name="make" value={formData.make} onChange={handleInputChange} required placeholder="e.g. VW" className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" />
+          <h3 className="text-xl font-black tracking-tight">Add New Vehicle</h3>
+        </div>
+
+        <form onSubmit={handleAddVehicle} className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Nickname / Name</label>
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder="e.g. My Polo" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Make</label>
+              <input type="text" name="make" value={formData.make} onChange={handleInputChange} required placeholder="e.g. VW" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Model</label>
+              <input type="text" name="model" value={formData.model} onChange={handleInputChange} required placeholder="e.g. Polo" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Year</label>
+              <input type="number" name="year" value={formData.year} onChange={handleInputChange} required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Fuel Type</label>
+              <select name="fuelType" value={formData.fuelType} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white">
+                <option value="Petrol">Petrol</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Electric">Electric</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Model</label>
-            <input type="text" name="model" value={formData.model} onChange={handleInputChange} required placeholder="e.g. Polo" className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" />
+
+          <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl">
+            <input type="checkbox" name="isDefault" id="isDefault" checked={formData.isDefault} onChange={handleInputChange} className="h-5 w-5 text-brand-primary rounded-lg border-none focus:ring-0 focus:ring-offset-0 transition-all" />
+            <label htmlFor="isDefault" className="ml-3 text-sm font-bold text-gray-600 dark:text-gray-300 flex items-center">
+              <CheckCircle2 size={16} className="mr-2 text-brand-primary" />
+              Set as default vehicle
+            </label>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Year</label>
-            <input type="number" name="year" value={formData.year} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Fuel Type</label>
-            <select name="fuelType" value={formData.fuelType} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600">
-              <option value="Petrol">Petrol</option>
-              <option value="Diesel">Diesel</option>
-              <option value="Hybrid">Hybrid</option>
-              <option value="Electric">Electric</option>
-            </select>
-          </div>
-          <div className="sm:col-span-2 flex items-center">
-            <input type="checkbox" name="isDefault" id="isDefault" checked={formData.isDefault} onChange={handleInputChange} className="h-4 w-4 text-indigo-600 rounded" />
-            <label htmlFor="isDefault" className="ml-2 text-sm">Set as default vehicle</label>
-          </div>
-          <div className="sm:col-span-2">
-            <button type="submit" disabled={isSaving} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition duration-150 disabled:opacity-50">
-              {isSaving ? 'Adding...' : 'Add Vehicle'}
-            </button>
-          </div>
+
+          <button type="submit" disabled={isSaving} className="brand-button-primary w-full py-4 text-base shadow-xl">
+            {isSaving ? (
+              <div className="flex items-center space-x-2">
+                <RefreshCw size={20} className="animate-spin" />
+                <span>Initializing...</span>
+              </div>
+            ) : 'Register Vehicle'}
+          </button>
         </form>
+
         {message && (
-          <div className={`mt-4 p-3 rounded-md text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-            {message.text}
+          <div className={`mt-6 p-4 rounded-2xl border flex items-center space-x-3 animate-in slide-in-from-bottom-2 ${message.type === 'success' ? 'bg-green-50 border-green-100 text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-red-50 border-red-100 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'}`}>
+            {message.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+            <p className="text-sm font-bold">{message.text}</p>
           </div>
         )}
       </div>

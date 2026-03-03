@@ -19,11 +19,14 @@ import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPr
 import { useTheme } from '../context/ThemeContext';
 import { getBoolean } from '../firebase/remoteConfigService'; // Import for feature flags
 import { exportLogsToPDF } from '../utils/pdfExport'; // Import PDF Export utility
+import { COMMON_CURRENCIES } from '../utils/currencyApi';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
     // Get the current authenticated user from context
-    const { user } = useAuth();
+    const { user, profile } = useAuth();
+    const homeCurrency = profile?.homeCurrency || 'EUR';
+    const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
 
     // --- Component State ---
     const { theme } = useTheme();
@@ -230,7 +233,7 @@ function HistoryPage(): JSX.Element {
             : filterStartDate ? `Since ${filterStartDate}` : filterEndDate ? `Until ${filterEndDate}` : "All History";
         
         const vehicleName = filterVehicleId ? vehicleMap[filterVehicleId] : "All Vehicles";
-        exportLogsToPDF(filteredLogs, user?.displayName || user?.email || "User", dateRangeText, vehicleName);
+        exportLogsToPDF(filteredLogs, user?.displayName || user?.email || "User", dateRangeText, vehicleName, homeCurrency, homeCurrencySymbol);
     };
 
     // --- Delete Function ---
@@ -372,7 +375,7 @@ function HistoryPage(): JSX.Element {
                         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
                             <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Total Spent (Filtered)</h3>
                             <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
-                                €{summaryMetrics.totalCost.toFixed(2)}
+                                {homeCurrencySymbol}{summaryMetrics.totalCost.toFixed(2)}
                             </p>
                         </div>
                     )}
@@ -389,7 +392,7 @@ function HistoryPage(): JSX.Element {
                     <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
                         <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Average Cost / Litre (Filtered)</h3>
                         <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
-                            €{summaryMetrics.averageCost.toFixed(3)}
+                            {homeCurrencySymbol}{summaryMetrics.averageCost.toFixed(3)}
                         </p>
                     </div>
                 </div>
@@ -482,7 +485,7 @@ function HistoryPage(): JSX.Element {
                         <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 
-                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost (Home)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
+                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost ({homeCurrency})</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
@@ -492,9 +495,9 @@ function HistoryPage(): JSX.Element {
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.brand}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">
                                                 <div className="flex flex-col items-end">
-                                                    <span>€{log.cost?.toFixed(2)}</span>
-                                                    {log.currency && log.currency !== 'EUR' && (
-                                                        <span className="text-[10px] text-gray-500 dark:text-gray-400" title={`Rate: 1 ${log.currency} = ${log.exchangeRate} EUR`}>
+                                                    <span>{homeCurrencySymbol}{log.cost?.toFixed(2)}</span>
+                                                    {log.currency && log.currency !== homeCurrency && (
+                                                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium italic" title={`Rate: 1 ${log.currency} = ${log.exchangeRate} ${homeCurrency}`}>
                                                             {log.originalCost?.toFixed(2)} {log.currency}
                                                         </span>
                                                     )}

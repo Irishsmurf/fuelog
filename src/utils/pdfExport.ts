@@ -9,8 +9,10 @@ import { formatMPG } from './calculations';
  * @param userName Name of the user (e.g., for the header).
  * @param dateRange Description of the date range (e.g., "01/01/2024 - 31/01/2024").
  * @param vehicleName Optional name of the vehicle being filtered.
+ * @param homeCurrency The user's home currency code.
+ * @param homeCurrencySymbol The user's home currency symbol.
  */
-export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string, vehicleName?: string) => {
+export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string, vehicleName?: string, homeCurrency: string = 'EUR', homeCurrencySymbol: string = '€') => {
   const doc = new jsPDF();
 
   // --- PDF Styling & Header ---
@@ -38,18 +40,18 @@ export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string
   doc.setFontSize(10);
   doc.text(`Total Distance: ${totalDist.toFixed(1)} Km`, 14, 65);
   doc.text(`Total Fuel Added: ${totalFuel.toFixed(2)} Litres`, 80, 65);
-  doc.text(`Total Cost (Home): €${totalCost.toFixed(2)}`, 14, 70);
+  doc.text(`Total Cost (${homeCurrency}): ${homeCurrencySymbol}${totalCost.toFixed(2)}`, 14, 70);
   
   const avgEfficiency = totalDist > 0 && totalFuel > 0 ? formatMPG(totalDist, totalFuel) : 'N/A';
   doc.text(`Average Efficiency: ${avgEfficiency} MPG (UK)`, 80, 70);
 
   // --- Table Generation ---
-  const tableHeaders = [['Date', 'Brand', 'Cost (Home)', 'Original Cost', 'Dist (Km)', 'Fuel (L)', 'MPG']];
+  const tableHeaders = [['Date', 'Brand', `Cost (${homeCurrency})`, 'Original Cost', 'Dist (Km)', 'Fuel (L)', 'MPG']];
   const tableData = logs.map(log => [
     log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A',
     log.brand || 'Unknown',
-    `€${log.cost?.toFixed(2)}`,
-    log.currency && log.currency !== 'EUR' ? `${log.originalCost?.toFixed(2)} ${log.currency}` : '-',
+    `${homeCurrencySymbol}${log.cost?.toFixed(2)}`,
+    log.currency && log.currency !== homeCurrency ? `${log.originalCost?.toFixed(2)} ${log.currency}` : '-',
     log.distanceKm?.toFixed(1),
     log.fuelAmountLiters?.toFixed(2),
     formatMPG(log.distanceKm, log.fuelAmountLiters)

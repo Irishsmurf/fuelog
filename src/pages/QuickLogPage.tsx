@@ -22,7 +22,7 @@ interface LocationData {
 
 
 function QuickLogPage(): JSX.Element {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [brand, setBrand] = useState<string>('');
   const [cost, setCost] = useState<string>('');
   const [distanceKmInput, setDistanceKmInput] = useState<string>('');
@@ -32,15 +32,22 @@ function QuickLogPage(): JSX.Element {
   const [knownBrands, setKnownBrands] = useState<string[]>([]);
   const [isLoadingBrands, setIsLoadingBrands] = useState<boolean>(false);
 
+  const homeCurrency = profile?.homeCurrency || 'EUR';
+
   // --- Multi-Vehicle State ---
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
   const [isLoadingVehicles, setIsLoadingVehicles] = useState<boolean>(true);
 
   // --- Multi-Currency State ---
-  const [currency, setCurrency] = useState<string>('EUR'); // Transaction Currency
+  const [currency, setCurrency] = useState<string>(homeCurrency); // Transaction Currency
   const [exchangeRate, setExchangeRate] = useState<number>(1.0);
   const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
+
+  // Reset currency when homeCurrency changes (initial load)
+  useEffect(() => {
+    setCurrency(homeCurrency);
+  }, [homeCurrency]);
 
   // --- Fetch Vehicles ---
   useEffect(() => {
@@ -67,7 +74,7 @@ function QuickLogPage(): JSX.Element {
 
   // --- Fetch Exchange Rate when currency changes ---
   useEffect(() => {
-    if (currency === 'EUR') {
+    if (currency === homeCurrency) {
       setExchangeRate(1.0);
       return;
     }
@@ -75,7 +82,7 @@ function QuickLogPage(): JSX.Element {
     const getRate = async () => {
       setIsFetchingRate(true);
       try {
-        const rate = await fetchExchangeRate(new Date(), currency, 'EUR');
+        const rate = await fetchExchangeRate(new Date(), currency, homeCurrency);
         setExchangeRate(rate);
       } catch (error) {
         console.error("Failed to fetch rate:", error);
@@ -86,7 +93,7 @@ function QuickLogPage(): JSX.Element {
     };
 
     getRate();
-  }, [currency]);
+  }, [currency, homeCurrency]);
 
   // --- Fetch known brands effect ---
   useEffect(() => {
@@ -298,14 +305,14 @@ function QuickLogPage(): JSX.Element {
                       </div>
                   </div>
 
-                  {currency !== 'EUR' && (
+                  {currency !== homeCurrency && (
                     <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 space-y-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-tighter">Rate (1 {currency} = X EUR)</label>
+                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-tighter">Rate (1 {currency} = X {homeCurrency})</label>
                         {isFetchingRate && <span className="text-[10px] text-indigo-600 dark:text-indigo-400 animate-pulse">Fetching...</span>}
                       </div>
                       <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-3 py-2 border border-indigo-200 dark:border-indigo-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm" disabled={isSaving} />
-                      <p className="text-[10px] text-indigo-700 dark:text-indigo-400 font-medium">Converted: €{(parseFloat(cost || '0') * exchangeRate).toFixed(2)}</p>
+                      <p className="text-[10px] text-indigo-700 dark:text-indigo-400 font-medium">Converted: {COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency}{(parseFloat(cost || '0') * exchangeRate).toFixed(2)}</p>
                     </div>
                   )}
 

@@ -5,6 +5,8 @@ import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Info, Edit3, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { COMMON_CURRENCIES } from '../utils/currencyApi';
 
 // CSS for card flip and map container
 import 'leaflet/dist/leaflet.css';
@@ -32,8 +34,12 @@ const RecenterMap = ({ center }: { center: L.LatLngExpression }) => {
 };
 
 function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Element {
+  const { profile } = useAuth();
   const [isFlipped, setIsFlipped] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
+
+  const homeCurrency = profile?.homeCurrency || 'EUR';
+  const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
 
   const renderMetric = (label: string, value: string | number | undefined | null, unit: string = '') => {
     const displayValue = value !== undefined && value !== null && value !== 'N/A' && value !== 'Error' ? `${value}${unit}` : '-';
@@ -46,7 +52,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
   };
 
   const costValue = log.cost?.toFixed(2);
-  const originalCostInfo = log.currency && log.currency !== 'EUR' 
+  const originalCostInfo = log.currency && log.currency !== homeCurrency 
     ? `${log.originalCost?.toFixed(2)} ${log.currency}`
     : null;
 
@@ -86,7 +92,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
             </div>
             
             <div className="text-right">
-              <p className="text-xl font-black text-gray-900 dark:text-white font-mono">€{costValue}</p>
+              <p className="text-xl font-black text-gray-900 dark:text-white font-mono">{homeCurrencySymbol}{costValue}</p>
               {originalCostInfo && (
                 <p className="text-[10px] text-gray-400 font-medium italic font-mono">{originalCostInfo}</p>
               )}

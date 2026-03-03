@@ -3,10 +3,11 @@ import { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch, 
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle, VehicleFuelType } from '../utils/types';
-import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw } from 'lucide-react';
+import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw, Settings, Coins } from 'lucide-react';
+import { COMMON_CURRENCIES } from '../utils/currencyApi';
 
 function ProfilePage(): JSX.Element {
-  const { user } = useAuth();
+  const { user, profile, updateProfile } = useAuth();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsUpdating] = useState<boolean>(false);
@@ -196,7 +197,49 @@ function ProfilePage(): JSX.Element {
   );
 
   return (
-    <div className="container mx-auto max-w-4xl px-4 space-y-10 pb-12">
+    <div className="container mx-auto max-w-4xl px-4 space-y-10 pb-12 text-gray-900 dark:text-gray-100">
+      {/* App Preferences Section */}
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 sm:p-10 border border-gray-100 dark:border-gray-700/50">
+        <div className="flex items-center space-x-3 mb-8">
+          <div className="bg-brand-primary/10 p-2 rounded-lg text-brand-primary">
+            <Settings size={20} />
+          </div>
+          <h3 className="text-xl font-black tracking-tight">App Preferences</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 text-brand-primary">
+              <Coins size={18} />
+              <h4 className="text-sm font-black uppercase tracking-widest">Home Currency</h4>
+            </div>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed">
+              Set your primary currency for all fuel logs and summary analytics.
+            </p>
+            <select
+              value={profile?.homeCurrency || 'EUR'}
+              onChange={(e) => updateProfile({ homeCurrency: e.target.value })}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white"
+            >
+              {COMMON_CURRENCIES.map((curr) => (
+                <option key={curr.code} value={curr.code}>
+                  {curr.code} ({curr.symbol}) - {curr.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Placeholder for future preferences like units (Metric/Imperial) */}
+          <div className="opacity-40 grayscale pointer-events-none">
+            <div className="flex items-center space-x-2 text-gray-400">
+              <Settings size={18} />
+              <h4 className="text-sm font-black uppercase tracking-widest">Measurement Units</h4>
+            </div>
+            <p className="text-xs text-gray-400 font-medium mt-4 italic">Coming soon: Toggle between Metric (Km/L) and Imperial (MPG) defaults.</p>
+          </div>
+        </div>
+      </div>
+
       <div>
         <div className="flex justify-between items-end mb-6">
           <div>

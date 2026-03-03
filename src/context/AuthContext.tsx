@@ -2,18 +2,25 @@
 import { createContext, JSX, useState, useEffect, useContext, useMemo, ReactNode } from 'react';
 // Import User type from firebase/auth
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth, signInWithGoogle, logout as firebaseLogout } from '../firebase/config'; // Ensure path is correct
+import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import { auth, db, signInWithGoogle, logout as firebaseLogout } from '../firebase/config'; // Ensure path is correct
+
+/** User preferences and profile data stored in Firestore */
+interface UserProfile {
+  homeCurrency: string;
+}
 
 // Define the shape of the context value
 interface AuthContextType {
   user: User | null; // Firebase User object or null
+  profile: UserProfile | null; // Custom profile data
   loading: boolean;
   login: () => Promise<any>; // Adjust return type if needed based on signInWithGoogle
   logout: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
 
 // Create the context with an initial value of null or a default shape
-// Using null is common when the provider guarantees a value
 const AuthContext = createContext<AuthContextType | null>(null);
 export default AuthContext
 
@@ -22,31 +29,67 @@ interface AuthProviderProps {
   children: ReactNode; // Type for children prop
 }
 
+const DEFAULT_PROFILE: UserProfile = {
+  homeCurrency: 'EUR'
+};
+
 // Create a provider component
 export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
-  // Specify types for state variables
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // onAuthStateChanged provides User | null
-    const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
+    let unsubscribeProfile: (() => void) | undefined;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: User | null) => {
       setUser(currentUser);
-      setLoading(false);
+      
+      if (currentUser) {
+        // Fetch or Initialize Profile
+        const profileRef = doc(db, "userProfiles", currentUser.uid);
+        
+        // Use onSnapshot for real-time profile updates
+        unsubscribeProfile = onSnapshot(profileRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setProfile(docSnap.data() as UserProfile);
+          } else {
+            // Initialize with default if not found
+            setDoc(profileRef, DEFAULT_PROFILE);
+            setProfile(DEFAULT_PROFILE);
+          }
+          setLoading(false);
+        });
+      } else {
+        setProfile(null);
+        if (unsubscribeProfile) unsubscribeProfile();
+        setLoading(false);
+      }
+      
       console.log("Auth State Changed:", currentUser ? `User: ${currentUser.uid}` : "No User");
     });
 
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []); // Empty dependency array ensures this runs only once on mount
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
+  }, []);
+
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    if (!user) return;
+    const profileRef = doc(db, "userProfiles", user.uid);
+    await setDoc(profileRef, { ...profile, ...updates }, { merge: true });
+  };
 
   // Memoized context value with the defined type
   const value: AuthContextType = useMemo(() => ({
     user,
+    profile,
     loading,
     login: signInWithGoogle,
-    logout: firebaseLogout
-  }), [user, loading]); // Dependencies for useMemo
+    logout: firebaseLogout,
+    updateProfile
+  }), [user, profile, loading]); // Dependencies for useMemo
 
   // Render children only after initial loading is complete
   return (

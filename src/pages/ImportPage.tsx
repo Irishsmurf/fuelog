@@ -3,7 +3,6 @@ import { JSX, useState, ChangeEvent } from 'react';
 import { collection, writeBatch, Timestamp, doc } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 type ImportStatus = 'idle' | 'reading' | 'parsing' | 'importing' | 'success' | 'error';
 interface ImportMessage {
@@ -15,7 +14,6 @@ interface ImportMessage {
 
 function ImportPage(): JSX.Element {
   const { user } = useAuth();
-  const { theme } = useTheme();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [status, setStatus] = useState<ImportStatus>('idle');
   const [message, setMessage] = useState<ImportMessage | null>(null);

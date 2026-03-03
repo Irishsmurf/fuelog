@@ -59,6 +59,12 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             setProfile(DEFAULT_PROFILE);
           }
           setLoading(false);
+        }, (error) => {
+          console.error("Profile Snapshot Error:", error);
+          if (error.code === 'permission-denied') {
+            console.warn("Firestore rules might be missing for userProfiles collection.");
+          }
+          setLoading(false);
         });
       } else {
         setProfile(null);

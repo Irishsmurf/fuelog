@@ -31,6 +31,11 @@
 | `fuelType` | `string` | Petrol, Diesel, Hybrid, or Electric. |
 | `isDefault` | `boolean` | Whether this is the primary vehicle for logging. |
 
+### Collection: `userProfiles`
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `homeCurrency` | `string` | User's preferred currency code (e.g., "GBP"). |
+
 ## Security Rules (Firestore)
 The following rules ensure that users can only read and write their own data.
 
@@ -48,6 +53,11 @@ service cloud.firestore {
     match /vehicles/{vehicleId} {
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Rules for User Profiles
+    match /userProfiles/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

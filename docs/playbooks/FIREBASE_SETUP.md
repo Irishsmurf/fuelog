@@ -39,6 +39,11 @@
             allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
             allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
           }
+
+          // Rules for User Profiles
+          match /userProfiles/{userId} {
+            allow read, write: if request.auth != null && request.auth.uid == userId;
+          }
         }
       }
       ```

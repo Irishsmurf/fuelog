@@ -52,7 +52,7 @@ function QuickLogPage(): JSX.Element {
         const snap = await getDocs(q);
         const list: Vehicle[] = [];
         snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
-        setVehicles(list.sort((a, b) => a.name.localeCompare(b.name)));
+        setVehicles(list.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
         const defaultVehicle = list.find(v => v.isDefault) || list[0];
         if (defaultVehicle) setSelectedVehicleId(defaultVehicle.id);
       } catch (error) {

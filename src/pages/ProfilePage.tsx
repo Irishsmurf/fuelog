@@ -26,7 +26,7 @@ function ProfilePage(): JSX.Element {
       querySnapshot.forEach((doc) => {
         vehicleList.push({ id: doc.id, ...doc.data() } as Vehicle);
       });
-      setVehicles(vehicleList.sort((a, b) => a.name.localeCompare(b.name)));
+      setVehicles(vehicleList.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     } finally {

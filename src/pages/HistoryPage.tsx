@@ -63,7 +63,7 @@ function HistoryPage(): JSX.Element {
                 const snap = await getDocs(q);
                 const list: Vehicle[] = [];
                 snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
-                const sorted = list.sort((a, b) => a.name.localeCompare(b.name));
+                const sorted = list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                 setVehicles(sorted);
                 // Default to the user's default vehicle if they have one
                 const defaultV = sorted.find(v => v.isDefault);

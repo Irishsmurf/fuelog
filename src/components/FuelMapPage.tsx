@@ -13,10 +13,10 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'; // Cluster Defaul
 import { fetchFuelLocations } from '../firebase/firestoreService'; // Adjust path if needed
 import { Log } from '../utils/types';
 
-// --- Icon Fix (keep this as before) ---
-import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
-import iconUrl from 'leaflet/dist/images/marker-icon.png';
-import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+// --- Icon Fix (points to public assets) ---
+const iconRetinaUrl = '/marker-icon-2x.png';
+const iconUrl = '/marker-icon.png';
+const shadowUrl = '/marker-shadow.png';
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 // --- End Icon Fix ---

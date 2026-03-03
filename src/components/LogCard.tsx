@@ -9,6 +9,14 @@ import { MapPin, Info, Edit3, Trash2 } from 'lucide-react';
 // CSS for card flip and map container
 import 'leaflet/dist/leaflet.css';
 
+// --- Icon Fix (points to public assets) ---
+const iconRetinaUrl = '/marker-icon-2x.png';
+const iconUrl = '/marker-icon.png';
+const shadowUrl = '/marker-shadow.png';
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
+// --- End Icon Fix ---
+
 interface LogCardProps { 
   log: Log; 
   onEdit: (log: Log) => void; 

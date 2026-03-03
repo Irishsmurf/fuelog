@@ -1,30 +1,28 @@
 // src/components/LogCard.tsx
 import { JSX } from 'react';
-import { Timestamp } from 'firebase/firestore';
-
-// --- Replicated Types & Functions (Should be moved to shared utils) ---
-interface Log { id: string; userId: string; timestamp: Timestamp; brand: string; cost: number; distanceKm: number; fuelAmountLiters: number; latitude?: number; longitude?: number; locationAccuracy?: number; }
-const LITRES_TO_UK_GALLONS = 4.54609; const KM_TO_MILES = 1 / 1.60934;
-const formatMPG = (distanceKm: number, fuelAmountLiters: number): string => { if (!distanceKm || distanceKm <= 0 || !fuelAmountLiters || fuelAmountLiters <= 0) return 'N/A'; try { const distanceMiles = distanceKm * KM_TO_MILES; const gallonsUK = fuelAmountLiters / LITRES_TO_UK_GALLONS; const mpg = distanceMiles / gallonsUK; return mpg.toFixed(2); } catch { return 'Error'; } };
-const formatCostPerMile = (cost: number, distanceKm: number): string => { if (!cost || cost <= 0 || !distanceKm || distanceKm <= 0) return 'N/A'; try { const distanceMiles = distanceKm * KM_TO_MILES; const costPerMile = cost / distanceMiles; return `€${costPerMile.toFixed(3)}`; } catch { return 'Error'; } };
-const formatKmL = (distanceKm: number, fuelAmountLiters: number): string => { if (!distanceKm || distanceKm <= 0 || !fuelAmountLiters || fuelAmountLiters <= 0) return 'N/A'; try { const kml = distanceKm / fuelAmountLiters; return kml.toFixed(2); } catch { return 'Error'; } };
-const formatL100km = (distanceKm: number, fuelAmountLiters: number): string => { if (!distanceKm || distanceKm <= 0 || !fuelAmountLiters || fuelAmountLiters <= 0) return 'N/A'; try { const l100km = (fuelAmountLiters / distanceKm) * 100; return l100km.toFixed(2); } catch { return 'Error'; } };
-// --- End Replicated Types & Functions ---
+import { Log } from '../utils/types';
+import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
 
 interface LogCardProps { log: Log; onEdit: (log: Log) => void; onDelete: (logId: string) => void; }
 
 function LogCard({ log, onEdit, onDelete }: LogCardProps): JSX.Element {
 
-  const renderDataRow = (label: string, value: string | number | undefined | null, unit: string = '') => {
+  const renderDataRow = (label: string, value: string | number | undefined | null, unit: string = '', subtitle?: string) => {
     const displayValue = value !== undefined && value !== null && value !== 'N/A' && value !== 'Error' ? `${value}${unit}` : '-';
     return (
-      // Add dark mode text colors
       <div className="flex justify-between text-sm">
         <span className="text-gray-600 dark:text-gray-400">{label}:</span>
-        <span className="font-medium text-gray-800 dark:text-gray-200">{displayValue}</span>
+        <div className="flex flex-col items-end">
+            <span className="font-medium text-gray-800 dark:text-gray-200">{displayValue}</span>
+            {subtitle && <span className="text-[10px] text-gray-500 dark:text-gray-400 font-normal">{subtitle}</span>}
+        </div>
       </div>
     );
   };
+
+  const costSubtitle = log.currency && log.currency !== 'EUR' 
+    ? `${log.originalCost?.toFixed(2)} ${log.currency} (@ ${log.exchangeRate})`
+    : undefined;
 
   return (
     // Add dark mode background, border, shadow
@@ -37,7 +35,7 @@ function LogCard({ log, onEdit, onDelete }: LogCardProps): JSX.Element {
 
       {/* Card Body - Data Rows (styles handled by renderDataRow) */}
       <div className="space-y-1">
-        {renderDataRow("Cost", log.cost?.toFixed(2), " €")}
+        {renderDataRow("Cost", log.cost?.toFixed(2), " €", costSubtitle)}
         {renderDataRow("Distance", log.distanceKm?.toFixed(1), " Km")}
         {renderDataRow("Fuel", log.fuelAmountLiters?.toFixed(2), " L")}
         <hr className="my-2 border-gray-100 dark:border-gray-700"/> {/* Separator */}

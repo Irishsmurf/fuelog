@@ -4,12 +4,17 @@ interface FuelLogData {
     userId: string;
     timestamp: Timestamp;
     brand: string;
-    cost: number;
+    cost: number; // This will now represent the cost in HOME currency (e.g., EUR)
     distanceKm: number;
     fuelAmountLiters: number;
     latitude?: number;
     longitude?: number;
     locationAccuracy?: number;
+    
+    // Multi-currency support
+    currency?: string;          // e.g., "GBP"
+    originalCost?: number;      // Amount in the transaction currency
+    exchangeRate?: number;      // Rate used: 1 Transaction Currency = X Home Currency
   }
 
   interface Log extends FuelLogData {

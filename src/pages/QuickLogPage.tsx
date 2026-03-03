@@ -3,6 +3,7 @@ import React, { JSX, useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
+import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
 
 // Types
 type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
@@ -24,12 +25,40 @@ function QuickLogPage(): JSX.Element {
   const [cost, setCost] = useState<string>('');
   const [distanceKmInput, setDistanceKmInput] = useState<string>('');
   const [fuelAmountLiters, setFuelAmountLiters] = useState<string>('');
-  const [isSaving, setIsSaving] = useState<boolean>(false); // Combined loading state
+  const [isSaving, setIsSaving] = useState<boolean>(false); 
   const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
   const [knownBrands, setKnownBrands] = useState<string[]>([]);
   const [isLoadingBrands, setIsLoadingBrands] = useState<boolean>(false);
 
-  // --- Fetch known brands effect (same as before) ---
+  // --- Multi-Currency State ---
+  const [currency, setCurrency] = useState<string>('EUR'); // Transaction Currency
+  const [exchangeRate, setExchangeRate] = useState<number>(1.0);
+  const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
+
+  // --- Fetch Exchange Rate when currency changes ---
+  useEffect(() => {
+    if (currency === 'EUR') {
+      setExchangeRate(1.0);
+      return;
+    }
+
+    const getRate = async () => {
+      setIsFetchingRate(true);
+      try {
+        const rate = await fetchExchangeRate(new Date(), currency, 'EUR');
+        setExchangeRate(rate);
+      } catch (error) {
+        console.error("Failed to fetch rate:", error);
+        setMessage({ type: 'error', text: `Failed to fetch ${currency} rate. Please set manually.` });
+      } finally {
+        setIsFetchingRate(false);
+      }
+    };
+
+    getRate();
+  }, [currency]);
+
+  // --- Fetch known brands effect ---
   useEffect(() => {
     if (!user) { setKnownBrands([]); return; }
     const fetchBrands = async () => {
@@ -50,9 +79,15 @@ function QuickLogPage(): JSX.Element {
     fetchBrands();
   }, [user]);
 
-  // --- Input Change Handler (same as before) ---
+  // --- Input Change Handler ---
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => { setter(e.target.value); };
+    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setter(e.target.value); };
+
+  // --- Exchange Rate Change Handler ---
+  const handleRateChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    setExchangeRate(isNaN(val) ? 0 : val);
+  };
 
   // --- Function to get Geolocation wrapped in a Promise ---
   const getCurrentLocation = (): Promise<LocationData | null> => {
@@ -113,14 +148,20 @@ function QuickLogPage(): JSX.Element {
     setMessage({ type: 'info', text: `${locationMessage} Saving log...` }); // Update message
 
     try {
+      // Calculate cost in home currency
+      const costHomeCurrency = parsedCost * exchangeRate;
+
       // Prepare data object, including location if available
-      const logData: any = { // Use 'any' or define a more specific type including optional location
+      const logData: any = { 
         userId: user.uid,
         timestamp: Timestamp.now(),
         brand: brand.trim() || 'Unknown',
-        cost: parsedCost,
+        cost: costHomeCurrency, // Store normalized cost
         distanceKm: parsedDistanceKm,
         fuelAmountLiters: parsedFuel,
+        currency: currency,
+        originalCost: parsedCost,
+        exchangeRate: exchangeRate
       };
       if (locationData) {
         logData.latitude = locationData.latitude;
@@ -175,27 +216,73 @@ function QuickLogPage(): JSX.Element {
                     <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
                 </div>
                 
-                {/* Cost Input */}
-                <div>
-                    <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Total Cost (€) <span className="text-red-500">*</span>
-                    </label>
+                {/* Cost and Currency Input */}
+                <div className="grid grid-cols-3 gap-4">
+                    <div className="col-span-2">
+                        <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Total Cost <span className="text-red-500">*</span>
+                        </label>
+                        <input 
+                          type="number" 
+                          inputMode="decimal" 
+                          id="cost" 
+                          value={cost} 
+                          onChange={handleInputChange(setCost)} 
+                          placeholder="e.g., 65.50" 
+                          step="0.01" 
+                          min="0.01" 
+                          required 
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
+                          disabled={isSaving} 
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                          Currency
+                        </label>
+                        <select
+                          id="currency"
+                          value={currency}
+                          onChange={handleInputChange(setCurrency as any)}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out"
+                          disabled={isSaving}
+                        >
+                          {COMMON_CURRENCIES.map((curr) => (
+                            <option key={curr.code} value={curr.code}>
+                              {curr.code} ({curr.symbol})
+                            </option>
+                          ))}
+                        </select>
+                    </div>
+                </div>
+
+                {/* Exchange Rate Input (Conditional) */}
+                {currency !== 'EUR' && (
+                  <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg border border-indigo-100 dark:border-indigo-800 space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="flex justify-between items-center">
+                      <label htmlFor="exchangeRate" className="block text-sm font-medium text-indigo-900 dark:text-indigo-300">
+                        Exchange Rate (1 {currency} = X EUR)
+                      </label>
+                      {isFetchingRate && (
+                        <span className="text-xs text-indigo-600 dark:text-indigo-400 animate-pulse">Fetching latest rate...</span>
+                      )}
+                    </div>
                     <input 
                       type="number" 
                       inputMode="decimal" 
-                      id="cost" 
-                      value={cost} 
-                      onChange={handleInputChange(setCost)} 
-                      placeholder="e.g., 65.50" 
-                      step="0.01" 
-                      min="0.01" 
-                      required 
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
-                      disabled={isSaving} 
-                      aria-describedby="cost-description"
+                      id="exchangeRate" 
+                      value={exchangeRate} 
+                      onChange={handleRateChange} 
+                      step="0.0001" 
+                      min="0.0001" 
+                      className="w-full px-3 py-2 border border-indigo-300 dark:border-indigo-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm"
+                      disabled={isSaving}
                     />
-                    <p id="cost-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-normal">Enter the total amount paid.</p>
-                </div>
+                    <p className="text-xs text-indigo-700 dark:text-indigo-400">
+                      Converted Total: <span className="font-bold">€{(parseFloat(cost || '0') * exchangeRate).toFixed(2)}</span>
+                    </p>
+                  </div>
+                )}
 
                  {/* Distance Input */}
                 <div>

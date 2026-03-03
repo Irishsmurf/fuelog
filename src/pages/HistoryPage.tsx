@@ -65,9 +65,8 @@ function HistoryPage(): JSX.Element {
                 snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
                 const sorted = list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                 setVehicles(sorted);
-                // Default to the user's default vehicle if they have one
-                const defaultV = sorted.find(v => v.isDefault);
-                if (defaultV) setFilterVehicleId(defaultV.id);
+                // Default to "All Vehicles" (empty string)
+                setFilterVehicleId('');
             } catch (err) {
                 console.error("Error fetching vehicles:", err);
             }

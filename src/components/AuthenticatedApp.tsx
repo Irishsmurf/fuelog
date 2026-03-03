@@ -28,24 +28,23 @@ function AuthenticatedApp(): JSX.Element {
   const location = useLocation();
 
   const getNavLinkClass = (path: string): string => {
-    const baseClass = "px-2 py-1 text-sm font-medium rounded-md transition duration-150 ease-in-out";
-    // Update active/inactive classes for dark mode
-    const activeClass = "bg-indigo-100 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-100";
-    const inactiveClass = "text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-gray-100 dark:hover:bg-gray-700";
+    const baseClass = "px-3 py-1.5 text-sm font-bold rounded-xl transition-all duration-200";
+    const activeClass = "bg-brand-primary text-white shadow-md shadow-brand-primary/20 scale-105";
+    const inactiveClass = "text-gray-600 dark:text-gray-400 hover:text-brand-primary dark:hover:text-brand-primary hover:bg-gray-100 dark:hover:bg-gray-800";
     return `${baseClass} ${location.pathname === path ? activeClass : inactiveClass}`;
   };
 
   return (<>
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col pb-16 sm:pb-0">
-      {/* Refined Header - Compact on Mobile */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-700 sticky top-0 z-40">
-        <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex justify-between items-center">
-          <Link to="/" className="text-xl font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition duration-150 ease-in-out">
-            Fuelog
+    <div className="min-h-screen flex flex-col pb-16 sm:pb-0">
+      {/* Brand Glass Header */}
+      <header className="glass-header">
+        <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+          <Link to="/" className="text-2xl font-black tracking-tighter text-brand-primary hover:opacity-80 transition-opacity">
+            fuel<span className="text-gray-400 dark:text-gray-500">og</span>
           </Link>
           
           {/* Desktop Navigation */}
-          <div className="hidden sm:flex items-center space-x-3 sm:space-x-4">
+          <div className="hidden sm:flex items-center space-x-2">
             <Link to="/" className={getNavLinkClass("/")}>Log</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
@@ -53,17 +52,17 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
           </div>
 
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <ThemeToggle />
-            <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 hidden xs:inline">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden lg:inline">
               {user?.displayName?.split(' ')[0] || 'User'}
             </span>
             <button
               onClick={logout}
-              className="text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 p-1.5 rounded-md transition-colors"
+              className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-90"
               title="Sign Out"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
               </svg>
             </button>

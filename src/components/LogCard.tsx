@@ -17,7 +17,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
     return (
       <div className="flex flex-col">
         <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-tight">{label}</span>
-        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">{displayValue}</span>
+        <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 font-mono tracking-tighter">{displayValue}</span>
       </div>
     );
   };
@@ -32,7 +32,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
       {/* Header: Date & Vehicle */}
       <div className="flex justify-between items-start">
         <div className="space-y-0.5">
-          <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+          <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest">
             {log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' }) ?? 'N/A'}
           </p>
           <h4 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
@@ -47,9 +47,9 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
         
         {/* Main Price Highlight */}
         <div className="text-right">
-          <p className="text-xl font-black text-gray-900 dark:text-white">€{costValue}</p>
+          <p className="text-xl font-black text-gray-900 dark:text-white font-mono">€{costValue}</p>
           {originalCostInfo && (
-            <p className="text-[10px] text-gray-400 font-medium italic">{originalCostInfo}</p>
+            <p className="text-[10px] text-gray-400 font-medium italic font-mono">{originalCostInfo}</p>
           )}
         </div>
       </div>

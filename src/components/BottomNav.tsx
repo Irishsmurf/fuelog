@@ -17,7 +17,7 @@ const BottomNav = (): JSX.Element => {
   ];
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 pb-safe z-50">
+    <nav className="sm:hidden glass-nav">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -26,14 +26,18 @@ const BottomNav = (): JSX.Element => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-150 ${
+              className={`flex flex-col items-center justify-center w-full h-full transition-all duration-300 active:scale-90 ${
                 isActive 
-                  ? 'text-indigo-600 dark:text-indigo-400' 
-                  : 'text-gray-500 dark:text-gray-400 hover:text-indigo-500 dark:hover:text-indigo-300'
+                  ? 'text-brand-primary' 
+                  : 'text-gray-400 dark:text-gray-500 hover:text-brand-primary'
               }`}
             >
-              <Icon size={20} className={isActive ? 'animate-in fade-in zoom-in duration-300' : ''} />
-              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+              <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-brand-primary/10' : ''}`}>
+                <Icon size={22} strokeWidth={isActive ? 2.5 : 1.75} className={isActive ? 'animate-in zoom-in duration-300' : ''} />
+              </div>
+              <span className={`text-[9px] mt-0.5 uppercase font-black tracking-widest transition-all ${isActive ? 'opacity-100 scale-110' : 'opacity-50'}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}

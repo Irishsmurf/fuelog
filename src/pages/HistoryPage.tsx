@@ -368,7 +368,7 @@ function HistoryPage(): JSX.Element {
                     {totalSpentDisplayEnabled && (
                         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
                             <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Total Spent (Filtered)</h3>
-                            <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
+                            <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
                                 €{summaryMetrics.totalCost.toFixed(2)}
                             </p>
                         </div>
@@ -377,7 +377,7 @@ function HistoryPage(): JSX.Element {
                     {/* Average MPG (UK) */}
                     <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
                         <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Average MPG (UK) (Filtered)</h3>
-                        <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
+                        <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
                             {summaryMetrics.averageMPG}
                         </p>
                     </div>
@@ -385,7 +385,7 @@ function HistoryPage(): JSX.Element {
                     {/* Average Cost */}
                     <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
                         <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">Average Cost / Litre (Filtered)</h3>
-                        <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400 text-center">
+                        <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
                             €{summaryMetrics.averageCost.toFixed(3)}
                         </p>
                     </div>
@@ -485,9 +485,9 @@ function HistoryPage(): JSX.Element {
                                     {filteredLogs.map((log) => (
                                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A'}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-indigo-600 dark:text-indigo-400">{vehicleMap[log.vehicleId || ''] || '-'}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-brand-primary font-mono tracking-tighter">{vehicleMap[log.vehicleId || ''] || '-'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.brand}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">
                                                 <div className="flex flex-col items-end">
                                                     <span>€{log.cost?.toFixed(2)}</span>
                                                     {log.currency && log.currency !== 'EUR' && (
@@ -497,17 +497,17 @@ function HistoryPage(): JSX.Element {
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.distanceKm?.toFixed(1)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{log.fuelAmountLiters?.toFixed(2)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right">{formatCostPerMile(log.cost, log.distanceKm)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.distanceKm?.toFixed(1)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.fuelAmountLiters?.toFixed(2)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{formatCostPerMile(log.cost, log.distanceKm)}</td>
                                             {/* Actions Cell with Edit/Delete Buttons */}
                                             <td className="px-3 py-3 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                                 <button
                                                     onClick={() => handleOpenEditModal(log)}
-                                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 p-1 rounded hover:bg-indigo-100 dark:hover:bg-gray-600 transition duration-150 ease-in-out"
+                                                    className="text-brand-primary font-mono tracking-tighter hover:text-indigo-900 dark:hover:text-indigo-300 p-1 rounded hover:bg-indigo-100 dark:hover:bg-gray-600 transition duration-150 ease-in-out"
                                                     title="Edit Log"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">

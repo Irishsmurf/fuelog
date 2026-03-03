@@ -145,45 +145,117 @@ function QuickLogPage(): JSX.Element {
   };
 
   // --- Render Logic ---
-  const messageStyle = message.type === 'error' ? 'text-red-600 dark:text-red-400' : message.type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'; // Blue for info
+  const messageStyle = message.type === 'error' 
+    ? 'text-red-700 bg-red-100 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800' 
+    : message.type === 'success' 
+      ? 'text-green-700 bg-green-100 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800' 
+      : 'text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
 
   return (
-    <div className="container mx-auto max-w-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-6 text-center">Log New Fuel Entry</h2>
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                {/* Brand Input with Datalist (same as before) */}
+    <div className="container mx-auto max-w-lg px-4">
+        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">Log New Fuel Entry</h2>
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+                {/* Brand Input */}
                 <div>
-                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filling Station Brand <span className="text-gray-500 dark:text-gray-400 text-xs">(Optional)</span></label>
-                    <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder="e.g., Circle K, Maxol (start typing...)" className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off"/>
+                    <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Filling Station Brand <span className="text-gray-500 dark:text-gray-400 text-xs font-normal">(Optional)</span>
+                    </label>
+                    <input 
+                      type="text" 
+                      id="brand" 
+                      value={brand} 
+                      onChange={handleInputChange(setBrand)} 
+                      placeholder="e.g., Circle K, Maxol" 
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
+                      disabled={isSaving || isLoadingBrands} 
+                      list="brand-suggestions" 
+                      autoComplete="off"
+                    />
                     <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
                 </div>
-                {/* Cost Input (same as before) */}
+                
+                {/* Cost Input */}
                 <div>
-                    <label htmlFor="cost" className="block text-sm font-medium text-gray-700 mb-1">Total Cost (€) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="e.g., 65.50" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out" disabled={isSaving} aria-describedby="cost-description"/>
-                    <p id="cost-description" className="mt-1 text-xs text-gray-500">Enter the total amount paid.</p>
-                </div>
-                 {/* Distance Input (same as before) */}
-                <div>
-                    <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Distance Covered (Km) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="e.g., 500.5" step="0.1" min="0.1" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="distance-description"/>
-                    <p id="distance-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Kilometers driven since last fill-up.</p>
-                </div>
-                {/* Fuel Amount Input (same as before) */}
-                <div className="pb-2">
-                    <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fuel Added (Litres) <span className="text-red-500">*</span></label>
-                    <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="e.g., 42.80" step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-offset-gray-800 sm:text-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" disabled={isSaving} aria-describedby="fuel-description"/>
-                    <p id="fuel-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400">Amount of fuel added, in Litres.</p>
+                    <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Total Cost (€) <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="number" 
+                      inputMode="decimal" 
+                      id="cost" 
+                      value={cost} 
+                      onChange={handleInputChange(setCost)} 
+                      placeholder="e.g., 65.50" 
+                      step="0.01" 
+                      min="0.01" 
+                      required 
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
+                      disabled={isSaving} 
+                      aria-describedby="cost-description"
+                    />
+                    <p id="cost-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-normal">Enter the total amount paid.</p>
                 </div>
 
-                {/* Submit Button - Text updates based on state */}
-                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+                 {/* Distance Input */}
+                <div>
+                    <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Distance Covered (Km) <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="number" 
+                      inputMode="decimal" 
+                      id="distance" 
+                      value={distanceKmInput} 
+                      onChange={handleInputChange(setDistanceKmInput)} 
+                      placeholder="e.g., 500.5" 
+                      step="0.1" 
+                      min="0.1" 
+                      required 
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
+                      disabled={isSaving} 
+                      aria-describedby="distance-description"
+                    />
+                    <p id="distance-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-normal">Kilometers driven since last fill-up.</p>
+                </div>
+
+                {/* Fuel Amount Input */}
+                <div>
+                    <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Fuel Added (Litres) <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="number" 
+                      inputMode="decimal" 
+                      id="fuelAmount" 
+                      value={fuelAmountLiters} 
+                      onChange={handleInputChange(setFuelAmountLiters)} 
+                      placeholder="e.g., 42.80" 
+                      step="0.01" 
+                      min="0.01" 
+                      required 
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 sm:text-sm transition duration-150 ease-in-out" 
+                      disabled={isSaving} 
+                      aria-describedby="fuel-description"
+                    />
+                    <p id="fuel-description" className="mt-1 text-xs text-gray-500 dark:text-gray-400 font-normal">Amount of fuel added, in Litres.</p>
+                </div>
+
+                {/* Submit Button */}
+                <button 
+                  type="submit" 
+                  disabled={isSaving || isLoadingBrands} 
+                  className="w-full inline-flex justify-center py-2.5 px-4 border border-transparent shadow-sm text-sm font-bold rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out"
+                >
                     {isSaving ? (message.text.includes('location') ? 'Getting Location...' : 'Saving...') : 'Save Fuel Log'}
                 </button>
 
                 {/* Feedback Message */}
-                {message.text && ( <p className={`mt-4 text-center text-sm ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>{message.text}</p> )}
+                {message.text && ( 
+                  <div className={`mt-4 p-4 rounded-lg border text-sm font-medium text-center ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>
+                    {message.text}
+                  </div> 
+                )}
             </form>
         </div>
     </div>

@@ -35,7 +35,7 @@ function AuthenticatedApp(): JSX.Element {
   };
 
   return (<>
-    <div className="min-h-screen flex flex-col pb-16 sm:pb-0">
+    <div className="min-h-screen flex flex-col pb-16 sm:pb-0 overflow-x-hidden">
       {/* Brand Glass Header */}
       <header className="glass-header">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
@@ -72,7 +72,7 @@ function AuthenticatedApp(): JSX.Element {
 
       <SyncStatus />
 
-      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-5xl">
+      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full min-w-0 max-w-5xl">
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<QuickLogPage />} />

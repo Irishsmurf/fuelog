@@ -17,6 +17,7 @@ import {
     // persistentMultipleTabManager // Alternative if multi-tab support needed
     FirestoreSettings // Type for settings object
 } from "firebase/firestore";
+import { getStorage, FirebaseStorage } from "firebase/storage";
 
 // Config interface (remains the same)
 interface FirebaseConfig {
@@ -49,6 +50,9 @@ const app: FirebaseApp = initializeApp(firebaseConfig as any);
 
 // Initialize Firebase Auth (remains the same)
 const auth: Auth = getAuth(app);
+
+// Initialize Firebase Storage
+const storage: FirebaseStorage = getStorage(app);
 
 // --- Initialize Firestore with Offline Persistence Settings ---
 let db: Firestore; // Declare db variable
@@ -92,6 +96,7 @@ export {
   app,
   auth,
   db, // Export the initialized db instance
+  storage, // Export the initialized storage instance
   googleProvider,
   signInWithGoogle,
   logout

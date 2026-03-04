@@ -4,7 +4,7 @@ import { Log } from '../utils/types';
 import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Info, Edit3, Trash2 } from 'lucide-react';
+import { MapPin, Info, Edit3, Trash2, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 
@@ -113,6 +113,25 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
             {renderMetric("L/100km", formatL100km(log.distanceKm, log.fuelAmountLiters))}
             {renderMetric("Cost/Mile", formatCostPerMile(log.cost, log.distanceKm))}
           </div>
+
+          {/* Receipt Section */}
+          {log.receiptUrl && (
+            <div className="mb-3">
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-tight block mb-1">Receipt</span>
+              <a 
+                href={log.receiptUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-block relative rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity"
+              >
+                <img src={log.receiptUrl} alt="Receipt" className="h-10 w-16 object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <FileText size={12} className="text-white" />
+                </div>
+              </a>
+            </div>
+          )}
 
           {/* Footer Actions */}
           <div className="flex justify-between items-center pt-3 border-t border-gray-50 dark:border-gray-700/50 mt-auto">

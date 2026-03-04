@@ -6,6 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
 import { Vehicle } from '../utils/types';
 import { Link } from 'react-router-dom';
+import { useRemoteConfig } from '../context/RemoteConfigContext';
+import ImageUpload from '../components/ImageUpload';
+import { uploadReceipt } from '../firebase/storageService';
 
 // Types
 type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
@@ -23,6 +26,9 @@ interface LocationData {
 
 function QuickLogPage(): JSX.Element {
   const { user, profile } = useAuth();
+  const { getBoolean } = useRemoteConfig();
+  const receiptDigitizationEnabled = getBoolean('receiptDigitizationEnabled');
+
   const [brand, setBrand] = useState<string>('');
   const [cost, setCost] = useState<string>('');
   const [distanceKmInput, setDistanceKmInput] = useState<string>('');
@@ -43,6 +49,9 @@ function QuickLogPage(): JSX.Element {
   const [currency, setCurrency] = useState<string>(homeCurrency); // Transaction Currency
   const [exchangeRate, setExchangeRate] = useState<number>(1.0);
   const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
+
+  // --- Receipt State ---
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
   // Reset currency when homeCurrency changes (initial load)
   useEffect(() => {
@@ -194,6 +203,13 @@ function QuickLogPage(): JSX.Element {
     setMessage({ type: 'info', text: `${locationMessage} Saving log...` }); // Update message
 
     try {
+      // --- Handle Receipt Upload ---
+      let receiptUrl = "";
+      if (receiptFile && user) {
+        setMessage({ type: 'info', text: 'Uploading receipt photo...' });
+        receiptUrl = await uploadReceipt(receiptFile, user.uid);
+      }
+
       // Calculate cost in home currency
       const costHomeCurrency = parsedCost * exchangeRate;
 
@@ -208,7 +224,8 @@ function QuickLogPage(): JSX.Element {
         fuelAmountLiters: parsedFuel,
         currency: currency,
         originalCost: parsedCost,
-        exchangeRate: exchangeRate
+        exchangeRate: exchangeRate,
+        receiptUrl: receiptUrl || null
       };
       if (locationData) {
         logData.latitude = locationData.latitude;
@@ -221,6 +238,7 @@ function QuickLogPage(): JSX.Element {
 
       // Clear form on success
       setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
+      setReceiptFile(null); // Reset receipt file state
       setMessage({ type: 'success', text: `Log saved successfully! ${locationData ? '' : '(Location not captured)'}` }); // Indicate if location was missed
 
       // Haptic feedback for mobile
@@ -327,6 +345,13 @@ function QuickLogPage(): JSX.Element {
                     </div>
                   </div>
                 </div>
+
+                {/* Section 3: Receipt Digitization */}
+                {receiptDigitizationEnabled && (
+                  <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <ImageUpload onFileSelect={setReceiptFile} />
+                  </div>
+                )}
 
                 {/* Submit Button */}
                 <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center items-center py-3.5 px-4 border border-transparent shadow-lg text-base font-bold rounded-xl text-white bg-brand-primary hover:bg-brand-primary-hover focus:ring-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">

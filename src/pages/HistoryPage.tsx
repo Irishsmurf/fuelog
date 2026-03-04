@@ -12,6 +12,8 @@ import { useAuth } from '../context/AuthContext';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+// Import icons
+import { FileText } from 'lucide-react';
 // Import the LogCard component
 import LogCard from '../components/LogCard'; // Adjust path if necessary
 import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode, Vehicle } from '../utils/types';
@@ -20,6 +22,8 @@ import { useTheme } from '../context/ThemeContext';
 import { useRemoteConfig } from '../context/RemoteConfigContext'; // Import the hook
 import { exportLogsToPDF } from '../utils/pdfExport'; // Import PDF Export utility
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
+import ImageUpload from '../components/ImageUpload';
+import { uploadReceipt } from '../firebase/storageService';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -36,6 +40,7 @@ function HistoryPage(): JSX.Element {
     // --- Feature Flags ---
     const costPerLitreGraphEnabled = getBoolean("costPerLitreGraphEnabled");
     const totalSpentDisplayEnabled = getBoolean("totalSpentDisplayEnabled");
+    const receiptDigitizationEnabled = getBoolean("receiptDigitizationEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [isLoading, setIsLoading] = useState<boolean>(true); // Tracks if logs are currently being fetched
@@ -50,6 +55,7 @@ function HistoryPage(): JSX.Element {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Controls visibility of the edit modal
     const [editingLog, setEditingLog] = useState<EditingLogState>(null); // Stores the full log object being edited
     const [editFormData, setEditFormData] = useState<EditFormData>({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', vehicleId: '' }); // Holds the current values in the edit form inputs
+    const [editReceiptFile, setEditReceiptFile] = useState<File | null>(null); // New receipt file
     const [isUpdating, setIsUpdating] = useState<boolean>(false); // Tracks if an update operation is in progress
     const [modalError, setModalError] = useState<string | null>(null); // Stores error messages specific to the edit modal form
 
@@ -267,6 +273,7 @@ function HistoryPage(): JSX.Element {
             fuelAmountLiters: log.fuelAmountLiters?.toString() || '',
             vehicleId: log.vehicleId || ''
         });
+        setEditReceiptFile(null);
         setModalError(null); setIsModalOpen(true);
     };
 
@@ -274,6 +281,7 @@ function HistoryPage(): JSX.Element {
     const handleCloseModal = () => {
         setIsModalOpen(false); setEditingLog(null);
         setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '' });
+        setEditReceiptFile(null);
         setModalError(null); setIsUpdating(false);
     };
 
@@ -293,13 +301,19 @@ function HistoryPage(): JSX.Element {
 
         setIsUpdating(true); setModalError(null);
         try {
+            let receiptUrl = editingLog.receiptUrl || "";
+            if (editReceiptFile && user) {
+                receiptUrl = await uploadReceipt(editReceiptFile, user.uid);
+            }
+
             const logRef = doc(db, "fuelLogs", editingLog.id);
             const updatedData = { 
                 brand: brand.trim() || 'Unknown', 
                 cost: parsedCost, 
                 distanceKm: parsedDistanceKm, 
                 fuelAmountLiters: parsedFuel,
-                vehicleId: editFormData.vehicleId
+                vehicleId: editFormData.vehicleId,
+                receiptUrl: receiptUrl || null
             };
             await updateDoc(logRef, updatedData);
             console.log(`Log ${editingLog.id} updated successfully.`);
@@ -487,7 +501,7 @@ function HistoryPage(): JSX.Element {
                         <div className="w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 
-                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost ({homeCurrency})</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th><th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
+                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vehicle</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Brand</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost ({homeCurrency})</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Distance (Km)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Fuel (L)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Cost/Mile</th>{receiptDigitizationEnabled && <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Receipt</th>}<th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th></tr></thead>
                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
@@ -511,6 +525,23 @@ function HistoryPage(): JSX.Element {
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{formatCostPerMile(log.cost, log.distanceKm)}</td>
+                                            
+                                            {/* Receipt Thumbnail Column */}
+                                            {receiptDigitizationEnabled && (
+                                              <td className="px-3 py-3 whitespace-nowrap text-center">
+                                                {log.receiptUrl ? (
+                                                  <a href={log.receiptUrl} target="_blank" rel="noopener noreferrer" className="inline-block relative rounded overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity">
+                                                    <img src={log.receiptUrl} alt="Receipt" className="h-6 w-10 object-cover" />
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                                                      <FileText size={10} className="text-white" />
+                                                    </div>
+                                                  </a>
+                                                ) : (
+                                                  <span className="text-[10px] text-gray-300 dark:text-gray-600">-</span>
+                                                )}
+                                              </td>
+                                            )}
+
                                             {/* Actions Cell with Edit/Delete Buttons */}
                                             <td className="px-3 py-3 whitespace-nowrap text-center text-sm font-medium space-x-2">
                                                 <button
@@ -584,7 +615,18 @@ function HistoryPage(): JSX.Element {
                             <div><label htmlFor="edit-brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Brand</label><input type="text" name="brand" id="edit-brand" value={editFormData.brand} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             <div><label htmlFor="edit-cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cost (€)</label><input type="number" inputMode="decimal" name="cost" id="edit-cost" value={editFormData.cost} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Distance (Km)</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
-                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fuel (L)</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fuel (L)</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                            
+                            {/* Receipt Upload in Modal */}
+                            {receiptDigitizationEnabled && (
+                              <div className="pt-2">
+                                <ImageUpload onFileSelect={setEditReceiptFile} label="Update Receipt Photo" />
+                                {editingLog.receiptUrl && !editReceiptFile && (
+                                  <p className="text-[10px] text-gray-400 mt-1 italic">Current receipt will be kept unless replaced.</p>
+                                )}
+                              </div>
+                            )}
+
                             {/* Modal Error Message */}
                             {modalError && <p className="text-sm text-red-600 dark:text-red-400">{modalError}</p>}
                             {/* Modal Action Buttons */}

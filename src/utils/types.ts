@@ -32,6 +32,7 @@ interface FuelLogData {
 
     // Multi-vehicle support
     vehicleId?: string;         // Link to the vehicle (optional for backward compatibility)
+    receiptUrl?: string;        // Optional URL for fuel receipt image (Cloud Storage)
   }
 
   interface Log extends FuelLogData {

@@ -27,7 +27,7 @@ import { uploadReceipt } from '../firebase/storageService';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
-    const { getBoolean, loading: rcLoading } = useRemoteConfig(); // Use the hook
+    const { getBoolean } = useRemoteConfig(); // Use the hook
 
     // Get the current authenticated user from context
     const { user, profile } = useAuth();

@@ -12,7 +12,6 @@ const RemoteConfigContext = createContext<RemoteConfigContextProps | undefined>(
 
 export const RemoteConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(true);
-  const [version, setVersion] = useState(0); // Used to trigger re-renders if needed
 
   useEffect(() => {
     const init = async () => {
@@ -22,7 +21,6 @@ export const RemoteConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
         console.error("Failed to activate Remote Config in Provider:", error);
       } finally {
         setLoading(false);
-        setVersion(v => v + 1);
       }
     };
     init();

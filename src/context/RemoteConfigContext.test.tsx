@@ -2,7 +2,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { RemoteConfigProvider, useRemoteConfig } from './RemoteConfigContext';
 import * as rcService from '../firebase/remoteConfigService';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import React from 'react';
 
 // Mock the Remote Config Service
 vi.mock('../firebase/remoteConfigService', () => ({

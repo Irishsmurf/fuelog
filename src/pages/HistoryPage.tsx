@@ -17,12 +17,14 @@ import LogCard from '../components/LogCard'; // Adjust path if necessary
 import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode, Vehicle } from '../utils/types';
 import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
 import { useTheme } from '../context/ThemeContext';
-import { getBoolean } from '../firebase/remoteConfigService'; // Import for feature flags
+import { useRemoteConfig } from '../context/RemoteConfigContext'; // Import the hook
 import { exportLogsToPDF } from '../utils/pdfExport'; // Import PDF Export utility
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
+    const { getBoolean, loading: rcLoading } = useRemoteConfig(); // Use the hook
+
     // Get the current authenticated user from context
     const { user, profile } = useAuth();
     const homeCurrency = profile?.homeCurrency || 'EUR';

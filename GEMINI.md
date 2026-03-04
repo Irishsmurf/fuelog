@@ -56,6 +56,10 @@
 
 ## Development Conventions
 
+### General Mandates
+- **Unit Testing:** ALWAYS add unit tests for all new code. Ensure that your changes are verified before completion.
+- **Feature Gating:** ALWAYS gate new features behind a **Remote Config** flag. Refer to `docs/playbooks/FEATURE_RELEASING.md` for the standard procedure.
+
 ### Architecture
 - **Functional Components:** All components are written as functional components using TypeScript.
 - **Context API:** Global state (Auth, Theme) is managed via React Context providers in `src/context/`.

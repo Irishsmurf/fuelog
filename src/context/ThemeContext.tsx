@@ -1,6 +1,6 @@
 // src/context/ThemeContext.tsx
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { activateRemoteConfig, getBoolean } from '../firebase/remoteConfigService'; // Updated import
+import { useRemoteConfig } from './RemoteConfigContext';
 
 type Theme = 'light' | 'dark';
 
@@ -14,22 +14,20 @@ interface ThemeContextProps {
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { loading: rcLoading, getBoolean } = useRemoteConfig();
+  
   const [theme, setTheme] = useState<Theme>(() => {
     // Initialize theme from localStorage or system preference
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    // Initially assume dark mode *might* be enabled until RC loads
-    // Or just default to light until RC confirms
     return savedTheme || 'light';
   });
 
   const [isDarkModeEnabledRemotely, setIsDarkModeEnabledRemotely] = useState<boolean>(false);
-  const [rcLoading, setRcLoading] = useState(true);
 
-  // Fetch Remote Config on mount
+  // Sync with Remote Config once loaded
   useEffect(() => {
-    const initializeThemeFromRC = async () => {
-      await activateRemoteConfig(); // Fetch and activate
-      const enabled = getBoolean('darkModeEnabled'); // Updated to use getBoolean
+    if (!rcLoading) {
+      const enabled = getBoolean('darkModeEnabled');
       setIsDarkModeEnabledRemotely(enabled);
       console.log("Remote Config - darkModeEnabled:", enabled);
 
@@ -39,12 +37,10 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       } else {
         // If RC enables it, respect localStorage or default
         const savedTheme = localStorage.getItem('theme') as Theme | null;
-        setThemeState(savedTheme || 'light'); // Or check prefers-color-scheme
+        setThemeState(savedTheme || 'light');
       }
-      setRcLoading(false);
-    };
-    initializeThemeFromRC();
-  }, []);
+    }
+  }, [rcLoading, getBoolean]);
 
   // Function to apply theme changes (add/remove 'dark' class, save to localStorage)
   const setThemeState = (newTheme: Theme) => {

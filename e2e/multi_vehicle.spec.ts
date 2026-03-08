@@ -4,8 +4,9 @@ test.describe('Multi-Vehicle Support E2E', () => {
   test('should allow managing vehicles and logging fuel per vehicle', async ({ page }) => {
     await page.goto('/profile');
     
-    // Check if we are redirected to login
-    if (await page.url().includes('login')) {
+    // The app uses client-side auth — no URL redirect occurs; the login UI
+    // is rendered in-place. Detect it by the Google sign-in button.
+    if (await page.locator('button:has-text("Get Started with Google")').isVisible({ timeout: 5000 }).catch(() => false)) {
         console.log('Skipping Multi-Vehicle E2E as it requires authentication');
         return;
     }

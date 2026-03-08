@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: request is from an authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: the document belongs to the requesting user
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Fuel logs: users can only read/write their own entries
+    match /fuelLogs/{logId} {
+      allow read, update, delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Vehicles: users can only read/write their own vehicles
+    match /vehicles/{vehicleId} {
+      allow read, update, delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // User profiles: each user owns their own profile document (doc ID == uid)
+    match /userProfiles/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // API tokens: users can manage their own tokens.
+    // Only the SHA-256 hash is stored — the raw token never touches Firestore.
+    match /apiTokens/{tokenId} {
+      allow read, update, delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.isRevoked == false
+        && request.resource.data.tokenHash is string
+        && request.resource.data.tokenHash.size() == 64;  // SHA-256 hex = 64 chars
+    }
+  }
+}

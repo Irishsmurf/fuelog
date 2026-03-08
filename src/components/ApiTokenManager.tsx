@@ -201,8 +201,12 @@ export default function ApiTokenManager(): JSX.Element {
       setTokenName('');
       setSelectedScopes(new Set(['read:logs', 'read:vehicles']));
       setShowForm(false);
-    } catch {
-      setError('Failed to create token. Please try again.');
+    } catch (err: any) {
+      if (err?.code === 'permission-denied') {
+        setError('Permission denied — Firestore rules for the apiTokens collection may not be deployed yet. See docs/MCP.md for setup instructions.');
+      } else {
+        setError('Failed to create token. Please try again.');
+      }
     } finally {
       setCreating(false);
     }

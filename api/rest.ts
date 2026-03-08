@@ -12,15 +12,23 @@ function extractBearerToken(req: IncomingMessage): string | null {
   return auth.slice(7).trim();
 }
 
+/**
+ * Reads the request body stream and parses it as JSON.
+ * @param req The incoming HTTP request.
+ * @returns A promise that resolves to the parsed JSON object, or throws an error on invalid JSON.
+ */
 async function readBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
+      if (!body) {
+        return resolve({});
+      }
       try {
-        resolve(body ? JSON.parse(body) : {});
+        resolve(JSON.parse(body));
       } catch (e) {
-        resolve({});
+        reject(new Error('Invalid JSON payload'));
       }
     });
     req.on('error', reject);
@@ -84,8 +92,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       }
 
       if (req.method === 'POST') {
-        const body = await readBody(req);
-        if (!body.brand || !body.cost || !body.distanceKm || !body.fuelAmountLiters) {
+        let body;
+        try {
+          body = await readBody(req);
+        } catch (e: any) {
+          return sendResponse(res, 400, { error: e.message });
+        }
+        if (body.brand === undefined || body.cost === undefined || body.distanceKm === undefined || body.fuelAmountLiters === undefined) {
             return sendResponse(res, 400, { error: 'Missing required fields' });
         }
         const ts = body.timestamp ? Timestamp.fromDate(new Date(body.timestamp)) : Timestamp.now();
@@ -109,7 +122,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
       if (req.method === 'PUT') {
         if (!id) return sendResponse(res, 400, { error: 'Missing id parameter' });
-        const body = await readBody(req);
+        let body;
+        try {
+          body = await readBody(req);
+        } catch (e: any) {
+          return sendResponse(res, 400, { error: e.message });
+        }
         const docRef = db.collection('fuelLogs').doc(id);
         const doc = await docRef.get();
         if (!doc.exists || doc.data()?.userId !== userId) {
@@ -147,7 +165,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
        }
 
        if (req.method === 'POST') {
-           const body = await readBody(req);
+           let body;
+           try {
+             body = await readBody(req);
+           } catch (e: any) {
+             return sendResponse(res, 400, { error: e.message });
+           }
            if (!body.name || !body.make || !body.model || !body.year || !body.fuelType) {
                return sendResponse(res, 400, { error: 'Missing required fields' });
            }
@@ -176,7 +199,12 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
        if (req.method === 'PUT') {
            if (!id) return sendResponse(res, 400, { error: 'Missing id parameter' });
-           const body = await readBody(req);
+           let body;
+           try {
+             body = await readBody(req);
+           } catch (e: any) {
+             return sendResponse(res, 400, { error: e.message });
+           }
            const docRef = db.collection('vehicles').doc(id);
            const doc = await docRef.get();
            if (!doc.exists || doc.data()?.userId !== userId) {

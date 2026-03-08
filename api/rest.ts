@@ -34,7 +34,8 @@ function sendResponse(res: ServerResponse, statusCode: number, data: any) {
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   // CORS preflight
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigin = process.env.CORS_ORIGIN || 'https://fuel.paddez.com';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, PUT, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 

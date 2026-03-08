@@ -4,6 +4,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle, VehicleFuelType } from '../utils/types';
 import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw, Settings, Coins } from 'lucide-react';
+import ApiTokenManager from '../components/ApiTokenManager';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 
 function ProfilePage(): JSX.Element {
@@ -353,6 +354,9 @@ function ProfilePage(): JSX.Element {
           </div>
         )}
       </div>
+
+      {/* API Access Section */}
+      <ApiTokenManager />
     </div>
   );
 }

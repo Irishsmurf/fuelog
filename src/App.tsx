@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { RemoteConfigProvider } from './context/RemoteConfigContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { ApiTokenProvider } from './context/ApiTokenContext';
 import { Analytics } from '@vercel/analytics/react';
 
 import AppContent from './components/AppContent';
@@ -15,12 +16,14 @@ function App(): JSX.Element {
   return (
     <RemoteConfigProvider>
       <AuthProvider>
+        <ApiTokenProvider>
         <ThemeProvider>
           <BrowserRouter>
             <AppContent />
             <Analytics />
           </BrowserRouter>
         </ThemeProvider>
+        </ApiTokenProvider>
       </AuthProvider>
     </RemoteConfigProvider>
   );

@@ -1,5 +1,16 @@
 import { Timestamp } from 'firebase/firestore';
 
+interface ApiToken {
+  id: string;
+  name: string;
+  tokenPrefix: string;   // First 9 chars of raw token e.g. "flog_a3f2", for display only
+  scopes: string[];
+  createdAt: Timestamp;
+  lastUsedAt: Timestamp | null;
+  isRevoked: boolean;
+  expiresAt?: Timestamp | null;
+}
+
 type VehicleFuelType = 'Petrol' | 'Diesel' | 'Hybrid' | 'Electric';
 
 interface Vehicle {
@@ -61,4 +72,4 @@ interface EditFormData {
 type ViewMode = 'table' | 'cards';
 
 
-export type { FuelLogData, Log, ChartDataPoint, ViewMode, EditFormData, EditingLogState, Vehicle, VehicleFuelType };
+export type { FuelLogData, Log, ChartDataPoint, ViewMode, EditFormData, EditingLogState, Vehicle, VehicleFuelType, ApiToken };

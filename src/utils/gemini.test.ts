@@ -7,6 +7,7 @@ vi.mock('../firebase/config', () => ({
       getIdToken: vi.fn().mockResolvedValue('mock-id-token'),
     },
   },
+  analytics: Promise.resolve(null),
 }));
 
 describe('gemini utility', () => {

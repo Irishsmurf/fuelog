@@ -1,4 +1,5 @@
-import { auth } from '../firebase/config';
+import { auth, analytics } from '../firebase/config';
+import { logEvent } from 'firebase/analytics';
 
 export interface ReceiptData {
   cost: number | null;
@@ -49,6 +50,8 @@ export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
   }
   const idToken = await user.getIdToken();
 
+  analytics.then(a => { if (a) logEvent(a, 'receipt_scan_started'); });
+
   const { base64Data, mimeType } = await resizeAndEncode(file);
 
   const response = await fetch('/api/extract-receipt', {
@@ -62,8 +65,10 @@ export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
+    analytics.then(a => { if (a) logEvent(a, 'receipt_scan_failed', { status_code: response.status }); });
     throw new Error((err as { error?: string }).error || 'Failed to extract data from receipt.');
   }
 
+  analytics.then(a => { if (a) logEvent(a, 'receipt_scan_success'); });
   return response.json() as Promise<ReceiptData>;
 }

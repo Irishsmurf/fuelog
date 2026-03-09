@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { validateToken } from '../src/mcp/auth.js';
 import { createMcpServer } from '../src/mcp/server.js';
+import { log } from './_logger.js';
 
 function extractBearerToken(req: IncomingMessage): string | null {
   const auth = req.headers['authorization'];
@@ -19,6 +20,7 @@ async function readBody(req: IncomingMessage): Promise<string> {
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  const startMs = Date.now();
   // CORS preflight
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, OPTIONS');
@@ -55,7 +57,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     await mcpServer.connect(transport);
     await transport.handleRequest(req, res, await readBody(req));
   } catch (err) {
-    console.error('[MCP] handler error', err);
+    log('error', 'mcp', 'Handler error', { message: (err as Error).message, durationMs: Date.now() - startMs });
     if (!res.headersSent) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Internal server error' }));

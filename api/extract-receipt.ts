@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import { getAdminApp } from '../src/mcp/firebase-admin.js';
 import { getAuth } from 'firebase-admin/auth';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { log } from './_logger.js';
 
 function handleCors(req: IncomingMessage, res: ServerResponse): boolean {
   const allowedOrigin = process.env.CORS_ORIGIN || 'https://fuel.paddez.com';
@@ -34,6 +35,7 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  const startMs = Date.now();
   if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
@@ -51,7 +53,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const adminApp = getAdminApp();
     await getAuth(adminApp).verifyIdToken(idToken);
   } catch (err) {
-    console.error('[extract-receipt] ID token verification failed:', err);
+    log('error', 'extract-receipt', 'ID token verification failed', { message: (err as Error).message });
     return sendResponse(res, 401, { error: 'Invalid or expired ID token' });
   }
 
@@ -99,13 +101,14 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     if (jsonMatch?.[1]) jsonText = jsonMatch[1];
 
     const parsed = JSON.parse(jsonText);
+    log('info', 'extract-receipt', 'Extraction complete', { durationMs: Date.now() - startMs });
     return sendResponse(res, 200, {
       cost: typeof parsed.cost === 'number' ? parsed.cost : null,
       fuelAmountLiters: typeof parsed.fuelAmountLiters === 'number' ? parsed.fuelAmountLiters : null,
       brand: typeof parsed.brand === 'string' ? parsed.brand : null,
     });
   } catch (err) {
-    console.error('[extract-receipt] error', err);
+    log('error', 'extract-receipt', 'Gemini extraction failed', { message: (err as Error).message, durationMs: Date.now() - startMs });
     return sendResponse(res, 500, { error: 'Failed to extract data from receipt' });
   }
 }

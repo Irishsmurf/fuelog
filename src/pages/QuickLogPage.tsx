@@ -1,7 +1,8 @@
 // src/pages/QuickLogPage.tsx
 import React, { JSX, useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
-import { db } from '../firebase/config';
+import { db, analytics } from '../firebase/config';
+import { logEvent } from 'firebase/analytics';
 import { useAuth } from '../context/AuthContext';
 import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
 import { Vehicle } from '../utils/types';
@@ -279,6 +280,7 @@ function QuickLogPage(): JSX.Element {
 
       // Save to Firestore
       await addDoc(collection(db, "fuelLogs"), logData);
+      analytics.then(a => { if (a) logEvent(a, 'fuel_log_submitted', { vehicle_id: selectedVehicleId, has_receipt: !!receiptFile, currency, used_ai_autofill: extractedData !== null }); });
 
       // Clear form on success
       setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
@@ -292,6 +294,7 @@ function QuickLogPage(): JSX.Element {
 
     } catch (error) {
       console.error("Error adding document: ", error);
+      analytics.then(a => { if (a) logEvent(a, 'fuel_log_failed', { error_type: 'firestore_write' }); });
       setMessage({ type: 'error', text: t('quickLog.messages.saveError') });
     } finally {
       setIsSaving(false);

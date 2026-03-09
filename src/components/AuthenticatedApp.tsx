@@ -1,5 +1,6 @@
 import { JSX, lazy, Suspense } from 'react';
 import { useAuth } from '../context/AuthContext';
+import ErrorBoundary from './ErrorBoundary';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
@@ -75,6 +76,7 @@ function AuthenticatedApp(): JSX.Element {
       <SyncStatus />
 
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full min-w-0 max-w-5xl">
+        <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<QuickLogPage />} />
@@ -87,6 +89,7 @@ function AuthenticatedApp(): JSX.Element {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </main>
 
       <footer className="hidden sm:block bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 mb-0">

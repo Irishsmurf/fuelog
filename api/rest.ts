@@ -3,6 +3,7 @@ import { URL } from 'url';
 import { validateToken, hasScope } from '../src/mcp/auth.js';
 import { getAdminDb } from '../src/mcp/firebase-admin.js';
 import { Timestamp } from 'firebase-admin/firestore';
+import { log } from './_logger.js';
 import { calcMPG, calcKmL, calcL100km, calcFuelPrice } from '../src/mcp/calculations.js';
 import type { ServerLog, ServerVehicle } from '../src/mcp/types.js';
 
@@ -60,6 +61,7 @@ function handleCors(req: IncomingMessage, res: ServerResponse): boolean {
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  const startMs = Date.now();
   if (handleCors(req, res)) return;
 
   // Authenticate
@@ -293,7 +295,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     return sendResponse(res, 400, { error: 'Invalid or missing type parameter' });
   } catch (err) {
-    console.error('[REST] handler error', err);
+    log('error', 'rest', 'Handler error', { message: (err as Error).message, method: req.method, url: req.url, durationMs: Date.now() - startMs });
     if (!res.headersSent) {
       return sendResponse(res, 500, { error: 'Internal server error' });
     }

@@ -56,7 +56,7 @@ function QuickLogPage(): JSX.Element {
   // --- Receipt State ---
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [isExtracting, setIsExtracting] = useState<boolean>(false);
-  const [extractedData, setExtractedData] = useState<{cost: number|null, fuelAmountLiters: number|null, brand: string|null} | null>(null);
+  const [extractedData, setExtractedData] = useState<Awaited<ReturnType<typeof extractDataFromReceipt>> | null>(null);
 
   // Reset currency when homeCurrency changes (initial load)
   useEffect(() => {

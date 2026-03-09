@@ -2,24 +2,20 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 process.env.VITE_GEMINI_API_KEY = 'test-api-key';
 
-// We need to mock the @google/generative-ai module
+// Mock the entire module
 vi.mock('@google/generative-ai', () => {
-  const MockGenerativeModel = class {
-    generateContent = vi.fn().mockResolvedValue({
-      response: {
-        text: () => JSON.stringify({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' }),
-      },
-    });
-  };
-
-  const MockGoogleGenerativeAI = class {
-    getGenerativeModel() {
-      return new MockGenerativeModel();
-    }
-  };
-
   return {
-    GoogleGenerativeAI: MockGoogleGenerativeAI,
+    GoogleGenerativeAI: class {
+      getGenerativeModel() {
+        return {
+          generateContent: vi.fn().mockResolvedValue({
+            response: {
+              text: () => JSON.stringify({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' }),
+            },
+          }),
+        };
+      }
+    },
   };
 });
 
@@ -61,10 +57,7 @@ describe('gemini utility', () => {
   it('handles JSON parse error gracefully', async () => {
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
-    // Override the prototype method for this test specifically since we used a class
-    // @ts-ignore
     const originalGetModel = GoogleGenerativeAI.prototype.getGenerativeModel;
-    // @ts-ignore
     GoogleGenerativeAI.prototype.getGenerativeModel = function() {
       return {
         generateContent: vi.fn().mockResolvedValue({
@@ -76,13 +69,11 @@ describe('gemini utility', () => {
     };
 
     const gemini = await import('./gemini');
-    gemini.__resetGenAIForTest(); // Ensure we use the new prototype
+    gemini.__resetGenAIForTest();
     const mockFile = new File(['mock content'], 'test.png', { type: 'image/png' });
 
     await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow('Failed to parse receipt data.');
 
-    // Restore
-    // @ts-ignore
     GoogleGenerativeAI.prototype.getGenerativeModel = originalGetModel;
   });
 });

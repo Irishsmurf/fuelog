@@ -70,8 +70,8 @@ function parseString(value: unknown): string | null {
 }
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
-  const allowedOrigin = process.env.CORS_ORIGIN || 'https://fuel.paddez.com';
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  const allowedOrigin = process.env.CORS_ORIGIN;
+  if (allowedOrigin) res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -145,8 +145,16 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     const text = result.response.text().trim();
     let jsonText = text;
-    const jsonMatch = text.match(/```(?:json)?\n([\s\S]*?)\n```/s);
-    if (jsonMatch?.[1]) jsonText = jsonMatch[1];
+    const fenceMatch = text.match(/```(?:json)?\n([\s\S]*?)\n```/s);
+    if (fenceMatch?.[1]) {
+      jsonText = fenceMatch[1];
+    } else {
+      const firstBrace = text.indexOf('{');
+      const lastBrace = text.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        jsonText = text.substring(firstBrace, lastBrace + 1);
+      }
+    }
 
     const raw = JSON.parse(jsonText);
     return sendResponse(res, 200, {

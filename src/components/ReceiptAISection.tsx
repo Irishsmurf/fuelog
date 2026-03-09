@@ -1,7 +1,9 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import ImageUpload from './ImageUpload';
+import Spinner from './Spinner';
 import { ReceiptData } from '../utils/gemini';
+import { useTranslation } from 'react-i18next';
 
 interface ReceiptAISectionProps {
   receiptDigitizationEnabled: boolean;
@@ -28,11 +30,13 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
   handleConfirmExtraction,
   handleCancelExtraction,
 }) => {
+  const { t } = useTranslation();
+
   if (!receiptDigitizationEnabled) return null;
 
   return (
     <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-4">
-      <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Receipt</h3>
+      <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('quickLog.sections.receipt')}</h3>
       <ImageUpload
         onFileSelect={(file) => {
           setReceiptFile(file);
@@ -51,26 +55,23 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
             >
               {isExtracting ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Analyzing...
+                  <Spinner />
+                  {t('receipt.analyzing')}
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  Auto-fill with AI
+                  {t('receipt.autoFillWithAI')}
                 </>
               )}
             </button>
           ) : (
             <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 shadow-sm text-sm">
-              <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">AI Extraction Results:</p>
+              <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('receipt.extractionResults')}</p>
               <ul className="space-y-1 mb-3 text-gray-600 dark:text-gray-400">
-                <li><span className="font-medium">Cost:</span> {extractedData.cost !== null ? extractedData.cost : 'Not found'}</li>
-                <li><span className="font-medium">Litres:</span> {extractedData.fuelAmountLiters !== null ? extractedData.fuelAmountLiters : 'Not found'}</li>
-                <li><span className="font-medium">Brand:</span> {extractedData.brand !== null ? extractedData.brand : 'Not found'}</li>
+                <li><span className="font-medium">{t('receipt.cost')}:</span> {extractedData.cost !== null ? extractedData.cost : t('receipt.notFound')}</li>
+                <li><span className="font-medium">{t('receipt.litres')}:</span> {extractedData.fuelAmountLiters !== null ? extractedData.fuelAmountLiters : t('receipt.notFound')}</li>
+                <li><span className="font-medium">{t('receipt.brand')}:</span> {extractedData.brand !== null ? extractedData.brand : t('receipt.notFound')}</li>
               </ul>
               <div className="flex gap-2">
                 <button
@@ -78,14 +79,14 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
                   onClick={handleConfirmExtraction}
                   className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-medium transition-colors"
                 >
-                  Use Values
+                  {t('receipt.useValues')}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancelExtraction}
                   className="flex-1 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md font-medium transition-colors"
                 >
-                  Discard
+                  {t('receipt.discard')}
                 </button>
               </div>
             </div>

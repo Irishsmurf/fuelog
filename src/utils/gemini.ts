@@ -68,7 +68,13 @@ export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
     const text = result.response.text();
     // Parse the JSON string
     try {
-        const data = JSON.parse(text.trim());
+        let jsonText = text.trim();
+        // The model can sometimes wrap the JSON in markdown backticks.
+        const jsonMatch = jsonText.match(/```(?:json)?\n([\s\S]*?)\n```/s);
+        if (jsonMatch?.[1]) {
+          jsonText = jsonMatch[1];
+        }
+        const data = JSON.parse(jsonText);
         return {
             cost: data.cost !== undefined ? data.cost : null,
             fuelAmountLiters: data.fuelAmountLiters !== undefined ? data.fuelAmountLiters : null,

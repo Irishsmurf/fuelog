@@ -2,17 +2,20 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 process.env.VITE_GEMINI_API_KEY = 'test-api-key';
 
-// Mock the entire module
+// Initialize mocks outside the factory for direct access
+const mockGenerateContent = vi.fn().mockResolvedValue({
+  response: {
+    text: () => JSON.stringify({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' }),
+  },
+});
+
+// Mock the module with controlled behavior
 vi.mock('@google/generative-ai', () => {
   return {
     GoogleGenerativeAI: class {
       getGenerativeModel() {
         return {
-          generateContent: vi.fn().mockResolvedValue({
-            response: {
-              text: () => JSON.stringify({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' }),
-            },
-          }),
+          generateContent: mockGenerateContent,
         };
       }
     },
@@ -55,26 +58,16 @@ describe('gemini utility', () => {
   });
 
   it('handles JSON parse error gracefully', async () => {
-    const { GoogleGenerativeAI } = await import('@google/generative-ai');
-
-    const originalGetModel = GoogleGenerativeAI.prototype.getGenerativeModel;
-    // @ts-ignore - Ignoring TS error because we are only mocking the method we use
-    GoogleGenerativeAI.prototype.getGenerativeModel = function() {
-      return {
-        generateContent: vi.fn().mockResolvedValue({
-          response: {
-            text: () => 'Invalid JSON string',
-          },
-        }),
-      };
-    };
+    // Change mock behavior for this test
+    mockGenerateContent.mockResolvedValueOnce({
+      response: {
+        text: () => 'Invalid JSON string',
+      },
+    });
 
     const gemini = await import('./gemini');
-    gemini.__resetGenAIForTest();
     const mockFile = new File(['mock content'], 'test.png', { type: 'image/png' });
 
     await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow('Failed to parse receipt data.');
-
-    GoogleGenerativeAI.prototype.getGenerativeModel = originalGetModel;
   });
 });

@@ -344,6 +344,11 @@
     "loginPrompt": "Para acceder a más funciones, por favor",
     "login": "inicia sesión"
   },
+  "footer": {
+    "copyright": "© {{year}} Fuelog",
+    "about": "Acerca de",
+    "privacyPolicy": "Política de Privacidad"
+  },
   "common": {
     "loading": "Cargando...",
     "saving": "Guardando...",

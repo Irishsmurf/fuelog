@@ -1,5 +1,6 @@
 import { JSX, lazy, Suspense } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import InstallPrompt from './InstallPrompt';
@@ -26,6 +27,7 @@ const PageLoader = () => (
 function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const getNavLinkClass = (path: string): string => {
     const baseClass = "px-3 py-1.5 text-sm font-bold rounded-xl transition-all duration-200";
@@ -89,12 +91,12 @@ function AuthenticatedApp(): JSX.Element {
 
       <footer className="hidden sm:block bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 mb-0">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
-               © {new Date().getFullYear()} Fuelog | {' '}
+               {t('footer.copyright', { year: new Date().getFullYear() })} | {' '}
                <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
-                   About
+                   {t('footer.about')}
                </Link> | {' '}
               <Link to="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
-                  Privacy Policy
+                  {t('footer.privacyPolicy')}
               </Link>
           </div>
       </footer>

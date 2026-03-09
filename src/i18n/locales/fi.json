@@ -348,6 +348,11 @@
     "loginPrompt": "Saadaksesi lisää ominaisuuksia käyttöön,",
     "login": "kirjaudu sisään"
   },
+  "footer": {
+    "copyright": "© {{year}} Fuelog",
+    "about": "Tietoa",
+    "privacyPolicy": "Tietosuojaseloste"
+  },
   "common": {
     "loading": "Ladataan...",
     "saving": "Tallennetaan...",

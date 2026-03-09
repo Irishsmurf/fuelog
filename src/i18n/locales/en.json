@@ -348,6 +348,11 @@
     "loginPrompt": "To access more features, please",
     "login": "log in"
   },
+  "footer": {
+    "copyright": "© {{year}} Fuelog",
+    "about": "About",
+    "privacyPolicy": "Privacy Policy"
+  },
   "common": {
     "loading": "Loading...",
     "saving": "Saving...",

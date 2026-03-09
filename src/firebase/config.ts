@@ -1,5 +1,6 @@
 // src/firebase/config.ts
 import { initializeApp, FirebaseApp, FirebaseOptions } from "firebase/app";
+import { getAnalytics, Analytics, isSupported } from "firebase/analytics";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -27,6 +28,7 @@ interface FirebaseConfig {
   storageBucket: string | undefined;
   messagingSenderId: string | undefined;
   appId: string | undefined;
+  measurementId: string | undefined;
 }
 
 // Load environment variables (remains the same)
@@ -36,7 +38,8 @@ const firebaseConfig: FirebaseConfig = {
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Input Validation (remains the same)
@@ -82,6 +85,12 @@ try {
 // --- End Firestore Initialization ---
 
 
+// Initialize Firebase Analytics (only in environments that support it)
+// Exported as a Promise so consumers can await or .then() to get the instance.
+const analytics: Promise<Analytics | null> = isSupported().then(supported =>
+  supported ? getAnalytics(app) : null
+);
+
 // Google Auth Provider (remains the same)
 const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();
 
@@ -95,8 +104,9 @@ const logout = async (): Promise<void> => { try { await signOut(auth); console.l
 export {
   app,
   auth,
-  db, // Export the initialized db instance
-  storage, // Export the initialized storage instance
+  db,
+  storage,
+  analytics,
   googleProvider,
   signInWithGoogle,
   logout

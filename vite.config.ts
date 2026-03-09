@@ -180,6 +180,10 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
     exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
+    reporters: ['default', 'junit'],
+    outputFile: {
+      junit: './test-results/junit.xml',
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

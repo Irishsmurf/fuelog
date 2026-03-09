@@ -6,8 +6,10 @@ export interface ReceiptData {
   brand: string | null;
 }
 
-const MAX_DIMENSION = 768;
-const JPEG_QUALITY = 0.7;
+// Local `vercel dev` uses Express with a ~100KB body limit.
+// Production Vercel allows up to 4.5MB — use higher quality for better OCR accuracy.
+const MAX_DIMENSION = import.meta.env.DEV ? 768 : 1600;
+const JPEG_QUALITY = import.meta.env.DEV ? 0.7 : 0.9;
 
 async function resizeAndEncode(file: File): Promise<{ base64Data: string; mimeType: string }> {
   const bitmap = await createImageBitmap(file);

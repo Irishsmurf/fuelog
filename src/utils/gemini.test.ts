@@ -43,6 +43,65 @@ describe('gemini utility', () => {
     global.FileReader = MockFileReader;
   });
 
+  it('scales down images larger than MAX_DIMENSION', async () => {
+    // Simulate a 2000x1500 image — should be scaled to 768x576 in dev
+    global.createImageBitmap = vi.fn().mockResolvedValue({
+      width: 2000,
+      height: 1500,
+      close: vi.fn(),
+    });
+    const mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn().mockReturnValue({ drawImage: vi.fn() }),
+      toBlob: vi.fn((cb: BlobCallback) => {
+        cb(new Blob(['mock'], { type: 'image/jpeg' }));
+      }),
+    };
+    vi.spyOn(document, 'createElement').mockReturnValue(mockCanvas as unknown as HTMLCanvasElement);
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ cost: 10, fuelAmountLiters: 5, brand: 'Shell' }),
+    }) as unknown as typeof fetch;
+
+    const gemini = await import('./gemini');
+    await gemini.extractDataFromReceipt(new File(['x'], 'big.jpg', { type: 'image/jpeg' }));
+
+    // In dev: MAX_DIMENSION=768, scale = 768/2000 = 0.384 → 768x576
+    expect(mockCanvas.width).toBe(768);
+    expect(mockCanvas.height).toBe(576);
+  });
+
+  it('does not upscale images smaller than MAX_DIMENSION', async () => {
+    // 400x300 image — should remain 400x300
+    global.createImageBitmap = vi.fn().mockResolvedValue({
+      width: 400,
+      height: 300,
+      close: vi.fn(),
+    });
+    const mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn().mockReturnValue({ drawImage: vi.fn() }),
+      toBlob: vi.fn((cb: BlobCallback) => {
+        cb(new Blob(['mock'], { type: 'image/jpeg' }));
+      }),
+    };
+    vi.spyOn(document, 'createElement').mockReturnValue(mockCanvas as unknown as HTMLCanvasElement);
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ cost: 10, fuelAmountLiters: 5, brand: 'Shell' }),
+    }) as unknown as typeof fetch;
+
+    const gemini = await import('./gemini');
+    await gemini.extractDataFromReceipt(new File(['x'], 'small.jpg', { type: 'image/jpeg' }));
+
+    expect(mockCanvas.width).toBe(400);
+    expect(mockCanvas.height).toBe(300);
+  });
+
   it('extracts data from a receipt image successfully', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,

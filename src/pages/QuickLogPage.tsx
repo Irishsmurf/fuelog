@@ -257,7 +257,8 @@ function QuickLogPage(): JSX.Element {
       const costHomeCurrency = parsedCost * exchangeRate;
 
       // Prepare data object, including location if available
-      const logData: unknown = {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const logData: any = {
         userId: user.uid,
         vehicleId: selectedVehicleId,
         timestamp: Timestamp.now(),
@@ -339,7 +340,8 @@ function QuickLogPage(): JSX.Element {
 
                   <div>
                       <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.vehicle')}</label>
-                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as unknown)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
+                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
                         {vehicles.map((v) => ( <option key={v.id} value={v.id}>{v.name} ({v.make})</option> ))}
                       </select>
                   </div>
@@ -364,7 +366,8 @@ function QuickLogPage(): JSX.Element {
                       </div>
                       <div>
                           <label htmlFor="currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.currency')}</label>
-                          <select id="currency" value={currency} onChange={handleInputChange(setCurrency as unknown)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
+                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                          <select id="currency" value={currency} onChange={handleInputChange(setCurrency as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
                             {COMMON_CURRENCIES.map((curr) => ( <option key={curr.code} value={curr.code}>{curr.code}</option> ))}
                           </select>
                       </div>

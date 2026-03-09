@@ -58,8 +58,10 @@ describe('pseudolocalizeResources', () => {
   });
 
   it('leaves non-string values unchanged', () => {
-    const input = { count: 42, flag: true, nothing: null } as unknown;
-    const result = pseudolocalizeResources(input);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const input = { count: 42, flag: true, nothing: null } as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = pseudolocalizeResources(input) as any;
     expect(result.count).toBe(42);
     expect(result.flag).toBe(true);
     expect(result.nothing).toBeNull();

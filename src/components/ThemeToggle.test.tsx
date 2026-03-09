@@ -10,15 +10,17 @@ vi.mock('../context/ThemeContext', () => ({
 
 describe('ThemeToggle', () => {
   const mockToggleTheme = vi.fn();
+  const mockSetThemeExplicitly = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('does not render if dark mode is disabled remotely', () => {
-    (useTheme as unknown).mockReturnValue({
+    vi.mocked(useTheme).mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
+      setThemeExplicitly: mockSetThemeExplicitly,
       isDarkModeEnabledRemotely: false,
     });
 
@@ -27,9 +29,10 @@ describe('ThemeToggle', () => {
   });
 
   it('renders correctly in light mode', () => {
-    (useTheme as unknown).mockReturnValue({
+    vi.mocked(useTheme).mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
+      setThemeExplicitly: mockSetThemeExplicitly,
       isDarkModeEnabledRemotely: true,
     });
 
@@ -39,9 +42,10 @@ describe('ThemeToggle', () => {
   });
 
   it('renders correctly in dark mode', () => {
-    (useTheme as unknown).mockReturnValue({
+    vi.mocked(useTheme).mockReturnValue({
       theme: 'dark',
       toggleTheme: mockToggleTheme,
+      setThemeExplicitly: mockSetThemeExplicitly,
       isDarkModeEnabledRemotely: true,
     });
 
@@ -51,9 +55,10 @@ describe('ThemeToggle', () => {
   });
 
   it('calls toggleTheme when clicked', () => {
-    (useTheme as unknown).mockReturnValue({
+    vi.mocked(useTheme).mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
+      setThemeExplicitly: mockSetThemeExplicitly,
       isDarkModeEnabledRemotely: true,
     });
 

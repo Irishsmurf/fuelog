@@ -1,5 +1,5 @@
 // src/firebase/config.ts
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp, FirebaseApp, FirebaseOptions } from "firebase/app";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -46,7 +46,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 }
 
 // Initialize Firebase App (remains the same)
-const app: FirebaseApp = initializeApp(firebaseConfig as unknown);
+const app: FirebaseApp = initializeApp(firebaseConfig as FirebaseOptions);
 
 // Initialize Firebase Auth (remains the same)
 const auth: Auth = getAuth(app);

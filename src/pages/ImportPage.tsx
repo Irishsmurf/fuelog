@@ -139,7 +139,7 @@ function ImportPage(): JSX.Element {
             setMessage({ type: 'info', text: `${t('import.submit.importing')} (${importedCountTotal}/${logsToImport.length})` });
         }
         setImportedCount(importedCountTotal); setStatus('success'); setMessage({ type: 'success', text: t('import.messages.success', { count: importedCountTotal }) });
-      } catch (error: unknown) { console.error("Import Error:", error); setStatus('error'); setMessage({ type: 'error', text: t('import.messages.error', { error: error.message }) }); }
+      } catch (error: unknown) { console.error("Import Error:", error); setStatus('error'); setMessage({ type: 'error', text: t('import.messages.error', { error: (error as Error).message }) }); }
     };
     reader.onerror = () => { setStatus('error'); setMessage({ type: 'error', text: t('import.messages.readError') }); };
     reader.readAsText(selectedFile);

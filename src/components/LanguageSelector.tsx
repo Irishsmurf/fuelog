@@ -5,6 +5,11 @@ import { Languages } from 'lucide-react';
 const LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'ga', label: 'Gaeilge' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ko', label: '한국어' },
 ];
 
 function LanguageSelector(): JSX.Element {

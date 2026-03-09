@@ -62,10 +62,65 @@
   },
   "history": {
     "title": "Stair Breosla",
+    "pageTitle": "Stair Breosla & Treochtaí",
     "loading": "Ag lódáil staire...",
-    "noLogs": "Níl aon iontrálacha breosla fós.",
-    "noLogsForFilter": "Níl aon iontrálacha don tréimhse roghnaithe.",
+    "noLogs": "Níl aon iontrálacha breosla. Cuir an chéad cheann leis!",
+    "noLogsForFilter": "Ní mheaitseálann aon iontráil na scagairí reatha.",
     "exportPdf": "Easpórtáil PDF",
+    "filters": {
+      "heading": "Scagairí",
+      "vehicle": "Feithicil",
+      "allVehicles": "Gach Feithicil",
+      "archived": "Cartlannaithe",
+      "startDate": "Dáta Tosaigh",
+      "endDate": "Dáta Deiridh",
+      "brand": "Brandáil",
+      "allBrands": "Gach Brandáil"
+    },
+    "viewToggle": {
+      "viewCards": "Féach ar Chártaí",
+      "viewTable": "Féach ar Thábla",
+      "switchToCards": "Athraigh go Radharc Cárta",
+      "switchToTable": "Athraigh go Radharc Tábla"
+    },
+    "metrics": {
+      "totalSpent": "Caiteachas Iomlán (Scagtha)",
+      "avgMpg": "Meán MPG (UK) (Scagtha)",
+      "avgCostPerLitre": "Meán Costas / Lítear (Scagtha)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) Thar Am (Scagtha)",
+      "costPerLitreOverTime": "Costas Breosla In Aghaidh an Lítir Thar Am (Scagtha)",
+      "needMoreData": "Teastaíonn dhá iontráil ar a laghad sa raon scagtha le treochtaí a thaispeáint."
+    },
+    "logDetails": {
+      "heading": "Sonraí Iontrálacha",
+      "filteredCount": "({{filtered}} as {{total}} á thaispeáint)",
+      "totalCount": "({{count}} iomlán)"
+    },
+    "copyStatus": {
+      "idle": "Cóipeáil Sonraí Tábla",
+      "copying": "Ag cóipeáil...",
+      "copied": "Cóipeáilte!",
+      "failed": "Theip ar an gcóipeáil!",
+      "noData": "Gan sonraí",
+      "unavailable": "Gearrthaisce nach bhfuil ar fáil"
+    },
+    "table": {
+      "date": "Dáta",
+      "vehicle": "Feithicil",
+      "brand": "Brandáil",
+      "cost": "Costas ({{currency}})",
+      "distance": "Fad (Km)",
+      "fuel": "Breosla (L)",
+      "costPerMile": "Costas/Míle",
+      "receipt": "Admháil",
+      "actions": "Gníomhartha",
+      "editLog": "Cuir Iontráil in Eagar",
+      "deleteLog": "Scrios Iontráil",
+      "edit": "Eagar",
+      "delete": "Scrios"
+    },
     "viewMode": {
       "list": "Liosta",
       "chart": "Cairt",
@@ -94,6 +149,7 @@
     },
     "edit": {
       "title": "Cuir Iontráil in Eagar",
+      "vehicle": "Feithicil",
       "brand": "Stáisiún Líonta",
       "cost": "Costas Iomlán ({{currency}})",
       "distance": "Fad (Km)",
@@ -101,7 +157,9 @@
       "save": "Sábháil Athruithe",
       "saving": "Ag Sábháil...",
       "cancel": "Cealaigh",
-      "receipt": "Grianghraf Admhála"
+      "receipt": "Grianghraf Admhála",
+      "updateReceipt": "Nuashonraigh Grianghraf Admhála",
+      "receiptKept": "Coimeádfar an admháil reatha mura gcuirtear ceann eile ina áit."
     },
     "delete": {
       "confirm": "An iontráil logála seo a scriosadh? Ní féidir an gníomh seo a chealú."
@@ -109,6 +167,10 @@
     "loadError": "Theip ar stair breosla a lódáil. Seiceáil do nasc le do thoil agus déan iarracht arís.",
     "deleteError": "Theip ar an iontráil a scriosadh. Déan iarracht arís le do thoil.",
     "updateError": "Theip ar an iontráil a nuashonrú. Déan iarracht arís le do thoil."
+  },
+  "imageUpload": {
+    "receiptPhoto": "Grianghraf Admhála",
+    "snapOrSelect": "Grianghraf nó Roghnaigh"
   },
   "logCard": {
     "distance": "Fad",
@@ -251,6 +313,11 @@
   "language": {
     "label": "Teanga",
     "en": "English",
-    "ga": "Gaeilge"
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어"
   }
 }

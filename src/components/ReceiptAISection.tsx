@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 import ImageUpload from './ImageUpload';
+import { ReceiptData } from '../utils/gemini';
 
 interface ReceiptAISectionProps {
   receiptDigitizationEnabled: boolean;
@@ -8,8 +9,8 @@ interface ReceiptAISectionProps {
   receiptFile: File | null;
   setReceiptFile: (file: File | null) => void;
   isExtracting: boolean;
-  extractedData: { cost: number | null; fuelAmountLiters: number | null; brand: string | null } | null;
-  setExtractedData: React.Dispatch<React.SetStateAction<any>>;
+  extractedData: ReceiptData | null;
+  setExtractedData: React.Dispatch<React.SetStateAction<ReceiptData | null>>;
   handleExtractData: () => void;
   handleConfirmExtraction: () => void;
   handleCancelExtraction: () => void;

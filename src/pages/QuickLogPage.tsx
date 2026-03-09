@@ -8,7 +8,7 @@ import { Vehicle } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
-import { extractDataFromReceipt } from '../utils/gemini';
+import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import ReceiptAISection from '../components/ReceiptAISection';
 
 // Types
@@ -55,7 +55,7 @@ function QuickLogPage(): JSX.Element {
   // --- Receipt State ---
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [isExtracting, setIsExtracting] = useState<boolean>(false);
-  const [extractedData, setExtractedData] = useState<Awaited<ReturnType<typeof extractDataFromReceipt>> | null>(null);
+  const [extractedData, setExtractedData] = useState<ReceiptData | null>(null);
 
   // Reset currency when homeCurrency changes (initial load)
   useEffect(() => {

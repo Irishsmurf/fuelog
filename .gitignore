@@ -1,3 +1,17 @@
+# Dependencies and Build Artifacts
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Environment Variables and Secrets
+.env
+.env.local
+.env.development
+.env.*.local
+service-account.json
+firebase/service-account.json
+
 # Logs
 logs
 *.log
@@ -6,32 +20,25 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+preview_log.txt
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editor and OS Specific
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env
-.env.local
-.env.*.local
+
+# Testing and Reports
 playwright-report/
 test-results/
 coverage/
-service-account.json
-firebase/service-account.json
-.env.development
-preview_log.txt
+
+# Session and Workspace Temporary Files
 .plans/
 .claude/
 .idx/

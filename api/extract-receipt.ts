@@ -75,7 +75,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const prompt = `
       Analyze this receipt image and extract the following information for a fuel purchase:

@@ -1,21 +1,26 @@
-.PHONY: dev dev-frontend dev-api install test lint typecheck build clean
+.PHONY: dev dev-frontend dev-api install test lint typecheck build clean kill-api-port
+
+API_PORT ?= 3001
+
+kill-api-port:
+	@fuser -k $(API_PORT)/tcp 2>/dev/null || true
 
 # Run frontend (Vite) and API (Vercel) concurrently
-dev:
+dev: kill-api-port
 	@command -v vercel >/dev/null 2>&1 || { echo "vercel CLI not found — run: npm i -g vercel"; exit 1; }
 	@command -v npx >/dev/null 2>&1 || { echo "npx not found"; exit 1; }
 	npx concurrently --names "vite,api" --prefix-colors "cyan,magenta" \
 		"npm run dev" \
-		"vercel dev --listen 3001"
+		"vercel dev --listen $(API_PORT)"
 
 # Run frontend only (no API functions)
 dev-frontend:
 	npm run dev
 
 # Run API serverless functions only
-dev-api:
+dev-api: kill-api-port
 	@command -v vercel >/dev/null 2>&1 || { echo "vercel CLI not found — run: npm i -g vercel"; exit 1; }
-	vercel dev --listen 3001
+	vercel dev --listen $(API_PORT)
 
 install:
 	npm ci

@@ -40,8 +40,7 @@ function sendResponse(res: ServerResponse, statusCode: number, data: any) {
   res.end(JSON.stringify(data));
 }
 
-export default async function handler(req: IncomingMessage, res: ServerResponse) {
-  // CORS preflight
+function handleCors(req: IncomingMessage, res: ServerResponse): boolean {
   const allowedOrigin = process.env.CORS_ORIGIN || 'https://fuel.paddez.com';
   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, DELETE, PUT, OPTIONS');
@@ -50,8 +49,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
-    return;
+    return true; // CORS handled, exit early
   }
+  return false;
+}
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
+  if (handleCors(req, res)) return;
 
   // Authenticate
   const rawToken = extractBearerToken(req);
@@ -77,7 +81,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     if (type === 'logs') {
       if (req.method === 'GET') {
-        const limit = Number(url.searchParams.get('limit')) || 100;
+        let limit = Number(url.searchParams.get('limit'));
+        if (isNaN(limit) || limit <= 0) limit = 100;
+
         let q = db.collection('fuelLogs').where('userId', '==', userId).orderBy('timestamp', 'desc').limit(limit);
         const snapshot = await q.get();
         const logs = snapshot.docs.map(doc => {

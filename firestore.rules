@@ -34,12 +34,6 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
-    // Testers allowlist: authenticated users may check if their own email is listed.
-    // Doc ID is the user's email address.
-    match /testers/{email} {
-      allow read: if isAuthenticated() && request.auth.token.email == email;
-    }
-
     // API tokens: users can manage their own tokens.
     // Only the SHA-256 hash is stored — the raw token never touches Firestore.
     match /apiTokens/{tokenId} {

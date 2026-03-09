@@ -20,7 +20,12 @@ function extractBearerToken(req: IncomingMessage): string | null {
 async function readBody(req: IncomingMessage): Promise<any> {
   return new Promise((resolve, reject) => {
     let body = '';
-    req.on('data', chunk => { body += chunk; });
+
+    // Explicitly handle string conversion on incoming chunks
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+
     req.on('end', () => {
       if (!body) {
         return resolve({});

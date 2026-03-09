@@ -19,7 +19,7 @@ test.describe('PWA Validation', () => {
   test('should register a service worker', async ({ page, context }) => {
     await page.goto('/');
     
-    // In many environments (like dev), SW might not be active.
+    // In munknown environments (like dev), SW might not be active.
     // But in build/preview it should be.
     // We can check if navigator.serviceWorker exists
     const swExists = await page.evaluate(() => 'serviceWorker' in navigator);

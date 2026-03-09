@@ -17,7 +17,7 @@ function extractBearerToken(req: IncomingMessage): string | null {
  * @param req The incoming HTTP request.
  * @returns A promise that resolves to the parsed JSON object, or throws an error on invalid JSON.
  */
-async function readBody(req: IncomingMessage): Promise<any> {
+async function readBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
     let body = '';
 
@@ -40,7 +40,7 @@ async function readBody(req: IncomingMessage): Promise<any> {
   });
 }
 
-function sendResponse(res: ServerResponse, statusCode: number, data: any) {
+function sendResponse(res: ServerResponse, statusCode: number, data: unknown) {
   res.writeHead(statusCode, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
 }
@@ -89,7 +89,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         let limit = Number(url.searchParams.get('limit'));
         if (isNaN(limit) || limit <= 0) limit = 100;
 
-        let q = db.collection('fuelLogs').where('userId', '==', userId).orderBy('timestamp', 'desc').limit(limit);
+        const q = db.collection('fuelLogs').where('userId', '==', userId).orderBy('timestamp', 'desc').limit(limit);
         const snapshot = await q.get();
         const logs = snapshot.docs.map(doc => {
           const data = doc.data();
@@ -106,7 +106,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         let body;
         try {
           body = await readBody(req);
-        } catch (e: any) {
+        } catch (e: unknown) {
           return sendResponse(res, 400, { error: e.message });
         }
         if (body.brand === undefined || body.cost === undefined || body.distanceKm === undefined || body.fuelAmountLiters === undefined) {
@@ -136,7 +136,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         let body;
         try {
           body = await readBody(req);
-        } catch (e: any) {
+        } catch (e: unknown) {
           return sendResponse(res, 400, { error: e.message });
         }
         const docRef = db.collection('fuelLogs').doc(id);
@@ -179,7 +179,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
            let body;
            try {
              body = await readBody(req);
-           } catch (e: any) {
+           } catch (e: unknown) {
              return sendResponse(res, 400, { error: e.message });
            }
            if (!body.name || !body.make || !body.model || !body.year || !body.fuelType) {
@@ -213,7 +213,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
            let body;
            try {
              body = await readBody(req);
-           } catch (e: any) {
+           } catch (e: unknown) {
              return sendResponse(res, 400, { error: e.message });
            }
            const docRef = db.collection('vehicles').doc(id);

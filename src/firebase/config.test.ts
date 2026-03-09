@@ -22,6 +22,10 @@ vi.mock('firebase/storage', () => ({
   getStorage: vi.fn().mockReturnValue({}),
 }));
 
+vi.mock('firebase/performance', () => ({
+  getPerformance: vi.fn().mockReturnValue({ name: 'mock-perf' }),
+}));
+
 const mockGetAnalytics = vi.fn().mockReturnValue({ name: 'mock-analytics' });
 const mockIsSupported = vi.fn();
 

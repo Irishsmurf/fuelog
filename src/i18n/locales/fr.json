@@ -63,8 +63,8 @@
   "history": {
     "title": "Historique de Carburant",
     "loading": "Chargement de l'historique...",
-    "noLogs": "Aucune saisie de carburant pour l'instant.",
-    "noLogsForFilter": "Aucune saisie pour la période sélectionnée.",
+    "noLogs": "Aucune saisie trouvée. Ajoutez votre première entrée !",
+    "noLogsForFilter": "Aucune saisie ne correspond aux filtres actuels.",
     "exportPdf": "Exporter en PDF",
     "viewMode": {
       "list": "Liste",
@@ -101,14 +101,72 @@
       "save": "Enregistrer les Modifications",
       "saving": "Enregistrement...",
       "cancel": "Annuler",
-      "receipt": "Photo du Reçu"
+      "receipt": "Photo du Reçu",
+      "vehicle": "Véhicule",
+      "updateReceipt": "Mettre à Jour la Photo du Reçu",
+      "receiptKept": "Le reçu actuel sera conservé sauf remplacement."
     },
     "delete": {
       "confirm": "Supprimer cette saisie ? Cette action est irréversible."
     },
     "loadError": "Échec du chargement de l'historique. Vérifiez votre connexion et réessayez.",
     "deleteError": "Échec de la suppression de la saisie. Veuillez réessayer.",
-    "updateError": "Échec de la mise à jour. Veuillez réessayer."
+    "updateError": "Échec de la mise à jour. Veuillez réessayer.",
+    "pageTitle": "Historique de Carburant et Tendances",
+    "filters": {
+      "heading": "Filtres",
+      "vehicle": "Véhicule",
+      "allVehicles": "Tous les Véhicules",
+      "archived": "Archivé",
+      "startDate": "Date de Début",
+      "endDate": "Date de Fin",
+      "brand": "Marque",
+      "allBrands": "Toutes les Marques"
+    },
+    "viewToggle": {
+      "viewCards": "Voir les Cartes",
+      "viewTable": "Voir le Tableau",
+      "switchToCards": "Passer à la Vue Cartes",
+      "switchToTable": "Passer à la Vue Tableau"
+    },
+    "metrics": {
+      "totalSpent": "Total Dépensé (Filtré)",
+      "avgMpg": "MPG Moyen (UK) (Filtré)",
+      "avgCostPerLitre": "Coût Moyen / Litre (Filtré)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) dans le Temps (Filtré)",
+      "costPerLitreOverTime": "Coût du Carburant par Litre dans le Temps (Filtré)",
+      "needMoreData": "Au moins deux saisies dans la plage filtrée sont nécessaires pour afficher les tendances."
+    },
+    "logDetails": {
+      "heading": "Détails des Saisies",
+      "filteredCount": "({{filtered}} sur {{total}} affichés)",
+      "totalCount": "({{count}} total)"
+    },
+    "copyStatus": {
+      "idle": "Copier les Données",
+      "copying": "Copie en cours...",
+      "copied": "Copié !",
+      "failed": "Échec de la copie !",
+      "noData": "Pas de données",
+      "unavailable": "Presse-papiers indisponible"
+    },
+    "table": {
+      "date": "Date",
+      "vehicle": "Véhicule",
+      "brand": "Marque",
+      "cost": "Coût ({{currency}})",
+      "distance": "Distance (Km)",
+      "fuel": "Carburant (L)",
+      "costPerMile": "Coût/Mile",
+      "receipt": "Reçu",
+      "actions": "Actions",
+      "editLog": "Modifier la Saisie",
+      "deleteLog": "Supprimer la Saisie",
+      "edit": "Modifier",
+      "delete": "Supprimer"
+    }
   },
   "logCard": {
     "distance": "Distance",
@@ -257,5 +315,9 @@
     "de": "Deutsch",
     "ja": "日本語",
     "ko": "한국어"
+  },
+  "imageUpload": {
+    "receiptPhoto": "Photo du Reçu",
+    "snapOrSelect": "Photographier ou Sélectionner"
   }
 }

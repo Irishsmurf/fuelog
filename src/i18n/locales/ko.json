@@ -63,8 +63,8 @@
   "history": {
     "title": "연료 내역",
     "loading": "내역 로드 중...",
-    "noLogs": "아직 연료 기록이 없습니다.",
-    "noLogsForFilter": "선택한 기간의 기록이 없습니다.",
+    "noLogs": "기록이 없습니다. 첫 번째 항목을 추가하세요!",
+    "noLogsForFilter": "현재 필터와 일치하는 기록이 없습니다.",
     "exportPdf": "PDF 내보내기",
     "viewMode": {
       "list": "목록",
@@ -101,14 +101,72 @@
       "save": "변경사항 저장",
       "saving": "저장 중...",
       "cancel": "취소",
-      "receipt": "영수증 사진"
+      "receipt": "영수증 사진",
+      "vehicle": "차량",
+      "updateReceipt": "영수증 사진 업데이트",
+      "receiptKept": "교체하지 않으면 현재 영수증이 유지됩니다."
     },
     "delete": {
       "confirm": "이 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
     },
     "loadError": "연료 내역을 불러오는 데 실패했습니다. 연결 상태를 확인하고 다시 시도해 주세요.",
     "deleteError": "기록을 삭제하는 데 실패했습니다. 다시 시도해 주세요.",
-    "updateError": "기록을 업데이트하는 데 실패했습니다. 다시 시도해 주세요."
+    "updateError": "기록을 업데이트하는 데 실패했습니다. 다시 시도해 주세요.",
+    "pageTitle": "연료 내역 및 트렌드",
+    "filters": {
+      "heading": "필터",
+      "vehicle": "차량",
+      "allVehicles": "모든 차량",
+      "archived": "보관됨",
+      "startDate": "시작 날짜",
+      "endDate": "종료 날짜",
+      "brand": "브랜드",
+      "allBrands": "모든 브랜드"
+    },
+    "viewToggle": {
+      "viewCards": "카드 보기",
+      "viewTable": "테이블 보기",
+      "switchToCards": "카드 보기로 전환",
+      "switchToTable": "테이블 보기로 전환"
+    },
+    "metrics": {
+      "totalSpent": "총 지출 (필터됨)",
+      "avgMpg": "평균 MPG (UK) (필터됨)",
+      "avgCostPerLitre": "평균 비용 / 리터 (필터됨)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) 시간 추이 (필터됨)",
+      "costPerLitreOverTime": "리터당 연료 비용 시간 추이 (필터됨)",
+      "needMoreData": "트렌드를 표시하려면 필터된 범위에 최소 두 개의 기록이 필요합니다."
+    },
+    "logDetails": {
+      "heading": "기록 세부정보",
+      "filteredCount": "({{total}}개 중 {{filtered}}개 표시)",
+      "totalCount": "(총 {{count}}개)"
+    },
+    "copyStatus": {
+      "idle": "테이블 데이터 복사",
+      "copying": "복사 중...",
+      "copied": "복사됨!",
+      "failed": "복사 실패!",
+      "noData": "데이터 없음",
+      "unavailable": "클립보드 사용 불가"
+    },
+    "table": {
+      "date": "날짜",
+      "vehicle": "차량",
+      "brand": "브랜드",
+      "cost": "비용 ({{currency}})",
+      "distance": "거리 (Km)",
+      "fuel": "연료 (L)",
+      "costPerMile": "비용/마일",
+      "receipt": "영수증",
+      "actions": "작업",
+      "editLog": "기록 수정",
+      "deleteLog": "기록 삭제",
+      "edit": "수정",
+      "delete": "삭제"
+    }
   },
   "logCard": {
     "distance": "거리",
@@ -257,5 +315,9 @@
     "de": "Deutsch",
     "ja": "日本語",
     "ko": "한국어"
+  },
+  "imageUpload": {
+    "receiptPhoto": "영수증 사진",
+    "snapOrSelect": "촬영 또는 선택"
   }
 }

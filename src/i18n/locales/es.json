@@ -63,8 +63,8 @@
   "history": {
     "title": "Historial de Combustible",
     "loading": "Cargando historial...",
-    "noLogs": "Aún no hay registros de combustible.",
-    "noLogsForFilter": "No hay registros para el período seleccionado.",
+    "noLogs": "No se encontraron registros. ¡Añade tu primera entrada!",
+    "noLogsForFilter": "Ningún registro coincide con los filtros actuales.",
     "exportPdf": "Exportar PDF",
     "viewMode": {
       "list": "Lista",
@@ -101,14 +101,72 @@
       "save": "Guardar Cambios",
       "saving": "Guardando...",
       "cancel": "Cancelar",
-      "receipt": "Foto del Recibo"
+      "receipt": "Foto del Recibo",
+      "vehicle": "Vehículo",
+      "updateReceipt": "Actualizar Foto del Recibo",
+      "receiptKept": "El recibo actual se conservará a menos que se reemplace."
     },
     "delete": {
       "confirm": "¿Eliminar esta entrada? Esta acción no se puede deshacer."
     },
     "loadError": "Error al cargar el historial de combustible. Por favor, comprueba tu conexión e inténtalo de nuevo.",
     "deleteError": "Error al eliminar la entrada. Por favor, inténtalo de nuevo.",
-    "updateError": "Error al actualizar el registro. Por favor, inténtalo de nuevo."
+    "updateError": "Error al actualizar el registro. Por favor, inténtalo de nuevo.",
+    "pageTitle": "Historial de Combustible y Tendencias",
+    "filters": {
+      "heading": "Filtros",
+      "vehicle": "Vehículo",
+      "allVehicles": "Todos los Vehículos",
+      "archived": "Archivado",
+      "startDate": "Fecha de Inicio",
+      "endDate": "Fecha de Fin",
+      "brand": "Marca",
+      "allBrands": "Todas las Marcas"
+    },
+    "viewToggle": {
+      "viewCards": "Ver Tarjetas",
+      "viewTable": "Ver Tabla",
+      "switchToCards": "Cambiar a Vista de Tarjetas",
+      "switchToTable": "Cambiar a Vista de Tabla"
+    },
+    "metrics": {
+      "totalSpent": "Total Gastado (Filtrado)",
+      "avgMpg": "MPG Promedio (UK) (Filtrado)",
+      "avgCostPerLitre": "Coste Promedio / Litro (Filtrado)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) a lo Largo del Tiempo (Filtrado)",
+      "costPerLitreOverTime": "Coste de Combustible por Litro a lo Largo del Tiempo (Filtrado)",
+      "needMoreData": "Se necesitan al menos dos registros en el rango filtrado para mostrar tendencias."
+    },
+    "logDetails": {
+      "heading": "Detalles del Registro",
+      "filteredCount": "({{filtered}} de {{total}} mostrados)",
+      "totalCount": "({{count}} total)"
+    },
+    "copyStatus": {
+      "idle": "Copiar Datos de Tabla",
+      "copying": "Copiando...",
+      "copied": "¡Copiado!",
+      "failed": "¡Copia Fallida!",
+      "noData": "Sin datos",
+      "unavailable": "Portapapeles no disponible"
+    },
+    "table": {
+      "date": "Fecha",
+      "vehicle": "Vehículo",
+      "brand": "Marca",
+      "cost": "Coste ({{currency}})",
+      "distance": "Distancia (Km)",
+      "fuel": "Combustible (L)",
+      "costPerMile": "Coste/Milla",
+      "receipt": "Recibo",
+      "actions": "Acciones",
+      "editLog": "Editar Registro",
+      "deleteLog": "Eliminar Registro",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    }
   },
   "logCard": {
     "distance": "Distancia",
@@ -257,5 +315,9 @@
     "de": "Deutsch",
     "ja": "日本語",
     "ko": "한국어"
+  },
+  "imageUpload": {
+    "receiptPhoto": "Foto del Recibo",
+    "snapOrSelect": "Fotografiar o Seleccionar"
   }
 }

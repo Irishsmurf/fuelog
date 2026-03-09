@@ -63,8 +63,8 @@
   "history": {
     "title": "Kraftstoffverlauf",
     "loading": "Verlauf wird geladen...",
-    "noLogs": "Noch keine Kraftstoffeinträge.",
-    "noLogsForFilter": "Keine Einträge für den ausgewählten Zeitraum.",
+    "noLogs": "Keine Einträge gefunden. Fügen Sie Ihren ersten Eintrag hinzu!",
+    "noLogsForFilter": "Keine Einträge entsprechen den aktuellen Filtern.",
     "exportPdf": "PDF exportieren",
     "viewMode": {
       "list": "Liste",
@@ -101,14 +101,72 @@
       "save": "Änderungen speichern",
       "saving": "Wird gespeichert...",
       "cancel": "Abbrechen",
-      "receipt": "Quittungsfoto"
+      "receipt": "Quittungsfoto",
+      "vehicle": "Fahrzeug",
+      "updateReceipt": "Quittungsfoto aktualisieren",
+      "receiptKept": "Die aktuelle Quittung wird beibehalten, sofern sie nicht ersetzt wird."
     },
     "delete": {
       "confirm": "Diesen Eintrag löschen? Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "loadError": "Fehler beim Laden des Kraftstoffverlaufs. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
     "deleteError": "Fehler beim Löschen des Eintrags. Bitte versuchen Sie es erneut.",
-    "updateError": "Fehler beim Aktualisieren. Bitte versuchen Sie es erneut."
+    "updateError": "Fehler beim Aktualisieren. Bitte versuchen Sie es erneut.",
+    "pageTitle": "Kraftstoffverlauf & Trends",
+    "filters": {
+      "heading": "Filter",
+      "vehicle": "Fahrzeug",
+      "allVehicles": "Alle Fahrzeuge",
+      "archived": "Archiviert",
+      "startDate": "Startdatum",
+      "endDate": "Enddatum",
+      "brand": "Marke",
+      "allBrands": "Alle Marken"
+    },
+    "viewToggle": {
+      "viewCards": "Karten anzeigen",
+      "viewTable": "Tabelle anzeigen",
+      "switchToCards": "Zur Kartenansicht wechseln",
+      "switchToTable": "Zur Tabellenansicht wechseln"
+    },
+    "metrics": {
+      "totalSpent": "Gesamtausgaben (Gefiltert)",
+      "avgMpg": "Ø MPG (UK) (Gefiltert)",
+      "avgCostPerLitre": "Ø Kosten / Liter (Gefiltert)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) im Zeitverlauf (Gefiltert)",
+      "costPerLitreOverTime": "Kraftstoffkosten pro Liter im Zeitverlauf (Gefiltert)",
+      "needMoreData": "Mindestens zwei Einträge im gefilterten Bereich sind erforderlich, um Trends anzuzeigen."
+    },
+    "logDetails": {
+      "heading": "Eintragsdetails",
+      "filteredCount": "({{filtered}} von {{total}} angezeigt)",
+      "totalCount": "({{count}} gesamt)"
+    },
+    "copyStatus": {
+      "idle": "Tabellendaten kopieren",
+      "copying": "Wird kopiert...",
+      "copied": "Kopiert!",
+      "failed": "Kopieren fehlgeschlagen!",
+      "noData": "Keine Daten",
+      "unavailable": "Zwischenablage nicht verfügbar"
+    },
+    "table": {
+      "date": "Datum",
+      "vehicle": "Fahrzeug",
+      "brand": "Marke",
+      "cost": "Kosten ({{currency}})",
+      "distance": "Distanz (Km)",
+      "fuel": "Kraftstoff (L)",
+      "costPerMile": "Kosten/Meile",
+      "receipt": "Quittung",
+      "actions": "Aktionen",
+      "editLog": "Eintrag bearbeiten",
+      "deleteLog": "Eintrag löschen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    }
   },
   "logCard": {
     "distance": "Distanz",
@@ -257,5 +315,9 @@
     "de": "Deutsch",
     "ja": "日本語",
     "ko": "한국어"
+  },
+  "imageUpload": {
+    "receiptPhoto": "Quittungsfoto",
+    "snapOrSelect": "Foto aufnehmen oder auswählen"
   }
 }

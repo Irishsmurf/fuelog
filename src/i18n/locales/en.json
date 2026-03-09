@@ -62,10 +62,65 @@
   },
   "history": {
     "title": "Fuel History",
+    "pageTitle": "Fuel History & Trends",
     "loading": "Loading history...",
-    "noLogs": "No fuel logs yet.",
-    "noLogsForFilter": "No logs for the selected period.",
+    "noLogs": "No fuel logs found. Add your first entry!",
+    "noLogsForFilter": "No logs match the current filters.",
     "exportPdf": "Export PDF",
+    "filters": {
+      "heading": "Filters",
+      "vehicle": "Vehicle",
+      "allVehicles": "All Vehicles",
+      "archived": "Archived",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "brand": "Brand",
+      "allBrands": "All Brands"
+    },
+    "viewToggle": {
+      "viewCards": "View Cards",
+      "viewTable": "View Table",
+      "switchToCards": "Switch to Card View",
+      "switchToTable": "Switch to Table View"
+    },
+    "metrics": {
+      "totalSpent": "Total Spent (Filtered)",
+      "avgMpg": "Average MPG (UK) (Filtered)",
+      "avgCostPerLitre": "Average Cost / Litre (Filtered)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) Over Time (Filtered)",
+      "costPerLitreOverTime": "Fuel Cost Per Litre Over Time (Filtered)",
+      "needMoreData": "Need at least two logs in the filtered range to show trends."
+    },
+    "logDetails": {
+      "heading": "Log Details",
+      "filteredCount": "({{filtered}} of {{total}} shown)",
+      "totalCount": "({{count}} total)"
+    },
+    "copyStatus": {
+      "idle": "Copy Table Data",
+      "copying": "Copying...",
+      "copied": "Copied!",
+      "failed": "Copy Failed!",
+      "noData": "No data",
+      "unavailable": "Clipboard unavailable"
+    },
+    "table": {
+      "date": "Date",
+      "vehicle": "Vehicle",
+      "brand": "Brand",
+      "cost": "Cost ({{currency}})",
+      "distance": "Distance (Km)",
+      "fuel": "Fuel (L)",
+      "costPerMile": "Cost/Mile",
+      "receipt": "Receipt",
+      "actions": "Actions",
+      "editLog": "Edit Log",
+      "deleteLog": "Delete Log",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
     "viewMode": {
       "list": "List",
       "chart": "Chart",
@@ -93,7 +148,8 @@
       "entries": "Entries"
     },
     "edit": {
-      "title": "Edit Entry",
+      "title": "Edit Log Entry",
+      "vehicle": "Vehicle",
       "brand": "Filling Station",
       "cost": "Total Cost ({{currency}})",
       "distance": "Distance (Km)",
@@ -101,7 +157,9 @@
       "save": "Save Changes",
       "saving": "Saving...",
       "cancel": "Cancel",
-      "receipt": "Receipt Photo"
+      "receipt": "Receipt Photo",
+      "updateReceipt": "Update Receipt Photo",
+      "receiptKept": "Current receipt will be kept unless replaced."
     },
     "delete": {
       "confirm": "Delete this log entry? This action cannot be undone."
@@ -109,6 +167,10 @@
     "loadError": "Failed to load fuel history. Please check your connection and try again.",
     "deleteError": "Failed to delete log entry. Please try again.",
     "updateError": "Failed to update log. Please try again."
+  },
+  "imageUpload": {
+    "receiptPhoto": "Receipt Photo",
+    "snapOrSelect": "Snap or Select"
   },
   "logCard": {
     "distance": "Distance",

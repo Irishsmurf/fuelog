@@ -1,12 +1,15 @@
 import React, { useRef, useState } from 'react';
 import { Camera, X, Image as ImageIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ImageUploadProps {
   onFileSelect: (file: File | null) => void;
   label?: string;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onFileSelect, label = "Receipt Photo" }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ onFileSelect, label }) => {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t('imageUpload.receiptPhoto');
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,7 +36,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onFileSelect, label = "Receip
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        {label}
+        {resolvedLabel}
       </label>
       
       {!preview ? (
@@ -44,7 +47,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onFileSelect, label = "Receip
         >
           <Camera className="w-8 h-8 text-gray-400 dark:text-gray-500 mb-2" />
           <span className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-            Snap or Select
+            {t('imageUpload.snapOrSelect')}
           </span>
         </button>
       ) : (

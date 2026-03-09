@@ -2,6 +2,31 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import LogCard from './LogCard';
 import { describe, it, expect, vi } from 'vitest';
 
+
+// Mock react-i18next so tests don't need a real i18n instance
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const strings: Record<string, string> = {
+        'logCard.distance': 'Distance',
+        'logCard.fuelAdded': 'Fuel Added',
+        'logCard.mpg': 'MPG',
+        'logCard.kmL': 'km/L',
+        'logCard.l100km': 'L/100km',
+        'logCard.costPerMile': 'Cost/Mile',
+        'logCard.receipt': 'Receipt',
+        'logCard.tapToViewMap': 'Tap to view map',
+        'logCard.noLocation': 'No location',
+        'logCard.unknownStation': 'Unknown Station',
+        'logCard.editEntry': 'Edit Entry',
+        'logCard.deleteEntry': 'Delete Entry',
+      };
+      return strings[key] ?? key;
+    },
+    i18n: { language: 'en' },
+  }),
+}));
+
 // Mock AuthContext
 vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({

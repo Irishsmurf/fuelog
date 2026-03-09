@@ -1,5 +1,7 @@
 # Fuel Logger Web Application
 
+[![codecov](https://codecov.io/gh/Irishsmurf/fuelog/branch/main/graph/badge.svg)](https://codecov.io/gh/Irishsmurf/fuelog)
+
 ## Description
 
 A simple web application designed to track vehicle fuel consumption and costs, replacing manual spreadsheet logging. Initially built to monitor the usage of a 2013 VW Polo TSI, it allows users to quickly log fuel entries, view historical data, analyze trends through visualizations, and import existing data. The application captures location data during logging for potential future analysis like heatmaps.

@@ -246,6 +246,45 @@
     "extractionFailed": "Error al extraer datos del recibo.",
     "autoFilled": "¡Campos autocompletados desde el recibo!"
   },
+  "import": {
+    "title": "Importar Registros de Combustible",
+    "loadingVehicles": "Cargando vehículos...",
+    "noVehicles": {
+      "heading": "No se encontraron vehículos activos.",
+      "subtext": "Necesitas un vehículo activo para importar registros.",
+      "cta": "Ir al Perfil"
+    },
+    "fields": {
+      "targetVehicle": "Vehículo de Destino",
+      "targetVehicleDesc": "Todos los registros del archivo se asignarán a este vehículo.",
+      "tsvFile": "Archivo TSV"
+    },
+    "description": "Selecciona un archivo de Valores Separados por Tabuladores (.tsv o .txt). Asegúrate de que los encabezados incluyan: Date, Litres, Total Cost, Garage y Distance since fueled (en Km).",
+    "submit": {
+      "save": "Procesar e Importar Datos",
+      "importing": "Importando...",
+      "parsing": "Analizando...",
+      "reading": "Leyendo..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Por favor, selecciona un archivo TSV y asegúrate de haber iniciado sesión.",
+      "selectVehicle": "Por favor, selecciona un vehículo para esta importación.",
+      "readingFile": "Leyendo archivo...",
+      "parsingData": "Analizando datos...",
+      "success": "¡Se importaron {{count}} registros exitosamente!",
+      "error": "Error al importar: {{error}}",
+      "noLogs": "No se encontraron registros válidos para importar después del análisis.",
+      "missingHeader": "Falta la columna de encabezado requerida: \"{{header}}\"",
+      "minRows": "El archivo debe contener al menos una fila de encabezado y una fila de datos.",
+      "readError": "Error al leer el archivo seleccionado.",
+      "invalidDate": "Fila {{row}}: Fecha Inválida \"{{value}}\".",
+      "invalidLitres": "Fila {{row}}: Litros Inválidos \"{{value}}\".",
+      "invalidCost": "Fila {{row}}: Coste Inválido \"{{value}}\".",
+      "invalidDistance": "Fila {{row}}: Distancia Inválida \"{{value}}\".",
+      "insufficientColumns": "Fila {{row}}: Columnas insuficientes.",
+      "foundErrors": "Se encontraron {{count}} errores durante el análisis. Primeros errores: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "Acceso API",
     "subtitle": "Conecta Claude y otros LLMs a tus datos de combustible vía MCP",
@@ -255,10 +294,10 @@
     "tokenNamePlaceholder": "p.ej. Claude Desktop - Casa",
     "permissions": "Permisos",
     "scopes": {
-      "readLogs": "Leer registros",
-      "writeLogs": "Escribir registros",
-      "readVehicles": "Leer vehículos",
-      "writeVehicles": "Escribir vehículos"
+      "read:logs": "Leer registros",
+      "write:logs": "Escribir registros",
+      "read:vehicles": "Leer vehículos",
+      "write:vehicles": "Escribir vehículos"
     },
     "generate": "Generar token",
     "generating": "Generando…",
@@ -266,20 +305,25 @@
     "loadingTokens": "Cargando tokens…",
     "noTokens": "Aún no hay tokens API",
     "noTokensSubtext": "Genera un token para conectar Claude Desktop o cualquier LLM compatible con MCP a tus datos de Fuelog.",
-    "created": "Token API Creado",
-    "copyWarning": "Este token no se mostrará de nuevo. Cópialo ahora.",
-    "yourToken": "Tu Token API",
-    "claudeConfig": "Configuración de Claude Desktop",
-    "claudeConfigNote": "Añade esto a tu {{file}} bajo {{section}}.",
-    "copy": "Copiar",
-    "copied": "¡Copiado!",
-    "done": "Listo, he guardado mi token",
-    "revokeConfirm": "¿Revocar?",
-    "revokeYes": "Sí, revocar",
-    "revoke": "Revocar",
-    "created_at": "Creado {{date}}",
-    "last_used": "Último uso: {{date}}",
-    "never": "Nunca",
+    "reveal": {
+      "title": "Token API Creado",
+      "warning": "Este token no se mostrará de nuevo. Cópialo ahora.",
+      "tokenLabel": "Tu Token API",
+      "configLabel": "Configuración de Claude Desktop",
+      "configDesc": "Añade esto a tu <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> bajo <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code>.",
+      "copy": "Copiar",
+      "copied": "¡Copiado!",
+      "done": "Listo, he guardado mi token"
+    },
+    "row": {
+      "createdAt": "Creado el {{date}}",
+      "lastUsedAt": "Último uso: {{date}}",
+      "revokeConfirm": "¿Revocar?",
+      "revokeYes": "Sí, revocar",
+      "revoke": "Revocar",
+      "cancel": "Cancelar",
+      "never": "Nunca"
+    },
     "errors": {
       "enterName": "Por favor, introduce un nombre para este token.",
       "selectScope": "Selecciona al menos un permiso.",

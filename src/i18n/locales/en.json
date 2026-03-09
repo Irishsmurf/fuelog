@@ -250,6 +250,45 @@
     "extractionFailed": "Failed to extract data from receipt.",
     "autoFilled": "Fields auto-filled from receipt!"
   },
+  "import": {
+    "title": "Import Fuel Logs",
+    "loadingVehicles": "Loading vehicles...",
+    "noVehicles": {
+      "heading": "No active vehicles found.",
+      "subtext": "You need an active vehicle to import logs.",
+      "cta": "Go to Profile"
+    },
+    "fields": {
+      "targetVehicle": "Target Vehicle",
+      "targetVehicleDesc": "All logs in the file will be assigned to this vehicle.",
+      "tsvFile": "TSV File"
+    },
+    "description": "Select a Tab-Separated Value (.tsv or .txt) file. Ensure headers include: Date, Litres, Total Cost, Garage, and Distance since fueled (in Km).",
+    "submit": {
+      "save": "Process & Import Data",
+      "importing": "Importing...",
+      "parsing": "Parsing...",
+      "reading": "Reading..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Please select a TSV file and ensure you are logged in.",
+      "selectVehicle": "Please select a vehicle for this import.",
+      "readingFile": "Reading file...",
+      "parsingData": "Parsing data...",
+      "success": "Successfully imported {{count}} logs!",
+      "error": "Import failed: {{error}}",
+      "noLogs": "No valid logs found to import after parsing.",
+      "missingHeader": "Missing required header column: \"{{header}}\"",
+      "minRows": "File must contain at least a header row and one data row.",
+      "readError": "Error reading the selected file.",
+      "invalidDate": "Row {{row}}: Invalid Date \"{{value}}\".",
+      "invalidLitres": "Row {{row}}: Invalid Litres \"{{value}}\".",
+      "invalidCost": "Row {{row}}: Invalid Cost \"{{value}}\".",
+      "invalidDistance": "Row {{row}}: Invalid Distance \"{{value}}\".",
+      "insufficientColumns": "Row {{row}}: Insufficient columns.",
+      "foundErrors": "Found {{count}} errors during parsing. First few: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "API Access",
     "subtitle": "Connect Claude and other LLMs to your fuel data via MCP",
@@ -259,10 +298,10 @@
     "tokenNamePlaceholder": "e.g. Claude Desktop - Home",
     "permissions": "Permissions",
     "scopes": {
-      "readLogs": "Read logs",
-      "writeLogs": "Write logs",
-      "readVehicles": "Read vehicles",
-      "writeVehicles": "Write vehicles"
+      "read:logs": "Read logs",
+      "write:logs": "Write logs",
+      "read:vehicles": "Read vehicles",
+      "write:vehicles": "Write vehicles"
     },
     "generate": "Generate token",
     "generating": "Generating…",
@@ -270,20 +309,25 @@
     "loadingTokens": "Loading tokens…",
     "noTokens": "No API tokens yet",
     "noTokensSubtext": "Generate a token to connect Claude Desktop or any MCP-compatible LLM to your Fuelog data.",
-    "created": "API Token Created",
-    "copyWarning": "This token will not be shown again. Copy it now.",
-    "yourToken": "Your API Token",
-    "claudeConfig": "Claude Desktop Config",
-    "claudeConfigNote": "Add this to your {{file}} under {{section}}.",
-    "copy": "Copy",
-    "copied": "Copied!",
-    "done": "Done, I've saved my token",
-    "revokeConfirm": "Revoke?",
-    "revokeYes": "Yes, revoke",
-    "revoke": "Revoke",
-    "created_at": "Created {{date}}",
-    "last_used": "Last used: {{date}}",
-    "never": "Never",
+    "reveal": {
+      "title": "API Token Created",
+      "warning": "This token will not be shown again. Copy it now.",
+      "tokenLabel": "Your API Token",
+      "configLabel": "Claude Desktop Config",
+      "configDesc": "Add this to your <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> under <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code>.",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "done": "Done, I've saved my token"
+    },
+    "row": {
+      "createdAt": "Created {{date}}",
+      "lastUsedAt": "Last used: {{date}}",
+      "revokeConfirm": "Revoke?",
+      "revokeYes": "Yes, revoke",
+      "revoke": "Revoke",
+      "cancel": "Cancel",
+      "never": "Never"
+    },
     "errors": {
       "enterName": "Please enter a name for this token.",
       "selectScope": "Select at least one permission scope.",

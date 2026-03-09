@@ -246,6 +246,45 @@
     "extractionFailed": "Fehler beim Extrahieren der Daten aus der Quittung.",
     "autoFilled": "Felder automatisch aus der Quittung ausgefüllt!"
   },
+  "import": {
+    "title": "Kraftstoffeinträge importieren",
+    "loadingVehicles": "Fahrzeuge werden geladen...",
+    "noVehicles": {
+      "heading": "Keine aktiven Fahrzeuge gefunden.",
+      "subtext": "Sie benötigen ein aktives Fahrzeug, um Einträge zu importieren.",
+      "cta": "Zum Profil gehen"
+    },
+    "fields": {
+      "targetVehicle": "Zielfahrzeug",
+      "targetVehicleDesc": "Alle Einträge in der Datei werden diesem Fahrzeug zugeordnet.",
+      "tsvFile": "TSV-Datei"
+    },
+    "description": "Wählen Sie eine Tab-Separated Value (.tsv oder .txt) Datei aus. Stellen Sie sicher, dass die Kopfzeilen enthalten: Date, Litres, Total Cost, Garage und Distance since fueled (in Km).",
+    "submit": {
+      "save": "Daten verarbeiten & importieren",
+      "importing": "Importieren...",
+      "parsing": "Parsen...",
+      "reading": "Lesen..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Bitte wählen Sie eine TSV-Datei aus und stellen Sie sicher, dass Sie angemeldet sind.",
+      "selectVehicle": "Bitte wählen Sie ein Fahrzeug für diesen Import aus.",
+      "readingFile": "Datei wird gelesen...",
+      "parsingData": "Daten werden verarbeitet...",
+      "success": "{{count}} Einträge erfolgreich importiert!",
+      "error": "Import fehlgeschlagen: {{error}}",
+      "noLogs": "Nach der Verarbeitung wurden keine gültigen Einträge zum Importieren gefunden.",
+      "missingHeader": "Erforderliche Kopfzeilenspalte fehlt: \"{{header}}\"",
+      "minRows": "Die Datei muss mindestens eine Kopfzeile und eine Datenzeile enthalten.",
+      "readError": "Fehler beim Lesen der ausgewählten Datei.",
+      "invalidDate": "Zeile {{row}}: Ungültiges Datum \"{{value}}\".",
+      "invalidLitres": "Zeile {{row}}: Ungültige Literangabe \"{{value}}\".",
+      "invalidCost": "Zeile {{row}}: Ungültige Kostenangabe \"{{value}}\".",
+      "invalidDistance": "Zeile {{row}}: Ungültige Distanzangabe \"{{value}}\".",
+      "insufficientColumns": "Zeile {{row}}: Unzureichende Spaltenanzahl.",
+      "foundErrors": "{{count}} Fehler bei der Verarbeitung gefunden. Erste Fehler: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "API-Zugang",
     "subtitle": "Verbinden Sie Claude und andere LLMs über MCP mit Ihren Kraftstoffdaten",
@@ -255,10 +294,10 @@
     "tokenNamePlaceholder": "z.B. Claude Desktop - Zuhause",
     "permissions": "Berechtigungen",
     "scopes": {
-      "readLogs": "Einträge lesen",
-      "writeLogs": "Einträge schreiben",
-      "readVehicles": "Fahrzeuge lesen",
-      "writeVehicles": "Fahrzeuge schreiben"
+      "read:logs": "Einträge lesen",
+      "write:logs": "Einträge schreiben",
+      "read:vehicles": "Fahrzeuge lesen",
+      "write:vehicles": "Fahrzeuge schreiben"
     },
     "generate": "Token generieren",
     "generating": "Wird generiert…",
@@ -266,20 +305,25 @@
     "loadingTokens": "Tokens werden geladen…",
     "noTokens": "Noch keine API-Tokens",
     "noTokensSubtext": "Generieren Sie ein Token, um Claude Desktop oder ein MCP-kompatibles LLM mit Ihren Fuelog-Daten zu verbinden.",
-    "created": "API-Token erstellt",
-    "copyWarning": "Dieses Token wird nicht erneut angezeigt. Kopieren Sie es jetzt.",
-    "yourToken": "Ihr API-Token",
-    "claudeConfig": "Claude Desktop Konfiguration",
-    "claudeConfigNote": "Fügen Sie dies in Ihre {{file}} unter {{section}} ein.",
-    "copy": "Kopieren",
-    "copied": "Kopiert!",
-    "done": "Fertig, ich habe mein Token gespeichert",
-    "revokeConfirm": "Widerrufen?",
-    "revokeYes": "Ja, widerrufen",
-    "revoke": "Widerrufen",
-    "created_at": "Erstellt {{date}}",
-    "last_used": "Zuletzt verwendet: {{date}}",
-    "never": "Nie",
+    "reveal": {
+      "title": "API-Token erstellt",
+      "warning": "Dieses Token wird nicht erneut angezeigt. Kopieren Sie es jetzt.",
+      "tokenLabel": "Ihr API-Token",
+      "configLabel": "Claude Desktop Konfiguration",
+      "configDesc": "Fügen Sie dies in Ihre <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> unter <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code> ein.",
+      "copy": "Kopieren",
+      "copied": "Kopiert!",
+      "done": "Fertig, ich habe mein Token gespeichert"
+    },
+    "row": {
+      "createdAt": "Erstellt {{date}}",
+      "lastUsedAt": "Zuletzt verwendet: {{date}}",
+      "revokeConfirm": "Widerrufen?",
+      "revokeYes": "Ja, widerrufen",
+      "revoke": "Widerrufen",
+      "cancel": "Abbrechen",
+      "never": "Nie"
+    },
     "errors": {
       "enterName": "Bitte geben Sie einen Namen für dieses Token ein.",
       "selectScope": "Wählen Sie mindestens eine Berechtigung aus.",

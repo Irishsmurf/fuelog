@@ -5,6 +5,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle } from '../utils/types';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type ImportStatus = 'idle' | 'reading' | 'parsing' | 'importing' | 'success' | 'error';
 interface ImportMessage {
@@ -14,6 +15,7 @@ interface ImportMessage {
 
 function ImportPage(): JSX.Element {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [status, setStatus] = useState<ImportStatus>('idle');
   const [message, setMessage] = useState<ImportMessage | null>(null);
@@ -74,32 +76,32 @@ function ImportPage(): JSX.Element {
   };
 
   const handleImport = async () => {
-    if (!selectedFile || !user) { setMessage({ type: 'error', text: 'Please select a TSV file and ensure you are logged in.' }); return; }
-    if (!selectedVehicleId) { setMessage({ type: 'error', text: 'Please select a vehicle for this import.' }); return; }
+    if (!selectedFile || !user) { setMessage({ type: 'error', text: t('import.messages.fileAndLoginRequired') }); return; }
+    if (!selectedVehicleId) { setMessage({ type: 'error', text: t('import.messages.selectVehicle') }); return; }
     
-    setStatus('reading'); setMessage({ type: 'info', text: 'Reading file...' }); setImportedCount(0);
+    setStatus('reading'); setMessage({ type: 'info', text: t('import.messages.readingFile') }); setImportedCount(0);
     const reader = new FileReader();
 
     reader.onload = async (event) => {
-      if (!event.target || typeof event.target.result !== 'string') { setStatus('error'); setMessage({ type: 'error', text: 'Failed to read file content.' }); return; }
+      if (!event.target || typeof event.target.result !== 'string') { setStatus('error'); setMessage({ type: 'error', text: t('import.messages.readError') }); return; }
       try {
-        setStatus('parsing'); setMessage({ type: 'info', text: 'Parsing data...' });
+        setStatus('parsing'); setMessage({ type: 'info', text: t('import.messages.parsingData') });
         const fileContent = event.target.result; const lines = fileContent.split(/\r?\n/).filter(line => line.trim() !== '');
-        if (lines.length < 2) { throw new Error('File must contain at least a header row and one data row.'); }
+        if (lines.length < 2) { throw new Error(t('import.messages.minRows')); }
 
         const headers = lines[0].split('\t').map(h => h.trim());
         const requiredHeaders = ['Date', 'Litres', 'Total Cost', 'Garage', 'Distance since fueled'];
         const headerMap: { [key: string]: number } = {};
         requiredHeaders.forEach(reqHeader => {
           const index = headers.findIndex(h => h.toLowerCase() === reqHeader.toLowerCase());
-          if (index === -1) { throw new Error(`Missing required header column: "${reqHeader}"`); }
+          if (index === -1) { throw new Error(t('import.messages.missingHeader', { header: reqHeader })); }
           headerMap[reqHeader] = index;
         });
 
         const logsToImport = []; const errors: string[] = [];
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split('\t');
-          if (values.length < requiredHeaders.length) { errors.push(`Row ${i + 1}: Insufficient columns.`); continue; }
+          if (values.length < requiredHeaders.length) { errors.push(t('import.messages.insufficientColumns', { row: i + 1 })); continue; }
 
           const dateStr = values[headerMap['Date']]; const litresStr = values[headerMap['Litres']];
           const costStr = values[headerMap['Total Cost']]; const garageStr = values[headerMap['Garage']];
@@ -108,10 +110,10 @@ function ImportPage(): JSX.Element {
           const timestamp = parseDate(dateStr); const fuelAmountLiters = parseFloat(litresStr);
           const cost = parseFloat(costStr); const distanceKm = parseFloat(distanceKmStr); // Parse Km
 
-          if (!timestamp) { errors.push(`Row ${i + 1}: Invalid Date "${dateStr}".`); continue; }
-          if (isNaN(fuelAmountLiters) || fuelAmountLiters <= 0) { errors.push(`Row ${i + 1}: Invalid Litres "${litresStr}".`); continue; }
-          if (isNaN(cost) || cost <= 0) { errors.push(`Row ${i + 1}: Invalid Cost "${costStr}".`); continue; }
-          if (isNaN(distanceKm) || distanceKm <= 0) { errors.push(`Row ${i + 1}: Invalid Distance "${distanceKmStr}".`); continue; }
+          if (!timestamp) { errors.push(t('import.messages.invalidDate', { row: i + 1, value: dateStr })); continue; }
+          if (isNaN(fuelAmountLiters) || fuelAmountLiters <= 0) { errors.push(t('import.messages.invalidLitres', { row: i + 1, value: litresStr })); continue; }
+          if (isNaN(cost) || cost <= 0) { errors.push(t('import.messages.invalidCost', { row: i + 1, value: costStr })); continue; }
+          if (isNaN(distanceKm) || distanceKm <= 0) { errors.push(t('import.messages.invalidDistance', { row: i + 1, value: distanceKmStr })); continue; }
 
           // NO conversion here, save distanceKm directly
           logsToImport.push({
@@ -125,21 +127,21 @@ function ImportPage(): JSX.Element {
           });
         }
 
-        if (errors.length > 0) { setMessage({ type: 'error', text: `Found ${errors.length} errors during parsing. First few: ${errors.slice(0, 5).join('; ')}` }); setStatus('error'); return; }
-        if (logsToImport.length === 0) { setMessage({ type: 'info', text: 'No valid logs found to import after parsing.' }); setStatus('idle'); return; }
+        if (errors.length > 0) { setMessage({ type: 'error', text: t('import.messages.foundErrors', { count: errors.length, errors: errors.slice(0, 5).join('; ') }) }); setStatus('error'); return; }
+        if (logsToImport.length === 0) { setMessage({ type: 'info', text: t('import.messages.noLogs') }); setStatus('idle'); return; }
 
-        setStatus('importing'); setMessage({ type: 'info', text: `Importing ${logsToImport.length} valid logs...` });
+        setStatus('importing'); setMessage({ type: 'info', text: `${t('import.submit.importing')} (${logsToImport.length})` });
         const batchSize = 499; let importedCountTotal = 0;
         for (let i = 0; i < logsToImport.length; i += batchSize) {
             const batch = writeBatch(db); const chunk = logsToImport.slice(i, i + batchSize);
             chunk.forEach((logData) => { const logRef = doc(collection(db, "fuelLogs")); batch.set(logRef, logData); });
             await batch.commit(); importedCountTotal += chunk.length;
-            setMessage({ type: 'info', text: `Importing... (${importedCountTotal}/${logsToImport.length})` });
+            setMessage({ type: 'info', text: `${t('import.submit.importing')} (${importedCountTotal}/${logsToImport.length})` });
         }
-        setImportedCount(importedCountTotal); setStatus('success'); setMessage({ type: 'success', text: `Successfully imported ${importedCountTotal} logs!` });
-      } catch (error: any) { console.error("Import Error:", error); setStatus('error'); setMessage({ type: 'error', text: `Import failed: ${error.message}` }); }
+        setImportedCount(importedCountTotal); setStatus('success'); setMessage({ type: 'success', text: t('import.messages.success', { count: importedCountTotal }) });
+      } catch (error: any) { console.error("Import Error:", error); setStatus('error'); setMessage({ type: 'error', text: t('import.messages.error', { error: error.message }) }); }
     };
-    reader.onerror = () => { setStatus('error'); setMessage({ type: 'error', text: 'Error reading the selected file.' }); };
+    reader.onerror = () => { setStatus('error'); setMessage({ type: 'error', text: t('import.messages.readError') }); };
     reader.readAsText(selectedFile);
   };
 
@@ -152,23 +154,23 @@ function ImportPage(): JSX.Element {
   return (
     <div className="container mx-auto max-w-2xl px-4">
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 space-y-6">
-        <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white">Import Fuel Logs</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white">{t('import.title')}</h2>
         
         {isLoadingVehicles ? (
-          <div className="text-center py-4 animate-pulse text-gray-500">Loading vehicles...</div>
+          <div className="text-center py-4 animate-pulse text-gray-500">{t('import.loadingVehicles')}</div>
         ) : vehicles.length === 0 ? (
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-center space-y-3">
-            <p className="text-amber-800 dark:text-amber-300 text-sm font-medium">No active vehicles found.</p>
-            <p className="text-xs text-amber-700/70 dark:text-amber-400/70">You need an active vehicle to import logs.</p>
+            <p className="text-amber-800 dark:text-amber-300 text-sm font-medium">{t('import.noVehicles.heading')}</p>
+            <p className="text-xs text-amber-700/70 dark:text-amber-400/70">{t('import.noVehicles.subtext')}</p>
             <Link to="/profile" className="inline-block bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-bold py-2 px-4 rounded-md transition duration-150">
-              Go to Profile
+              {t('import.noVehicles.cta')}
             </Link>
           </div>
         ) : (
           <div className="space-y-4">
             <div>
                 <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Target Vehicle
+                  {t('import.fields.targetVehicle')}
                 </label>
                 <select
                   id="vehicle"
@@ -183,21 +185,16 @@ function ImportPage(): JSX.Element {
                     </option>
                   ))}
                 </select>
-                <p className="mt-1 text-[10px] text-gray-500 italic">All logs in the file will be assigned to this vehicle.</p>
+                <p className="mt-1 text-[10px] text-gray-500 italic">{t('import.fields.targetVehicleDesc')}</p>
             </div>
 
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed pt-2">
-              Select a Tab-Separated Value (.tsv or .txt) file. Ensure headers include: 
-              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Date</code>, 
-              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Litres</code>, 
-              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Total Cost</code>, 
-              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Garage</code>, and 
-              <code className="mx-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-600">Distance since fueled</code> (in Km).
+              {t('import.description')}
             </p>
             
             <div className="space-y-2">
               <label htmlFor="tsvFile" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                TSV File
+                {t('import.fields.tsvFile')}
               </label>
               <input 
                 type="file" 
@@ -222,9 +219,9 @@ function ImportPage(): JSX.Element {
               disabled={!selectedFile || !user || !selectedVehicleId || status === 'reading' || status === 'parsing' || status === 'importing'}
               className="w-full brand-button-primary py-3"
             >
-              {status === 'importing' ? `Importing... (${importedCount})` : 
-               status === 'parsing' ? 'Parsing...' : 
-               status === 'reading' ? 'Reading...' : 'Process & Import Data'}
+              {status === 'importing' ? `${t('import.submit.importing')} (${importedCount})` : 
+               status === 'parsing' ? t('import.submit.parsing') : 
+               status === 'reading' ? t('import.submit.reading') : t('import.submit.save')}
             </button>
           </div>
         )}

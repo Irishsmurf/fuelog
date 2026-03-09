@@ -246,6 +246,45 @@
     "extractionFailed": "レシートからのデータ抽出に失敗しました。",
     "autoFilled": "レシートからフィールドが自動入力されました！"
   },
+  "import": {
+    "title": "燃料記録をインポート",
+    "loadingVehicles": "車両を読み込み中...",
+    "noVehicles": {
+      "heading": "アクティブな車両が見つかりません。",
+      "subtext": "記録をインポートするには、アクティブな車両が必要です。",
+      "cta": "プロフィールへ移動"
+    },
+    "fields": {
+      "targetVehicle": "対象車両",
+      "targetVehicleDesc": "ファイル内のすべての記録はこの車両に割り当てられます。",
+      "tsvFile": "TSVファイル"
+    },
+    "description": "タブ区切り値（.tsvまたは.txt）ファイルを選択してください。ヘッダーに Date, Litres, Total Cost, Garage, Distance since fueled (Km) が含まれていることを確認してください。",
+    "submit": {
+      "save": "データを処理してインポート",
+      "importing": "インポート中...",
+      "parsing": "解析中...",
+      "reading": "読み込み中..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "TSVファイルを選択し、ログインしていることを確認してください。",
+      "selectVehicle": "このインポートに使用する車両を選択してください。",
+      "readingFile": "ファイルを読み込み中...",
+      "parsingData": "データを解析中...",
+      "success": "{{count}}件の記録を正常にインポートしました！",
+      "error": "インポートに失敗しました：{{error}}",
+      "noLogs": "解析後、インポート可能な有効な記録が見つかりませんでした。",
+      "missingHeader": "必要なヘッダー列がありません：\"{{header}}\"",
+      "minRows": "ファイルには少なくともヘッダー行と1つのデータ行が含まれている必要があります。",
+      "readError": "選択したファイルの読み込み中にエラーが発生しました。",
+      "invalidDate": "{{row}}行目：無効な日付 \"{{value}}\"",
+      "invalidLitres": "{{row}}行目：無効なリットル数 \"{{value}}\"",
+      "invalidCost": "{{row}}行目：無効な費用 \"{{value}}\"",
+      "invalidDistance": "{{row}}行目：無効な距離 \"{{value}}\"",
+      "insufficientColumns": "{{row}}行目：列が不足しています。",
+      "foundErrors": "解析中に{{count}}個のエラーが見つかりました。最初の数件：{{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "APIアクセス",
     "subtitle": "MCPを通じてClaudeや他のLLMを燃料データに接続",
@@ -255,10 +294,10 @@
     "tokenNamePlaceholder": "例：Claude Desktop - 自宅",
     "permissions": "権限",
     "scopes": {
-      "readLogs": "記録を読む",
-      "writeLogs": "記録を書く",
-      "readVehicles": "車両を読む",
-      "writeVehicles": "車両を書く"
+      "read:logs": "記録を読み取る",
+      "write:logs": "記録を書き込む",
+      "read:vehicles": "車両を読み取る",
+      "write:vehicles": "車両を書き込む"
     },
     "generate": "トークンを生成",
     "generating": "生成中…",
@@ -266,20 +305,25 @@
     "loadingTokens": "トークンを読み込み中…",
     "noTokens": "まだAPIトークンがありません",
     "noTokensSubtext": "Claude DesktopまたはMCP対応LLMをFuelogデータに接続するためのトークンを生成してください。",
-    "created": "APIトークンが作成されました",
-    "copyWarning": "このトークンは再表示されません。今すぐコピーしてください。",
-    "yourToken": "あなたのAPIトークン",
-    "claudeConfig": "Claude Desktop設定",
-    "claudeConfigNote": "これを{{file}}の{{section}}に追加してください。",
-    "copy": "コピー",
-    "copied": "コピーしました！",
-    "done": "完了、トークンを保存しました",
-    "revokeConfirm": "取り消しますか？",
-    "revokeYes": "はい、取り消す",
-    "revoke": "取り消す",
-    "created_at": "作成日：{{date}}",
-    "last_used": "最終使用：{{date}}",
-    "never": "なし",
+    "reveal": {
+      "title": "APIトークンが作成されました",
+      "warning": "このトークンは再表示されません。今すぐコピーしてください。",
+      "tokenLabel": "あなたのAPIトークン",
+      "configLabel": "Claude Desktop設定",
+      "configDesc": "これを <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> の <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code> の下に追加してください。",
+      "copy": "コピー",
+      "copied": "コピーしました！",
+      "done": "完了、トークンを保存しました"
+    },
+    "row": {
+      "createdAt": "{{date}} に作成",
+      "lastUsedAt": "最終使用：{{date}}",
+      "revokeConfirm": "取り消しますか？",
+      "revokeYes": "はい、取り消す",
+      "revoke": "取り消す",
+      "cancel": "キャンセル",
+      "never": "なし"
+    },
     "errors": {
       "enterName": "このトークンの名前を入力してください。",
       "selectScope": "少なくとも1つの権限を選択してください。",

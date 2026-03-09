@@ -250,6 +250,45 @@
     "extractionFailed": "Kunne ikke hente data fra kvittering.",
     "autoFilled": "Felt fylt ut automatisk fra kvittering!"
   },
+  "import": {
+    "title": "Importer drivstofflogger",
+    "loadingVehicles": "Laster kjøretøy...",
+    "noVehicles": {
+      "heading": "Ingen aktive kjøretøy funnet.",
+      "subtext": "Du trenger et aktivt kjøretøy for å importere logger.",
+      "cta": "Gå til profil"
+    },
+    "fields": {
+      "targetVehicle": "Målkjøretøy",
+      "targetVehicleDesc": "Alle logger i filen vil bli knyttet til dette kjøretøyet.",
+      "tsvFile": "TSV-fil"
+    },
+    "description": "Velg en tabulatorseparert (.tsv eller .txt) fil. Sørg for at overskriftene inkluderer: Date, Litres, Total Cost, Garage og Distance since fueled (i Km).",
+    "submit": {
+      "save": "Behandle og importer data",
+      "importing": "Importerer...",
+      "parsing": "Analyserer...",
+      "reading": "Leser..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Vennligst velg en TSV-fil og sørg for at du er logget inn.",
+      "selectVehicle": "Vennligst velg et kjøretøy for denne importen.",
+      "readingFile": "Leser fil...",
+      "parsingData": "Analyserer data...",
+      "success": "Importerte {{count}} logger!",
+      "error": "Import mislyktes: {{error}}",
+      "noLogs": "Ingen gyldige logger funnet for import etter analyse.",
+      "missingHeader": "Mangler obligatorisk kolonne: \"{{header}}\"",
+      "minRows": "Filen må inneholde minst én overskriftsrad og én datarad.",
+      "readError": "Feil ved lesing av valgt fil.",
+      "invalidDate": "Rad {{row}}: Ugyldig dato \"{{value}}\".",
+      "invalidLitres": "Rad {{row}}: Ugyldig litermengde \"{{value}}\".",
+      "invalidCost": "Rad {{row}}: Ugyldig kostnad \"{{value}}\".",
+      "invalidDistance": "Rad {{row}}: Ugyldig distanse \"{{value}}\".",
+      "insufficientColumns": "Rad {{row}}: Utilstrekkelige kolonner.",
+      "foundErrors": "Fant {{count}} feil under analyse. Første få: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "API-tilgang",
     "subtitle": "Koble Claude og andre LLM-er til dine drivstoffdata via MCP",
@@ -259,10 +298,10 @@
     "tokenNamePlaceholder": "f.eks. Claude Desktop - Hjemme",
     "permissions": "Tillatelser",
     "scopes": {
-      "readLogs": "Les logger",
-      "writeLogs": "Skriv logger",
-      "readVehicles": "Les kjøretøy",
-      "writeVehicles": "Skriv kjøretøy"
+      "read:logs": "Les logger",
+      "write:logs": "Skriv logger",
+      "read:vehicles": "Les kjøretøy",
+      "write:vehicles": "Skriv kjøretøy"
     },
     "generate": "Generer token",
     "generating": "Genererer…",
@@ -270,20 +309,25 @@
     "loadingTokens": "Laster tokens…",
     "noTokens": "Ingen API-tokens ennå",
     "noTokensSubtext": "Generer en token for å koble Claude Desktop eller en hvilken som helst MCP-kompatibel LLM til dine Fuelog-data.",
-    "created": "API-token opprettet",
-    "copyWarning": "Denne tokenen vil ikke bli vist igjen. Kopier den nå.",
-    "yourToken": "Din API-token",
-    "claudeConfig": "Konfigurasjon for Claude Desktop",
-    "claudeConfigNote": "Legg til dette i din {{file}} under {{section}}.",
-    "copy": "Kopier",
-    "copied": "Kopiert!",
-    "done": "Ferdig, jeg har lagret tokenen min",
-    "revokeConfirm": "Tilbakekalle?",
-    "revokeYes": "Ja, tilbakekall",
-    "revoke": "Tilbakekall",
-    "created_at": "Opprettet {{date}}",
-    "last_used": "Sist brukt: {{date}}",
-    "never": "Aldri",
+    "reveal": {
+      "title": "API-token opprettet",
+      "warning": "Denne tokenen vil ikke bli vist igjen. Kopier den nå.",
+      "tokenLabel": "Din API-token",
+      "configLabel": "Konfigurasjon for Claude Desktop",
+      "configDesc": "Legg til dette i din <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> under <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code>.",
+      "copy": "Kopier",
+      "copied": "Kopiert!",
+      "done": "Ferdig, jeg har lagret tokenen min"
+    },
+    "row": {
+      "createdAt": "Opprettet {{date}}",
+      "lastUsedAt": "Sist brukt: {{date}}",
+      "revokeConfirm": "Tilbakekalle?",
+      "revokeYes": "Ja, tilbakekall",
+      "revoke": "Tilbakekall",
+      "cancel": "Avbryt",
+      "never": "Aldri"
+    },
     "errors": {
       "enterName": "Vennligst oppgi et navn for denne tokenen.",
       "selectScope": "Velg minst ett tillatelsesomfang.",

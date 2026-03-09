@@ -7,7 +7,7 @@
   },
   "login": {
     "tagline": "Suivi de Carburant Précis",
-    "description": "Surveillez l'efficacité, gérez votre flotte et exportez des rapports professionnels dans une expérience mobile fluide.",
+    "description": "Surveillez l'efficacité, gerez votre flotte et exportez des rapports professionnels dans une expérience mobile fluide.",
     "getStarted": "Commencer avec Google",
     "initializing": "Initialisation...",
     "error": "Échec de la connexion. Veuillez réessayer."
@@ -46,7 +46,7 @@
     "messages": {
       "mustBeLoggedIn": "Vous devez être connecté pour sauvegarder.",
       "addVehicleFirst": "Veuillez d'abord ajouter un véhicule dans votre Profil.",
-      "selectVehicle": "Veuillez sélectionner un véhicule.",
+      "selectVehicle": "Villez sélectionner un véhicule.",
       "fillRequired": "Veuillez remplir le Coût, la Distance et la Quantité de Carburant.",
       "validNumbers": "Le Coût, la Distance (Km) et la Quantité de Carburant doivent être des nombres positifs valides.",
       "gettingLocation": "Tentative d'obtention de la localisation...",
@@ -246,6 +246,45 @@
     "extractionFailed": "Échec de l'extraction des données du reçu.",
     "autoFilled": "Champs remplis automatiquement depuis le reçu !"
   },
+  "import": {
+    "title": "Importer des Saisies de Carburant",
+    "loadingVehicles": "Chargement des véhicules...",
+    "noVehicles": {
+      "heading": "Aucun véhicule actif trouvé.",
+      "subtext": "Vous avez besoin d'un véhicule actif pour importer des saisies.",
+      "cta": "Aller au Profil"
+    },
+    "fields": {
+      "targetVehicle": "Véhicule Cible",
+      "targetVehicleDesc": "Toutes les saisies du fichier seront affectées à ce véhicule.",
+      "tsvFile": "Fichier TSV"
+    },
+    "description": "Sélectionnez un fichier de Valeurs Séparées par des Tabulations (.tsv ou .txt). Assurez-vous que les en-têtes incluent : Date, Litres, Total Cost, Garage et Distance since fueled (en Km).",
+    "submit": {
+      "save": "Traiter & Importer les Données",
+      "importing": "Importation...",
+      "parsing": "Analyse...",
+      "reading": "Lecture..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Veuillez sélectionner un fichier TSV et vous assurer d'être connecté.",
+      "selectVehicle": "Veuillez sélectionner un véhicule pour cette importation.",
+      "readingFile": "Lecture du fichier...",
+      "parsingData": "Analyse des données...",
+      "success": "{{count}} saisies importées avec succès !",
+      "error": "L'importation a échoué : {{error}}",
+      "noLogs": "Aucune saisie valide trouvée pour l'importation après l'analyse.",
+      "missingHeader": "Colonne d'en-tête requise manquante : \"{{header}}\"",
+      "minRows": "Le fichier doit contenir au moins une ligne d'en-tête et une ligne de données.",
+      "readError": "Erreur lors de la lecture du fichier sélectionné.",
+      "invalidDate": "Ligne {{row}} : Date Invalide \"{{value}}\".",
+      "invalidLitres": "Ligne {{row}} : Litres Invalides \"{{value}}\".",
+      "invalidCost": "Ligne {{row}} : Coût Invalide \"{{value}}\".",
+      "invalidDistance": "Ligne {{row}} : Distance Invalide \"{{value}}\".",
+      "insufficientColumns": "Ligne {{row}} : Colonnes insuffisantes.",
+      "foundErrors": "{{count}} erreurs trouvées lors de l'analyse. Premières erreurs : {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "Accès API",
     "subtitle": "Connectez Claude et d'autres LLMs à vos données de carburant via MCP",
@@ -255,10 +294,10 @@
     "tokenNamePlaceholder": "p.ex. Claude Desktop - Maison",
     "permissions": "Permissions",
     "scopes": {
-      "readLogs": "Lire les saisies",
-      "writeLogs": "Écrire les saisies",
-      "readVehicles": "Lire les véhicules",
-      "writeVehicles": "Écrire les véhicules"
+      "read:logs": "Lire les saisies",
+      "write:logs": "Écrire les saisies",
+      "read:vehicles": "Lire les véhicules",
+      "write:vehicles": "Écrire les véhicules"
     },
     "generate": "Générer le token",
     "generating": "Génération…",
@@ -266,20 +305,25 @@
     "loadingTokens": "Chargement des tokens…",
     "noTokens": "Aucun token API pour l'instant",
     "noTokensSubtext": "Générez un token pour connecter Claude Desktop ou tout LLM compatible MCP à vos données Fuelog.",
-    "created": "Token API Créé",
-    "copyWarning": "Ce token ne sera plus affiché. Copiez-le maintenant.",
-    "yourToken": "Votre Token API",
-    "claudeConfig": "Configuration Claude Desktop",
-    "claudeConfigNote": "Ajoutez ceci à votre {{file}} sous {{section}}.",
-    "copy": "Copier",
-    "copied": "Copié !",
-    "done": "Terminé, j'ai sauvegardé mon token",
-    "revokeConfirm": "Révoquer ?",
-    "revokeYes": "Oui, révoquer",
-    "revoke": "Révoquer",
-    "created_at": "Créé le {{date}}",
-    "last_used": "Dernière utilisation : {{date}}",
-    "never": "Jamais",
+    "reveal": {
+      "title": "Token API Créé",
+      "warning": "Ce token ne sera plus affiché. Copiez-le maintenant.",
+      "tokenLabel": "Votre Token API",
+      "configLabel": "Configuration Claude Desktop",
+      "configDesc": "Ajoutez ceci à votre {{file}} sous {{section}}.",
+      "copy": "Copier",
+      "copied": "Copié !",
+      "done": "Terminé, j'ai sauvegardé mon token"
+    },
+    "row": {
+      "createdAt": "Créé le {{date}}",
+      "lastUsedAt": "Dernière utilisation : {{date}}",
+      "revokeConfirm": "Révoquer ?",
+      "revokeYes": "Oui, révoquer",
+      "revoke": "Révoquer",
+      "cancel": "Annuler",
+      "never": "Jamais"
+    },
     "errors": {
       "enterName": "Veuillez saisir un nom pour ce token.",
       "selectScope": "Sélectionnez au moins une permission.",

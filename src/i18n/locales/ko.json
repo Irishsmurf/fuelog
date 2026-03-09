@@ -246,6 +246,45 @@
     "extractionFailed": "영수증에서 데이터를 추출하는 데 실패했습니다.",
     "autoFilled": "영수증에서 필드가 자동 입력되었습니다!"
   },
+  "import": {
+    "title": "연료 기록 가져오기",
+    "loadingVehicles": "차량 로드 중...",
+    "noVehicles": {
+      "heading": "활성 차량을 찾을 수 없습니다.",
+      "subtext": "기록을 가져오려면 활성 차량이 필요합니다.",
+      "cta": "프로필로 이동"
+    },
+    "fields": {
+      "targetVehicle": "대상 차량",
+      "targetVehicleDesc": "파일의 모든 기록이 이 차량에 할당됩니다.",
+      "tsvFile": "TSV 파일"
+    },
+    "description": "탭 구분 값(.tsv 또는 .txt) 파일을 선택하세요. 헤더에 Date, Litres, Total Cost, Garage, Distance since fueled(Km)가 포함되어 있는지 확인하세요.",
+    "submit": {
+      "save": "데이터 처리 및 가져오기",
+      "importing": "가져오는 중...",
+      "parsing": "구문 분석 중...",
+      "reading": "읽는 중..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "TSV 파일을 선택하고 로그인되어 있는지 확인하세요.",
+      "selectVehicle": "이 가져오기에 사용할 차량을 선택하세요.",
+      "readingFile": "파일 읽는 중...",
+      "parsingData": "데이터 분석 중...",
+      "success": "{{count}}개의 기록을 성공적으로 가져왔습니다!",
+      "error": "가 가져오기에 실패했습니다: {{error}}",
+      "noLogs": "구문 분석 후 가져올 유효한 기록을 찾을 수 없습니다.",
+      "missingHeader": "필수 헤더 열 누락: \"{{header}}\"",
+      "minRows": "파일에는 최소한 하나의 헤더 행과 하나의 데이터 행이 포함되어야 합니다.",
+      "readError": "선택한 파일을 읽는 중 오류가 발생했습니다.",
+      "invalidDate": "{{row}}행: 잘못된 날짜 \"{{value}}\"",
+      "invalidLitres": "{{row}}행: 잘못된 리터 \"{{value}}\"",
+      "invalidCost": "{{row}}행: 잘못된 비용 \"{{value}}\"",
+      "invalidDistance": "{{row}}행: 잘못된 거리 \"{{value}}\"",
+      "insufficientColumns": "{{row}}행: 열이 부족합니다.",
+      "foundErrors": "구문 분석 중 {{count}}개의 오류가 발견되었습니다. 처음 몇 개: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "API 액세스",
     "subtitle": "MCP를 통해 Claude 및 다른 LLM을 연료 데이터에 연결",
@@ -255,10 +294,10 @@
     "tokenNamePlaceholder": "예: Claude Desktop - 집",
     "permissions": "권한",
     "scopes": {
-      "readLogs": "기록 읽기",
-      "writeLogs": "기록 쓰기",
-      "readVehicles": "차량 읽기",
-      "writeVehicles": "차량 쓰기"
+      "read:logs": "기록 읽기",
+      "write:logs": "기록 쓰기",
+      "read:vehicles": "차량 읽기",
+      "write:vehicles": "차량 쓰기"
     },
     "generate": "토큰 생성",
     "generating": "생성 중…",
@@ -266,20 +305,25 @@
     "loadingTokens": "토큰 로드 중…",
     "noTokens": "아직 API 토큰이 없습니다",
     "noTokensSubtext": "Claude Desktop 또는 MCP 호환 LLM을 Fuelog 데이터에 연결하기 위한 토큰을 생성하세요.",
-    "created": "API 토큰이 생성되었습니다",
-    "copyWarning": "이 토큰은 다시 표시되지 않습니다. 지금 복사하세요.",
-    "yourToken": "내 API 토큰",
-    "claudeConfig": "Claude Desktop 설정",
-    "claudeConfigNote": "이것을 {{file}}의 {{section}} 아래에 추가하세요.",
-    "copy": "복사",
-    "copied": "복사됨!",
-    "done": "완료, 토큰을 저장했습니다",
-    "revokeConfirm": "취소하시겠습니까?",
-    "revokeYes": "예, 취소",
-    "revoke": "취소",
-    "created_at": "생성일: {{date}}",
-    "last_used": "마지막 사용: {{date}}",
-    "never": "없음",
+    "reveal": {
+      "title": "API 토큰 생성됨",
+      "warning": "이 토큰은 다시 표시되지 않습니다. 지금 복사하세요.",
+      "tokenLabel": "내 API 토큰",
+      "configLabel": "Claude Desktop 설정",
+      "configDesc": "이것을 <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code>의 <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code> 아래에 추가하세요.",
+      "copy": "복사",
+      "copied": "복사됨!",
+      "done": "완료, 토큰을 저장했습니다"
+    },
+    "row": {
+      "createdAt": "{{date}}에 생성됨",
+      "lastUsedAt": "마지막 사용: {{date}}",
+      "revokeConfirm": "취소하시겠습니까?",
+      "revokeYes": "예, 취소",
+      "revoke": "취소",
+      "cancel": "취소",
+      "never": "없음"
+    },
     "errors": {
       "enterName": "이 토큰의 이름을 입력해 주세요.",
       "selectScope": "최소 하나의 권한을 선택해 주세요.",

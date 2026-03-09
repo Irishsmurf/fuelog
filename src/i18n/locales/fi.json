@@ -250,6 +250,45 @@
     "extractionFailed": "Tietojen haku kuitista epäonnistui.",
     "autoFilled": "Kentät täytetty kuitista!"
   },
+  "import": {
+    "title": "Tuo tankkauslokeja",
+    "loadingVehicles": "Ladataan ajoneuvoja...",
+    "noVehicles": {
+      "heading": "Ei aktiivisia ajoneuvoja.",
+      "subtext": "Tarvitset aktiivisen ajoneuvon tuodaksesi lokeja.",
+      "cta": "Siirry profiiliin"
+    },
+    "fields": {
+      "targetVehicle": "Kohdeajoneuvo",
+      "targetVehicleDesc": "Kaikki tiedoston lokit liitetään tähän ajoneuvoon.",
+      "tsvFile": "TSV-tiedosto"
+    },
+    "description": "Valitse sarkaineroteltu (.tsv tai .txt) tiedosto. Varmista, että otsikot sisältävät: Date, Litres, Total Cost, Garage ja Distance since fueled (Km).",
+    "submit": {
+      "save": "Käsittele ja tuo tiedot",
+      "importing": "Tuodaan...",
+      "parsing": "Jäsennellään...",
+      "reading": "Luetaan..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Valitse TSV-tiedosto ja varmista, että olet kirjautunut sisään.",
+      "selectVehicle": "Valitse ajoneuvo tätä tuontia varten.",
+      "readingFile": "Luetaan tiedostoa...",
+      "parsingData": "Jäsennellään tietoja...",
+      "success": "Tuotiin {{count}} lokia onnistuneesti!",
+      "error": "Tuonti epäonnistui: {{error}}",
+      "noLogs": "Kelvollisia lokeja ei löytynyt jäsennyksen jälkeen.",
+      "missingHeader": "Puuttuva pakollinen otsikko: \"{{header}}\"",
+      "minRows": "Tiedostossa on oltava vähintään otsikkorivi ja yksi tietorivi.",
+      "readError": "Virhe luettaessa valittua tiedostoa.",
+      "invalidDate": "Rivi {{row}}: Virheellinen päivämäärä \"{{value}}\".",
+      "invalidLitres": "Rivi {{row}}: Virheellinen litramäärä \"{{value}}\".",
+      "invalidCost": "Rivi {{row}}: Virheelliset kustannukset \"{{value}}\".",
+      "invalidDistance": "Rivi {{row}}: Virheellinen matka \"{{value}}\".",
+      "insufficientColumns": "Rivi {{row}}: Liian vähän sarakkeita.",
+      "foundErrors": "Löytyi {{count}} virhettä jäsennyksen aikana. Ensimmäiset: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "API-pääsy",
     "subtitle": "Yhdistä Claude ja muut kielimallit tietoihisi MCP:n kautta",
@@ -259,10 +298,10 @@
     "tokenNamePlaceholder": "esim. Claude Desktop - Koti",
     "permissions": "Oikeudet",
     "scopes": {
-      "readLogs": "Lue lokit",
-      "writeLogs": "Kirjoita lokit",
-      "readVehicles": "Lue ajoneuvot",
-      "writeVehicles": "Kirjoita ajoneuvot"
+      "read:logs": "Lue lokit",
+      "write:logs": "Kirjoita lokit",
+      "read:vehicles": "Lue ajoneuvot",
+      "write:vehicles": "Kirjoita ajoneuvot"
     },
     "generate": "Luo avain",
     "generating": "Luodaan…",
@@ -270,20 +309,25 @@
     "loadingTokens": "Ladataan avaimia…",
     "noTokens": "Ei API-avaimia vielä",
     "noTokensSubtext": "Luo avain yhdistääksesi Claude Desktopin tai muun MCP-yhteensopivan mallin Fuelog-tietoihisi.",
-    "created": "API-avain luotu",
-    "copyWarning": "Tätä avainta ei näytetä uudelleen. Kopioi se nyt.",
-    "yourToken": "API-avaimesi",
-    "claudeConfig": "Claude Desktop -konfiguraatio",
-    "claudeConfigNote": "Lisää tämä tiedostoosi {{file}} osioon {{section}}.",
-    "copy": "Kopioi",
-    "copied": "Kopioitu!",
-    "done": "Valmis, tallensin avaimen",
-    "revokeConfirm": "Poistetaanko?",
-    "revokeYes": "Kyllä, poista",
-    "revoke": "Poista",
-    "created_at": "Luotu {{date}}",
-    "last_used": "Viimeksi käytetty: {{date}}",
-    "never": "Ei koskaan",
+    "reveal": {
+      "title": "API-avain luotu",
+      "warning": "Tätä avainta ei näytetä uudelleen. Kopioi se nyt.",
+      "tokenLabel": "API-avaimesi",
+      "configLabel": "Claude Desktop -konfiguraatio",
+      "configDesc": "Lisää tämä tiedostoosi <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> osioon <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code>.",
+      "copy": "Kopioi",
+      "copied": "Kopioitu!",
+      "done": "Valmis, tallensin avaimen"
+    },
+    "row": {
+      "createdAt": "Luotu {{date}}",
+      "lastUsedAt": "Viimeksi käytetty: {{date}}",
+      "revokeConfirm": "Poistetaanko?",
+      "revokeYes": "Kyllä, poista",
+      "revoke": "Poista",
+      "cancel": "Peruuta",
+      "never": "Ei koskaan"
+    },
     "errors": {
       "enterName": "Anna avaimelle nimi.",
       "selectScope": "Valitse vähintään yksi oikeus.",

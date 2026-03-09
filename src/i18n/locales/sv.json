@@ -250,6 +250,45 @@
     "extractionFailed": "Misslyckades med att extrahera data från kvitto.",
     "autoFilled": "Fält fylldes i automatiskt från kvitto!"
   },
+  "import": {
+    "title": "Importera bränsleloggar",
+    "loadingVehicles": "Laddar fordon...",
+    "noVehicles": {
+      "heading": "Inga aktiva fordon hittades.",
+      "subtext": "Du behöver ett aktivt fordon för att importera loggar.",
+      "cta": "Gå till profil"
+    },
+    "fields": {
+      "targetVehicle": "Målfordon",
+      "targetVehicleDesc": "Alla loggar i filen kommer att tilldelas detta fordon.",
+      "tsvFile": "TSV-fil"
+    },
+    "description": "Välj en tabulatorseparerad (.tsv eller .txt) fil. Se till att rubrikerna inkluderar: Date, Litres, Total Cost, Garage och Distance since fueled (i Km).",
+    "submit": {
+      "save": "Behandla & importera data",
+      "importing": "Importerar...",
+      "parsing": "Analyserar...",
+      "reading": "Läser..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Vänligen välj en TSV-fil och se till att du är inloggad.",
+      "selectVehicle": "Vänligen välj ett fordon för denna import.",
+      "readingFile": "Läser fil...",
+      "parsingData": "Analyserar data...",
+      "success": "Importerade {{count}} loggar framgångsrikt!",
+      "error": "Import misslyckades: {{error}}",
+      "noLogs": "Inga giltiga loggar hittades att importera efter analys.",
+      "missingHeader": "Obligatorisk rubrikkolumn saknas: \"{{header}}\"",
+      "minRows": "Filen måste innehålla minst en rubrikrad och en datarad.",
+      "readError": "Fel vid läsning av den valda filen.",
+      "invalidDate": "Rad {{row}}: Ogiltigt datum \"{{value}}\".",
+      "invalidLitres": "Rad {{row}}: Ogiltig litermängd \"{{value}}\".",
+      "invalidCost": "Rad {{row}}: Ogiltig kostnad \"{{value}}\".",
+      "invalidDistance": "Rad {{row}}: Ogiltig sträcka \"{{value}}\".",
+      "insufficientColumns": "Rad {{row}}: Otillräckliga kolumner.",
+      "foundErrors": "Hittade {{count}} fel under analysen. Första få: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "API-åtkomst",
     "subtitle": "Anslut Claude och andra LLM:er till dina bränsledata via MCP",
@@ -259,10 +298,10 @@
     "tokenNamePlaceholder": "t.ex. Claude Desktop - Hemma",
     "permissions": "Behörigheter",
     "scopes": {
-      "readLogs": "Läs loggar",
-      "writeLogs": "Skriv loggar",
-      "readVehicles": "Läs fordon",
-      "writeVehicles": "Skriv fordon"
+      "read:logs": "Läs loggar",
+      "write:logs": "Skriv loggar",
+      "read:vehicles": "Läs fordon",
+      "write:vehicles": "Skriv fordon"
     },
     "generate": "Generera token",
     "generating": "Genererar…",
@@ -270,20 +309,25 @@
     "loadingTokens": "Laddar tokens…",
     "noTokens": "Inga API-tokens ännu",
     "noTokensSubtext": "Generera en token för att ansluta Claude Desktop eller valfri MCP-kompatibel LLM till dina Fuelog-data.",
-    "created": "API-token skapad",
-    "copyWarning": "Denna token kommer inte att visas igen. Kopiera den nu.",
-    "yourToken": "Din API-token",
-    "claudeConfig": "Konfiguration för Claude Desktop",
-    "claudeConfigNote": "Lägg till detta i din {{file}} under {{section}}.",
-    "copy": "Kopiera",
-    "copied": "Kopierad!",
-    "done": "Klart, jag har sparat min token",
-    "revokeConfirm": "Återkalla?",
-    "revokeYes": "Ja, återkalla",
-    "revoke": "Återkalla",
-    "created_at": "Skapad {{date}}",
-    "last_used": "Senast använd: {{date}}",
-    "never": "Aldrig",
+    "reveal": {
+      "title": "API-token skapad",
+      "warning": "Denna token kommer inte att visas igen. Kopiera den nu.",
+      "tokenLabel": "Din API-token",
+      "configLabel": "Konfiguration för Claude Desktop",
+      "configDesc": "Lägg till detta i din <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> under <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code>.",
+      "copy": "Kopiera",
+      "copied": "Kopierad!",
+      "done": "Klart, jag har sparat min token"
+    },
+    "row": {
+      "createdAt": "Skapad {{date}}",
+      "lastUsedAt": "Senast använd: {{date}}",
+      "revokeConfirm": "Återkalla?",
+      "revokeYes": "Ja, återkalla",
+      "revoke": "Återkalla",
+      "cancel": "Avbryt",
+      "never": "Aldrig"
+    },
     "errors": {
       "enterName": "Vänligen ange ett namn för denna token.",
       "selectScope": "Välj minst en behörighetsnivå.",

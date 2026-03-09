@@ -250,6 +250,45 @@
     "extractionFailed": "Theip ar shonraí a eastóscadh ón admháil.",
     "autoFilled": "Réimsí uathlíonta ón admháil!"
   },
+  "import": {
+    "title": "Iompórtáil Logaí Breosla",
+    "loadingVehicles": "Ag lódáil feithiclí...",
+    "noVehicles": {
+      "heading": "Ní bhfuarthas aon fheithicil ghníomhach.",
+      "subtext": "Teastaíonn feithicil ghníomhach uait chun logaí a iompórtáil.",
+      "cta": "Téigh go dtí an Próifíl"
+    },
+    "fields": {
+      "targetVehicle": "Feithicil Sprice",
+      "targetVehicleDesc": "Sannfar gach loga sa chomhad don fheithicil seo.",
+      "tsvFile": "Comhad TSV"
+    },
+    "description": "Roghnaigh comhad Luach Scartha le Tab (.tsv nó .txt). Cinntigh go n-áirítear na ceanntáisc: Date, Litres, Total Cost, Garage, agus Distance since fueled (i Km).",
+    "submit": {
+      "save": "Próiseáil & Iompórtáil Sonraí",
+      "importing": "Ag iompórtáil...",
+      "parsing": "Ag parsáil...",
+      "reading": "Ag léamh..."
+    },
+    "messages": {
+      "fileAndLoginRequired": "Roghnaigh comhad TSV le do thoil agus cinntigh go bhfuil tú logáilte isteach.",
+      "selectVehicle": "Roghnaigh feithicil don iompórtáil seo le do thoil.",
+      "readingFile": "Ag léamh comhaid...",
+      "parsingData": "Ag parsáil sonraí...",
+      "success": "D'iompórtáladh {{count}} loga go rathúil!",
+      "error": "Theip ar an iompórtáil: {{error}}",
+      "noLogs": "Ní bhfuarthas aon logaí bailí le hiompórtáil tar éis an parsála.",
+      "missingHeader": "Colún ceanntáisc riachtanach in easnamh: \"{{header}}\"",
+      "minRows": "Ní mór ró ceanntáisc agus ró sonraí amháin ar a laghad a bheith sa chomhad.",
+      "readError": "Earráid agus an comhad roghnaithe á léamh.",
+      "invalidDate": "Ró {{row}}: Dáta Neamhbhailí \"{{value}}\".",
+      "invalidLitres": "Ró {{row}}: Lítear Neamhbhailí \"{{value}}\".",
+      "invalidCost": "Ró {{row}}: Costas Neamhbhailí \"{{value}}\".",
+      "invalidDistance": "Ró {{row}}: Fad Neamhbhailí \"{{value}}\".",
+      "insufficientColumns": "Ró {{row}}: Colúin neamhleor.",
+      "foundErrors": "Aimsíodh {{count}} earráid le linn an parsála. An chéad chúpla: {{errors}}"
+    }
+  },
   "apiTokens": {
     "title": "Rochtain API",
     "subtitle": "Ceangail Claude agus LLManna eile le do chuid sonraí breosla trí MCP",
@@ -259,10 +298,10 @@
     "tokenNamePlaceholder": "e.g. Claude Desktop - Baile",
     "permissions": "Ceadanna",
     "scopes": {
-      "readLogs": "Léigh iontrálacha",
-      "writeLogs": "Scríobh iontrálacha",
-      "readVehicles": "Léigh feithiclí",
-      "writeVehicles": "Scríobh feithiclí"
+      "read:logs": "Léigh logaí",
+      "write:logs": "Scríobh logaí",
+      "read:vehicles": "Léigh feithiclí",
+      "write:vehicles": "Scríobh feithiclí"
     },
     "generate": "Gin comhartha",
     "generating": "Ag giniúint…",
@@ -270,20 +309,25 @@
     "loadingTokens": "Ag lódáil comharthaí…",
     "noTokens": "Níl aon chomharthaí API fós",
     "noTokensSubtext": "Gin comhartha chun Claude Desktop nó aon LLM atá comhoiriúnach le MCP a nascadh le do chuid sonraí Fuelog.",
-    "created": "Comhartha API Cruthaithe",
-    "copyWarning": "Ní thaispeánfar an comhartha seo arís. Cóipeáil anois é.",
-    "yourToken": "Do Chomhartha API",
-    "claudeConfig": "Cumraíocht Claude Desktop",
-    "claudeConfigNote": "Cuir sé seo le do {{file}} faoi {{section}}.",
-    "copy": "Cóipeáil",
-    "copied": "Cóipeáilte!",
-    "done": "Déanta, tá mo chomhartha sábháilte agam",
-    "revokeConfirm": "Cúlghairm?",
-    "revokeYes": "Sea, cúlghairm",
-    "revoke": "Cúlghairm",
-    "created_at": "Cruthaithe {{date}}",
-    "last_used": "Úsáid deireanach: {{date}}",
-    "never": "Riamh",
+    "reveal": {
+      "title": "Comhartha API Cruthaithe",
+      "warning": "Ní thaispeánfar an comhartha seo arís. Cóipeáil anois é.",
+      "tokenLabel": "Do Chomhartha API",
+      "configLabel": "Cumraíocht Claude Desktop",
+      "configDesc": "Cuir sé seo le do <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">claude_desktop_config.json</code> faoi <code class=\"bg-gray-100 dark:bg-gray-700 px-1 rounded\">mcpServers</code>.",
+      "copy": "Cóipeáil",
+      "copied": "Cóipeáilte!",
+      "done": "Déanta, tá mo chomhartha sábháilte agam"
+    },
+    "row": {
+      "createdAt": "Cruthaithe {{date}}",
+      "lastUsedAt": "Úsáid deireanach: {{date}}",
+      "revokeConfirm": "Cúlghairm?",
+      "revokeYes": "Sea, cúlghairm",
+      "revoke": "Cúlghairm",
+      "cancel": "Cealaigh",
+      "never": "Riamh"
+    },
     "errors": {
       "enterName": "Cuir ainm isteach don chomhartha seo le do thoil.",
       "selectScope": "Roghnaigh raon ceada amháin ar a laghad.",

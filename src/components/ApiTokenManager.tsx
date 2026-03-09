@@ -5,6 +5,13 @@ import type { ApiToken } from '../utils/types';
 import { Timestamp } from 'firebase/firestore';
 import { useTranslation, Trans } from 'react-i18next';
 
+const ALL_SCOPES: TokenScope[] = ['read:logs', 'write:logs', 'read:vehicles', 'write:vehicles'];
+
+interface TokenRevealModalProps {
+  rawToken: string;
+  onClose: () => void;
+}
+
 function TokenRevealModal({ rawToken, onClose }: TokenRevealModalProps): JSX.Element {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
@@ -249,7 +256,7 @@ export default function ApiTokenManager(): JSX.Element {
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('apiTokens.permissions')}</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {ALL_SCOPES.map(scope => (
+                  {ALL_SCOPES.map((scope: TokenScope) => (
                     <label key={scope} className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"

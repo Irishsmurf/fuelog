@@ -13,6 +13,7 @@ import sv from './locales/sv.json';
 import no from './locales/no.json';
 import fi from './locales/fi.json';
 import { BASE_LANGUAGES, PSEUDOLOCALE } from './languages';
+import { pseudolocalizeResources } from './pseudolocalize';
 
 const isPseudolocaleEnabled = import.meta.env.VITE_ENABLE_PSEUDOLOCALE === 'true';
 

@@ -13,10 +13,28 @@ describe('gemini utility', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    // Mock createImageBitmap (not available in jsdom)
+    global.createImageBitmap = vi.fn().mockResolvedValue({
+      width: 800,
+      height: 600,
+      close: vi.fn(),
+    });
+
+    // Mock canvas + toBlob
+    const mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn().mockReturnValue({ drawImage: vi.fn() }),
+      toBlob: vi.fn((cb: BlobCallback) => {
+        cb(new Blob(['mock'], { type: 'image/jpeg' }));
+      }),
+    };
+    vi.spyOn(document, 'createElement').mockReturnValue(mockCanvas as unknown as HTMLCanvasElement);
+
     class MockFileReader {
       onload: () => void = () => {};
       onerror: (err: unknown) => void = () => {};
-      result: string = 'data:image/png;base64,mockbase64data';
+      result: string = 'data:image/jpeg;base64,mockbase64data';
       readAsDataURL() {
         setTimeout(() => this.onload(), 0);
       }

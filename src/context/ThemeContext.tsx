@@ -29,9 +29,10 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
-      // Only apply if user hasn't set a manual preference
+      // Only apply if user hasn't set a manual preference in localStorage.
       if (!localStorage.getItem('theme')) {
-        setThemeState(e.matches ? 'dark' : 'light');
+        // Update the theme state; the useEffect at line 90 will handle the DOM update.
+        setTheme(e.matches ? 'dark' : 'light');
       }
     };
 

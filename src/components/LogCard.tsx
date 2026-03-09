@@ -2,11 +2,13 @@
 import { JSX, useState } from 'react';
 import { Log } from '../utils/types';
 import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
+import { sanitizeUrl } from '../utils/sanitize';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Info, Edit3, Trash2, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
+import { useTranslation } from 'react-i18next';
 
 // CSS for card flip and map container
 import 'leaflet/dist/leaflet.css';
@@ -19,10 +21,10 @@ delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 // --- End Icon Fix ---
 
-interface LogCardProps { 
-  log: Log; 
-  onEdit: (log: Log) => void; 
-  onDelete: (logId: string) => void; 
+interface LogCardProps {
+  log: Log;
+  onEdit: (log: Log) => void;
+  onDelete: (logId: string) => void;
   vehicleName?: string;
 }
 
@@ -35,6 +37,7 @@ const RecenterMap = ({ center }: { center: L.LatLngExpression }) => {
 
 function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Element {
   const { profile } = useAuth();
+  const { t, i18n } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
 
@@ -52,7 +55,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
   };
 
   const costValue = log.cost?.toFixed(2);
-  const originalCostInfo = log.currency && log.currency !== homeCurrency 
+  const originalCostInfo = log.currency && log.currency !== homeCurrency
     ? `${log.originalCost?.toFixed(2)} ${log.currency}`
     : null;
 
@@ -65,12 +68,12 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
   const center: L.LatLngExpression = [log.latitude || 0, log.longitude || 0];
 
   return (
-    <div 
+    <div
       className="relative w-full h-[320px] perspective-1000 group"
       onClick={handleFlip}
     >
       <div className={`relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}>
-        
+
         {/* FRONT: Log Details */}
         <div className="absolute inset-0 backface-hidden bg-white dark:bg-gray-800 shadow-md rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-gray-700/50 flex flex-col">
           {/* Header */}
@@ -78,12 +81,12 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
             <div className="space-y-0.5 min-w-0 flex-grow">
               <div className="flex items-center space-x-1.5">
                 <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest truncate">
-                    {log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: 'short', year: 'numeric' }) ?? 'N/A'}
+                    {log.timestamp?.toDate().toLocaleDateString(i18n.language, { day: '2-digit', month: 'short', year: 'numeric' }) ?? 'N/A'}
                 </p>
                 {hasGeo && <MapPin size={10} className="text-brand-primary shrink-0 animate-pulse" />}
               </div>
               <h4 className="text-lg font-black tracking-tight text-gray-900 dark:text-white leading-tight truncate">
-                {log.brand || 'Unknown Station'}
+                {log.brand || t('logCard.unknownStation')}
               </h4>
               {vehicleName && (
                 <span className="inline-block bg-brand-primary/5 text-brand-primary text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 border border-brand-primary/10">
@@ -91,7 +94,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
                 </span>
               )}
             </div>
-            
+
             <div className="text-right shrink-0 ml-2">
               <p className="text-xl font-black text-gray-900 dark:text-white font-mono leading-none">{homeCurrencySymbol}{costValue}</p>
               {originalCostInfo && (
@@ -102,30 +105,30 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
 
           {/* Metrics Grid */}
           <div className="grid grid-cols-2 gap-3 py-3 border-y border-gray-50 dark:border-gray-700/50 mb-3">
-            {renderMetric("Distance", log.distanceKm?.toFixed(1), " Km")}
-            {renderMetric("Fuel Added", log.fuelAmountLiters?.toFixed(2), " L")}
+            {renderMetric(t('logCard.distance'), log.distanceKm?.toFixed(1), " Km")}
+            {renderMetric(t('logCard.fuelAdded'), log.fuelAmountLiters?.toFixed(2), " L")}
           </div>
 
           {/* Efficiency Grid */}
           <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-4">
-            {renderMetric("MPG", formatMPG(log.distanceKm, log.fuelAmountLiters))}
-            {renderMetric("km/L", formatKmL(log.distanceKm, log.fuelAmountLiters))}
-            {renderMetric("L/100km", formatL100km(log.distanceKm, log.fuelAmountLiters))}
-            {renderMetric("Cost/Mile", formatCostPerMile(log.cost, log.distanceKm))}
+            {renderMetric(t('logCard.mpg'), formatMPG(log.distanceKm, log.fuelAmountLiters))}
+            {renderMetric(t('logCard.kmL'), formatKmL(log.distanceKm, log.fuelAmountLiters))}
+            {renderMetric(t('logCard.l100km'), formatL100km(log.distanceKm, log.fuelAmountLiters))}
+            {renderMetric(t('logCard.costPerMile'), formatCostPerMile(log.cost, log.distanceKm))}
           </div>
 
           {/* Receipt Section */}
           {log.receiptUrl && (
             <div className="mb-3">
-              <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-tight block mb-1">Receipt</span>
-              <a 
-                href={log.receiptUrl} 
-                target="_blank" 
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-tight block mb-1">{t('logCard.receipt')}</span>
+              <a
+                href={sanitizeUrl(log.receiptUrl!)}
+                target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="inline-block relative rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity"
               >
-                <img src={log.receiptUrl} alt="Receipt" className="h-10 w-16 object-cover" />
+                <img src={sanitizeUrl(log.receiptUrl!)} alt="Receipt" className="h-10 w-16 object-cover" />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                   <FileText size={12} className="text-white" />
                 </div>
@@ -136,20 +139,20 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
           {/* Footer Actions */}
           <div className="flex justify-between items-center pt-3 border-t border-gray-50 dark:border-gray-700/50 mt-auto">
             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                {hasGeo ? "Tap to view map" : "No location"}
+                {hasGeo ? t('logCard.tapToViewMap') : t('logCard.noLocation')}
             </span>
             <div className="flex space-x-2">
                 <button
                 onClick={(e) => { e.stopPropagation(); onEdit(log); }}
                 className="flex items-center justify-center p-2 bg-gray-50 dark:bg-gray-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-gray-500 hover:text-brand-primary dark:text-gray-400 dark:hover:text-brand-primary rounded-xl transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50"
-                title="Edit Entry"
+                title={t('logCard.editEntry')}
                 >
                 <Edit3 size={16} />
                 </button>
                 <button
                 onClick={(e) => { e.stopPropagation(); onDelete(log.id); }}
                 className="flex items-center justify-center p-2 bg-gray-50 dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded-xl transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
-                title="Delete Entry"
+                title={t('logCard.deleteEntry')}
                 >
                 <Trash2 size={16} />
                 </button>
@@ -168,9 +171,9 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
               </MapContainer>
             )}
             <div className="absolute top-3 left-3 z-[1000] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary">{log.brand || 'Location'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary">{log.brand || t('logCard.unknownStation')}</p>
             </div>
-            <button 
+            <button
                 className="absolute bottom-3 right-3 z-[1000] bg-brand-primary text-white p-2.5 rounded-xl shadow-lg shadow-brand-primary/30"
                 onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }}
             >

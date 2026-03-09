@@ -18,6 +18,7 @@ function ProfilePage(): JSX.Element {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
 
+  // Form State
   const [formData, setFormData] = useState({
     name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol' as VehicleFuelType, isDefault: false
   });
@@ -55,6 +56,7 @@ function ProfilePage(): JSX.Element {
     setMessage(null);
 
     try {
+      // If setting as default, unset others first
       if (formData.isDefault && vehicles.length > 0) {
         const batch = writeBatch(db);
         vehicles.forEach(v => {
@@ -102,9 +104,11 @@ function ProfilePage(): JSX.Element {
     try {
       const isNowArchived = !vehicle.isArchived;
       const updates: any = { isArchived: isNowArchived };
+
       if (isNowArchived && vehicle.isDefault) {
         updates.isDefault = false;
       }
+
       await updateDoc(doc(db, "vehicles", vehicle.id), updates);
       fetchVehicles();
     } catch (error: any) {
@@ -136,6 +140,7 @@ function ProfilePage(): JSX.Element {
   const renderVehicleCard = (v: Vehicle) => (
     <div key={v.id} className={`group relative bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md ${v.isDefault ? 'border-brand-primary ring-1 ring-brand-primary/20' : 'border-gray-100 dark:border-gray-700'}`}>
       <div className="p-5 flex items-start space-x-4">
+        {/* Car Icon Accent */}
         <div className={`p-3 rounded-xl transition-colors ${v.isDefault ? 'bg-brand-primary/10 text-brand-primary' : 'bg-gray-50 dark:bg-gray-900 text-gray-400'}`}>
           <Car size={24} />
         </div>
@@ -164,6 +169,7 @@ function ProfilePage(): JSX.Element {
         </div>
       </div>
 
+      {/* Action Overlay/Bar */}
       <div className="flex border-t border-gray-50 dark:border-gray-700 divide-x divide-gray-50 dark:divide-gray-700">
         {!v.isArchived && !v.isDefault && (
           <button
@@ -265,6 +271,7 @@ function ProfilePage(): JSX.Element {
           )}
         </div>
 
+        {/* Active Vehicle Grid */}
         <div className="space-y-4">
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -285,6 +292,7 @@ function ProfilePage(): JSX.Element {
           )}
         </div>
 
+        {/* Archived Vehicle Grid */}
         {showArchived && archivedVehicles.length > 0 && (
           <div className="mt-10 animate-in fade-in slide-in-from-top-4">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center">

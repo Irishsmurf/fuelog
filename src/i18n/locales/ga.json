@@ -1,0 +1,256 @@
+{
+  "nav": {
+    "log": "Logáil",
+    "history": "Stair",
+    "map": "Léarscáil",
+    "profile": "Próifíl"
+  },
+  "login": {
+    "tagline": "Rianú Breosla Cruinn",
+    "description": "Déan monatóireacht ar éifeachtacht, bainistigh do chabhlach, agus easpórtáil tuarascálacha gairmiúla in aon taithí shoiléir shoghluaiste amháin.",
+    "getStarted": "Tosaigh le Google",
+    "initializing": "Ag túsú...",
+    "error": "Theip ar an gcomhshuíomh. Déan iarracht arís le do thoil."
+  },
+  "quickLog": {
+    "title": "Iontráil Breosla Nua",
+    "loadingVehicles": "Ag lódáil feithiclí...",
+    "noVehicles": {
+      "heading": "Níl aon fheithicil ann",
+      "subtext": "Teastaíonn feithicil amháin ar a laghad uait chun breosla a logáil.",
+      "cta": "Cuir Do Chéad Fheithicil Leis"
+    },
+    "sections": {
+      "vehicleStation": "Feithicil & Stáisiún",
+      "fuelCost": "Breosla & Costas",
+      "receipt": "Admháil"
+    },
+    "fields": {
+      "vehicle": "Feithicil",
+      "fillingStation": "Stáisiún Líonta",
+      "fillingStationOptional": "Roghnach",
+      "fillingStationPlaceholder": "e.g., Circle K, Maxol",
+      "totalCost": "Costas Iomlán",
+      "currency": "Airgeadra",
+      "distance": "Fad (Km)",
+      "fuel": "Breosla (L)",
+      "exchangeRate": "Ráta (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Ag fáil...",
+      "converted": "Tiontaithe: {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Sábháil Iontráil Breosla",
+      "saving": "Ag Sábháil...",
+      "locating": "Ag lorg suíomh..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "Ní mór duit a bheith logáilte isteach le sábháil.",
+      "addVehicleFirst": "Cuir feithicil leis i do Phróifíl ar dtús le do thoil.",
+      "selectVehicle": "Roghnaigh feithicil le do thoil.",
+      "fillRequired": "Líon isteach Costas, Fad, agus Méid Breosla le do thoil.",
+      "validNumbers": "Ní mór do Chostas, Fad (Km), agus Méid Breosla a bheith ina n-uimhreacha dearfacha bailí.",
+      "gettingLocation": "Ag iarraidh suíomh a fháil...",
+      "locationCaptured": "Suíomh gafa (Cruinneas: {{accuracy}}m).",
+      "locationNotSupported": "Ní thacaíonn an brabhsálaí le suíomh.",
+      "savingLog": "{{locationMsg}} Ag sábháil...",
+      "uploadingReceipt": "Ag uaslódáil grianghraf admhála...",
+      "savedSuccess": "Iontráil sábháilte go rathúil!",
+      "savedNoLocation": "Iontráil sábháilte go rathúil! (Suíomh gan gabhail)",
+      "saveError": "Earráid agus iontráil á sábháil. Déan iarracht arís le do thoil.",
+      "fetchRateError": "Theip ar an ráta {{currency}} a fháil. Socraigh de láimh le do thoil."
+    }
+  },
+  "history": {
+    "title": "Stair Breosla",
+    "loading": "Ag lódáil staire...",
+    "noLogs": "Níl aon iontrálacha breosla fós.",
+    "noLogsForFilter": "Níl aon iontrálacha don tréimhse roghnaithe.",
+    "exportPdf": "Easpórtáil PDF",
+    "viewMode": {
+      "list": "Liosta",
+      "chart": "Cairt",
+      "summary": "Achoimre"
+    },
+    "filter": {
+      "all": "Uile",
+      "thisMonth": "An Mhí Seo",
+      "last3Months": "3 Mhí Dheireanacha",
+      "thisYear": "An Bhliain Seo"
+    },
+    "chart": {
+      "fuelCost": "Costas Breosla",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Costas/Míle"
+    },
+    "summary": {
+      "totalSpend": "Caiteachas Iomlán",
+      "totalFuel": "Breosla Iomlán",
+      "totalDistance": "Fad Iomlán",
+      "avgEfficiency": "Éifeachtacht Mheánach",
+      "avgCostPerKm": "Costas Meánach/Km",
+      "entries": "Iontrálacha"
+    },
+    "edit": {
+      "title": "Cuir Iontráil in Eagar",
+      "brand": "Stáisiún Líonta",
+      "cost": "Costas Iomlán ({{currency}})",
+      "distance": "Fad (Km)",
+      "fuel": "Méid Breosla (L)",
+      "save": "Sábháil Athruithe",
+      "saving": "Ag Sábháil...",
+      "cancel": "Cealaigh",
+      "receipt": "Grianghraf Admhála"
+    },
+    "delete": {
+      "confirm": "An iontráil logála seo a scriosadh? Ní féidir an gníomh seo a chealú."
+    },
+    "loadError": "Theip ar stair breosla a lódáil. Seiceáil do nasc le do thoil agus déan iarracht arís.",
+    "deleteError": "Theip ar an iontráil a scriosadh. Déan iarracht arís le do thoil.",
+    "updateError": "Theip ar an iontráil a nuashonrú. Déan iarracht arís le do thoil."
+  },
+  "logCard": {
+    "distance": "Fad",
+    "fuelAdded": "Breosla Curtha Leis",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Costas/Míle",
+    "receipt": "Admháil",
+    "tapToViewMap": "Tapáil le léarscáil a fheiceáil",
+    "noLocation": "Gan suíomh",
+    "unknownStation": "Stáisiún Anaithnid",
+    "editEntry": "Cuir Iontráil in Eagar",
+    "deleteEntry": "Scrios Iontráil"
+  },
+  "profile": {
+    "appPreferences": "Roghanna an Aip",
+    "homeCurrency": "Airgeadra Baile",
+    "homeCurrencyDesc": "Socraigh d'airgeadra príomhúil do gach iontráil breosla agus anailísíocht achoimre.",
+    "measurementUnits": "Aonaid Tomhais",
+    "measurementUnitsSoon": "Le teacht: Malartú idir Méadrach (Km/L) agus Impiriúil (MPG).",
+    "vehicleFleet": "Cabhlach Feithiclí",
+    "vehicleFleetSubtext": "Bainistigh do charranna agus do charrthaisligh.",
+    "showArchived": "Taispeáin Cartlannaithe ({{count}})",
+    "hideArchived": "Cuir Cartlannaithe i bhfolach",
+    "archivedFleet": "Cabhlach Cartlannaithe",
+    "noActiveVehicles": "Níl aon fheithiclí gníomhacha.",
+    "noActiveVehiclesSubtext": "Cuir feithicil leis thíos le tosú ag rianú.",
+    "addNewVehicle": "Cuir Feithicil Nua Leis",
+    "vehicleCard": {
+      "primary": "Príomhúil",
+      "makeDefault": "Déan Réamhshocrú",
+      "archive": "Cartlannaigh",
+      "restore": "Athchóirigh",
+      "delete": "Scrios"
+    },
+    "vehicleForm": {
+      "nickname": "Leasainm / Ainm",
+      "nicknamePlaceholder": "e.g. Mo Polo",
+      "make": "Déantúsóir",
+      "makePlaceholder": "e.g. VW",
+      "model": "Samhail",
+      "modelPlaceholder": "e.g. Polo",
+      "year": "Bliain",
+      "fuelType": "Cineál Breosla",
+      "fuelTypes": {
+        "petrol": "Peitreal",
+        "diesel": "Díosal",
+        "hybrid": "Hibrideach",
+        "electric": "Leictreach"
+      },
+      "setAsDefault": "Socraigh mar réamhshocrú feithicle",
+      "register": "Cláraigh Feithicil",
+      "registering": "Ag túsú..."
+    },
+    "messages": {
+      "vehicleAdded": "Feithicil curtha leis go rathúil!",
+      "failedToAdd": "Theip ar an bhfeithicil a chur leis. Déan iarracht arís le do thoil.",
+      "permissionDenied": "Cead diúltaithe. Seiceáil rialacha slándála Firestore le do thoil.",
+      "failedToDelete": "Theip ar an bhfeithicil a scriosadh.",
+      "permissionDeniedDelete": "Cead diúltaithe le scriosadh.",
+      "failedToSetDefault": "Theip ar an réamhshocrú feithicle a shocrú.",
+      "permissionDeniedDefault": "Cead diúltaithe chun réamhshocruithe a nuashonrú.",
+      "deleteConfirm": "An bhfuil tú cinnte? Ní scriosfar iontrálacha ach déanfar dínascadh orthu."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Uathlíon le AI",
+    "analyzing": "Ag anailísiú...",
+    "extractionResults": "Torthaí Eastóscadh AI:",
+    "cost": "Costas",
+    "litres": "Lítear",
+    "brand": "Brandáil",
+    "notFound": "Gan aimsiú",
+    "useValues": "Úsáid Luachanna",
+    "discard": "Caith Uait",
+    "extractionFailed": "Theip ar shonraí a eastóscadh ón admháil.",
+    "autoFilled": "Réimsí uathlíonta ón admháil!"
+  },
+  "apiTokens": {
+    "title": "Rochtain API",
+    "subtitle": "Ceangail Claude agus LLManna eile le do chuid sonraí breosla trí MCP",
+    "newToken": "Comhartha nua",
+    "createToken": "Cruthaigh comhartha API nua",
+    "tokenName": "Ainm comhartha",
+    "tokenNamePlaceholder": "e.g. Claude Desktop - Baile",
+    "permissions": "Ceadanna",
+    "scopes": {
+      "readLogs": "Léigh iontrálacha",
+      "writeLogs": "Scríobh iontrálacha",
+      "readVehicles": "Léigh feithiclí",
+      "writeVehicles": "Scríobh feithiclí"
+    },
+    "generate": "Gin comhartha",
+    "generating": "Ag giniúint…",
+    "cancel": "Cealaigh",
+    "loadingTokens": "Ag lódáil comharthaí…",
+    "noTokens": "Níl aon chomharthaí API fós",
+    "noTokensSubtext": "Gin comhartha chun Claude Desktop nó aon LLM atá comhoiriúnach le MCP a nascadh le do chuid sonraí Fuelog.",
+    "created": "Comhartha API Cruthaithe",
+    "copyWarning": "Ní thaispeánfar an comhartha seo arís. Cóipeáil anois é.",
+    "yourToken": "Do Chomhartha API",
+    "claudeConfig": "Cumraíocht Claude Desktop",
+    "claudeConfigNote": "Cuir sé seo le do {{file}} faoi {{section}}.",
+    "copy": "Cóipeáil",
+    "copied": "Cóipeáilte!",
+    "done": "Déanta, tá mo chomhartha sábháilte agam",
+    "revokeConfirm": "Cúlghairm?",
+    "revokeYes": "Sea, cúlghairm",
+    "revoke": "Cúlghairm",
+    "created_at": "Cruthaithe {{date}}",
+    "last_used": "Úsáid deireanach: {{date}}",
+    "never": "Riamh",
+    "errors": {
+      "enterName": "Cuir ainm isteach don chomhartha seo le do thoil.",
+      "selectScope": "Roghnaigh raon ceada amháin ar a laghad.",
+      "failedCreate": "Theip ar an gcomhartha a chruthú. Déan iarracht arís le do thoil.",
+      "permissionDenied": "Cead diúltaithe — b'fhéidir nach bhfuil rialacha Firestore don bhailiúchán apiTokens imscartha fós. Féach docs/MCP.md le haghaidh treoracha socraithe."
+    }
+  },
+  "about": {
+    "title": "Faoi Rianaitheoir Breosla",
+    "description": "Is aip ghréasáin é Rianaitheoir Breosla a chabhraíonn leat do thomhaltas agus do chostais breosla a rianú.",
+    "featuresTitle": "Gnéithe",
+    "features": {
+      "track": "Rianú tomhaltais agus costas breosla",
+      "history": "Féach ar stair iontrálacha breosla",
+      "import": "Iompórtáil iontrálacha breosla ó chomhad CSV",
+      "quickLog": "Ceannacháin breosla a logáil go tapa"
+    },
+    "loginPrompt": "Chun rochtain a fháil ar níos mó gnéithe, le do thoil",
+    "login": "logáil isteach"
+  },
+  "common": {
+    "loading": "Ag lódáil...",
+    "saving": "Ag sábháil...",
+    "error": "Tharla earráid.",
+    "optional": "Roghnach"
+  },
+  "language": {
+    "label": "Teanga",
+    "en": "English",
+    "ga": "Gaeilge"
+  }
+}

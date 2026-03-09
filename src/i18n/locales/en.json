@@ -1,0 +1,256 @@
+{
+  "nav": {
+    "log": "Log",
+    "history": "History",
+    "map": "Map",
+    "profile": "Profile"
+  },
+  "login": {
+    "tagline": "Precision Fuel Tracking",
+    "description": "Monitor efficiency, manage your fleet, and export professional reports in one seamless mobile experience.",
+    "getStarted": "Get Started with Google",
+    "initializing": "Initializing...",
+    "error": "Failed to sign in. Please try again."
+  },
+  "quickLog": {
+    "title": "Log New Fuel Entry",
+    "loadingVehicles": "Loading vehicles...",
+    "noVehicles": {
+      "heading": "No vehicles found",
+      "subtext": "You need at least one vehicle to start logging fuel.",
+      "cta": "Add Your First Vehicle"
+    },
+    "sections": {
+      "vehicleStation": "Vehicle & Station",
+      "fuelCost": "Fuel & Cost",
+      "receipt": "Receipt"
+    },
+    "fields": {
+      "vehicle": "Vehicle",
+      "fillingStation": "Filling Station",
+      "fillingStationOptional": "Optional",
+      "fillingStationPlaceholder": "e.g., Circle K, Maxol",
+      "totalCost": "Total Cost",
+      "currency": "Currency",
+      "distance": "Dist (Km)",
+      "fuel": "Fuel (L)",
+      "exchangeRate": "Rate (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Fetching...",
+      "converted": "Converted: {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Save Fuel Log",
+      "saving": "Saving Log...",
+      "locating": "Locating..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "You must be logged in to save.",
+      "addVehicleFirst": "Please add a vehicle in your Profile first.",
+      "selectVehicle": "Please select a vehicle.",
+      "fillRequired": "Please fill in Cost, Distance, and Fuel Amount.",
+      "validNumbers": "Cost, Distance (Km), and Fuel Amount must be valid positive numbers.",
+      "gettingLocation": "Attempting to get location...",
+      "locationCaptured": "Location captured (Accuracy: {{accuracy}}m).",
+      "locationNotSupported": "Location not supported by browser.",
+      "savingLog": "{{locationMsg}} Saving log...",
+      "uploadingReceipt": "Uploading receipt photo...",
+      "savedSuccess": "Log saved successfully!",
+      "savedNoLocation": "Log saved successfully! (Location not captured)",
+      "saveError": "Error saving log. Please try again.",
+      "fetchRateError": "Failed to fetch {{currency}} rate. Please set manually."
+    }
+  },
+  "history": {
+    "title": "Fuel History",
+    "loading": "Loading history...",
+    "noLogs": "No fuel logs yet.",
+    "noLogsForFilter": "No logs for the selected period.",
+    "exportPdf": "Export PDF",
+    "viewMode": {
+      "list": "List",
+      "chart": "Chart",
+      "summary": "Summary"
+    },
+    "filter": {
+      "all": "All",
+      "thisMonth": "This Month",
+      "last3Months": "Last 3 Months",
+      "thisYear": "This Year"
+    },
+    "chart": {
+      "fuelCost": "Fuel Cost",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Cost/Mile"
+    },
+    "summary": {
+      "totalSpend": "Total Spend",
+      "totalFuel": "Total Fuel",
+      "totalDistance": "Total Distance",
+      "avgEfficiency": "Avg Efficiency",
+      "avgCostPerKm": "Avg Cost/Km",
+      "entries": "Entries"
+    },
+    "edit": {
+      "title": "Edit Entry",
+      "brand": "Filling Station",
+      "cost": "Total Cost ({{currency}})",
+      "distance": "Distance (Km)",
+      "fuel": "Fuel Amount (L)",
+      "save": "Save Changes",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "receipt": "Receipt Photo"
+    },
+    "delete": {
+      "confirm": "Delete this log entry? This action cannot be undone."
+    },
+    "loadError": "Failed to load fuel history. Please check your connection and try again.",
+    "deleteError": "Failed to delete log entry. Please try again.",
+    "updateError": "Failed to update log. Please try again."
+  },
+  "logCard": {
+    "distance": "Distance",
+    "fuelAdded": "Fuel Added",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Cost/Mile",
+    "receipt": "Receipt",
+    "tapToViewMap": "Tap to view map",
+    "noLocation": "No location",
+    "unknownStation": "Unknown Station",
+    "editEntry": "Edit Entry",
+    "deleteEntry": "Delete Entry"
+  },
+  "profile": {
+    "appPreferences": "App Preferences",
+    "homeCurrency": "Home Currency",
+    "homeCurrencyDesc": "Set your primary currency for all fuel logs and summary analytics.",
+    "measurementUnits": "Measurement Units",
+    "measurementUnitsSoon": "Coming soon: Toggle between Metric (Km/L) and Imperial (MPG) defaults.",
+    "vehicleFleet": "Vehicle Fleet",
+    "vehicleFleetSubtext": "Manage your cars and rentals.",
+    "showArchived": "Show Archived ({{count}})",
+    "hideArchived": "Hide Archived",
+    "archivedFleet": "Archived Fleet",
+    "noActiveVehicles": "No active vehicles.",
+    "noActiveVehiclesSubtext": "Add a vehicle below to start tracking.",
+    "addNewVehicle": "Add New Vehicle",
+    "vehicleCard": {
+      "primary": "Primary",
+      "makeDefault": "Make Default",
+      "archive": "Archive",
+      "restore": "Restore",
+      "delete": "Delete"
+    },
+    "vehicleForm": {
+      "nickname": "Nickname / Name",
+      "nicknamePlaceholder": "e.g. My Polo",
+      "make": "Make",
+      "makePlaceholder": "e.g. VW",
+      "model": "Model",
+      "modelPlaceholder": "e.g. Polo",
+      "year": "Year",
+      "fuelType": "Fuel Type",
+      "fuelTypes": {
+        "petrol": "Petrol",
+        "diesel": "Diesel",
+        "hybrid": "Hybrid",
+        "electric": "Electric"
+      },
+      "setAsDefault": "Set as default vehicle",
+      "register": "Register Vehicle",
+      "registering": "Initializing..."
+    },
+    "messages": {
+      "vehicleAdded": "Vehicle added successfully!",
+      "failedToAdd": "Failed to add vehicle. Please try again.",
+      "permissionDenied": "Permission denied. Please check Firestore security rules.",
+      "failedToDelete": "Failed to delete vehicle.",
+      "permissionDeniedDelete": "Permission denied to delete.",
+      "failedToSetDefault": "Failed to set default vehicle.",
+      "permissionDeniedDefault": "Permission denied to update defaults.",
+      "deleteConfirm": "Are you sure? This won't delete logs but will un-link them."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Auto-fill with AI",
+    "analyzing": "Analyzing...",
+    "extractionResults": "AI Extraction Results:",
+    "cost": "Cost",
+    "litres": "Litres",
+    "brand": "Brand",
+    "notFound": "Not found",
+    "useValues": "Use Values",
+    "discard": "Discard",
+    "extractionFailed": "Failed to extract data from receipt.",
+    "autoFilled": "Fields auto-filled from receipt!"
+  },
+  "apiTokens": {
+    "title": "API Access",
+    "subtitle": "Connect Claude and other LLMs to your fuel data via MCP",
+    "newToken": "New token",
+    "createToken": "Create new API token",
+    "tokenName": "Token name",
+    "tokenNamePlaceholder": "e.g. Claude Desktop - Home",
+    "permissions": "Permissions",
+    "scopes": {
+      "readLogs": "Read logs",
+      "writeLogs": "Write logs",
+      "readVehicles": "Read vehicles",
+      "writeVehicles": "Write vehicles"
+    },
+    "generate": "Generate token",
+    "generating": "Generating…",
+    "cancel": "Cancel",
+    "loadingTokens": "Loading tokens…",
+    "noTokens": "No API tokens yet",
+    "noTokensSubtext": "Generate a token to connect Claude Desktop or any MCP-compatible LLM to your Fuelog data.",
+    "created": "API Token Created",
+    "copyWarning": "This token will not be shown again. Copy it now.",
+    "yourToken": "Your API Token",
+    "claudeConfig": "Claude Desktop Config",
+    "claudeConfigNote": "Add this to your {{file}} under {{section}}.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "done": "Done, I've saved my token",
+    "revokeConfirm": "Revoke?",
+    "revokeYes": "Yes, revoke",
+    "revoke": "Revoke",
+    "created_at": "Created {{date}}",
+    "last_used": "Last used: {{date}}",
+    "never": "Never",
+    "errors": {
+      "enterName": "Please enter a name for this token.",
+      "selectScope": "Select at least one permission scope.",
+      "failedCreate": "Failed to create token. Please try again.",
+      "permissionDenied": "Permission denied — Firestore rules for the apiTokens collection may not be deployed yet. See docs/MCP.md for setup instructions."
+    }
+  },
+  "about": {
+    "title": "About Fuel Tracker",
+    "description": "Fuel Tracker is a web app that helps you track your fuel consumption and costs.",
+    "featuresTitle": "Features",
+    "features": {
+      "track": "Track fuel consumption and costs",
+      "history": "View history of fuel logs",
+      "import": "Import fuel logs from a CSV file",
+      "quickLog": "Quickly log fuel purchases"
+    },
+    "loginPrompt": "To access more features, please",
+    "login": "log in"
+  },
+  "common": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "error": "An error occurred.",
+    "optional": "Optional"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ga": "Gaeilge"
+  }
+}

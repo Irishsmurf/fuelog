@@ -1,5 +1,6 @@
 // src/pages/HistoryPage.tsx
 import { JSX, useState, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 // Import Firestore functions for reading, updating, and deleting documents
 import {
     collection, query, where, orderBy, onSnapshot, getDocs,
@@ -24,10 +25,12 @@ import { exportLogsToPDF } from '../utils/pdfExport'; // Import PDF Export utili
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import ImageUpload from '../components/ImageUpload';
 import { uploadReceipt } from '../firebase/storageService';
+import { sanitizeUrl } from '../utils/sanitize';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
     const { getBoolean } = useRemoteConfig(); // Use the hook
+    const { t, i18n } = useTranslation();
 
     // Get the current authenticated user from context
     const { user, profile } = useAuth();
@@ -128,7 +131,7 @@ function HistoryPage(): JSX.Element {
         }, (err) => {
             // Handle Firestore errors
             console.error("Error fetching fuel logs:", err);
-            setError("Failed to load fuel history. Please check your connection and try again.");
+            setError(t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' }));
             setIsLoading(false);
         });
 
@@ -186,7 +189,7 @@ function HistoryPage(): JSX.Element {
         // Sort ascending by date for time-series charts
         const sortedLogs = [...filteredLogs].sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
         return sortedLogs.map(log => ({
-            date: log.timestamp?.toDate().toLocaleDateString('en-IE', { day: '2-digit', month: '2-digit' }) ?? 'N/A',
+            date: log.timestamp?.toDate().toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' }) ?? 'N/A',
             timestampValue: log.timestamp?.toMillis(),
             mpg: getNumericMPG(log.distanceKm, log.fuelAmountLiters),
             cost: log.cost > 0 ? log.cost : null,
@@ -248,7 +251,7 @@ function HistoryPage(): JSX.Element {
     // Handles deleting a specific log entry by its Firestore ID after confirmation.
     const handleDeleteLog = async (logId: string) => {
         if (!logId) return;
-        if (window.confirm("Are you sure you want to delete this log entry? This action cannot be undone.")) {
+        if (window.confirm(t('history.delete.confirm'))) {
             try {
                 const logRef = doc(db, "fuelLogs", logId);
                 await deleteDoc(logRef);
@@ -256,7 +259,7 @@ function HistoryPage(): JSX.Element {
                 // UI updates via onSnapshot listener
             } catch (error) {
                 console.error("Error deleting document: ", error);
-                alert("Failed to delete log entry. Please try again.");
+                alert(t('history.deleteError', { defaultValue: 'Failed to delete log entry.' }));
             }
         }
     };
@@ -318,7 +321,7 @@ function HistoryPage(): JSX.Element {
             await updateDoc(logRef, updatedData);
             console.log(`Log ${editingLog.id} updated successfully.`);
             handleCloseModal(); // Close modal on success
-        } catch (error) { console.error("Error updating document: ", error); setModalError("Failed to update log. Please try again."); }
+        } catch (error) { console.error("Error updating document: ", error); setModalError(t('history.updateError', { defaultValue: 'Failed to update log. Please try again.' })); }
         finally { setIsUpdating(false); }
     };
 
@@ -506,7 +509,7 @@ function HistoryPage(): JSX.Element {
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
                                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A'}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString(i18n.language) ?? 'N/A'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-brand-primary font-mono tracking-tighter">{vehicleMap[log.vehicleId || ''] || '-'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.brand}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">
@@ -530,8 +533,8 @@ function HistoryPage(): JSX.Element {
                                             {receiptDigitizationEnabled && (
                                               <td className="px-3 py-3 whitespace-nowrap text-center">
                                                 {log.receiptUrl ? (
-                                                  <a href={log.receiptUrl} target="_blank" rel="noopener noreferrer" className="inline-block relative rounded overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity">
-                                                    <img src={log.receiptUrl} alt="Receipt" className="h-6 w-10 object-cover" />
+                                                  <a href={sanitizeUrl(log.receiptUrl)} target="_blank" rel="noopener noreferrer" className="inline-block relative rounded overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity">
+                                                    <img src={sanitizeUrl(log.receiptUrl)} alt="Receipt" className="h-6 w-10 object-cover" />
                                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10">
                                                       <FileText size={10} className="text-white" />
                                                     </div>
@@ -595,7 +598,7 @@ function HistoryPage(): JSX.Element {
             {isModalOpen && editingLog && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-600 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md m-4 space-y-4 transform transition-all">
-                        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300" id="modal-title">Edit Log Entry ({editingLog.timestamp.toDate().toLocaleDateString('en-IE')})</h3>
+                        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300" id="modal-title">Edit Log Entry ({editingLog.timestamp.toDate().toLocaleDateString(i18n.language)})</h3>
                         {/* Edit Form */}
                         <form onSubmit={handleUpdateLog} className="space-y-4">
                             {/* Vehicle Selection */}

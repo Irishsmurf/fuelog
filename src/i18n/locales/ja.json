@@ -1,0 +1,261 @@
+{
+  "nav": {
+    "log": "記録",
+    "history": "履歴",
+    "map": "地図",
+    "profile": "プロフィール"
+  },
+  "login": {
+    "tagline": "精確な燃料追跡",
+    "description": "効率を監視し、車両を管理し、プロフェッショナルなレポートをシームレスなモバイル体験でエクスポートできます。",
+    "getStarted": "Googleで始める",
+    "initializing": "初期化中...",
+    "error": "ログインに失敗しました。もう一度お試しください。"
+  },
+  "quickLog": {
+    "title": "新しい燃料記録",
+    "loadingVehicles": "車両を読み込み中...",
+    "noVehicles": {
+      "heading": "車両が見つかりません",
+      "subtext": "燃料の記録を開始するには、少なくとも1台の車両が必要です。",
+      "cta": "最初の車両を追加"
+    },
+    "sections": {
+      "vehicleStation": "車両・ガソリンスタンド",
+      "fuelCost": "燃料・費用",
+      "receipt": "レシート"
+    },
+    "fields": {
+      "vehicle": "車両",
+      "fillingStation": "ガソリンスタンド",
+      "fillingStationOptional": "任意",
+      "fillingStationPlaceholder": "例：ENEOS、出光",
+      "totalCost": "合計費用",
+      "currency": "通貨",
+      "distance": "距離 (Km)",
+      "fuel": "燃料 (L)",
+      "exchangeRate": "レート (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "取得中...",
+      "converted": "換算後：{{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "記録を保存",
+      "saving": "保存中...",
+      "locating": "位置を取得中..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "保存するにはログインが必要です。",
+      "addVehicleFirst": "先にプロフィールで車両を追加してください。",
+      "selectVehicle": "車両を選択してください。",
+      "fillRequired": "費用、距離、燃料量を入力してください。",
+      "validNumbers": "費用、距離 (Km)、燃料量は有効な正の数でなければなりません。",
+      "gettingLocation": "位置情報を取得しようとしています...",
+      "locationCaptured": "位置情報を取得しました（精度：{{accuracy}}m）。",
+      "locationNotSupported": "このブラウザは位置情報をサポートしていません。",
+      "savingLog": "{{locationMsg}} 記録を保存中...",
+      "uploadingReceipt": "レシート写真をアップロード中...",
+      "savedSuccess": "記録が正常に保存されました！",
+      "savedNoLocation": "記録が正常に保存されました！（位置情報なし）",
+      "saveError": "記録の保存中にエラーが発生しました。もう一度お試しください。",
+      "fetchRateError": "{{currency}}のレートの取得に失敗しました。手動で設定してください。"
+    }
+  },
+  "history": {
+    "title": "燃料履歴",
+    "loading": "履歴を読み込み中...",
+    "noLogs": "まだ燃料記録がありません。",
+    "noLogsForFilter": "選択した期間の記録がありません。",
+    "exportPdf": "PDFエクスポート",
+    "viewMode": {
+      "list": "リスト",
+      "chart": "グラフ",
+      "summary": "サマリー"
+    },
+    "filter": {
+      "all": "すべて",
+      "thisMonth": "今月",
+      "last3Months": "過去3ヶ月",
+      "thisYear": "今年"
+    },
+    "chart": {
+      "fuelCost": "燃料費",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "コスト/マイル"
+    },
+    "summary": {
+      "totalSpend": "合計支出",
+      "totalFuel": "合計燃料",
+      "totalDistance": "合計距離",
+      "avgEfficiency": "平均効率",
+      "avgCostPerKm": "平均コスト/Km",
+      "entries": "件数"
+    },
+    "edit": {
+      "title": "記録を編集",
+      "brand": "ガソリンスタンド",
+      "cost": "合計費用 ({{currency}})",
+      "distance": "距離 (Km)",
+      "fuel": "燃料量 (L)",
+      "save": "変更を保存",
+      "saving": "保存中...",
+      "cancel": "キャンセル",
+      "receipt": "レシート写真"
+    },
+    "delete": {
+      "confirm": "この記録を削除しますか？この操作は元に戻せません。"
+    },
+    "loadError": "燃料履歴の読み込みに失敗しました。接続を確認してもう一度お試しください。",
+    "deleteError": "記録の削除に失敗しました。もう一度お試しください。",
+    "updateError": "記録の更新に失敗しました。もう一度お試しください。"
+  },
+  "logCard": {
+    "distance": "距離",
+    "fuelAdded": "給油量",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "コスト/マイル",
+    "receipt": "レシート",
+    "tapToViewMap": "タップして地図を表示",
+    "noLocation": "位置情報なし",
+    "unknownStation": "不明なスタンド",
+    "editEntry": "記録を編集",
+    "deleteEntry": "記録を削除"
+  },
+  "profile": {
+    "appPreferences": "アプリ設定",
+    "homeCurrency": "ホーム通貨",
+    "homeCurrencyDesc": "すべての燃料記録と分析のための主要通貨を設定します。",
+    "measurementUnits": "測定単位",
+    "measurementUnitsSoon": "近日公開：メートル法 (Km/L) とヤード・ポンド法 (MPG) の切り替え。",
+    "vehicleFleet": "車両フリート",
+    "vehicleFleetSubtext": "あなたの車やレンタカーを管理します。",
+    "showArchived": "アーカイブ済みを表示 ({{count}})",
+    "hideArchived": "アーカイブ済みを非表示",
+    "archivedFleet": "アーカイブ済みフリート",
+    "noActiveVehicles": "アクティブな車両がありません。",
+    "noActiveVehiclesSubtext": "追跡を開始するには以下に車両を追加してください。",
+    "addNewVehicle": "新しい車両を追加",
+    "vehicleCard": {
+      "primary": "メイン",
+      "makeDefault": "デフォルトに設定",
+      "archive": "アーカイブ",
+      "restore": "復元",
+      "delete": "削除"
+    },
+    "vehicleForm": {
+      "nickname": "ニックネーム / 名前",
+      "nicknamePlaceholder": "例：マイカー",
+      "make": "メーカー",
+      "makePlaceholder": "例：トヨタ",
+      "model": "モデル",
+      "modelPlaceholder": "例：プリウス",
+      "year": "年式",
+      "fuelType": "燃料タイプ",
+      "fuelTypes": {
+        "petrol": "ガソリン",
+        "diesel": "ディーゼル",
+        "hybrid": "ハイブリッド",
+        "electric": "電気"
+      },
+      "setAsDefault": "デフォルト車両に設定",
+      "register": "車両を登録",
+      "registering": "初期化中..."
+    },
+    "messages": {
+      "vehicleAdded": "車両が正常に追加されました！",
+      "failedToAdd": "車両の追加に失敗しました。もう一度お試しください。",
+      "permissionDenied": "アクセスが拒否されました。Firestoreのセキュリティルールを確認してください。",
+      "failedToDelete": "車両の削除に失敗しました。",
+      "permissionDeniedDelete": "削除のアクセスが拒否されました。",
+      "failedToSetDefault": "デフォルト車両の設定に失敗しました。",
+      "permissionDeniedDefault": "デフォルトの更新のアクセスが拒否されました。",
+      "deleteConfirm": "よろしいですか？記録は削除されませんが、リンクが解除されます。"
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "AIで自動入力",
+    "analyzing": "分析中...",
+    "extractionResults": "AI抽出結果：",
+    "cost": "費用",
+    "litres": "リットル",
+    "brand": "ブランド",
+    "notFound": "見つかりません",
+    "useValues": "値を使用",
+    "discard": "破棄",
+    "extractionFailed": "レシートからのデータ抽出に失敗しました。",
+    "autoFilled": "レシートからフィールドが自動入力されました！"
+  },
+  "apiTokens": {
+    "title": "APIアクセス",
+    "subtitle": "MCPを通じてClaudeや他のLLMを燃料データに接続",
+    "newToken": "新しいトークン",
+    "createToken": "新しいAPIトークンを作成",
+    "tokenName": "トークン名",
+    "tokenNamePlaceholder": "例：Claude Desktop - 自宅",
+    "permissions": "権限",
+    "scopes": {
+      "readLogs": "記録を読む",
+      "writeLogs": "記録を書く",
+      "readVehicles": "車両を読む",
+      "writeVehicles": "車両を書く"
+    },
+    "generate": "トークンを生成",
+    "generating": "生成中…",
+    "cancel": "キャンセル",
+    "loadingTokens": "トークンを読み込み中…",
+    "noTokens": "まだAPIトークンがありません",
+    "noTokensSubtext": "Claude DesktopまたはMCP対応LLMをFuelogデータに接続するためのトークンを生成してください。",
+    "created": "APIトークンが作成されました",
+    "copyWarning": "このトークンは再表示されません。今すぐコピーしてください。",
+    "yourToken": "あなたのAPIトークン",
+    "claudeConfig": "Claude Desktop設定",
+    "claudeConfigNote": "これを{{file}}の{{section}}に追加してください。",
+    "copy": "コピー",
+    "copied": "コピーしました！",
+    "done": "完了、トークンを保存しました",
+    "revokeConfirm": "取り消しますか？",
+    "revokeYes": "はい、取り消す",
+    "revoke": "取り消す",
+    "created_at": "作成日：{{date}}",
+    "last_used": "最終使用：{{date}}",
+    "never": "なし",
+    "errors": {
+      "enterName": "このトークンの名前を入力してください。",
+      "selectScope": "少なくとも1つの権限を選択してください。",
+      "failedCreate": "トークンの作成に失敗しました。もう一度お試しください。",
+      "permissionDenied": "アクセスが拒否されました — apiTokensコレクションのFirestoreルールがまだデプロイされていない可能性があります。設定手順についてはdocs/MCP.mdを参照してください。"
+    }
+  },
+  "about": {
+    "title": "燃料トラッカーについて",
+    "description": "Fuel Trackerは、燃料消費量とコストを追跡するのに役立つウェブアプリです。",
+    "featuresTitle": "機能",
+    "features": {
+      "track": "燃料消費量とコストを追跡",
+      "history": "燃料記録の履歴を表示",
+      "import": "CSVファイルから記録をインポート",
+      "quickLog": "燃料購入をすばやく記録"
+    },
+    "loginPrompt": "より多くの機能にアクセスするには",
+    "login": "ログイン"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "saving": "保存中...",
+    "error": "エラーが発生しました。",
+    "optional": "任意"
+  },
+  "language": {
+    "label": "言語",
+    "en": "English",
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어"
+  }
+}

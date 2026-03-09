@@ -1,0 +1,261 @@
+{
+  "nav": {
+    "log": "Erfassen",
+    "history": "Verlauf",
+    "map": "Karte",
+    "profile": "Profil"
+  },
+  "login": {
+    "tagline": "Präzise Kraftstoffverfolgung",
+    "description": "Überwachen Sie die Effizienz, verwalten Sie Ihre Flotte und exportieren Sie professionelle Berichte in einer nahtlosen mobilen Erfahrung.",
+    "getStarted": "Mit Google starten",
+    "initializing": "Initialisierung...",
+    "error": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+  "quickLog": {
+    "title": "Neuer Kraftstoffeintrag",
+    "loadingVehicles": "Fahrzeuge werden geladen...",
+    "noVehicles": {
+      "heading": "Keine Fahrzeuge gefunden",
+      "subtext": "Sie benötigen mindestens ein Fahrzeug, um mit der Kraftstofferfassung zu beginnen.",
+      "cta": "Erstes Fahrzeug hinzufügen"
+    },
+    "sections": {
+      "vehicleStation": "Fahrzeug & Tankstelle",
+      "fuelCost": "Kraftstoff & Kosten",
+      "receipt": "Quittung"
+    },
+    "fields": {
+      "vehicle": "Fahrzeug",
+      "fillingStation": "Tankstelle",
+      "fillingStationOptional": "Optional",
+      "fillingStationPlaceholder": "z.B. Aral, Shell",
+      "totalCost": "Gesamtkosten",
+      "currency": "Währung",
+      "distance": "Dist (Km)",
+      "fuel": "Kraftstoff (L)",
+      "exchangeRate": "Kurs (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Wird abgerufen...",
+      "converted": "Umgerechnet: {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Eintrag speichern",
+      "saving": "Wird gespeichert...",
+      "locating": "Standort wird ermittelt..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "Sie müssen angemeldet sein, um zu speichern.",
+      "addVehicleFirst": "Bitte fügen Sie zuerst ein Fahrzeug in Ihrem Profil hinzu.",
+      "selectVehicle": "Bitte wählen Sie ein Fahrzeug aus.",
+      "fillRequired": "Bitte füllen Sie Kosten, Distanz und Kraftstoffmenge aus.",
+      "validNumbers": "Kosten, Distanz (Km) und Kraftstoffmenge müssen gültige positive Zahlen sein.",
+      "gettingLocation": "Standort wird ermittelt...",
+      "locationCaptured": "Standort erfasst (Genauigkeit: {{accuracy}}m).",
+      "locationNotSupported": "Standort wird vom Browser nicht unterstützt.",
+      "savingLog": "{{locationMsg}} Eintrag wird gespeichert...",
+      "uploadingReceipt": "Quittungsfoto wird hochgeladen...",
+      "savedSuccess": "Eintrag erfolgreich gespeichert!",
+      "savedNoLocation": "Eintrag erfolgreich gespeichert! (Standort nicht erfasst)",
+      "saveError": "Fehler beim Speichern. Bitte versuchen Sie es erneut.",
+      "fetchRateError": "Fehler beim Abrufen des {{currency}}-Kurses. Bitte manuell einstellen."
+    }
+  },
+  "history": {
+    "title": "Kraftstoffverlauf",
+    "loading": "Verlauf wird geladen...",
+    "noLogs": "Noch keine Kraftstoffeinträge.",
+    "noLogsForFilter": "Keine Einträge für den ausgewählten Zeitraum.",
+    "exportPdf": "PDF exportieren",
+    "viewMode": {
+      "list": "Liste",
+      "chart": "Diagramm",
+      "summary": "Zusammenfassung"
+    },
+    "filter": {
+      "all": "Alle",
+      "thisMonth": "Dieser Monat",
+      "last3Months": "Letzte 3 Monate",
+      "thisYear": "Dieses Jahr"
+    },
+    "chart": {
+      "fuelCost": "Kraftstoffkosten",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Kosten/Meile"
+    },
+    "summary": {
+      "totalSpend": "Gesamtausgaben",
+      "totalFuel": "Kraftstoff gesamt",
+      "totalDistance": "Gesamtdistanz",
+      "avgEfficiency": "Ø Effizienz",
+      "avgCostPerKm": "Ø Kosten/Km",
+      "entries": "Einträge"
+    },
+    "edit": {
+      "title": "Eintrag bearbeiten",
+      "brand": "Tankstelle",
+      "cost": "Gesamtkosten ({{currency}})",
+      "distance": "Distanz (Km)",
+      "fuel": "Kraftstoffmenge (L)",
+      "save": "Änderungen speichern",
+      "saving": "Wird gespeichert...",
+      "cancel": "Abbrechen",
+      "receipt": "Quittungsfoto"
+    },
+    "delete": {
+      "confirm": "Diesen Eintrag löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "loadError": "Fehler beim Laden des Kraftstoffverlaufs. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "deleteError": "Fehler beim Löschen des Eintrags. Bitte versuchen Sie es erneut.",
+    "updateError": "Fehler beim Aktualisieren. Bitte versuchen Sie es erneut."
+  },
+  "logCard": {
+    "distance": "Distanz",
+    "fuelAdded": "Kraftstoff getankt",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Kosten/Meile",
+    "receipt": "Quittung",
+    "tapToViewMap": "Zum Anzeigen der Karte tippen",
+    "noLocation": "Kein Standort",
+    "unknownStation": "Unbekannte Tankstelle",
+    "editEntry": "Eintrag bearbeiten",
+    "deleteEntry": "Eintrag löschen"
+  },
+  "profile": {
+    "appPreferences": "App-Einstellungen",
+    "homeCurrency": "Heimwährung",
+    "homeCurrencyDesc": "Legen Sie Ihre Hauptwährung für alle Einträge und Analysen fest.",
+    "measurementUnits": "Maßeinheiten",
+    "measurementUnitsSoon": "Demnächst: Umschalten zwischen Metrisch (Km/L) und Imperial (MPG).",
+    "vehicleFleet": "Fahrzeugflotte",
+    "vehicleFleetSubtext": "Verwalten Sie Ihre Autos und Mietwagen.",
+    "showArchived": "Archivierte anzeigen ({{count}})",
+    "hideArchived": "Archivierte ausblenden",
+    "archivedFleet": "Archivierte Flotte",
+    "noActiveVehicles": "Keine aktiven Fahrzeuge.",
+    "noActiveVehiclesSubtext": "Fügen Sie unten ein Fahrzeug hinzu, um mit der Verfolgung zu beginnen.",
+    "addNewVehicle": "Neues Fahrzeug hinzufügen",
+    "vehicleCard": {
+      "primary": "Primär",
+      "makeDefault": "Als Standard festlegen",
+      "archive": "Archivieren",
+      "restore": "Wiederherstellen",
+      "delete": "Löschen"
+    },
+    "vehicleForm": {
+      "nickname": "Spitzname / Name",
+      "nicknamePlaceholder": "z.B. Mein Polo",
+      "make": "Marke",
+      "makePlaceholder": "z.B. VW",
+      "model": "Modell",
+      "modelPlaceholder": "z.B. Polo",
+      "year": "Jahr",
+      "fuelType": "Kraftstofftyp",
+      "fuelTypes": {
+        "petrol": "Benzin",
+        "diesel": "Diesel",
+        "hybrid": "Hybrid",
+        "electric": "Elektrisch"
+      },
+      "setAsDefault": "Als Standardfahrzeug festlegen",
+      "register": "Fahrzeug registrieren",
+      "registering": "Initialisierung..."
+    },
+    "messages": {
+      "vehicleAdded": "Fahrzeug erfolgreich hinzugefügt!",
+      "failedToAdd": "Fehler beim Hinzufügen des Fahrzeugs. Bitte versuchen Sie es erneut.",
+      "permissionDenied": "Zugriff verweigert. Bitte überprüfen Sie die Firestore-Sicherheitsregeln.",
+      "failedToDelete": "Fehler beim Löschen des Fahrzeugs.",
+      "permissionDeniedDelete": "Zugriff zum Löschen verweigert.",
+      "failedToSetDefault": "Fehler beim Festlegen des Standardfahrzeugs.",
+      "permissionDeniedDefault": "Zugriff zur Aktualisierung der Standards verweigert.",
+      "deleteConfirm": "Sind Sie sicher? Einträge werden nicht gelöscht, aber die Verknüpfung wird aufgehoben."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Automatisch mit KI ausfüllen",
+    "analyzing": "Analyse läuft...",
+    "extractionResults": "KI-Extraktionsergebnisse:",
+    "cost": "Kosten",
+    "litres": "Liter",
+    "brand": "Marke",
+    "notFound": "Nicht gefunden",
+    "useValues": "Werte übernehmen",
+    "discard": "Verwerfen",
+    "extractionFailed": "Fehler beim Extrahieren der Daten aus der Quittung.",
+    "autoFilled": "Felder automatisch aus der Quittung ausgefüllt!"
+  },
+  "apiTokens": {
+    "title": "API-Zugang",
+    "subtitle": "Verbinden Sie Claude und andere LLMs über MCP mit Ihren Kraftstoffdaten",
+    "newToken": "Neues Token",
+    "createToken": "Neues API-Token erstellen",
+    "tokenName": "Token-Name",
+    "tokenNamePlaceholder": "z.B. Claude Desktop - Zuhause",
+    "permissions": "Berechtigungen",
+    "scopes": {
+      "readLogs": "Einträge lesen",
+      "writeLogs": "Einträge schreiben",
+      "readVehicles": "Fahrzeuge lesen",
+      "writeVehicles": "Fahrzeuge schreiben"
+    },
+    "generate": "Token generieren",
+    "generating": "Wird generiert…",
+    "cancel": "Abbrechen",
+    "loadingTokens": "Tokens werden geladen…",
+    "noTokens": "Noch keine API-Tokens",
+    "noTokensSubtext": "Generieren Sie ein Token, um Claude Desktop oder ein MCP-kompatibles LLM mit Ihren Fuelog-Daten zu verbinden.",
+    "created": "API-Token erstellt",
+    "copyWarning": "Dieses Token wird nicht erneut angezeigt. Kopieren Sie es jetzt.",
+    "yourToken": "Ihr API-Token",
+    "claudeConfig": "Claude Desktop Konfiguration",
+    "claudeConfigNote": "Fügen Sie dies in Ihre {{file}} unter {{section}} ein.",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "done": "Fertig, ich habe mein Token gespeichert",
+    "revokeConfirm": "Widerrufen?",
+    "revokeYes": "Ja, widerrufen",
+    "revoke": "Widerrufen",
+    "created_at": "Erstellt {{date}}",
+    "last_used": "Zuletzt verwendet: {{date}}",
+    "never": "Nie",
+    "errors": {
+      "enterName": "Bitte geben Sie einen Namen für dieses Token ein.",
+      "selectScope": "Wählen Sie mindestens eine Berechtigung aus.",
+      "failedCreate": "Fehler beim Erstellen des Tokens. Bitte versuchen Sie es erneut.",
+      "permissionDenied": "Zugriff verweigert — die Firestore-Regeln für die apiTokens-Sammlung sind möglicherweise noch nicht bereitgestellt. Siehe docs/MCP.md für Einrichtungsanweisungen."
+    }
+  },
+  "about": {
+    "title": "Über den Kraftstoff-Tracker",
+    "description": "Fuel Tracker ist eine Web-App, die Ihnen hilft, Ihren Kraftstoffverbrauch und Ihre Kosten zu verfolgen.",
+    "featuresTitle": "Funktionen",
+    "features": {
+      "track": "Kraftstoffverbrauch und Kosten verfolgen",
+      "history": "Verlauf der Kraftstoffeinträge anzeigen",
+      "import": "Einträge aus einer CSV-Datei importieren",
+      "quickLog": "Kraftstoffkäufe schnell erfassen"
+    },
+    "loginPrompt": "Um auf weitere Funktionen zuzugreifen, bitte",
+    "login": "anmelden"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "saving": "Wird gespeichert...",
+    "error": "Ein Fehler ist aufgetreten.",
+    "optional": "Optional"
+  },
+  "language": {
+    "label": "Sprache",
+    "en": "English",
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어"
+  }
+}

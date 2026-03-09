@@ -251,6 +251,11 @@
   "language": {
     "label": "Teanga",
     "en": "English",
-    "ga": "Gaeilge"
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어"
   }
 }

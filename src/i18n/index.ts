@@ -4,6 +4,11 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import en from './locales/en.json';
 import ga from './locales/ga.json';
+import es from './locales/es.json';
+import fr from './locales/fr.json';
+import de from './locales/de.json';
+import ja from './locales/ja.json';
+import ko from './locales/ko.json';
 
 i18n
   .use(LanguageDetector)
@@ -12,9 +17,14 @@ i18n
     resources: {
       en: { translation: en },
       ga: { translation: ga },
+      es: { translation: es },
+      fr: { translation: fr },
+      de: { translation: de },
+      ja: { translation: ja },
+      ko: { translation: ko },
     },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'ga'],
+    supportedLngs: ['en', 'ga', 'es', 'fr', 'de', 'ja', 'ko'],
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],

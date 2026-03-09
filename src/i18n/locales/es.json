@@ -1,0 +1,261 @@
+{
+  "nav": {
+    "log": "Registrar",
+    "history": "Historial",
+    "map": "Mapa",
+    "profile": "Perfil"
+  },
+  "login": {
+    "tagline": "Seguimiento de Combustible Preciso",
+    "description": "Monitorea la eficiencia, administra tu flota y exporta informes profesionales en una experiencia móvil fluida.",
+    "getStarted": "Comenzar con Google",
+    "initializing": "Iniciando...",
+    "error": "Error al iniciar sesión. Por favor, inténtalo de nuevo."
+  },
+  "quickLog": {
+    "title": "Nuevo Registro de Combustible",
+    "loadingVehicles": "Cargando vehículos...",
+    "noVehicles": {
+      "heading": "No se encontraron vehículos",
+      "subtext": "Necesitas al menos un vehículo para empezar a registrar combustible.",
+      "cta": "Añadir Tu Primer Vehículo"
+    },
+    "sections": {
+      "vehicleStation": "Vehículo y Estación",
+      "fuelCost": "Combustible y Coste",
+      "receipt": "Recibo"
+    },
+    "fields": {
+      "vehicle": "Vehículo",
+      "fillingStation": "Estación de Servicio",
+      "fillingStationOptional": "Opcional",
+      "fillingStationPlaceholder": "p.ej., Repsol, Cepsa",
+      "totalCost": "Coste Total",
+      "currency": "Divisa",
+      "distance": "Dist (Km)",
+      "fuel": "Combustible (L)",
+      "exchangeRate": "Tasa (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Obteniendo...",
+      "converted": "Convertido: {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Guardar Registro",
+      "saving": "Guardando...",
+      "locating": "Localizando..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "Debes iniciar sesión para guardar.",
+      "addVehicleFirst": "Por favor, añade un vehículo en tu Perfil primero.",
+      "selectVehicle": "Por favor, selecciona un vehículo.",
+      "fillRequired": "Por favor, completa el Coste, Distancia y Cantidad de Combustible.",
+      "validNumbers": "El Coste, Distancia (Km) y Cantidad de Combustible deben ser números positivos válidos.",
+      "gettingLocation": "Intentando obtener la ubicación...",
+      "locationCaptured": "Ubicación capturada (Precisión: {{accuracy}}m).",
+      "locationNotSupported": "Ubicación no compatible con el navegador.",
+      "savingLog": "{{locationMsg}} Guardando registro...",
+      "uploadingReceipt": "Subiendo foto del recibo...",
+      "savedSuccess": "¡Registro guardado exitosamente!",
+      "savedNoLocation": "¡Registro guardado exitosamente! (Ubicación no capturada)",
+      "saveError": "Error al guardar el registro. Por favor, inténtalo de nuevo.",
+      "fetchRateError": "Error al obtener la tasa de {{currency}}. Por favor, configúrala manualmente."
+    }
+  },
+  "history": {
+    "title": "Historial de Combustible",
+    "loading": "Cargando historial...",
+    "noLogs": "Aún no hay registros de combustible.",
+    "noLogsForFilter": "No hay registros para el período seleccionado.",
+    "exportPdf": "Exportar PDF",
+    "viewMode": {
+      "list": "Lista",
+      "chart": "Gráfico",
+      "summary": "Resumen"
+    },
+    "filter": {
+      "all": "Todo",
+      "thisMonth": "Este Mes",
+      "last3Months": "Últimos 3 Meses",
+      "thisYear": "Este Año"
+    },
+    "chart": {
+      "fuelCost": "Coste de Combustible",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Coste/Milla"
+    },
+    "summary": {
+      "totalSpend": "Gasto Total",
+      "totalFuel": "Combustible Total",
+      "totalDistance": "Distancia Total",
+      "avgEfficiency": "Eficiencia Media",
+      "avgCostPerKm": "Coste Medio/Km",
+      "entries": "Entradas"
+    },
+    "edit": {
+      "title": "Editar Entrada",
+      "brand": "Estación de Servicio",
+      "cost": "Coste Total ({{currency}})",
+      "distance": "Distancia (Km)",
+      "fuel": "Cantidad de Combustible (L)",
+      "save": "Guardar Cambios",
+      "saving": "Guardando...",
+      "cancel": "Cancelar",
+      "receipt": "Foto del Recibo"
+    },
+    "delete": {
+      "confirm": "¿Eliminar esta entrada? Esta acción no se puede deshacer."
+    },
+    "loadError": "Error al cargar el historial de combustible. Por favor, comprueba tu conexión e inténtalo de nuevo.",
+    "deleteError": "Error al eliminar la entrada. Por favor, inténtalo de nuevo.",
+    "updateError": "Error al actualizar el registro. Por favor, inténtalo de nuevo."
+  },
+  "logCard": {
+    "distance": "Distancia",
+    "fuelAdded": "Combustible Añadido",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Coste/Milla",
+    "receipt": "Recibo",
+    "tapToViewMap": "Toca para ver el mapa",
+    "noLocation": "Sin ubicación",
+    "unknownStation": "Estación Desconocida",
+    "editEntry": "Editar Entrada",
+    "deleteEntry": "Eliminar Entrada"
+  },
+  "profile": {
+    "appPreferences": "Preferencias de la App",
+    "homeCurrency": "Divisa Local",
+    "homeCurrencyDesc": "Establece tu divisa principal para todos los registros y análisis.",
+    "measurementUnits": "Unidades de Medida",
+    "measurementUnitsSoon": "Próximamente: Cambio entre Métrico (Km/L) e Imperial (MPG).",
+    "vehicleFleet": "Flota de Vehículos",
+    "vehicleFleetSubtext": "Administra tus coches y alquileres.",
+    "showArchived": "Mostrar Archivados ({{count}})",
+    "hideArchived": "Ocultar Archivados",
+    "archivedFleet": "Flota Archivada",
+    "noActiveVehicles": "No hay vehículos activos.",
+    "noActiveVehiclesSubtext": "Añade un vehículo abajo para empezar a rastrear.",
+    "addNewVehicle": "Añadir Nuevo Vehículo",
+    "vehicleCard": {
+      "primary": "Principal",
+      "makeDefault": "Establecer como Predeterminado",
+      "archive": "Archivar",
+      "restore": "Restaurar",
+      "delete": "Eliminar"
+    },
+    "vehicleForm": {
+      "nickname": "Apodo / Nombre",
+      "nicknamePlaceholder": "p.ej. Mi Polo",
+      "make": "Marca",
+      "makePlaceholder": "p.ej. VW",
+      "model": "Modelo",
+      "modelPlaceholder": "p.ej. Polo",
+      "year": "Año",
+      "fuelType": "Tipo de Combustible",
+      "fuelTypes": {
+        "petrol": "Gasolina",
+        "diesel": "Diésel",
+        "hybrid": "Híbrido",
+        "electric": "Eléctrico"
+      },
+      "setAsDefault": "Establecer como vehículo predeterminado",
+      "register": "Registrar Vehículo",
+      "registering": "Iniciando..."
+    },
+    "messages": {
+      "vehicleAdded": "¡Vehículo añadido exitosamente!",
+      "failedToAdd": "Error al añadir el vehículo. Por favor, inténtalo de nuevo.",
+      "permissionDenied": "Permiso denegado. Por favor, comprueba las reglas de seguridad de Firestore.",
+      "failedToDelete": "Error al eliminar el vehículo.",
+      "permissionDeniedDelete": "Permiso denegado para eliminar.",
+      "failedToSetDefault": "Error al establecer el vehículo predeterminado.",
+      "permissionDeniedDefault": "Permiso denegado para actualizar los valores predeterminados.",
+      "deleteConfirm": "¿Estás seguro? No se eliminarán los registros, pero se desvincularan."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Autocompletar con IA",
+    "analyzing": "Analizando...",
+    "extractionResults": "Resultados de Extracción de IA:",
+    "cost": "Coste",
+    "litres": "Litros",
+    "brand": "Marca",
+    "notFound": "No encontrado",
+    "useValues": "Usar Valores",
+    "discard": "Descartar",
+    "extractionFailed": "Error al extraer datos del recibo.",
+    "autoFilled": "¡Campos autocompletados desde el recibo!"
+  },
+  "apiTokens": {
+    "title": "Acceso API",
+    "subtitle": "Conecta Claude y otros LLMs a tus datos de combustible vía MCP",
+    "newToken": "Nuevo token",
+    "createToken": "Crear nuevo token API",
+    "tokenName": "Nombre del token",
+    "tokenNamePlaceholder": "p.ej. Claude Desktop - Casa",
+    "permissions": "Permisos",
+    "scopes": {
+      "readLogs": "Leer registros",
+      "writeLogs": "Escribir registros",
+      "readVehicles": "Leer vehículos",
+      "writeVehicles": "Escribir vehículos"
+    },
+    "generate": "Generar token",
+    "generating": "Generando…",
+    "cancel": "Cancelar",
+    "loadingTokens": "Cargando tokens…",
+    "noTokens": "Aún no hay tokens API",
+    "noTokensSubtext": "Genera un token para conectar Claude Desktop o cualquier LLM compatible con MCP a tus datos de Fuelog.",
+    "created": "Token API Creado",
+    "copyWarning": "Este token no se mostrará de nuevo. Cópialo ahora.",
+    "yourToken": "Tu Token API",
+    "claudeConfig": "Configuración de Claude Desktop",
+    "claudeConfigNote": "Añade esto a tu {{file}} bajo {{section}}.",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "done": "Listo, he guardado mi token",
+    "revokeConfirm": "¿Revocar?",
+    "revokeYes": "Sí, revocar",
+    "revoke": "Revocar",
+    "created_at": "Creado {{date}}",
+    "last_used": "Último uso: {{date}}",
+    "never": "Nunca",
+    "errors": {
+      "enterName": "Por favor, introduce un nombre para este token.",
+      "selectScope": "Selecciona al menos un permiso.",
+      "failedCreate": "Error al crear el token. Por favor, inténtalo de nuevo.",
+      "permissionDenied": "Permiso denegado — puede que las reglas de Firestore para la colección apiTokens no estén desplegadas aún. Consulta docs/MCP.md para instrucciones de configuración."
+    }
+  },
+  "about": {
+    "title": "Acerca del Rastreador de Combustible",
+    "description": "Fuel Tracker es una aplicación web que te ayuda a rastrear tu consumo y costes de combustible.",
+    "featuresTitle": "Características",
+    "features": {
+      "track": "Rastrear consumo y costes de combustible",
+      "history": "Ver historial de registros de combustible",
+      "import": "Importar registros desde un archivo CSV",
+      "quickLog": "Registrar compras de combustible rápidamente"
+    },
+    "loginPrompt": "Para acceder a más funciones, por favor",
+    "login": "inicia sesión"
+  },
+  "common": {
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "error": "Ocurrió un error.",
+    "optional": "Opcional"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "English",
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어"
+  }
+}

@@ -1,0 +1,261 @@
+{
+  "nav": {
+    "log": "Saisir",
+    "history": "Historique",
+    "map": "Carte",
+    "profile": "Profil"
+  },
+  "login": {
+    "tagline": "Suivi de Carburant Précis",
+    "description": "Surveillez l'efficacité, gérez votre flotte et exportez des rapports professionnels dans une expérience mobile fluide.",
+    "getStarted": "Commencer avec Google",
+    "initializing": "Initialisation...",
+    "error": "Échec de la connexion. Veuillez réessayer."
+  },
+  "quickLog": {
+    "title": "Nouvelle Saisie de Carburant",
+    "loadingVehicles": "Chargement des véhicules...",
+    "noVehicles": {
+      "heading": "Aucun véhicule trouvé",
+      "subtext": "Vous avez besoin d'au moins un véhicule pour commencer à enregistrer du carburant.",
+      "cta": "Ajouter Votre Premier Véhicule"
+    },
+    "sections": {
+      "vehicleStation": "Véhicule et Station",
+      "fuelCost": "Carburant et Coût",
+      "receipt": "Reçu"
+    },
+    "fields": {
+      "vehicle": "Véhicule",
+      "fillingStation": "Station-service",
+      "fillingStationOptional": "Optionnel",
+      "fillingStationPlaceholder": "p.ex., Total, BP",
+      "totalCost": "Coût Total",
+      "currency": "Devise",
+      "distance": "Dist (Km)",
+      "fuel": "Carburant (L)",
+      "exchangeRate": "Taux (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Récupération...",
+      "converted": "Converti : {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Enregistrer la Saisie",
+      "saving": "Enregistrement...",
+      "locating": "Localisation..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "Vous devez être connecté pour sauvegarder.",
+      "addVehicleFirst": "Veuillez d'abord ajouter un véhicule dans votre Profil.",
+      "selectVehicle": "Veuillez sélectionner un véhicule.",
+      "fillRequired": "Veuillez remplir le Coût, la Distance et la Quantité de Carburant.",
+      "validNumbers": "Le Coût, la Distance (Km) et la Quantité de Carburant doivent être des nombres positifs valides.",
+      "gettingLocation": "Tentative d'obtention de la localisation...",
+      "locationCaptured": "Localisation capturée (Précision : {{accuracy}}m).",
+      "locationNotSupported": "Localisation non prise en charge par le navigateur.",
+      "savingLog": "{{locationMsg}} Enregistrement...",
+      "uploadingReceipt": "Téléversement de la photo du reçu...",
+      "savedSuccess": "Saisie enregistrée avec succès !",
+      "savedNoLocation": "Saisie enregistrée avec succès ! (Localisation non capturée)",
+      "saveError": "Erreur lors de l'enregistrement. Veuillez réessayer.",
+      "fetchRateError": "Échec de la récupération du taux {{currency}}. Veuillez le définir manuellement."
+    }
+  },
+  "history": {
+    "title": "Historique de Carburant",
+    "loading": "Chargement de l'historique...",
+    "noLogs": "Aucune saisie de carburant pour l'instant.",
+    "noLogsForFilter": "Aucune saisie pour la période sélectionnée.",
+    "exportPdf": "Exporter en PDF",
+    "viewMode": {
+      "list": "Liste",
+      "chart": "Graphique",
+      "summary": "Résumé"
+    },
+    "filter": {
+      "all": "Tout",
+      "thisMonth": "Ce Mois",
+      "last3Months": "3 Derniers Mois",
+      "thisYear": "Cette Année"
+    },
+    "chart": {
+      "fuelCost": "Coût du Carburant",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Coût/Mile"
+    },
+    "summary": {
+      "totalSpend": "Dépenses Totales",
+      "totalFuel": "Carburant Total",
+      "totalDistance": "Distance Totale",
+      "avgEfficiency": "Efficacité Moyenne",
+      "avgCostPerKm": "Coût Moyen/Km",
+      "entries": "Saisies"
+    },
+    "edit": {
+      "title": "Modifier la Saisie",
+      "brand": "Station-service",
+      "cost": "Coût Total ({{currency}})",
+      "distance": "Distance (Km)",
+      "fuel": "Quantité de Carburant (L)",
+      "save": "Enregistrer les Modifications",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler",
+      "receipt": "Photo du Reçu"
+    },
+    "delete": {
+      "confirm": "Supprimer cette saisie ? Cette action est irréversible."
+    },
+    "loadError": "Échec du chargement de l'historique. Vérifiez votre connexion et réessayez.",
+    "deleteError": "Échec de la suppression de la saisie. Veuillez réessayer.",
+    "updateError": "Échec de la mise à jour. Veuillez réessayer."
+  },
+  "logCard": {
+    "distance": "Distance",
+    "fuelAdded": "Carburant Ajouté",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Coût/Mile",
+    "receipt": "Reçu",
+    "tapToViewMap": "Appuyer pour voir la carte",
+    "noLocation": "Pas de localisation",
+    "unknownStation": "Station Inconnue",
+    "editEntry": "Modifier la Saisie",
+    "deleteEntry": "Supprimer la Saisie"
+  },
+  "profile": {
+    "appPreferences": "Préférences de l'App",
+    "homeCurrency": "Devise Locale",
+    "homeCurrencyDesc": "Définissez votre devise principale pour toutes les saisies et analyses.",
+    "measurementUnits": "Unités de Mesure",
+    "measurementUnitsSoon": "Bientôt : Basculer entre Métrique (Km/L) et Impérial (MPG).",
+    "vehicleFleet": "Flotte de Véhicules",
+    "vehicleFleetSubtext": "Gérez vos voitures et locations.",
+    "showArchived": "Afficher les Archivés ({{count}})",
+    "hideArchived": "Masquer les Archivés",
+    "archivedFleet": "Flotte Archivée",
+    "noActiveVehicles": "Aucun véhicule actif.",
+    "noActiveVehiclesSubtext": "Ajoutez un véhicule ci-dessous pour commencer le suivi.",
+    "addNewVehicle": "Ajouter un Nouveau Véhicule",
+    "vehicleCard": {
+      "primary": "Principal",
+      "makeDefault": "Définir par Défaut",
+      "archive": "Archiver",
+      "restore": "Restaurer",
+      "delete": "Supprimer"
+    },
+    "vehicleForm": {
+      "nickname": "Surnom / Nom",
+      "nicknamePlaceholder": "p.ex. Ma Polo",
+      "make": "Marque",
+      "makePlaceholder": "p.ex. VW",
+      "model": "Modèle",
+      "modelPlaceholder": "p.ex. Polo",
+      "year": "Année",
+      "fuelType": "Type de Carburant",
+      "fuelTypes": {
+        "petrol": "Essence",
+        "diesel": "Diesel",
+        "hybrid": "Hybride",
+        "electric": "Électrique"
+      },
+      "setAsDefault": "Définir comme véhicule par défaut",
+      "register": "Enregistrer le Véhicule",
+      "registering": "Initialisation..."
+    },
+    "messages": {
+      "vehicleAdded": "Véhicule ajouté avec succès !",
+      "failedToAdd": "Échec de l'ajout du véhicule. Veuillez réessayer.",
+      "permissionDenied": "Permission refusée. Veuillez vérifier les règles de sécurité Firestore.",
+      "failedToDelete": "Échec de la suppression du véhicule.",
+      "permissionDeniedDelete": "Permission refusée pour la suppression.",
+      "failedToSetDefault": "Échec de la définition du véhicule par défaut.",
+      "permissionDeniedDefault": "Permission refusée pour mettre à jour les valeurs par défaut.",
+      "deleteConfirm": "Êtes-vous sûr ? Les saisies ne seront pas supprimées mais seront dissociées."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Remplissage auto avec IA",
+    "analyzing": "Analyse en cours...",
+    "extractionResults": "Résultats d'Extraction IA :",
+    "cost": "Coût",
+    "litres": "Litres",
+    "brand": "Marque",
+    "notFound": "Non trouvé",
+    "useValues": "Utiliser les Valeurs",
+    "discard": "Ignorer",
+    "extractionFailed": "Échec de l'extraction des données du reçu.",
+    "autoFilled": "Champs remplis automatiquement depuis le reçu !"
+  },
+  "apiTokens": {
+    "title": "Accès API",
+    "subtitle": "Connectez Claude et d'autres LLMs à vos données de carburant via MCP",
+    "newToken": "Nouveau token",
+    "createToken": "Créer un nouveau token API",
+    "tokenName": "Nom du token",
+    "tokenNamePlaceholder": "p.ex. Claude Desktop - Maison",
+    "permissions": "Permissions",
+    "scopes": {
+      "readLogs": "Lire les saisies",
+      "writeLogs": "Écrire les saisies",
+      "readVehicles": "Lire les véhicules",
+      "writeVehicles": "Écrire les véhicules"
+    },
+    "generate": "Générer le token",
+    "generating": "Génération…",
+    "cancel": "Annuler",
+    "loadingTokens": "Chargement des tokens…",
+    "noTokens": "Aucun token API pour l'instant",
+    "noTokensSubtext": "Générez un token pour connecter Claude Desktop ou tout LLM compatible MCP à vos données Fuelog.",
+    "created": "Token API Créé",
+    "copyWarning": "Ce token ne sera plus affiché. Copiez-le maintenant.",
+    "yourToken": "Votre Token API",
+    "claudeConfig": "Configuration Claude Desktop",
+    "claudeConfigNote": "Ajoutez ceci à votre {{file}} sous {{section}}.",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "done": "Terminé, j'ai sauvegardé mon token",
+    "revokeConfirm": "Révoquer ?",
+    "revokeYes": "Oui, révoquer",
+    "revoke": "Révoquer",
+    "created_at": "Créé le {{date}}",
+    "last_used": "Dernière utilisation : {{date}}",
+    "never": "Jamais",
+    "errors": {
+      "enterName": "Veuillez saisir un nom pour ce token.",
+      "selectScope": "Sélectionnez au moins une permission.",
+      "failedCreate": "Échec de la création du token. Veuillez réessayer.",
+      "permissionDenied": "Permission refusée — les règles Firestore pour la collection apiTokens ne sont peut-être pas encore déployées. Consultez docs/MCP.md pour les instructions de configuration."
+    }
+  },
+  "about": {
+    "title": "À Propos du Suivi de Carburant",
+    "description": "Fuel Tracker est une application web qui vous aide à suivre votre consommation et vos coûts de carburant.",
+    "featuresTitle": "Fonctionnalités",
+    "features": {
+      "track": "Suivre la consommation et les coûts de carburant",
+      "history": "Voir l'historique des saisies",
+      "import": "Importer des saisies depuis un fichier CSV",
+      "quickLog": "Enregistrer rapidement les achats de carburant"
+    },
+    "loginPrompt": "Pour accéder à plus de fonctionnalités, veuillez",
+    "login": "vous connecter"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "saving": "Enregistrement...",
+    "error": "Une erreur s'est produite.",
+    "optional": "Optionnel"
+  },
+  "language": {
+    "label": "Langue",
+    "en": "English",
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어"
+  }
+}

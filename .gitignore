@@ -23,8 +23,15 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.local
+.env.*.local
 playwright-report/
 test-results/
 coverage/
 service-account.json
+firebase/service-account.json
 .env.development
+preview_log.txt
+.plans/
+.claude/
+.idx/

@@ -102,3 +102,4 @@ describe('LogCard', () => {
     expect(onDelete).toHaveBeenCalledWith(mockLog.id);
   });
 });
+

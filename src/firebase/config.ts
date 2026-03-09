@@ -1,6 +1,7 @@
 // src/firebase/config.ts
 import { initializeApp, FirebaseApp, FirebaseOptions } from "firebase/app";
 import { getAnalytics, Analytics, isSupported } from "firebase/analytics";
+import { getPerformance, FirebasePerformance } from "firebase/performance";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -91,6 +92,12 @@ const analytics: Promise<Analytics | null> = isSupported().then(supported =>
   supported ? getAnalytics(app) : null
 );
 
+// Initialize Firebase Performance Monitoring — auto-instruments all fetch() calls.
+// Reuses the same isSupported() guard as Analytics.
+const perf: Promise<FirebasePerformance | null> = isSupported().then(supported =>
+  supported ? getPerformance(app) : null
+);
+
 // Google Auth Provider (remains the same)
 const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();
 
@@ -107,6 +114,7 @@ export {
   db,
   storage,
   analytics,
+  perf,
   googleProvider,
   signInWithGoogle,
   logout

@@ -29,7 +29,7 @@ describe('gemini utility', () => {
     // Polyfill FileReader for Node.js environment
     class MockFileReader {
       onload: () => void = () => {};
-      onerror: (err: any) => void = () => {};
+      onerror: (err: unknown) => void = () => {};
       result: string = 'data:image/png;base64,mockbase64data';
       readAsDataURL() {
         setTimeout(() => {
@@ -38,7 +38,7 @@ describe('gemini utility', () => {
       }
     }
 
-    // @ts-ignore
+    // @ts-expect-error - Mocking global object for testing purposes
     global.FileReader = MockFileReader;
   });
 

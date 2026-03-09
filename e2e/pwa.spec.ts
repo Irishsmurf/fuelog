@@ -16,7 +16,7 @@ test.describe('PWA Validation', () => {
     await expect(themeColor).toHaveAttribute('content', '#4f46e5');
   });
 
-  test('should register a service worker', async ({ page, context }) => {
+  test('should register a service worker', async ({ page }) => {
     await page.goto('/');
     
     // In munknown environments (like dev), SW might not be active.

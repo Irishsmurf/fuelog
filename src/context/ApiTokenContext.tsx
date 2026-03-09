@@ -7,7 +7,7 @@ import { db } from '../firebase/config';
 import { useAuth } from './AuthContext';
 import type { ApiToken } from '../utils/types';
 
-const ALL_SCOPES = ['read:logs', 'write:logs', 'read:vehicles', 'write:vehicles'] as const;
+export const ALL_SCOPES = ['read:logs', 'write:logs', 'read:vehicles', 'write:vehicles'] as const;
 export type TokenScope = typeof ALL_SCOPES[number];
 
 interface ApiTokenContextValue {

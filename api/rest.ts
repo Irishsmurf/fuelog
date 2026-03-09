@@ -32,7 +32,7 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
       }
       try {
         resolve(JSON.parse(body));
-      } catch (e) {
+      } catch {
         reject(new Error('Invalid JSON payload'));
       }
     });
@@ -77,7 +77,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     const host = req.headers.host || 'localhost';
     const protocol = req.headers['x-forwarded-proto'] || 'http';
     const url = new URL(req.url || '/', `${protocol}://${host}`);
-    const pathname = url.pathname;
     const type = url.searchParams.get('type') || '';
     const id = url.searchParams.get('id') || '';
 
@@ -145,7 +144,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
           return sendResponse(res, 404, { error: 'Log not found' });
         }
         // Exclude internal fields
-        const { userId: _u, id: _i, timestamp, ...updates } = body;
+        const { timestamp, ...updates } = body;
+        delete updates.userId;
+        delete updates.id;
         if (timestamp) updates.timestamp = Timestamp.fromDate(new Date(timestamp));
 
         await docRef.update(updates);
@@ -230,7 +231,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
              existingSnapshot.docs.forEach(d => { if (d.id !== id) batch.update(d.ref, { isDefault: false }); });
              await batch.commit();
            }
-           const { userId: _u, id: _i, ...updates } = body;
+           const { ...updates } = body;
+           delete updates.userId;
+           delete updates.id;
            await docRef.update(updates);
            return sendResponse(res, 200, { success: true });
        }

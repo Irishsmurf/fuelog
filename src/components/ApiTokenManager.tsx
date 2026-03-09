@@ -185,7 +185,11 @@ export default function ApiTokenManager(): JSX.Element {
   const toggleScope = (scope: TokenScope) => {
     setSelectedScopes(prev => {
       const next = new Set(prev);
-      next.has(scope) ? next.delete(scope) : next.add(scope);
+      if (next.has(scope)) {
+        next.delete(scope);
+      } else {
+        next.add(scope);
+      }
       return next;
     });
   };
@@ -200,7 +204,7 @@ export default function ApiTokenManager(): JSX.Element {
       setTokenName('');
       setSelectedScopes(new Set(['read:logs', 'read:vehicles']));
       setShowForm(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err?.code === 'permission-denied') {
         setError(t('apiTokens.errors.permissionDenied'));
       } else {

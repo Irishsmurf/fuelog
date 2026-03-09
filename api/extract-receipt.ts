@@ -50,7 +50,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   try {
     const adminApp = getAdminApp();
     await getAuth(adminApp).verifyIdToken(idToken);
-  } catch {
+  } catch (err) {
+    console.error('[extract-receipt] ID token verification failed:', err);
     return sendResponse(res, 401, { error: 'Invalid or expired ID token' });
   }
 

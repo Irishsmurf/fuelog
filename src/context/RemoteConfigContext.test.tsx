@@ -27,8 +27,8 @@ describe('RemoteConfigContext', () => {
   });
 
   it('provides loading state and values after activation', async () => {
-    (rcService.activateRemoteConfig as any).mockResolvedValue(true);
-    (rcService.getBoolean as any).mockReturnValue(true);
+    vi.mocked(rcService.activateRemoteConfig).mockResolvedValue(true);
+    vi.mocked(rcService.getBoolean).mockReturnValue(true);
 
     render(
       <RemoteConfigProvider>
@@ -50,8 +50,8 @@ describe('RemoteConfigContext', () => {
   });
 
   it('handles activation failure gracefully', async () => {
-    (rcService.activateRemoteConfig as any).mockRejectedValue(new Error('Fetch failed'));
-    (rcService.getBoolean as any).mockReturnValue(false);
+    vi.mocked(rcService.activateRemoteConfig).mockRejectedValue(new Error('Fetch failed'));
+    vi.mocked(rcService.getBoolean).mockReturnValue(false);
 
     render(
       <RemoteConfigProvider>

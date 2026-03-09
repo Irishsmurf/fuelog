@@ -7,6 +7,10 @@ on:
       - 'src/**/*.ts'
       - 'src/i18n/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   i18n-check:
     name: Check i18n compliance
@@ -26,13 +30,17 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
-      - name: Check translation key parity (en ↔ ga)
+      - name: Check translation key parity (All Locales)
         run: |
           node - <<'EOF'
-          const fs = require('fs');
+          import fs from 'fs';
+          import path from 'path';
 
-          const en = JSON.parse(fs.readFileSync('src/i18n/locales/en.json', 'utf8'));
-          const ga = JSON.parse(fs.readFileSync('src/i18n/locales/ga.json', 'utf8'));
+          const localesDir = 'src/i18n/locales';
+          const files = fs.readdirSync(localesDir).filter(f => f.endsWith('.json'));
+          
+          const baseFile = 'en.json';
+          const baseData = JSON.parse(fs.readFileSync(path.join(localesDir, baseFile), 'utf8'));
 
           function getKeys(obj, prefix = '') {
             return Object.entries(obj).flatMap(([k, v]) => {
@@ -43,32 +51,38 @@ jobs:
             });
           }
 
-          const enKeys = new Set(getKeys(en));
-          const gaKeys = new Set(getKeys(ga));
-
-          const missingInGa = [...enKeys].filter(k => !gaKeys.has(k));
-          const missingInEn = [...gaKeys].filter(k => !enKeys.has(k));
-
+          const baseKeys = new Set(getKeys(baseData));
           let failed = false;
 
-          if (missingInGa.length > 0) {
-            console.error('Keys in en.json missing from ga.json:');
-            missingInGa.forEach(k => console.error('  -', k));
-            failed = true;
-          }
+          files.forEach(file => {
+            if (file === baseFile) return;
+            
+            console.log(`Checking ${file} against ${baseFile}...`);
+            const targetData = JSON.parse(fs.readFileSync(path.join(localesDir, file), 'utf8'));
+            const targetKeys = new Set(getKeys(targetData));
 
-          if (missingInEn.length > 0) {
-            console.error('Keys in ga.json missing from en.json:');
-            missingInEn.forEach(k => console.error('  -', k));
-            failed = true;
-          }
+            const missingInTarget = [...baseKeys].filter(k => !targetKeys.has(k));
+            const extraInTarget = [...targetKeys].filter(k => !baseKeys.has(k));
+
+            if (missingInTarget.length > 0) {
+              console.error(`  - Keys in ${baseFile} missing from ${file}:`);
+              missingInTarget.forEach(k => console.error(`    - ${k}`));
+              failed = true;
+            }
+
+            if (extraInTarget.length > 0) {
+              console.error(`  - Extra keys in ${file} not found in ${baseFile}:`);
+              extraInTarget.forEach(k => console.error(`    - ${k}`));
+              failed = true;
+            }
+          });
 
           if (failed) {
-            console.error('\nAll keys must exist in both en.json and ga.json.');
+            console.error('\nAll locale files must have the exact same keys as en.json.');
             process.exit(1);
           }
 
-          console.log(`Key parity check passed. ${enKeys.size} keys verified.`);
+          console.log(`Key parity check passed for ${files.length} locales. ${baseKeys.size} keys verified per file.`);
           EOF
 
       - name: Check components/pages use useTranslation (not raw strings)

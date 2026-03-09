@@ -1,5 +1,5 @@
 // src/firebase/config.ts
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp, FirebaseApp, FirebaseOptions } from "firebase/app";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -46,7 +46,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
 }
 
 // Initialize Firebase App (remains the same)
-const app: FirebaseApp = initializeApp(firebaseConfig as any);
+const app: FirebaseApp = initializeApp(firebaseConfig as FirebaseOptions);
 
 // Initialize Firebase Auth (remains the same)
 const auth: Auth = getAuth(app);
@@ -71,7 +71,7 @@ try {
   db = initializeFirestore(app, firestoreSettings);
   console.log("Firestore initialized with offline persistence enabled.");
 
-} catch (error: any) {
+} catch (error: unknown) {
   // Catch potential errors during initialization (e.g., persistence unavailable)
   console.error("Firestore initialization with persistence failed:", error);
   // Fallback: Initialize Firestore without persistence if enabling fails

@@ -42,6 +42,7 @@ export const RemoteConfigProvider: React.FC<{ children: ReactNode }> = ({ childr
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useRemoteConfig = (): RemoteConfigContextProps => {
   const context = useContext(RemoteConfigContext);
   if (context === undefined) {

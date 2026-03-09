@@ -75,8 +75,9 @@ function ProfilePage(): JSX.Element {
       setMessage({ type: 'success', text: t('profile.messages.vehicleAdded') });
       setFormData({ name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol', isDefault: false });
       fetchVehicles();
-    } catch (error: any) {
-      console.error("Error adding vehicle:", error);
+    } catch (err: unknown) {
+      console.error("Error adding vehicle:", err);
+      const error = err as { code?: string };
       const errorMsg = error.code === 'permission-denied'
         ? t('profile.messages.permissionDenied')
         : t('profile.messages.failedToAdd');
@@ -91,8 +92,9 @@ function ProfilePage(): JSX.Element {
     try {
       await deleteDoc(doc(db, "vehicles", id));
       fetchVehicles();
-    } catch (error: any) {
-      console.error("Error deleting vehicle:", error);
+    } catch (err: unknown) {
+      console.error("Error deleting vehicle:", err);
+      const error = err as { code?: string };
       const errorMsg = error.code === 'permission-denied'
         ? t('profile.messages.permissionDeniedDelete')
         : t('profile.messages.failedToDelete');
@@ -103,6 +105,7 @@ function ProfilePage(): JSX.Element {
   const handleArchiveVehicle = async (vehicle: Vehicle) => {
     try {
       const isNowArchived = !vehicle.isArchived;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updates: any = { isArchived: isNowArchived };
 
       if (isNowArchived && vehicle.isDefault) {
@@ -111,8 +114,8 @@ function ProfilePage(): JSX.Element {
 
       await updateDoc(doc(db, "vehicles", vehicle.id), updates);
       fetchVehicles();
-    } catch (error: any) {
-      console.error("Error archiving vehicle:", error);
+    } catch (err: unknown) {
+      console.error("Error archiving vehicle:", err);
     }
   };
 
@@ -125,8 +128,9 @@ function ProfilePage(): JSX.Element {
       });
       await batch.commit();
       fetchVehicles();
-    } catch (error: any) {
-      console.error("Error setting default vehicle:", error);
+    } catch (err: unknown) {
+      console.error("Error setting default vehicle:", err);
+      const error = err as { code?: string };
       const errorMsg = error.code === 'permission-denied'
         ? t('profile.messages.permissionDeniedDefault')
         : t('profile.messages.failedToSetDefault');

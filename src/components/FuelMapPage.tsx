@@ -17,6 +17,7 @@ import { Log } from '../utils/types';
 const iconRetinaUrl = '/marker-icon-2x.png';
 const iconUrl = '/marker-icon.png';
 const shadowUrl = '/marker-shadow.png';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
 // --- End Icon Fix ---

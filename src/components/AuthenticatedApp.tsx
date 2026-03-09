@@ -1,5 +1,6 @@
 import { JSX, lazy, Suspense } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import InstallPrompt from './InstallPrompt';

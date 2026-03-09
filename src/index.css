@@ -2,6 +2,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Configure class-based dark mode for Tailwind 4 */
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Colors: Fuelog Electric Palette */
   --color-brand-primary: #6366f1;

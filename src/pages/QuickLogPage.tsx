@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import ImageUpload from '../components/ImageUpload';
 import { uploadReceipt } from '../firebase/storageService';
+import { extractDataFromReceipt } from '../utils/gemini';
+import { Sparkles } from 'lucide-react';
 
 // Types
 type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
@@ -28,6 +30,7 @@ function QuickLogPage(): JSX.Element {
   const { user, profile } = useAuth();
   const { getBoolean } = useRemoteConfig();
   const receiptDigitizationEnabled = getBoolean('receiptDigitizationEnabled');
+  const receiptAutoFillEnabled = getBoolean('receiptAutoFillEnabled');
 
   const [brand, setBrand] = useState<string>('');
   const [cost, setCost] = useState<string>('');
@@ -52,6 +55,8 @@ function QuickLogPage(): JSX.Element {
 
   // --- Receipt State ---
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [isExtracting, setIsExtracting] = useState<boolean>(false);
+  const [extractedData, setExtractedData] = useState<{cost: number|null, fuelAmountLiters: number|null, brand: string|null} | null>(null);
 
   // Reset currency when homeCurrency changes (initial load)
   useEffect(() => {
@@ -133,6 +138,41 @@ function QuickLogPage(): JSX.Element {
   const handleRateChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
     setExchangeRate(isNaN(val) ? 0 : val);
+  };
+
+  // --- Handle AI Extraction ---
+  const handleExtractData = async () => {
+    if (!receiptFile) return;
+    setIsExtracting(true);
+    setExtractedData(null);
+    setMessage({ type: 'info', text: 'Analyzing receipt with AI...' });
+    try {
+      const data = await extractDataFromReceipt(receiptFile);
+      setExtractedData(data);
+      setMessage({ type: '', text: '' }); // Clear loading message
+    } catch (error) {
+      console.error("Extraction error:", error);
+      setMessage({ type: 'error', text: 'Failed to extract data from receipt.' });
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
+  // --- Confirm Extracted Data ---
+  const handleConfirmExtraction = () => {
+    if (extractedData) {
+      if (extractedData.cost !== null) setCost(extractedData.cost.toString());
+      if (extractedData.fuelAmountLiters !== null) setFuelAmountLiters(extractedData.fuelAmountLiters.toString());
+      if (extractedData.brand !== null) setBrand(extractedData.brand);
+      setExtractedData(null);
+      setMessage({ type: 'success', text: 'Fields auto-filled from receipt!' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    }
+  };
+
+  // --- Cancel Extraction ---
+  const handleCancelExtraction = () => {
+    setExtractedData(null);
   };
 
   // --- Function to get Geolocation wrapped in a Promise ---
@@ -348,8 +388,62 @@ function QuickLogPage(): JSX.Element {
 
                 {/* Section 3: Receipt Digitization */}
                 {receiptDigitizationEnabled && (
-                  <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                    <ImageUpload onFileSelect={setReceiptFile} />
+                  <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-4">
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Receipt</h3>
+                    <ImageUpload onFileSelect={(file) => {
+                      setReceiptFile(file);
+                      setExtractedData(null); // Reset extracted data on new file
+                    }} />
+
+                    {receiptAutoFillEnabled && receiptFile && (
+                       <div className="mt-4">
+                         {!extractedData ? (
+                            <button
+                              type="button"
+                              onClick={handleExtractData}
+                              disabled={isExtracting}
+                              className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-indigo-200 dark:border-indigo-800 rounded-lg text-sm font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 transition-colors disabled:opacity-50"
+                            >
+                              {isExtracting ? (
+                                <>
+                                  <svg className="animate-spin h-4 w-4 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                  Analyzing...
+                                </>
+                              ) : (
+                                <>
+                                  <Sparkles className="w-4 h-4" />
+                                  Auto-fill with AI
+                                </>
+                              )}
+                            </button>
+                         ) : (
+                           <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 shadow-sm text-sm">
+                             <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">AI Extraction Results:</p>
+                             <ul className="space-y-1 mb-3 text-gray-600 dark:text-gray-400">
+                               <li><span className="font-medium">Cost:</span> {extractedData.cost !== null ? extractedData.cost : 'Not found'}</li>
+                               <li><span className="font-medium">Litres:</span> {extractedData.fuelAmountLiters !== null ? extractedData.fuelAmountLiters : 'Not found'}</li>
+                               <li><span className="font-medium">Brand:</span> {extractedData.brand !== null ? extractedData.brand : 'Not found'}</li>
+                             </ul>
+                             <div className="flex gap-2">
+                               <button
+                                  type="button"
+                                  onClick={handleConfirmExtraction}
+                                  className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-medium transition-colors"
+                               >
+                                 Use Values
+                               </button>
+                               <button
+                                  type="button"
+                                  onClick={handleCancelExtraction}
+                                  className="flex-1 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md font-medium transition-colors"
+                               >
+                                 Discard
+                               </button>
+                             </div>
+                           </div>
+                         )}
+                       </div>
+                    )}
                   </div>
                 )}
 

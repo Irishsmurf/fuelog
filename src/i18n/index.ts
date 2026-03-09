@@ -9,6 +9,12 @@ import fr from './locales/fr.json';
 import de from './locales/de.json';
 import ja from './locales/ja.json';
 import ko from './locales/ko.json';
+import { pseudolocalizeResources } from './pseudolocalize';
+
+const isPseudolocaleEnabled = import.meta.env.VITE_ENABLE_PSEUDOLOCALE === 'true';
+
+const supportedLngs = ['en', 'ga', 'es', 'fr', 'de', 'ja', 'ko'];
+if (isPseudolocaleEnabled) supportedLngs.push('en-XA');
 
 i18n
   .use(LanguageDetector)
@@ -22,9 +28,12 @@ i18n
       de: { translation: de },
       ja: { translation: ja },
       ko: { translation: ko },
+      ...(isPseudolocaleEnabled && {
+        'en-XA': { translation: pseudolocalizeResources(en) },
+      }),
     },
     fallbackLng: 'en',
-    supportedLngs: ['en', 'ga', 'es', 'fr', 'de', 'ja', 'ko'],
+    supportedLngs,
     detection: {
       order: ['localStorage', 'navigator'],
       caches: ['localStorage'],

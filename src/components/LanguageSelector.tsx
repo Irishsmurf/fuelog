@@ -2,7 +2,7 @@ import { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Languages } from 'lucide-react';
 
-const LANGUAGES = [
+const BASE_LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'ga', label: 'Gaeilge' },
   { code: 'es', label: 'Español' },
@@ -11,6 +11,13 @@ const LANGUAGES = [
   { code: 'ja', label: '日本語' },
   { code: 'ko', label: '한국어' },
 ];
+
+const PSEUDOLOCALE = { code: 'en-XA', label: '[[ Þšéûðö ]]' };
+
+const LANGUAGES =
+  import.meta.env.VITE_ENABLE_PSEUDOLOCALE === 'true'
+    ? [...BASE_LANGUAGES, PSEUDOLOCALE]
+    : BASE_LANGUAGES;
 
 function LanguageSelector(): JSX.Element {
   const { i18n, t } = useTranslation();
@@ -23,7 +30,13 @@ function LanguageSelector(): JSX.Element {
     <div className="flex items-center gap-2">
       <Languages size={16} className="text-gray-400 shrink-0" />
       <select
-        value={LANGUAGES.find(lang => i18n.language.startsWith(lang.code))?.code || LANGUAGES[0].code}
+        value={
+          (
+            LANGUAGES.find(lang => i18n.language === lang.code) ??
+            LANGUAGES.find(lang => i18n.language.startsWith(lang.code)) ??
+            LANGUAGES[0]
+          ).code
+        }
         onChange={(e) => handleChange(e.target.value)}
         aria-label={t('language.label')}
         className="text-xs font-bold bg-transparent border-none focus:ring-0 text-gray-600 dark:text-gray-300 cursor-pointer pr-1"

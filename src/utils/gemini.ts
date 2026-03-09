@@ -1,5 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getAuth } from 'firebase/auth';
 import { z } from "zod";
+import { app } from '../firebase/config';
 
 const ReceiptDataSchema = z.object({
   cost: z.number().nullable().optional().transform(v => typeof v === 'number' ? v : null),
@@ -9,95 +10,41 @@ const ReceiptDataSchema = z.object({
 
 export type ReceiptData = z.infer<typeof ReceiptDataSchema>;
 
-// We instantiate inside the function or lazily so tests can mock env vars easily
-let genAIInstance: GoogleGenerativeAI | null = null;
-
-export function __resetGenAIForTest() {
-  genAIInstance = null;
-}
-
-function getGenAI(): GoogleGenerativeAI {
-  if (genAIInstance) return genAIInstance;
-
-  let apiKey: string | undefined;
-
-  if (typeof process !== 'undefined' && process.env && process.env.VITE_GEMINI_API_KEY) {
-      apiKey = process.env.VITE_GEMINI_API_KEY;
-  } else if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) {
-      apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  }
-
-  if (!apiKey) {
-    throw new Error("Gemini API key is not configured.");
-  }
-  genAIInstance = new GoogleGenerativeAI(apiKey);
-  return genAIInstance;
-}
-
-export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
-  const genAI = getGenAI();
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-  const mimeType = file.type;
-
-  // Read file as base64 string
-  const base64Data = await new Promise<string>((resolve, reject) => {
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
-        const result = reader.result as string;
-        // The result is in format "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-        const base64 = result.split(',')[1];
-        resolve(base64);
+      const result = reader.result as string;
+      resolve(result.split(',')[1]);
     };
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
 
-  const prompt = `
-    Analyze this receipt image and extract the following information for a fuel purchase:
-    1. Total Cost (as a number)
-    2. Fuel Amount in Liters (as a number)
-    3. Filling Station Brand Name (as a string)
+export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
+  const auth = getAuth(app);
+  const user = auth.currentUser;
+  if (!user) throw new Error('User is not authenticated.');
 
-    Return ONLY a raw JSON object with exactly these keys: "cost", "fuelAmountLiters", "brand".
-    If a value cannot be found, use null.
-    Do not use markdown formatting like \`\`\`json.
-  `;
+  const idToken = await user.getIdToken();
+  const mimeType = file.type;
+  const base64Data = await fileToBase64(file);
 
-  try {
-    const result = await model.generateContent([
-        prompt,
-        {
-            inlineData: {
-                data: base64Data,
-                mimeType
-            }
-        }
-    ]);
+  const response = await fetch('/api/gemini', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ mimeType, base64Data }),
+  });
 
-    const text = result.response.text();
-    // Parse the JSON string
-    try {
-        let jsonText = text.trim();
-        // The model can sometimes wrap the JSON in markdown backticks.
-        const jsonMatch = jsonText.match(/```(?:json)?\n([\s\S]*?)\n```/s);
-        if (jsonMatch?.[1]) {
-          jsonText = jsonMatch[1];
-        }
-        const parsedJson = JSON.parse(jsonText);
-        const validatedData = ReceiptDataSchema.parse(parsedJson);
-        return {
-            cost: validatedData.cost ?? null,
-            fuelAmountLiters: validatedData.fuelAmountLiters ?? null,
-            brand: validatedData.brand ?? null,
-        };
-    } catch (parseError) {
-        console.error("Failed to parse or validate Gemini response:", text, parseError);
-        throw new Error("Failed to parse receipt data.");
-    }
-
-  } catch (error) {
-      console.error("Error extracting data from receipt:", error);
-      throw error;
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || 'Failed to extract receipt data.');
   }
+
+  const data = await response.json();
+  return ReceiptDataSchema.parse(data);
 }

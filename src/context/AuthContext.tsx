@@ -2,8 +2,9 @@
 import { createContext, JSX, useState, useEffect, useContext, useMemo, ReactNode } from 'react';
 // Import User type from firebase/auth
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, setDoc, onSnapshot } from "firebase/firestore";
-import { auth, db, signInWithGoogle, logout as firebaseLogout } from '../firebase/config'; // Ensure path is correct
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { auth, db, signInWithGoogle, logout as firebaseLogout } from '../firebase/config';
+import { setTesterGroup } from '../firebase/analyticsService';
 
 /** User preferences and profile data stored in Firestore */
 interface UserProfile {
@@ -46,6 +47,13 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
       setUser(currentUser);
       
       if (currentUser) {
+        // Check tester allowlist and set Analytics user property
+        if (currentUser.email) {
+          const testerRef = doc(db, "testers", currentUser.email);
+          const testerSnap = await getDoc(testerRef);
+          setTesterGroup(testerSnap.exists() ? 'internal' : null);
+        }
+
         // Fetch or Initialize Profile
         const profileRef = doc(db, "userProfiles", currentUser.uid);
         
@@ -68,6 +76,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
         });
       } else {
         setProfile(null);
+        setTesterGroup(null);
         if (unsubscribeProfile) unsubscribeProfile();
         setLoading(false);
       }

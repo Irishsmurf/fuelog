@@ -26,6 +26,7 @@ Built with React, Vite, TypeScript, Firebase, and Tailwind CSS.
     * Import historical fuel data from TSV (Tab-Separated Value) files.
     * Maps relevant columns (Date, Litres, Total Cost, Garage, Distance since fueled [Km]) to the application's data structure.
     * Uses Firestore batch writes for efficient importing.
+* **REST API:** Interact with your fuel logs, vehicles, and analytics programmatically. See [REST API Documentation](docs/REST_API.md).
 * **UI:** Clean, mobile-first interface styled with Tailwind CSS.
 
 ## Tech Stack

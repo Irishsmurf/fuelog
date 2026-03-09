@@ -151,17 +151,20 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) return 'vendor-react';
+            // Keep react, react-dom, react-router-dom, react-helmet-async in the main bundle
+            // to avoid runtime resolution issues.
+            if (id.includes('react') || id.includes('scheduler')) {
+              return null;
+            }
             if (id.includes('firebase')) return 'vendor-firebase';
             if (id.includes('recharts')) return 'vendor-recharts';
             if (id.includes('lucide-react')) return 'vendor-lucide';
             if (id.includes('jspdf') || id.includes('jspdf-autotable')) return 'vendor-pdf';
             if (id.includes('html2canvas')) return 'vendor-canvas';
             if (id.includes('dompurify')) return 'vendor-sanitize';
-            if (id.includes('i18next') || id.includes('react-i18next')) return 'vendor-i18n';
             if (id.includes('leaflet')) return 'vendor-map';
             if (id.includes('@google/generative-ai')) return 'vendor-ai';
-            return 'vendor';
+            return 'vendor-libs';
           }
         }
       }

@@ -3,9 +3,9 @@ import { z } from "zod";
 import { app } from '../firebase/config';
 
 const ReceiptDataSchema = z.object({
-  cost: z.number().nullable().optional(),
-  fuelAmountLiters: z.number().nullable().optional(),
-  brand: z.string().nullable().optional(),
+  cost: z.number().nullable(),
+  fuelAmountLiters: z.number().nullable(),
+  brand: z.string().nullable(),
 });
 
 export type ReceiptData = z.infer<typeof ReceiptDataSchema>;

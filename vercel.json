@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/extract-receipt.ts": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

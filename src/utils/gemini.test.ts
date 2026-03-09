@@ -1,73 +1,74 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-process.env.VITE_GEMINI_API_KEY = 'test-api-key';
-
-// Initialize mocks outside the factory for direct access
-const mockGenerateContent = vi.fn().mockResolvedValue({
-  response: {
-    text: () => JSON.stringify({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' }),
-  },
-});
-
-// Mock the module with controlled behavior
-vi.mock('@google/generative-ai', () => {
-  return {
-    GoogleGenerativeAI: class {
-      getGenerativeModel() {
-        return {
-          generateContent: mockGenerateContent,
-        };
-      }
+// Mock firebase/config before importing gemini
+vi.mock('../firebase/config', () => ({
+  auth: {
+    currentUser: {
+      getIdToken: vi.fn().mockResolvedValue('mock-id-token'),
     },
-  };
-});
+  },
+}));
 
 describe('gemini utility', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Polyfill FileReader for Node.js environment
+    // Mock createImageBitmap (not available in jsdom)
+    global.createImageBitmap = vi.fn().mockResolvedValue({
+      width: 800,
+      height: 600,
+      close: vi.fn(),
+    });
+
+    // Mock canvas + toBlob
+    const mockCanvas = {
+      width: 0,
+      height: 0,
+      getContext: vi.fn().mockReturnValue({ drawImage: vi.fn() }),
+      toBlob: vi.fn((cb: BlobCallback) => {
+        cb(new Blob(['mock'], { type: 'image/jpeg' }));
+      }),
+    };
+    vi.spyOn(document, 'createElement').mockReturnValue(mockCanvas as unknown as HTMLCanvasElement);
+
     class MockFileReader {
       onload: () => void = () => {};
       onerror: (err: unknown) => void = () => {};
-      result: string = 'data:image/png;base64,mockbase64data';
+      result: string = 'data:image/jpeg;base64,mockbase64data';
       readAsDataURL() {
-        setTimeout(() => {
-          this.onload();
-        }, 0);
+        setTimeout(() => this.onload(), 0);
       }
     }
-
     // @ts-expect-error - Mocking global object for testing purposes
     global.FileReader = MockFileReader;
   });
 
   it('extracts data from a receipt image successfully', async () => {
-    // Re-import after mocking
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' }),
+    }) as unknown as typeof fetch;
+
     const gemini = await import('./gemini');
-
     const mockFile = new File(['mock content'], 'test.png', { type: 'image/png' });
-
     const result = await gemini.extractDataFromReceipt(mockFile);
 
-    expect(result).toEqual({
-      cost: 45.67,
-      fuelAmountLiters: 30.5,
-      brand: 'Test Brand',
-    });
+    expect(result).toEqual({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' });
+    expect(fetch).toHaveBeenCalledWith('/api/extract-receipt', expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ Authorization: 'Bearer mock-id-token' }),
+    }));
   });
 
-  it('handles JSON parse error gracefully', async () => {
-    // Change mock behavior for this test
-    mockGenerateContent.mockResolvedValueOnce({
-      response: {
-        text: () => 'Invalid JSON string',
-      },
-    });
+  it('throws when the API returns an error', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: () => Promise.resolve({ error: 'Failed to extract data from receipt.' }),
+    }) as unknown as typeof fetch;
 
     const gemini = await import('./gemini');
     const mockFile = new File(['mock content'], 'test.png', { type: 'image/png' });
 
-    await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow('Failed to parse receipt data.');
+    await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow('Failed to extract data from receipt.');
   });
 });

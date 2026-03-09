@@ -1,103 +1,67 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { z } from "zod";
+import { auth } from '../firebase/config';
 
-const ReceiptDataSchema = z.object({
-  cost: z.number().nullable().optional().transform(v => typeof v === 'number' ? v : null),
-  fuelAmountLiters: z.number().nullable().optional().transform(v => typeof v === 'number' ? v : null),
-  brand: z.string().nullable().optional().transform(v => typeof v === 'string' ? v : null),
-});
-
-export type ReceiptData = z.infer<typeof ReceiptDataSchema>;
-
-// We instantiate inside the function or lazily so tests can mock env vars easily
-let genAIInstance: GoogleGenerativeAI | null = null;
-
-export function __resetGenAIForTest() {
-  genAIInstance = null;
+export interface ReceiptData {
+  cost: number | null;
+  fuelAmountLiters: number | null;
+  brand: string | null;
 }
 
-function getGenAI(): GoogleGenerativeAI {
-  if (genAIInstance) return genAIInstance;
+const MAX_DIMENSION = 768;
+const JPEG_QUALITY = 0.7;
 
-  let apiKey: string | undefined;
+async function resizeAndEncode(file: File): Promise<{ base64Data: string; mimeType: string }> {
+  const bitmap = await createImageBitmap(file);
+  const { width, height } = bitmap;
 
-  if (typeof process !== 'undefined' && process.env && process.env.VITE_GEMINI_API_KEY) {
-      apiKey = process.env.VITE_GEMINI_API_KEY;
-  } else if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) {
-      apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-  }
+  const scale = Math.min(1, MAX_DIMENSION / Math.max(width, height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
 
-  if (!apiKey) {
-    throw new Error("Gemini API key is not configured.");
-  }
-  genAIInstance = new GoogleGenerativeAI(apiKey);
-  return genAIInstance;
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      blob => {
+        if (!blob) return reject(new Error('Failed to compress image'));
+        const reader = new FileReader();
+        reader.onload = () => resolve({
+          base64Data: (reader.result as string).split(',')[1],
+          mimeType: 'image/jpeg',
+        });
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      },
+      'image/jpeg',
+      JPEG_QUALITY,
+    );
+  });
 }
 
 export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
-  const genAI = getGenAI();
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('User is not authenticated.');
+  }
+  const idToken = await user.getIdToken();
 
-  const mimeType = file.type;
+  const { base64Data, mimeType } = await resizeAndEncode(file);
 
-  // Read file as base64 string
-  const base64Data = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-        const result = reader.result as string;
-        // The result is in format "data:image/jpeg;base64,/9j/4AAQSkZJRg..."
-        const base64 = result.split(',')[1];
-        resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+  const response = await fetch('/api/extract-receipt', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ base64Data, mimeType }),
   });
 
-  const prompt = `
-    Analyze this receipt image and extract the following information for a fuel purchase:
-    1. Total Cost (as a number)
-    2. Fuel Amount in Liters (as a number)
-    3. Filling Station Brand Name (as a string)
-
-    Return ONLY a raw JSON object with exactly these keys: "cost", "fuelAmountLiters", "brand".
-    If a value cannot be found, use null.
-    Do not use markdown formatting like \`\`\`json.
-  `;
-
-  try {
-    const result = await model.generateContent([
-        prompt,
-        {
-            inlineData: {
-                data: base64Data,
-                mimeType
-            }
-        }
-    ]);
-
-    const text = result.response.text();
-    // Parse the JSON string
-    try {
-        let jsonText = text.trim();
-        // The model can sometimes wrap the JSON in markdown backticks.
-        const jsonMatch = jsonText.match(/```(?:json)?\n([\s\S]*?)\n```/s);
-        if (jsonMatch?.[1]) {
-          jsonText = jsonMatch[1];
-        }
-        const parsedJson = JSON.parse(jsonText);
-        const validatedData = ReceiptDataSchema.parse(parsedJson);
-        return {
-            cost: validatedData.cost ?? null,
-            fuelAmountLiters: validatedData.fuelAmountLiters ?? null,
-            brand: validatedData.brand ?? null,
-        };
-    } catch (parseError) {
-        console.error("Failed to parse or validate Gemini response:", text, parseError);
-        throw new Error("Failed to parse receipt data.");
-    }
-
-  } catch (error) {
-      console.error("Error extracting data from receipt:", error);
-      throw error;
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { error?: string }).error || 'Failed to extract data from receipt.');
   }
+
+  return response.json() as Promise<ReceiptData>;
 }

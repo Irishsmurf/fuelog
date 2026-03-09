@@ -348,6 +348,11 @@
     "loginPrompt": "Chun rochtain a fháil ar níos mó gnéithe, le do thoil",
     "login": "logáil isteach"
   },
+  "footer": {
+    "copyright": "© {{year}} Fuelog",
+    "about": "Maidir le",
+    "privacyPolicy": "Polasaí Príobháideachta"
+  },
   "common": {
     "loading": "Ag lódáil...",
     "saving": "Ag sábháil...",

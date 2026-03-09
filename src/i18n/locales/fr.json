@@ -344,6 +344,11 @@
     "loginPrompt": "Pour accéder à plus de fonctionnalités, veuillez",
     "login": "vous connecter"
   },
+  "footer": {
+    "copyright": "© {{year}} Fuelog",
+    "about": "À propos",
+    "privacyPolicy": "Politique de confidentialité"
+  },
   "common": {
     "loading": "Chargement...",
     "saving": "Enregistrement...",

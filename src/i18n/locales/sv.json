@@ -348,6 +348,11 @@
     "loginPrompt": "För att få tillgång till fler funktioner, vänligen",
     "login": "logga in"
   },
+  "footer": {
+    "copyright": "© {{year}} Fuelog",
+    "about": "Om",
+    "privacyPolicy": "Integritetspolicy"
+  },
   "common": {
     "loading": "Laddar...",
     "saving": "Sparar...",

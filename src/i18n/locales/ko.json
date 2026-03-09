@@ -344,6 +344,11 @@
     "loginPrompt": "더 많은 기능에 액세스하려면",
     "login": "로그인"
   },
+  "footer": {
+    "copyright": "© {{year}} Fuelog",
+    "about": "정보",
+    "privacyPolicy": "개인정보 처리방침"
+  },
   "common": {
     "loading": "로드 중...",
     "saving": "저장 중...",

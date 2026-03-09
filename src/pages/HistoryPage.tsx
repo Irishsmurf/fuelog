@@ -607,7 +607,7 @@ function HistoryPage(): JSX.Element {
                                     name="vehicleId" 
                                     id="edit-vehicle" 
                                     value={editFormData.vehicleId} 
-                                    onChange={handleEditFormChange as any} 
+                                    onChange={handleEditFormChange as unknown} 
                                     className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 >
                                     {vehicles.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}

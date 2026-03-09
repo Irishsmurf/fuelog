@@ -15,7 +15,7 @@ interface AuthContextType {
   user: User | null; // Firebase User object or null
   profile: UserProfile | null; // Custom profile data
   loading: boolean;
-  login: () => Promise<any>; // Adjust return type if needed based on signInWithGoogle
+  login: () => Promise<unknown>; // Adjust return type if needed based on signInWithGoogle
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     login: signInWithGoogle,
     logout: firebaseLogout,
     updateProfile
-  }), [user, profile, loading]); // Dependencies for useMemo
+  }), [user, profile, loading, updateProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Render children only after initial loading is complete
   return (
@@ -108,6 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
 // Custom hook to consume the AuthContext
 // Ensures the context is used within a provider and returns the defined type
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
   if (context === null) {

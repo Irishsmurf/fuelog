@@ -26,9 +26,9 @@ describe('storageService', () => {
       const mockUserId = 'user123';
       const mockDownloadUrl = 'https://firebase-storage.com/receipt.jpg';
 
-      (storage.ref as any).mockReturnValue({ path: 'test-ref' });
-      (storage.uploadBytes as any).mockResolvedValue({ ref: 'snapshot-ref' });
-      (storage.getDownloadURL as any).mockResolvedValue(mockDownloadUrl);
+      (storage.ref as unknown).mockReturnValue({ path: 'test-ref' });
+      (storage.uploadBytes as unknown).mockResolvedValue({ ref: 'snapshot-ref' });
+      (storage.getDownloadURL as unknown).mockResolvedValue(mockDownloadUrl);
 
       const url = await uploadReceipt(mockFile, mockUserId);
 
@@ -40,7 +40,7 @@ describe('storageService', () => {
 
     it('throws an error if upload fails', async () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      (storage.uploadBytes as any).mockRejectedValue(new Error('Upload failed'));
+      (storage.uploadBytes as unknown).mockRejectedValue(new Error('Upload failed'));
 
       await expect(uploadReceipt(mockFile, 'user123')).rejects.toThrow('Upload failed');
     });

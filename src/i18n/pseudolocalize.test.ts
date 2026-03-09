@@ -58,7 +58,7 @@ describe('pseudolocalizeResources', () => {
   });
 
   it('leaves non-string values unchanged', () => {
-    const input = { count: 42, flag: true, nothing: null } as any;
+    const input = { count: 42, flag: true, nothing: null } as unknown;
     const result = pseudolocalizeResources(input);
     expect(result.count).toBe(42);
     expect(result.flag).toBe(true);

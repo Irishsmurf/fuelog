@@ -1,6 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import LogCard from './LogCard';
 import { describe, it, expect, vi } from 'vitest';
+import type { ReactNode } from 'react';
+import type { Log } from '../utils/types';
+import { Timestamp } from 'firebase/firestore';
 
 
 // Mock react-i18next so tests don't need a real i18n instance
@@ -36,7 +39,7 @@ vi.mock('../context/AuthContext', () => ({
 
 // Mock react-leaflet to avoid map rendering issues in tests
 vi.mock('react-leaflet', () => ({
-  MapContainer: ({ children }: any) => <div data-testid="map-container">{children}</div>,
+  MapContainer: ({ children }: { children: ReactNode }) => <div data-testid="map-container">{children}</div>,
   TileLayer: () => <div />,
   Marker: () => <div />,
   useMap: () => ({
@@ -46,12 +49,10 @@ vi.mock('react-leaflet', () => ({
 }));
 
 // Mock the Log type structure needed for the component
-const mockLog = {
+const mockLog: Log = {
   id: '1',
   userId: 'user1',
-  timestamp: {
-    toDate: () => new Date('2023-01-01T12:00:00')
-  } as any,
+  timestamp: Timestamp.fromDate(new Date('2023-01-01T12:00:00')),
   brand: 'Test Brand',
   cost: 50,
   distanceKm: 100,

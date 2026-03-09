@@ -16,7 +16,7 @@ describe('ThemeToggle', () => {
   });
 
   it('does not render if dark mode is disabled remotely', () => {
-    (useTheme as any).mockReturnValue({
+    (useTheme as unknown).mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
       isDarkModeEnabledRemotely: false,
@@ -27,7 +27,7 @@ describe('ThemeToggle', () => {
   });
 
   it('renders correctly in light mode', () => {
-    (useTheme as any).mockReturnValue({
+    (useTheme as unknown).mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
       isDarkModeEnabledRemotely: true,
@@ -39,7 +39,7 @@ describe('ThemeToggle', () => {
   });
 
   it('renders correctly in dark mode', () => {
-    (useTheme as any).mockReturnValue({
+    (useTheme as unknown).mockReturnValue({
       theme: 'dark',
       toggleTheme: mockToggleTheme,
       isDarkModeEnabledRemotely: true,
@@ -51,7 +51,7 @@ describe('ThemeToggle', () => {
   });
 
   it('calls toggleTheme when clicked', () => {
-    (useTheme as any).mockReturnValue({
+    (useTheme as unknown).mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
       isDarkModeEnabledRemotely: true,

@@ -7,6 +7,7 @@ import { db } from '../firebase/config';
 import { useAuth } from './AuthContext';
 import type { ApiToken } from '../utils/types';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ALL_SCOPES = ['read:logs', 'write:logs', 'read:vehicles', 'write:vehicles'] as const;
 export type TokenScope = typeof ALL_SCOPES[number];
 
@@ -95,6 +96,7 @@ export function ApiTokenProvider({ children }: { children: ReactNode }): JSX.Ele
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useApiTokens(): ApiTokenContextValue {
   const ctx = useContext(ApiTokenContext);
   if (!ctx) throw new Error('useApiTokens must be used within ApiTokenProvider');

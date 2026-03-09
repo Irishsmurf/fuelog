@@ -75,7 +75,7 @@ function ProfilePage(): JSX.Element {
       setMessage({ type: 'success', text: t('profile.messages.vehicleAdded') });
       setFormData({ name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol', isDefault: false });
       fetchVehicles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error adding vehicle:", error);
       const errorMsg = error.code === 'permission-denied'
         ? t('profile.messages.permissionDenied')
@@ -91,7 +91,7 @@ function ProfilePage(): JSX.Element {
     try {
       await deleteDoc(doc(db, "vehicles", id));
       fetchVehicles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting vehicle:", error);
       const errorMsg = error.code === 'permission-denied'
         ? t('profile.messages.permissionDeniedDelete')
@@ -103,7 +103,7 @@ function ProfilePage(): JSX.Element {
   const handleArchiveVehicle = async (vehicle: Vehicle) => {
     try {
       const isNowArchived = !vehicle.isArchived;
-      const updates: any = { isArchived: isNowArchived };
+      const updates: unknown = { isArchived: isNowArchived };
 
       if (isNowArchived && vehicle.isDefault) {
         updates.isDefault = false;
@@ -111,7 +111,7 @@ function ProfilePage(): JSX.Element {
 
       await updateDoc(doc(db, "vehicles", vehicle.id), updates);
       fetchVehicles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error archiving vehicle:", error);
     }
   };
@@ -125,7 +125,7 @@ function ProfilePage(): JSX.Element {
       });
       await batch.commit();
       fetchVehicles();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error setting default vehicle:", error);
       const errorMsg = error.code === 'permission-denied'
         ? t('profile.messages.permissionDeniedDefault')

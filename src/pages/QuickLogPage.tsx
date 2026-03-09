@@ -121,7 +121,7 @@ function QuickLogPage(): JSX.Element {
       }
     };
     fetchVehicles();
-  }, [user]);
+  }, [user, t]);
 
   // --- Fetch Exchange Rate when currency changes ---
   useEffect(() => {
@@ -144,7 +144,7 @@ function QuickLogPage(): JSX.Element {
     };
 
     getRate();
-  }, [currency, homeCurrency]);
+  }, [currency, homeCurrency, t]);
 
   // --- Fetch known brands effect ---
   useEffect(() => {
@@ -165,7 +165,7 @@ function QuickLogPage(): JSX.Element {
       finally { setIsLoadingBrands(false); }
     };
     fetchBrands();
-  }, [user]);
+  }, [user, t]);
 
   // --- Input Change Handler ---
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) =>

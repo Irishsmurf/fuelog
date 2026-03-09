@@ -137,7 +137,7 @@ function HistoryPage(): JSX.Element {
 
         // Cleanup listener on unmount or user change
         return () => unsubscribe();
-    }, [user]); // Dependency array ensures effect runs when user changes
+    }, [user, t]); // Dependency array ensures effect runs when user changes
 
     // --- Filtering Logic using useMemo ---
     // Creates a memoized array of logs based on the current filter state.
@@ -195,7 +195,7 @@ function HistoryPage(): JSX.Element {
             cost: log.cost > 0 ? log.cost : null,
             fuelPrice: getNumericFuelPrice(log.cost, log.fuelAmountLiters)
         }));
-    }, [filteredLogs]); // Recalculate only when filteredLogs change
+    }, [filteredLogs, i18n.language]); // Recalculate only when filteredLogs or language change
 
     // --- Calculate Summary Metrics (Uses filteredLogs) ---
     // Memoized calculation for the total cost, average MPG, and average cost based on the *filtered* logs.

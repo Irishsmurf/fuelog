@@ -42,24 +42,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const [isDarkModeEnabledRemotely, setIsDarkModeEnabledRemotely] = useState<boolean>(false);
 
-  // Sync with Remote Config once loaded
-  useEffect(() => {
-    if (!rcLoading) {
-      const enabled = getBoolean('darkModeEnabled');
-      setIsDarkModeEnabledRemotely(enabled);
-      console.log("Remote Config - darkModeEnabled:", enabled);
-
-      // If RC disables dark mode, force light mode
-      if (!enabled) {
-        setThemeState('light');
-      } else {
-        // If RC enables it, respect localStorage or default
-        const savedTheme = localStorage.getItem('theme') as Theme | null;
-        setThemeState(savedTheme || 'light');
-      }
-    }
-  }, [rcLoading, getBoolean]);
-
   // Function to apply theme changes (add/remove 'dark' class, save to localStorage)
   const setThemeState = (newTheme: Theme) => {
     const root = window.document.documentElement;
@@ -86,6 +68,26 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const setThemeExplicitly = (newTheme: Theme) => {
     setThemeState(newTheme);
   };
+
+  // Sync with Remote Config once loaded
+  useEffect(() => {
+    if (!rcLoading) {
+      const enabled = getBoolean('darkModeEnabled');
+      queueMicrotask(() => {
+        setIsDarkModeEnabledRemotely(enabled);
+      });
+      console.log("Remote Config - darkModeEnabled:", enabled);
+
+      // If RC disables dark mode, force light mode
+      if (!enabled) {
+        queueMicrotask(() => setThemeState('light'));
+      } else {
+        // If RC enables it, respect localStorage or default
+        const savedTheme = localStorage.getItem('theme') as Theme | null;
+        queueMicrotask(() => setThemeState(savedTheme || 'light'));
+      }
+    }
+  }, [rcLoading, getBoolean]);
 
   // Apply initial theme class on mount (after initial state is set)
   useEffect(() => {

@@ -41,9 +41,17 @@ export function ApiTokenProvider({ children }: { children: ReactNode }): JSX.Ele
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { setTokens([]); setLoading(false); return; }
+    if (!user) {
+      queueMicrotask(() => {
+        setTokens([]);
+        setLoading(false);
+      });
+      return;
+    }
 
-    setLoading(true);
+    queueMicrotask(() => {
+      setLoading(true);
+    });
     const q = query(
       collection(db, 'apiTokens'),
       where('userId', '==', user.uid),

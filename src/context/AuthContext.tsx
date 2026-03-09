@@ -1,5 +1,5 @@
 // src/context/AuthContext.tsx
-import { createContext, JSX, useState, useEffect, useContext, useMemo, ReactNode } from 'react';
+import { createContext, JSX, useState, useEffect, useContext, useMemo, useCallback, ReactNode } from 'react';
 // Import User type from firebase/auth
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
@@ -81,11 +81,11 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     };
   }, []);
 
-  const updateProfile = async (updates: Partial<UserProfile>) => {
+  const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
     if (!user) return;
     const profileRef = doc(db, "userProfiles", user.uid);
     await setDoc(profileRef, { ...profile, ...updates }, { merge: true });
-  };
+  }, [user, profile]);
 
   // Memoized context value with the defined type
   const value: AuthContextType = useMemo(() => ({
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     login: signInWithGoogle,
     logout: firebaseLogout,
     updateProfile
-  }), [user, profile, loading, updateProfile]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [user, profile, loading, updateProfile]);
 
   // Render children only after initial loading is complete
   return (

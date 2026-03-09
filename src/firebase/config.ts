@@ -86,12 +86,10 @@ try {
 
 
 // Initialize Firebase Analytics (only in environments that support it)
-let analytics: Analytics | null = null;
-isSupported().then(supported => {
-  if (supported) {
-    analytics = getAnalytics(app);
-  }
-});
+// Exported as a Promise so consumers can await or .then() to get the instance.
+const analytics: Promise<Analytics | null> = isSupported().then(supported =>
+  supported ? getAnalytics(app) : null
+);
 
 // Google Auth Provider (remains the same)
 const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();

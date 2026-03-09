@@ -45,22 +45,21 @@ describe('firebase/config', () => {
     expect(callArg).toHaveProperty('measurementId');
   });
 
-  it('calls getAnalytics when isSupported returns true', async () => {
+  it('resolves to an Analytics instance when isSupported returns true', async () => {
     mockIsSupported.mockResolvedValue(true);
-    await import('./config');
+    const { analytics } = await import('./config');
 
-    // isSupported() is async — wait for the microtask to settle
-    await Promise.resolve();
-
+    const instance = await analytics;
+    expect(instance).toEqual({ name: 'mock-analytics' });
     expect(mockGetAnalytics).toHaveBeenCalledTimes(1);
   });
 
-  it('does not call getAnalytics when isSupported returns false', async () => {
+  it('resolves to null when isSupported returns false', async () => {
     mockIsSupported.mockResolvedValue(false);
-    await import('./config');
+    const { analytics } = await import('./config');
 
-    await Promise.resolve();
-
+    const instance = await analytics;
+    expect(instance).toBeNull();
     expect(mockGetAnalytics).not.toHaveBeenCalled();
   });
 });

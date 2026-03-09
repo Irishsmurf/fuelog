@@ -1,6 +1,7 @@
 import { JSX } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { History, Map as MapIcon, User, PlusCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Mobile-first bottom navigation component.
@@ -8,12 +9,13 @@ import { History, Map as MapIcon, User, PlusCircle } from 'lucide-react';
  */
 const BottomNav = (): JSX.Element => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   const navItems = [
-    { path: '/', label: 'Log', icon: PlusCircle },
-    { path: '/history', label: 'History', icon: History },
-    { path: '/map', label: 'Map', icon: MapIcon },
-    { path: '/profile', label: 'Profile', icon: User },
+    { path: '/', label: t('nav.log'), icon: PlusCircle },
+    { path: '/history', label: t('nav.history'), icon: History },
+    { path: '/map', label: t('nav.map'), icon: MapIcon },
+    { path: '/profile', label: t('nav.profile'), icon: User },
   ];
 
   return (
@@ -27,8 +29,8 @@ const BottomNav = (): JSX.Element => {
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center justify-center w-full h-full transition-all duration-300 active:scale-90 ${
-                isActive 
-                  ? 'text-brand-primary' 
+                isActive
+                  ? 'text-brand-primary'
                   : 'text-gray-400 dark:text-gray-500 hover:text-brand-primary'
               }`}
             >

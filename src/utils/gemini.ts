@@ -15,8 +15,15 @@ export function __resetGenAIForTest() {
 
 function getGenAI(): GoogleGenerativeAI {
   if (genAIInstance) return genAIInstance;
-  // Ensure we check process.env for Node.js test environment, fallback to import.meta.env
-  const apiKey = typeof process !== 'undefined' && process.env ? process.env.VITE_GEMINI_API_KEY : import.meta.env.VITE_GEMINI_API_KEY;
+
+  let apiKey: string | undefined;
+
+  if (typeof process !== 'undefined' && process.env && process.env.VITE_GEMINI_API_KEY) {
+      apiKey = process.env.VITE_GEMINI_API_KEY;
+  } else if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) {
+      apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  }
+
   if (!apiKey) {
     throw new Error("Gemini API key is not configured.");
   }

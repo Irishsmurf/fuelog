@@ -106,7 +106,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         try {
           body = await readBody(req);
         } catch (e: unknown) {
-          return sendResponse(res, 400, { error: e.message });
+          return sendResponse(res, 400, { error: (e as Error).message });
         }
         if (body.brand === undefined || body.cost === undefined || body.distanceKm === undefined || body.fuelAmountLiters === undefined) {
             return sendResponse(res, 400, { error: 'Missing required fields' });
@@ -136,7 +136,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         try {
           body = await readBody(req);
         } catch (e: unknown) {
-          return sendResponse(res, 400, { error: e.message });
+          return sendResponse(res, 400, { error: (e as Error).message });
         }
         const docRef = db.collection('fuelLogs').doc(id);
         const doc = await docRef.get();
@@ -181,7 +181,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
            try {
              body = await readBody(req);
            } catch (e: unknown) {
-             return sendResponse(res, 400, { error: e.message });
+             return sendResponse(res, 400, { error: (e as Error).message });
            }
            if (!body.name || !body.make || !body.model || !body.year || !body.fuelType) {
                return sendResponse(res, 400, { error: 'Missing required fields' });
@@ -215,7 +215,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
            try {
              body = await readBody(req);
            } catch (e: unknown) {
-             return sendResponse(res, 400, { error: e.message });
+             return sendResponse(res, 400, { error: (e as Error).message });
            }
            const docRef = db.collection('vehicles').doc(id);
            const doc = await docRef.get();

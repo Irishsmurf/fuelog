@@ -6,9 +6,12 @@ import { Vehicle, VehicleFuelType } from '../utils/types';
 import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw, Settings, Coins } from 'lucide-react';
 import ApiTokenManager from '../components/ApiTokenManager';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
+import { useTranslation } from 'react-i18next';
+import LanguageSelector from '../components/LanguageSelector';
 
 function ProfilePage(): JSX.Element {
   const { user, profile, updateProfile } = useAuth();
+  const { t } = useTranslation();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsUpdating] = useState<boolean>(false);
@@ -69,14 +72,14 @@ function ProfilePage(): JSX.Element {
         isDefault: vehicles.filter(v => !v.isArchived).length === 0 ? true : formData.isDefault
       });
 
-      setMessage({ type: 'success', text: 'Vehicle added successfully!' });
+      setMessage({ type: 'success', text: t('profile.messages.vehicleAdded') });
       setFormData({ name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol', isDefault: false });
       fetchVehicles();
     } catch (error: any) {
       console.error("Error adding vehicle:", error);
-      const errorMsg = error.code === 'permission-denied' 
-        ? 'Permission denied. Please check Firestore security rules.' 
-        : 'Failed to add vehicle. Please try again.';
+      const errorMsg = error.code === 'permission-denied'
+        ? t('profile.messages.permissionDenied')
+        : t('profile.messages.failedToAdd');
       setMessage({ type: 'error', text: errorMsg });
     } finally {
       setIsUpdating(false);
@@ -84,15 +87,15 @@ function ProfilePage(): JSX.Element {
   };
 
   const handleDeleteVehicle = async (id: string) => {
-    if (!window.confirm("Are you sure? This won't delete logs but will un-link them.")) return;
+    if (!window.confirm(t('profile.messages.deleteConfirm'))) return;
     try {
       await deleteDoc(doc(db, "vehicles", id));
       fetchVehicles();
-    } catch (error: any) { 
-      console.error("Error deleting vehicle:", error); 
-      const errorMsg = error.code === 'permission-denied' 
-        ? 'Permission denied to delete.' 
-        : 'Failed to delete vehicle.';
+    } catch (error: any) {
+      console.error("Error deleting vehicle:", error);
+      const errorMsg = error.code === 'permission-denied'
+        ? t('profile.messages.permissionDeniedDelete')
+        : t('profile.messages.failedToDelete');
       setMessage({ type: 'error', text: errorMsg });
     }
   };
@@ -101,8 +104,7 @@ function ProfilePage(): JSX.Element {
     try {
       const isNowArchived = !vehicle.isArchived;
       const updates: any = { isArchived: isNowArchived };
-      
-      // If we are archiving a default vehicle, remove default status
+
       if (isNowArchived && vehicle.isDefault) {
         updates.isDefault = false;
       }
@@ -115,7 +117,7 @@ function ProfilePage(): JSX.Element {
   };
 
   const handleSetDefault = async (vehicle: Vehicle) => {
-    if (vehicle.isArchived) return; // Cannot set archived as default
+    if (vehicle.isArchived) return;
     try {
       const batch = writeBatch(db);
       vehicles.forEach(v => {
@@ -123,11 +125,11 @@ function ProfilePage(): JSX.Element {
       });
       await batch.commit();
       fetchVehicles();
-    } catch (error: any) { 
-      console.error("Error setting default vehicle:", error); 
-      const errorMsg = error.code === 'permission-denied' 
-        ? 'Permission denied to update defaults.' 
-        : 'Failed to set default vehicle.';
+    } catch (error: any) {
+      console.error("Error setting default vehicle:", error);
+      const errorMsg = error.code === 'permission-denied'
+        ? t('profile.messages.permissionDeniedDefault')
+        : t('profile.messages.failedToSetDefault');
       setMessage({ type: 'error', text: errorMsg });
     }
   };
@@ -148,12 +150,12 @@ function ProfilePage(): JSX.Element {
             <h4 className="text-lg font-black tracking-tight truncate text-gray-900 dark:text-white">{v.name}</h4>
             {v.isDefault && (
               <span className="shrink-0 flex items-center text-[10px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">
-                Primary
+                {t('profile.vehicleCard.primary')}
               </span>
             )}
           </div>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-0.5">{v.make} • {v.model}</p>
-          
+
           <div className="flex items-center space-x-3 mt-3">
             <div className="flex items-center text-[10px] font-bold text-gray-500 dark:text-gray-400">
               <span className="w-2 h-2 rounded-full bg-indigo-400 mr-1.5"></span>
@@ -170,28 +172,28 @@ function ProfilePage(): JSX.Element {
       {/* Action Overlay/Bar */}
       <div className="flex border-t border-gray-50 dark:border-gray-700 divide-x divide-gray-50 dark:divide-gray-700">
         {!v.isArchived && !v.isDefault && (
-          <button 
-            onClick={() => handleSetDefault(v)} 
+          <button
+            onClick={() => handleSetDefault(v)}
             className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-brand-primary hover:bg-brand-primary/5 transition-all flex items-center justify-center space-x-1.5"
           >
             <CheckCircle2 size={12} />
-            <span>Make Default</span>
+            <span>{t('profile.vehicleCard.makeDefault')}</span>
           </button>
         )}
-        <button 
-          onClick={() => handleArchiveVehicle(v)} 
+        <button
+          onClick={() => handleArchiveVehicle(v)}
           className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all flex items-center justify-center space-x-1.5"
-          title={v.isArchived ? "Restore Vehicle" : "Archive Vehicle"}
+          title={v.isArchived ? t('profile.vehicleCard.restore') : t('profile.vehicleCard.archive')}
         >
           <Archive size={12} />
-          <span>{v.isArchived ? "Restore" : "Archive"}</span>
+          <span>{v.isArchived ? t('profile.vehicleCard.restore') : t('profile.vehicleCard.archive')}</span>
         </button>
-        <button 
-          onClick={() => handleDeleteVehicle(v.id)} 
+        <button
+          onClick={() => handleDeleteVehicle(v.id)}
           className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all flex items-center justify-center space-x-1.5"
         >
           <Trash2 size={12} />
-          <span>Delete</span>
+          <span>{t('profile.vehicleCard.delete')}</span>
         </button>
       </div>
     </div>
@@ -205,17 +207,17 @@ function ProfilePage(): JSX.Element {
           <div className="bg-brand-primary/10 p-2 rounded-lg text-brand-primary">
             <Settings size={20} />
           </div>
-          <h3 className="text-xl font-black tracking-tight">App Preferences</h3>
+          <h3 className="text-xl font-black tracking-tight">{t('profile.appPreferences')}</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-brand-primary">
               <Coins size={18} />
-              <h4 className="text-sm font-black uppercase tracking-widest">Home Currency</h4>
+              <h4 className="text-sm font-black uppercase tracking-widest">{t('profile.homeCurrency')}</h4>
             </div>
             <p className="text-xs text-gray-500 font-medium leading-relaxed">
-              Set your primary currency for all fuel logs and summary analytics.
+              {t('profile.homeCurrencyDesc')}
             </p>
             <select
               value={profile?.homeCurrency || 'EUR'}
@@ -229,34 +231,46 @@ function ProfilePage(): JSX.Element {
               ))}
             </select>
           </div>
-          
-          {/* Placeholder for future preferences like units (Metric/Imperial) */}
-          <div className="opacity-40 grayscale pointer-events-none">
-            <div className="flex items-center space-x-2 text-gray-400">
+
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 text-brand-primary">
               <Settings size={18} />
-              <h4 className="text-sm font-black uppercase tracking-widest">Measurement Units</h4>
+              <h4 className="text-sm font-black uppercase tracking-widest">{t('language.label')}</h4>
             </div>
-            <p className="text-xs text-gray-400 font-medium mt-4 italic">Coming soon: Toggle between Metric (Km/L) and Imperial (MPG) defaults.</p>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed">
+              {t('language.en')} / {t('language.ga')}
+            </p>
+            <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 rounded-xl">
+              <LanguageSelector />
+            </div>
           </div>
+        </div>
+
+        <div className="mt-8 opacity-40 grayscale pointer-events-none">
+          <div className="flex items-center space-x-2 text-gray-400">
+            <Settings size={18} />
+            <h4 className="text-sm font-black uppercase tracking-widest">{t('profile.measurementUnits')}</h4>
+          </div>
+          <p className="text-xs text-gray-400 font-medium mt-4 italic">{t('profile.measurementUnitsSoon')}</p>
         </div>
       </div>
 
       <div>
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h2 className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white">Vehicle Fleet</h2>
-            <p className="text-sm font-medium text-gray-500">Manage your cars and rentals.</p>
+            <h2 className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white">{t('profile.vehicleFleet')}</h2>
+            <p className="text-sm font-medium text-gray-500">{t('profile.vehicleFleetSubtext')}</p>
           </div>
           {archivedVehicles.length > 0 && (
-            <button 
+            <button
               onClick={() => setShowArchived(!showArchived)}
               className="text-xs font-black uppercase tracking-widest text-brand-primary hover:underline"
             >
-              {showArchived ? "Hide Archived" : `Show Archived (${archivedVehicles.length})`}
+              {showArchived ? t('profile.hideArchived') : t('profile.showArchived', { count: archivedVehicles.length })}
             </button>
           )}
         </div>
-        
+
         {/* Active Vehicle Grid */}
         <div className="space-y-4">
           {isLoading ? (
@@ -268,8 +282,8 @@ function ProfilePage(): JSX.Element {
               <div className="bg-gray-50 dark:bg-gray-900 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-300">
                 <Car size={32} />
               </div>
-              <p className="text-gray-500 font-bold">No active vehicles.</p>
-              <p className="text-gray-400 text-xs mt-1">Add a vehicle below to start tracking.</p>
+              <p className="text-gray-500 font-bold">{t('profile.noActiveVehicles')}</p>
+              <p className="text-gray-400 text-xs mt-1">{t('profile.noActiveVehiclesSubtext')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -282,7 +296,7 @@ function ProfilePage(): JSX.Element {
         {showArchived && archivedVehicles.length > 0 && (
           <div className="mt-10 animate-in fade-in slide-in-from-top-4">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center">
-              <Archive size={14} className="mr-2" /> Archived Fleet
+              <Archive size={14} className="mr-2" /> {t('profile.archivedFleet')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
               {archivedVehicles.map(renderVehicleCard)}
@@ -297,34 +311,34 @@ function ProfilePage(): JSX.Element {
           <div className="bg-brand-primary/10 p-2 rounded-lg text-brand-primary">
             <PlusCircle size={20} />
           </div>
-          <h3 className="text-xl font-black tracking-tight">Add New Vehicle</h3>
+          <h3 className="text-xl font-black tracking-tight">{t('profile.addNewVehicle')}</h3>
         </div>
 
         <form onSubmit={handleAddVehicle} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Nickname / Name</label>
-              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder="e.g. My Polo" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.nickname')}</label>
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.nicknamePlaceholder')} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Make</label>
-              <input type="text" name="make" value={formData.make} onChange={handleInputChange} required placeholder="e.g. VW" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.make')}</label>
+              <input type="text" name="make" value={formData.make} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.makePlaceholder')} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Model</label>
-              <input type="text" name="model" value={formData.model} onChange={handleInputChange} required placeholder="e.g. Polo" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.model')}</label>
+              <input type="text" name="model" value={formData.model} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.modelPlaceholder')} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Year</label>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.year')}</label>
               <input type="number" name="year" value={formData.year} onChange={handleInputChange} required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Fuel Type</label>
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.fuelType')}</label>
               <select name="fuelType" value={formData.fuelType} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white">
-                <option value="Petrol">Petrol</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Electric">Electric</option>
+                <option value="Petrol">{t('profile.vehicleForm.fuelTypes.petrol')}</option>
+                <option value="Diesel">{t('profile.vehicleForm.fuelTypes.diesel')}</option>
+                <option value="Hybrid">{t('profile.vehicleForm.fuelTypes.hybrid')}</option>
+                <option value="Electric">{t('profile.vehicleForm.fuelTypes.electric')}</option>
               </select>
             </div>
           </div>
@@ -333,7 +347,7 @@ function ProfilePage(): JSX.Element {
             <input type="checkbox" name="isDefault" id="isDefault" checked={formData.isDefault} onChange={handleInputChange} className="h-5 w-5 text-brand-primary rounded-lg border-none focus:ring-0 focus:ring-offset-0 transition-all" />
             <label htmlFor="isDefault" className="ml-3 text-sm font-bold text-gray-600 dark:text-gray-300 flex items-center">
               <CheckCircle2 size={16} className="mr-2 text-brand-primary" />
-              Set as default vehicle
+              {t('profile.vehicleForm.setAsDefault')}
             </label>
           </div>
 
@@ -341,9 +355,9 @@ function ProfilePage(): JSX.Element {
             {isSaving ? (
               <div className="flex items-center space-x-2">
                 <RefreshCw size={20} className="animate-spin" />
-                <span>Initializing...</span>
+                <span>{t('profile.vehicleForm.registering')}</span>
               </div>
-            ) : 'Register Vehicle'}
+            ) : t('profile.vehicleForm.register')}
           </button>
         </form>
 

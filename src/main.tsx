@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import './i18n';
 
 // Get the root element from index.html where the React app will be mounted
 const rootElement = document.getElementById('root');

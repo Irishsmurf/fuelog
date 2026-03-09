@@ -1,0 +1,105 @@
+name: i18n Check
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.tsx'
+      - 'src/**/*.ts'
+      - 'src/i18n/**'
+
+jobs:
+  i18n-check:
+    name: Check i18n compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Check translation key parity (en ↔ ga)
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+
+          const en = JSON.parse(fs.readFileSync('src/i18n/locales/en.json', 'utf8'));
+          const ga = JSON.parse(fs.readFileSync('src/i18n/locales/ga.json', 'utf8'));
+
+          function getKeys(obj, prefix = '') {
+            return Object.entries(obj).flatMap(([k, v]) => {
+              const fullKey = prefix ? `${prefix}.${k}` : k;
+              return typeof v === 'object' && v !== null && !Array.isArray(v)
+                ? getKeys(v, fullKey)
+                : [fullKey];
+            });
+          }
+
+          const enKeys = new Set(getKeys(en));
+          const gaKeys = new Set(getKeys(ga));
+
+          const missingInGa = [...enKeys].filter(k => !gaKeys.has(k));
+          const missingInEn = [...gaKeys].filter(k => !enKeys.has(k));
+
+          let failed = false;
+
+          if (missingInGa.length > 0) {
+            console.error('Keys in en.json missing from ga.json:');
+            missingInGa.forEach(k => console.error('  -', k));
+            failed = true;
+          }
+
+          if (missingInEn.length > 0) {
+            console.error('Keys in ga.json missing from en.json:');
+            missingInEn.forEach(k => console.error('  -', k));
+            failed = true;
+          }
+
+          if (failed) {
+            console.error('\nAll keys must exist in both en.json and ga.json.');
+            process.exit(1);
+          }
+
+          console.log(`Key parity check passed. ${enKeys.size} keys verified.`);
+          EOF
+
+      - name: Check components/pages use useTranslation (not raw strings)
+        run: |
+          VIOLATIONS=0
+
+          # Find TSX/TS files in components and pages (not test files or locale files)
+          FILES=$(find src/components src/pages -name "*.tsx" -o -name "*.ts" | grep -v ".test.\|.spec.")
+
+          for FILE in $FILES; do
+            # Check if file has user-visible JSX content (renders to the DOM)
+            # and does NOT import useTranslation
+            HAS_JSX_RETURN=$(grep -c "return (" "$FILE" 2>/dev/null || echo 0)
+            HAS_I18N=$(grep -c "useTranslation" "$FILE" 2>/dev/null || echo 0)
+
+            if [ "$HAS_JSX_RETURN" -gt 0 ] && [ "$HAS_I18N" -eq 0 ]; then
+              # Check for long English string literals that look like UI text
+              HARDCODED=$(grep -nE '"[A-Z][a-zA-Z]{4,} [a-zA-Z ]{4,}"' "$FILE" 2>/dev/null | grep -v "//\|console\." || true)
+              if [ -n "$HARDCODED" ]; then
+                echo "WARNING: $FILE appears to render UI but does not use useTranslation:"
+                echo "$HARDCODED"
+                VIOLATIONS=$((VIOLATIONS + 1))
+              fi
+            fi
+          done
+
+          if [ $VIOLATIONS -gt 0 ]; then
+            echo ""
+            echo "$VIOLATIONS file(s) may have hardcoded strings not wrapped with t()."
+            echo "Import useTranslation and use t('key') for all user-visible text."
+            exit 1
+          fi
+
+          echo "i18n string check passed."

@@ -1,11 +1,14 @@
 // src/components/Login.tsx
 import { JSX, useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Assuming AuthContext is now AuthContext.tsx
+import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 // Define the component's return type
 function Login(): JSX.Element {
-  const { login } = useAuth(); // Get the login function from context
+  const { login } = useAuth();
+  const { t } = useTranslation();
 
   // Add types for state variables
   const [isLoggingIn, setIsLoggingIn] = useState<boolean>(false);
@@ -20,8 +23,7 @@ function Login(): JSX.Element {
       // Login successful state change is handled by AuthProvider listener
     } catch (err) {
       console.error("Login component error:", err);
-      // Provide more specific error messages based on err.code if needed
-      setError("Failed to sign in. Please try again.");
+      setError(t('login.error'));
       setIsLoggingIn(false); // Set loading to false only if login fails
     }
   };
@@ -29,10 +31,11 @@ function Login(): JSX.Element {
   return (
     // Full screen container, centers content using Flexbox (Tailwind)
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8 dark:bg-brand-dark-surface relative">
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
+        <LanguageSelector />
         <ThemeToggle />
       </div>
-      
+
       {/* Card container with Tailwind styling */}
       <div className="max-w-md w-full bg-white shadow-2xl rounded-3xl p-8 sm:p-12 border border-gray-100 space-y-8 dark:bg-gray-900 dark:border-gray-800 transition-all">
         {/* Header Section */}
@@ -41,15 +44,15 @@ function Login(): JSX.Element {
             fuel<span className="text-gray-300 dark:text-gray-600">og</span>
           </h1>
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-            Precision Fuel Tracking
+            {t('login.tagline')}
           </p>
         </div>
 
         <div className="space-y-4">
           <p className="text-center text-gray-600 dark:text-gray-300 text-sm leading-relaxed px-4">
-            Monitor efficiency, manage your fleet, and export professional reports in one seamless mobile experience.
+            {t('login.description')}
           </p>
-          
+
           <button
             onClick={handleLoginClick}
             disabled={isLoggingIn}
@@ -62,7 +65,7 @@ function Login(): JSX.Element {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            {isLoggingIn ? 'Initializing...' : 'Get Started with Google'}
+            {isLoggingIn ? t('login.initializing') : t('login.getStarted')}
           </button>
         </div>
 
@@ -78,4 +81,3 @@ function Login(): JSX.Element {
 }
 
 export default Login;
-

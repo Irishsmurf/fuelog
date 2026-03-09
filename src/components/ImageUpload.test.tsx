@@ -2,6 +2,19 @@ import { render, screen } from '@testing-library/react';
 import ImageUpload from './ImageUpload';
 import { describe, it, expect, vi } from 'vitest';
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const strings: Record<string, string> = {
+        'imageUpload.receiptPhoto': 'Receipt Photo',
+        'imageUpload.snapOrSelect': 'Snap or Select',
+      };
+      return strings[key] ?? key;
+    },
+    i18n: { language: 'en' },
+  }),
+}));
+
 describe('ImageUpload', () => {
   it('renders with default label', () => {
     const onFileSelect = vi.fn();

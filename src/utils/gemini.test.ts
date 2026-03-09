@@ -58,6 +58,7 @@ describe('gemini utility', () => {
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
     const originalGetModel = GoogleGenerativeAI.prototype.getGenerativeModel;
+    // @ts-ignore - Ignoring TS error because we are only mocking the method we use
     GoogleGenerativeAI.prototype.getGenerativeModel = function() {
       return {
         generateContent: vi.fn().mockResolvedValue({

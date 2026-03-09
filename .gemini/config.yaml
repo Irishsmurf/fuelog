@@ -1,0 +1,36 @@
+# Gemini Code Assist Configuration
+# See: https://developers.google.com/gemini-code-assist/docs/customize-gemini-behavior-github
+
+# Patterns to ignore from analysis and reviews
+ignore:
+  - "package-lock.json"
+  - "dist/**"
+  - "node_modules/**"
+  - "public/**"
+  - "playwright-report/**"
+  - "test-results/**"
+  - "coverage/**"
+  - "**/*.md" # Documentation is important but can be noisy in reviews
+  - ".github/workflows/**" # Automated pipeline changes
+
+# Code Review Settings
+code_review:
+  # Enable automated code reviews on Pull Requests
+  enabled: true
+  
+  # Only review files that match these patterns (optional, but good for focus)
+  # include_patterns:
+  #   - "src/**"
+  #   - "api/**"
+
+  # Control the verbosity/noise
+  # Skip reviews for PRs that only contain ignored files
+  skip_empty_reviews: true
+
+  # Custom instructions for the reviewer
+  instructions: |
+    - Focus on performance, security, and React best practices.
+    - Ensure new features are correctly gated behind Remote Config flags.
+    - Check for proper internationalization (i18n) usage.
+    - Verify that Tailwind CSS 4 classes are used for styling.
+    - Maintain consistent naming conventions and architectural patterns.

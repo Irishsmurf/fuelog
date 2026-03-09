@@ -1,10 +1,13 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { z } from "zod";
 
-export interface ReceiptData {
-  cost: number | null;
-  fuelAmountLiters: number | null;
-  brand: string | null;
-}
+const ReceiptDataSchema = z.object({
+  cost: z.number().nullable().optional().transform(v => typeof v === 'number' ? v : null),
+  fuelAmountLiters: z.number().nullable().optional().transform(v => typeof v === 'number' ? v : null),
+  brand: z.string().nullable().optional().transform(v => typeof v === 'string' ? v : null),
+});
+
+export type ReceiptData = z.infer<typeof ReceiptDataSchema>;
 
 // We instantiate inside the function or lazily so tests can mock env vars easily
 let genAIInstance: GoogleGenerativeAI | null = null;
@@ -81,14 +84,15 @@ export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
         if (jsonMatch?.[1]) {
           jsonText = jsonMatch[1];
         }
-        const data = JSON.parse(jsonText);
+        const parsedJson = JSON.parse(jsonText);
+        const validatedData = ReceiptDataSchema.parse(parsedJson);
         return {
-            cost: data.cost !== undefined ? data.cost : null,
-            fuelAmountLiters: data.fuelAmountLiters !== undefined ? data.fuelAmountLiters : null,
-            brand: data.brand !== undefined ? data.brand : null,
+            cost: validatedData.cost ?? null,
+            fuelAmountLiters: validatedData.fuelAmountLiters ?? null,
+            brand: validatedData.brand ?? null,
         };
     } catch (parseError) {
-        console.error("Failed to parse Gemini response as JSON:", text);
+        console.error("Failed to parse or validate Gemini response:", text, parseError);
         throw new Error("Failed to parse receipt data.");
     }
 

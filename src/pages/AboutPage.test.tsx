@@ -24,8 +24,7 @@ describe('AboutPage', () => {
       getBoolean: vi.fn().mockReturnValue(false),
       getString: vi.fn().mockReturnValue(''),
       getNumber: vi.fn().mockReturnValue(0),
-      allConfig: {},
-      isLoaded: true,
+      loading: false,
     });
   });
 
@@ -51,8 +50,7 @@ describe('AboutPage', () => {
       getBoolean: vi.fn().mockImplementation((key: string) => key === 'exampleFeatureFlagEnabled'),
       getString: vi.fn().mockReturnValue(''),
       getNumber: vi.fn().mockReturnValue(0),
-      allConfig: {},
-      isLoaded: true,
+      loading: false,
     });
 
     render(

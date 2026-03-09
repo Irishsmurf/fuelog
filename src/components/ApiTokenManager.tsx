@@ -205,7 +205,8 @@ export default function ApiTokenManager(): JSX.Element {
       setSelectedScopes(new Set(['read:logs', 'read:vehicles']));
       setShowForm(false);
     } catch (err: unknown) {
-      if (err?.code === 'permission-denied') {
+      const error = err as { code?: string };
+      if (error.code === 'permission-denied') {
         setError(t('apiTokens.errors.permissionDenied'));
       } else {
         setError(t('apiTokens.errors.failedCreate'));

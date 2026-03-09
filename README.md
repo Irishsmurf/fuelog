@@ -70,7 +70,7 @@ Built with React, Vite, TypeScript, Firebase, and Tailwind CSS.
 
 4.  **Configure Environment Variables:**
     * Create a file named `.env` in the root directory of the project.
-    * Add your Firebase configuration keys, prefixed with `VITE_`:
+    * Add your Firebase configuration keys, prefixed with `VITE_`, as well as your Gemini API key:
         ```env
         # .env
         VITE_FIREBASE_API_KEY=YOUR_API_KEY
@@ -79,6 +79,9 @@ Built with React, Vite, TypeScript, Firebase, and Tailwind CSS.
         VITE_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
         VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID
         VITE_FIREBASE_APP_ID=YOUR_APP_ID
+
+        # Optional: For AI Receipt Parsing feature
+        VITE_GEMINI_API_KEY=YOUR_GEMINI_API_KEY
         ```
     * **Important:** Add `.env` to your `.gitignore` file to avoid committing your secret keys.
 

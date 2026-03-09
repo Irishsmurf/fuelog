@@ -7,8 +7,9 @@ import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
 import { Vehicle } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
-import ImageUpload from '../components/ImageUpload';
 import { uploadReceipt } from '../firebase/storageService';
+import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
+import ReceiptAISection from '../components/ReceiptAISection';
 
 // Types
 type MessageType = 'success' | 'error' | 'info' | ''; // Added 'info' type
@@ -28,6 +29,7 @@ function QuickLogPage(): JSX.Element {
   const { user, profile } = useAuth();
   const { getBoolean } = useRemoteConfig();
   const receiptDigitizationEnabled = getBoolean('receiptDigitizationEnabled');
+  const receiptAutoFillEnabled = getBoolean('receiptAutoFillEnabled');
 
   const [brand, setBrand] = useState<string>('');
   const [cost, setCost] = useState<string>('');
@@ -52,6 +54,8 @@ function QuickLogPage(): JSX.Element {
 
   // --- Receipt State ---
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [isExtracting, setIsExtracting] = useState<boolean>(false);
+  const [extractedData, setExtractedData] = useState<ReceiptData | null>(null);
 
   // Reset currency when homeCurrency changes (initial load)
   useEffect(() => {
@@ -133,6 +137,41 @@ function QuickLogPage(): JSX.Element {
   const handleRateChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
     setExchangeRate(isNaN(val) ? 0 : val);
+  };
+
+  // --- Handle AI Extraction ---
+  const handleExtractData = async () => {
+    if (!receiptFile) return;
+    setIsExtracting(true);
+    setExtractedData(null);
+    setMessage({ type: 'info', text: 'Analyzing receipt with AI...' });
+    try {
+      const data = await extractDataFromReceipt(receiptFile);
+      setExtractedData(data);
+      setMessage({ type: '', text: '' }); // Clear loading message
+    } catch (error) {
+      console.error("Extraction error:", error);
+      setMessage({ type: 'error', text: 'Failed to extract data from receipt.' });
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
+  // --- Confirm Extracted Data ---
+  const handleConfirmExtraction = () => {
+    if (extractedData) {
+      if (extractedData.cost != null) setCost(extractedData.cost.toString());
+      if (extractedData.fuelAmountLiters != null) setFuelAmountLiters(extractedData.fuelAmountLiters.toString());
+      if (extractedData.brand != null) setBrand(extractedData.brand);
+      setExtractedData(null);
+      setMessage({ type: 'success', text: 'Fields auto-filled from receipt!' });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    }
+  };
+
+  // --- Cancel Extraction ---
+  const handleCancelExtraction = () => {
+    setExtractedData(null);
   };
 
   // --- Function to get Geolocation wrapped in a Promise ---
@@ -347,11 +386,18 @@ function QuickLogPage(): JSX.Element {
                 </div>
 
                 {/* Section 3: Receipt Digitization */}
-                {receiptDigitizationEnabled && (
-                  <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                    <ImageUpload onFileSelect={setReceiptFile} />
-                  </div>
-                )}
+                <ReceiptAISection
+                  receiptDigitizationEnabled={receiptDigitizationEnabled}
+                  receiptAutoFillEnabled={receiptAutoFillEnabled}
+                  receiptFile={receiptFile}
+                  setReceiptFile={setReceiptFile}
+                  isExtracting={isExtracting}
+                  extractedData={extractedData}
+                  setExtractedData={setExtractedData}
+                  handleExtractData={handleExtractData}
+                  handleConfirmExtraction={handleConfirmExtraction}
+                  handleCancelExtraction={handleCancelExtraction}
+                />
 
                 {/* Submit Button */}
                 <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center items-center py-3.5 px-4 border border-transparent shadow-lg text-base font-bold rounded-xl text-white bg-brand-primary hover:bg-brand-primary-hover focus:ring-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">

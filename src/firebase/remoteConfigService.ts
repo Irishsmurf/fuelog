@@ -22,6 +22,7 @@ remoteConfigInstance.defaultConfig = {
   "costPerLitreGraphEnabled": false, // Feature flag for Cost Per Litre graph
   "totalSpentDisplayEnabled": false, // Feature flag for the Total Spent display
   "receiptDigitizationEnabled": false, // Feature flag for Receipt Digitization
+  "receiptAutoFillEnabled": false, // Feature flag for Receipt Auto-fill via Gemini
   // Add other remote config defaults here as key-value pairs
   // e.g., "showNewDashboard": false,
   //       "apiEndpoint": "https://api.example.com/v1"

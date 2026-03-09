@@ -41,9 +41,8 @@ describe('firebase/config', () => {
     const { initializeApp } = await import('firebase/app');
     await import('./config');
 
-    expect(initializeApp).toHaveBeenCalledWith(
-      expect.objectContaining({ measurementId: expect.any(String) })
-    );
+    const callArg = vi.mocked(initializeApp).mock.calls[0][0] as Record<string, unknown>;
+    expect(callArg).toHaveProperty('measurementId');
   });
 
   it('calls getAnalytics when isSupported returns true', async () => {

@@ -1,53 +1,64 @@
-# Fuelog Roadmap
+# Fuelog Roadmap (2026 Update)
 
-This document outlines the planned features and future direction for the **Fuelog** application.
+This document outlines the current status of features and the strategic direction for the **Fuelog** application.
 
-## Phase 1: Near-Term (Polishing & Core Features)
-*Focus on improving the existing user experience and completing the core feature set.*
+## 🏁 Completed Objectives (Status Check)
 
-- [ ] **Enhanced Map Visualizations:**
-    - Implement a Heatmap layer to identify frequent filling regions.
-    - Add custom icons for different filling station brands on the map.
-- [ ] **Comprehensive Dashboard:**
-    - Create a dedicated "Stats" or "Dashboard" page.
-    - Add summary widgets: Total Lifetime Spent, Average MPG, Last 30 Days Efficiency, Total Distance Covered.
-- [ ] **PWA (Progressive Web App) Implementation:**
-    - Add service workers for offline asset caching.
-    - Ensure a "Installable" prompt appears on mobile devices.
-- [ ] **User Preferences:**
-    - Allow users to choose default units (Metric: Km/L vs Imperial: MPG/Miles).
-    - Preference for currency (EUR, USD, GBP, etc.).
+### Core & UX
+- [x] **Multi-Vehicle Support:** Manage multiple cars/rentals under one account.
+- [x] **PWA Implementation:** Fully installable mobile experience with offline persistence.
+- [x] **Internationalization (i18n):** Support for 10 languages (EN, GA, ES, FR, DE, JA, KO, SV, NO, FI).
+- [x] **Multi-Currency:** Automatic exchange rate conversion via Frankfurter API.
+- [x] **Build Optimization:** Advanced bundle splitting and lazy loading for high performance.
 
-## Phase 2: Mid-Term (Advanced Functionality)
-*Focus on expanding the utility of the data and supporting more complex use cases.*
-
-- [ ] **Multi-Vehicle Support:**
-    - Allow users to manage logs for multiple vehicles under one account.
-    - Profile page to manage vehicle details (Make, Model, Year, Fuel Type).
-- [ ] **Maintenance Tracking:**
-    - Log service intervals (Oil changes, Tire rotations, etc.).
-    - Set reminders based on distance covered or time elapsed.
-- [ ] **Advanced Data Import/Export:**
-    - Support for CSV and JSON imports.
-    - Export history to PDF reports for expense claims or resale records.
-- [ ] **Filtering & Search Enhancements:**
-    - Add advanced filtering by cost range, distance range, or specific garage location.
-    - Global search across all log notes/brands.
-
-## Phase 3: Long-Term (Ecosystem & Intelligence)
-*Focus on automation, external integrations, and smarter insights.*
-
-- [ ] **Automated Trip Logging:**
-    - Background GPS tracking (opt-in) to automatically detect fuel stops.
-- [ ] **External Price Integration:**
-    - Integrate with local fuel price APIs to show current prices at nearby stations on the map.
-- [ ] **Predictive Analytics:**
-    - Use machine learning to predict when the next fill-up will be required based on driving habits.
-    - Suggest the cheapest or closest station based on user history and real-time prices.
-- [ ] **Community Features:**
-    - Crowdsourced fuel price reporting.
-    - Compare your efficiency metrics with other users driving the same vehicle model.
+### Data & Visualization
+- [x] **PDF Export:** Professional fuel history reports.
+- [x] **Map Intelligence:** Heatmaps and marker clustering for filling stations.
+- [x] **TSV Import:** Bulk data ingestion from legacy spreadsheets.
+- [x] **MCP Integration:** Model Context Protocol support for LLM-driven data analysis.
 
 ---
 
-*Note: This roadmap is a living document and will be updated as priorities shift and new ideas emerge.*
+## 🚀 Phase 1: Precision & Maintenance (Q2 2026)
+*Focus on vehicle health and refining the logging experience.*
+
+- [ ] **Comprehensive Maintenance Tracker:**
+    - Log service events (Oil changes, Tire rotations, Brake service).
+    - Attach receipt photos specifically to maintenance events.
+    - Set distance-based reminders (e.g., "Remind me in 10,000km for oil").
+- [ ] **Advanced Dashboard Widgets:**
+    - "Efficiency Anomaly Detection": Alerts if recent MPG drops significantly below average.
+    - "Fuel Spend Forecast": Predict monthly spend based on historical trends.
+- [ ] **Station Brand Auto-Suggest Enhancement:**
+    - Group similar station names (e.g., "Circle K" vs "Circle-K") using fuzzy matching.
+- [ ] **Dark Mode Refinement:**
+    - More granular control over theme (Follow System vs Manual Toggle).
+
+## 🧠 Phase 2: Intelligence & AI (Q3 2026)
+*Leveraging Gemini and advanced logic for automation.*
+
+- [ ] **Receipt AI v2 (Vision):**
+    - Improve Gemini-based OCR accuracy for complex thermal receipts.
+    - Auto-detect station location from the receipt text if GPS is missing.
+- [ ] **Predictive Fuel stops:**
+    - Suggest the best time to refuel based on current tank level (calculated) and expected mileage.
+- [ ] **Smart Regional Insights:**
+    - Compare your efficiency with aggregated anonymous data from other users with the same vehicle model.
+- [ ] **Voice Logging:**
+    - "Hey Fuelog, I just spent 50 Euro at Shell for 35 Litres" - hands-free entry.
+
+## 🌐 Phase 3: Ecosystem & Expansion (Q4 2026+)
+*Broadening the reach and integration capabilities.*
+
+- [ ] **Capacitor/Native Port:**
+    - Package the PWA into a native Android/iOS app for better system-level integration (notifications, background tasks).
+- [ ] **External Price APIs:**
+    - Integrate with real-time fuel price providers to show "Cheapest Nearby" stations on the map.
+- [ ] **Team/Shared Vehicles:**
+    - Allow multiple users to log data for a shared vehicle (e.g., family car or small business fleet).
+- [ ] **OBD-II Integration (Research):**
+    - Explore reading data directly from the vehicle via Bluetooth OBD-II scanners.
+
+---
+
+*Note: This roadmap is a living document. Priorities are adjusted based on user feedback and technological advancements.*

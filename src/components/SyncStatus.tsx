@@ -11,8 +11,19 @@ const SyncStatus = (): JSX.Element => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    let syncTimer: NodeJS.Timeout;
+
+    const handleOnline = () => {
+      setIsOnline(true);
+      setIsSyncing(true);
+      // We also add a timeout just in case nothing is actually pending
+      syncTimer = setTimeout(() => setIsSyncing(false), 3000);
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      setIsSyncing(false);
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -27,19 +38,9 @@ const SyncStatus = (): JSX.Element => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       unsubscribe();
+      if (syncTimer) clearTimeout(syncTimer);
     };
   }, []);
-
-  // We set syncing to true when we detect we've gone from offline to online
-  useEffect(() => {
-    if (isOnline) {
-      setIsSyncing(true);
-      // It will be set to false by the onSnapshotsInSync listener
-      // We also add a timeout just in case nothing is actually pending
-      const timer = setTimeout(() => setIsSyncing(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isOnline]);
 
   if (isOnline && !isSyncing) return <></>;
 

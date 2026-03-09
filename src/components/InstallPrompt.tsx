@@ -27,11 +27,6 @@ const InstallPrompt = (): JSX.Element | null => {
 
     window.addEventListener('beforeinstallprompt', handler);
 
-    // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsVisible(false);
-    }
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
     };

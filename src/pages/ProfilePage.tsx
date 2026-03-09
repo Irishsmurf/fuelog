@@ -1,4 +1,4 @@
-import { JSX, useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { JSX, useState, useEffect, ChangeEvent, FormEvent, useCallback } from 'react';
 import { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch, updateDoc } from "firebase/firestore";
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
@@ -23,7 +23,7 @@ function ProfilePage(): JSX.Element {
     name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol' as VehicleFuelType, isDefault: false
   });
 
-  const fetchVehicles = async () => {
+  const fetchVehicles = useCallback(async () => {
     if (!user) return;
     setIsLoading(true);
     try {
@@ -39,9 +39,9 @@ function ProfilePage(): JSX.Element {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
-  useEffect(() => { fetchVehicles(); }, [user]);
+  useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;

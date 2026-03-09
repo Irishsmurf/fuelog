@@ -8,8 +8,8 @@ import { Vehicle } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
+import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import ReceiptAISection from '../components/ReceiptAISection';
-import { useReceiptAI } from '../hooks/useReceiptAI';
 import { useTranslation } from 'react-i18next';
 
 // Types
@@ -54,19 +54,45 @@ function QuickLogPage(): JSX.Element {
   const [exchangeRate, setExchangeRate] = useState<number>(1.0);
   const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
 
-  // --- Receipt AI ---
-  const {
-    receiptFile, setReceiptFile,
-    isExtracting, extractedData, setExtractedData,
-    handleExtractData, handleConfirmExtraction, handleCancelExtraction,
-  } = useReceiptAI({
-    onConfirm: (data) => {
-      if (data.cost !== null) setCost(data.cost.toString());
-      if (data.fuelAmountLiters !== null) setFuelAmountLiters(data.fuelAmountLiters.toString());
-      if (data.brand !== null) setBrand(data.brand);
-    },
-    setMessage,
-  });
+  // --- Receipt State ---
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [isExtracting, setIsExtracting] = useState<boolean>(false);
+  const [extractedData, setExtractedData] = useState<ReceiptData | null>(null);
+
+  // --- Handle AI Extraction ---
+  const handleExtractData = async () => {
+    if (!receiptFile) return;
+    setIsExtracting(true);
+    setExtractedData(null);
+    setMessage({ type: 'info', text: t('receipt.analyzing') });
+    try {
+      const data = await extractDataFromReceipt(receiptFile);
+      setExtractedData(data);
+      setMessage({ type: '', text: '' });
+    } catch (error) {
+      console.error("Extraction error:", error);
+      setMessage({ type: 'error', text: t('receipt.extractionFailed') });
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
+  // --- Confirm Extracted Data ---
+  const handleConfirmExtraction = () => {
+    if (extractedData) {
+      if (extractedData.cost != null) setCost(extractedData.cost.toString());
+      if (extractedData.fuelAmountLiters != null) setFuelAmountLiters(extractedData.fuelAmountLiters.toString());
+      if (extractedData.brand != null) setBrand(extractedData.brand);
+      setExtractedData(null);
+      setMessage({ type: 'success', text: t('receipt.autoFilled') });
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+    }
+  };
+
+  // --- Cancel Extraction ---
+  const handleCancelExtraction = () => {
+    setExtractedData(null);
+  };
 
   // Reset currency when homeCurrency changes (initial load)
   useEffect(() => {

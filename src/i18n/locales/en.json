@@ -184,7 +184,9 @@
     "brand": "Brand",
     "notFound": "Not found",
     "useValues": "Use Values",
-    "discard": "Discard"
+    "discard": "Discard",
+    "extractionFailed": "Failed to extract data from receipt.",
+    "autoFilled": "Fields auto-filled from receipt!"
   },
   "apiTokens": {
     "title": "API Access",

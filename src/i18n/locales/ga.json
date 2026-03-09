@@ -184,7 +184,9 @@
     "brand": "Brandáil",
     "notFound": "Gan aimsiú",
     "useValues": "Úsáid Luachanna",
-    "discard": "Caith Uait"
+    "discard": "Caith Uait",
+    "extractionFailed": "Theip ar shonraí a eastóscadh ón admháil.",
+    "autoFilled": "Réimsí uathlíonta ón admháil!"
   },
   "apiTokens": {
     "title": "Rochtain API",

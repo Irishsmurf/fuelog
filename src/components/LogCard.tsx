@@ -2,6 +2,7 @@
 import { JSX, useState } from 'react';
 import { Log } from '../utils/types';
 import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
+import { sanitizeUrl } from '../utils/sanitize';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Info, Edit3, Trash2, FileText } from 'lucide-react';
@@ -121,13 +122,13 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
             <div className="mb-3">
               <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-tight block mb-1">{t('logCard.receipt')}</span>
               <a
-                href={log.receiptUrl}
+                href={sanitizeUrl(log.receiptUrl!)}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="inline-block relative rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity"
               >
-                <img src={log.receiptUrl} alt="Receipt" className="h-10 w-16 object-cover" />
+                <img src={sanitizeUrl(log.receiptUrl!)} alt="Receipt" className="h-10 w-16 object-cover" />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                   <FileText size={12} className="text-white" />
                 </div>

@@ -25,6 +25,7 @@ import { exportLogsToPDF } from '../utils/pdfExport'; // Import PDF Export utili
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import ImageUpload from '../components/ImageUpload';
 import { uploadReceipt } from '../firebase/storageService';
+import { sanitizeUrl } from '../utils/sanitize';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -532,8 +533,8 @@ function HistoryPage(): JSX.Element {
                                             {receiptDigitizationEnabled && (
                                               <td className="px-3 py-3 whitespace-nowrap text-center">
                                                 {log.receiptUrl ? (
-                                                  <a href={log.receiptUrl} target="_blank" rel="noopener noreferrer" className="inline-block relative rounded overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity">
-                                                    <img src={log.receiptUrl} alt="Receipt" className="h-6 w-10 object-cover" />
+                                                  <a href={sanitizeUrl(log.receiptUrl)} target="_blank" rel="noopener noreferrer" className="inline-block relative rounded overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity">
+                                                    <img src={sanitizeUrl(log.receiptUrl)} alt="Receipt" className="h-6 w-10 object-cover" />
                                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10">
                                                       <FileText size={10} className="text-white" />
                                                     </div>

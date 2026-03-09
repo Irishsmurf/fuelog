@@ -1,0 +1,326 @@
+{
+  "nav": {
+    "log": "Kirjaa",
+    "history": "Historia",
+    "map": "Kartta",
+    "profile": "Profiili"
+  },
+  "login": {
+    "tagline": "Tarkka polttoaineen seuranta",
+    "description": "Seuraa tehokkuutta, hallitse kalustoasi ja vie ammattimaisia raportteja saumattomassa mobiilikokemuksessa.",
+    "getStarted": "Aloita Googlen avulla",
+    "initializing": "Alustetaan...",
+    "error": "Kirjautuminen epäonnistui. Yritä uudelleen."
+  },
+  "quickLog": {
+    "title": "Kirjaa uusi tankkaus",
+    "loadingVehicles": "Ladataan ajoneuvoja...",
+    "noVehicles": {
+      "heading": "Ajoneuvoja ei löytynyt",
+      "subtext": "Tarvitset vähintään yhden ajoneuvon aloittaaksesi polttoaineen kirjaamisen.",
+      "cta": "Lisää ensimmäinen ajoneuvosi"
+    },
+    "sections": {
+      "vehicleStation": "Ajoneuvo & Asema",
+      "fuelCost": "Polttoaine & Kustannus",
+      "receipt": "Kuitti"
+    },
+    "fields": {
+      "vehicle": "Ajoneuvo",
+      "fillingStation": "Huoltoasema",
+      "fillingStationOptional": "Valinnainen",
+      "fillingStationPlaceholder": "esim. Neste, ABC",
+      "totalCost": "Kokonaiskustannus",
+      "currency": "Valuutta",
+      "distance": "Matka (Km)",
+      "fuel": "Polttoaine (L)",
+      "exchangeRate": "Valuuttakurssi (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Haetaan...",
+      "converted": "Muunnettu: {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Tallenna loki",
+      "saving": "Tallennetaan...",
+      "locating": "Paikannetaan..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "Sinun täytyy olla kirjautunut tallentaaksesi.",
+      "addVehicleFirst": "Lisää ajoneuvo profiiliisi ensin.",
+      "selectVehicle": "Valitse ajoneuvo.",
+      "fillRequired": "Täytä kustannus, matka ja polttoainemäärä.",
+      "validNumbers": "Kustannuksen, matkan (Km) ja polttoainemäärän on oltava kelvollisia positiivisia lukuja.",
+      "gettingLocation": "Yritetään hakea sijaintia...",
+      "locationCaptured": "Sijainti haettu (Tarkkuus: {{accuracy}}m).",
+      "locationNotSupported": "Selaimesi ei tue sijaintia.",
+      "savingLog": "{{locationMsg}} Tallennetaan lokia...",
+      "uploadingReceipt": "Ladataan kuittikuvaa...",
+      "savedSuccess": "Loki tallennettu onnistuneesti!",
+      "savedNoLocation": "Loki tallennettu onnistuneesti! (Sijaintia ei saatu)",
+      "saveError": "Virhe tallennettaessa lokia. Yritä uudelleen.",
+      "fetchRateError": "Valuuttakurssin {{currency}} haku epäonnistui. Aseta manuaalisesti."
+    }
+  },
+  "history": {
+    "title": "Tankkaushistoria",
+    "pageTitle": "Historia & Trendit",
+    "loading": "Ladataan historiaa...",
+    "noLogs": "Ei tankkauslokeja. Lisää ensimmäinen merkintäsi!",
+    "noLogsForFilter": "Suodattimia vastaavia lokeja ei löytynyt.",
+    "exportPdf": "Vie PDF",
+    "filters": {
+      "heading": "Suodattimet",
+      "vehicle": "Ajoneuvo",
+      "allVehicles": "Kaikki ajoneuvot",
+      "archived": "Arkistoidut",
+      "startDate": "Alkupäivä",
+      "endDate": "Loppupäivä",
+      "brand": "Merkki",
+      "allBrands": "Kaikki merkit"
+    },
+    "viewToggle": {
+      "viewCards": "Näytä kortit",
+      "viewTable": "Näytä taulukko",
+      "switchToCards": "Vaihda korttinäkymään",
+      "switchToTable": "Vaihda taulukkonäkymään"
+    },
+    "metrics": {
+      "totalSpent": "Yhteensä käytetty (suodatettu)",
+      "avgMpg": "Keskimääräinen MPG (UK) (suodatettu)",
+      "avgCostPerLitre": "Keskimääräinen hinta / litra (suodatettu)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) ajan myötä (suodatettu)",
+      "costPerLitreOverTime": "Polttoaineen hinta per litra ajan myötä (suodatettu)",
+      "needMoreData": "Tarvitaan vähintään kaksi lokia trendien näyttämiseksi."
+    },
+    "logDetails": {
+      "heading": "Login tiedot",
+      "filteredCount": "({{filtered}} / {{total}} näytetään)",
+      "totalCount": "({{count}} yhteensä)"
+    },
+    "copyStatus": {
+      "idle": "Kopioi taulukon tiedot",
+      "copying": "Kopioidaan...",
+      "copied": "Kopioitu!",
+      "failed": "Kopiointi epäonnistui!",
+      "noData": "Ei tietoja",
+      "unavailable": "Leikepöytä ei ole käytettävissä"
+    },
+    "table": {
+      "date": "Päivämäärä",
+      "vehicle": "Ajoneuvo",
+      "brand": "Merkki",
+      "cost": "Kustannus ({{currency}})",
+      "distance": "Matka (Km)",
+      "fuel": "Polttoaine (L)",
+      "costPerMile": "Kulu/maili",
+      "receipt": "Kuitti",
+      "actions": "Toiminnot",
+      "editLog": "Muokkaa lokia",
+      "deleteLog": "Poista loki",
+      "edit": "Muokkaa",
+      "delete": "Poista"
+    },
+    "viewMode": {
+      "list": "Lista",
+      "chart": "Kaavio",
+      "summary": "Yhteenveto"
+    },
+    "filter": {
+      "all": "Kaikki",
+      "thisMonth": "Tässä kuussa",
+      "last3Months": "Viimeiset 3 kk",
+      "thisYear": "Tänä vuonna"
+    },
+    "chart": {
+      "fuelCost": "Polttoainekustannus",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Kulu/maili"
+    },
+    "summary": {
+      "totalSpend": "Kokonaiskulutus",
+      "totalFuel": "Polttoainetta yhteensä",
+      "totalDistance": "Matka yhteensä",
+      "avgEfficiency": "Keskimääräinen tehokkuus",
+      "avgCostPerKm": "Keskihinta/km",
+      "entries": "Merkinnät"
+    },
+    "edit": {
+      "title": "Muokkaa merkintää",
+      "vehicle": "Ajoneuvo",
+      "brand": "Huoltoasema",
+      "cost": "Kokonaiskustannus ({{currency}})",
+      "distance": "Matka (Km)",
+      "fuel": "Polttoainemäärä (L)",
+      "save": "Tallenna muutokset",
+      "saving": "Tallennetaan...",
+      "cancel": "Peruuta",
+      "receipt": "Kuittikuva",
+      "updateReceipt": "Päivitä kuittikuva",
+      "receiptKept": "Nykyinen kuitti säilytetään, ellei sitä korvata."
+    },
+    "delete": {
+      "confirm": "Poistetaanko tämä merkintä? Toimintoa ei voi peruuttaa."
+    },
+    "loadError": "Historian lataus epäonnistui. Tarkista yhteys ja yritä uudelleen.",
+    "deleteError": "Merkinnän poisto epäonnistui. Yritä uudelleen.",
+    "updateError": "Login päivitys epäonnistui. Yritä uudelleen."
+  },
+  "imageUpload": {
+    "receiptPhoto": "Kuittikuva",
+    "snapOrSelect": "Ota kuva tai valitse"
+  },
+  "logCard": {
+    "distance": "Matka",
+    "fuelAdded": "Lisätty polttoaine",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Kulu/maili",
+    "receipt": "Kuitti",
+    "tapToViewMap": "Napauta nähdäksesi kartan",
+    "noLocation": "Ei sijaintia",
+    "unknownStation": "Tuntematon asema",
+    "editEntry": "Muokkaa",
+    "deleteEntry": "Poista"
+  },
+  "profile": {
+    "appPreferences": "Sovelluksen asetukset",
+    "homeCurrency": "Kotivaluutta",
+    "homeCurrencyDesc": "Aseta ensisijainen valuuttasi kaikille lokeille ja yhteenvedoille.",
+    "measurementUnits": "Mittayksiköt",
+    "measurementUnitsSoon": "Tulossa pian: Vaihda metrisen (Km/L) ja imperiaalisen (MPG) välillä.",
+    "vehicleFleet": "Ajoneuvot",
+    "vehicleFleetSubtext": "Hallitse autojasi.",
+    "showArchived": "Näytä arkistoidut ({{count}})",
+    "hideArchived": "Piilota arkistoidut",
+    "archivedFleet": "Arkistoidut ajoneuvot",
+    "noActiveVehicles": "Ei aktiivisia ajoneuvoja.",
+    "noActiveVehiclesSubtext": "Lisää ajoneuvo alta aloittaaksesi seurannan.",
+    "addNewVehicle": "Lisää uusi ajoneuvo",
+    "vehicleCard": {
+      "primary": "Ensisijainen",
+      "makeDefault": "Aseta oletukseksi",
+      "archive": "Arkistoi",
+      "restore": "Palauta",
+      "delete": "Poista"
+    },
+    "vehicleForm": {
+      "nickname": "Lempinimi / Nimi",
+      "nicknamePlaceholder": "esim. Oma Polo",
+      "make": "Merkki",
+      "makePlaceholder": "esim. VW",
+      "model": "Malli",
+      "modelPlaceholder": "esim. Polo",
+      "year": "Vuosi",
+      "fuelType": "Polttoainetyyppi",
+      "fuelTypes": {
+        "petrol": "Bensiini",
+        "diesel": "Diesel",
+        "hybrid": "Hybridi",
+        "electric": "Sähkö"
+      },
+      "setAsDefault": "Aseta oletusajoneuvoksi",
+      "register": "Rekisteröi ajoneuvo",
+      "registering": "Alustetaan..."
+    },
+    "messages": {
+      "vehicleAdded": "Ajoneuvo lisätty onnistuneesti!",
+      "failedToAdd": "Ajoneuvon lisäys epäonnistui. Yritä uudelleen.",
+      "permissionDenied": "Pääsy evätty. Tarkista Firestore-säännöt.",
+      "failedToDelete": "Ajoneuvon poisto epäonnistui.",
+      "permissionDeniedDelete": "Ei oikeutta poistaa.",
+      "failedToSetDefault": "Oletusajoneuvon asetus epäonnistui.",
+      "permissionDeniedDefault": "Ei oikeutta päivittää oletuksia.",
+      "deleteConfirm": "Oletko varma? Tämä ei poista lokeja, mutta irrottaa ne ajoneuvosta."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Täytä tekoälyllä",
+    "analyzing": "Analysoidaan...",
+    "extractionResults": "Tekoälyn tulokset:",
+    "cost": "Hinta",
+    "litres": "Litrat",
+    "brand": "Merkki",
+    "notFound": "Ei löytynyt",
+    "useValues": "Käytä arvoja",
+    "discard": "Hylkää",
+    "extractionFailed": "Tietojen haku kuitista epäonnistui.",
+    "autoFilled": "Kentät täytetty kuitista!"
+  },
+  "apiTokens": {
+    "title": "API-pääsy",
+    "subtitle": "Yhdistä Claude ja muut kielimallit tietoihisi MCP:n kautta",
+    "newToken": "Uusi avain",
+    "createToken": "Luo uusi API-avain",
+    "tokenName": "Avaimen nimi",
+    "tokenNamePlaceholder": "esim. Claude Desktop - Koti",
+    "permissions": "Oikeudet",
+    "scopes": {
+      "readLogs": "Lue lokit",
+      "writeLogs": "Kirjoita lokit",
+      "readVehicles": "Lue ajoneuvot",
+      "writeVehicles": "Kirjoita ajoneuvot"
+    },
+    "generate": "Luo avain",
+    "generating": "Luodaan…",
+    "cancel": "Peruuta",
+    "loadingTokens": "Ladataan avaimia…",
+    "noTokens": "Ei API-avaimia vielä",
+    "noTokensSubtext": "Luo avain yhdistääksesi Claude Desktopin tai muun MCP-yhteensopivan mallin Fuelog-tietoihisi.",
+    "created": "API-avain luotu",
+    "copyWarning": "Tätä avainta ei näytetä uudelleen. Kopioi se nyt.",
+    "yourToken": "API-avaimesi",
+    "claudeConfig": "Claude Desktop -konfiguraatio",
+    "claudeConfigNote": "Lisää tämä tiedostoosi {{file}} osioon {{section}}.",
+    "copy": "Kopioi",
+    "copied": "Kopioitu!",
+    "done": "Valmis, tallensin avaimen",
+    "revokeConfirm": "Poistetaanko?",
+    "revokeYes": "Kyllä, poista",
+    "revoke": "Poista",
+    "created_at": "Luotu {{date}}",
+    "last_used": "Viimeksi käytetty: {{date}}",
+    "never": "Ei koskaan",
+    "errors": {
+      "enterName": "Anna avaimelle nimi.",
+      "selectScope": "Valitse vähintään yksi oikeus.",
+      "failedCreate": "Avaimen luonti epäonnistui. Yritä uudelleen.",
+      "permissionDenied": "Pääsy evätty — Firestore-sääntöjä ei ehkä ole vielä päivitetty. Katso docs/MCP.md."
+    }
+  },
+  "about": {
+    "title": "Tietoa Fuel Trackerista",
+    "description": "Fuel Tracker on verkkosovellus, joka auttaa sinua seuraamaan polttoaineen kulutusta ja kustannuksia.",
+    "featuresTitle": "Ominaisuudet",
+    "features": {
+      "track": "Seuraa polttoaineen kulutusta ja kustannuksia",
+      "history": "Näytä tankkaushistoria",
+      "import": "Tuo lokit CSV-tiedostosta",
+      "quickLog": "Kirjaa tankkaukset nopeasti"
+    },
+    "loginPrompt": "Saadaksesi lisää ominaisuuksia käyttöön,",
+    "login": "kirjaudu sisään"
+  },
+  "common": {
+    "loading": "Ladataan...",
+    "saving": "Tallennetaan...",
+    "error": "Tapahtui virhe.",
+    "optional": "Valinnainen"
+  },
+  "language": {
+    "label": "Kieli",
+    "en": "English",
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어",
+    "sv": "Svenska",
+    "no": "Norsk",
+    "fi": "Suomi"
+  }
+}

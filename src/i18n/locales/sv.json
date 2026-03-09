@@ -1,0 +1,326 @@
+{
+  "nav": {
+    "log": "Logga",
+    "history": "Historik",
+    "map": "Karta",
+    "profile": "Profil"
+  },
+  "login": {
+    "tagline": "Precision i bränsleuppföljning",
+    "description": "Övervaka effektivitet, hantera din vagnpark och exportera professionella rapporter i en sömlös mobilupplevelse.",
+    "getStarted": "Kom igång med Google",
+    "initializing": "Initierar...",
+    "error": "Misslyckades med att logga in. Försök igen."
+  },
+  "quickLog": {
+    "title": "Logga ny bränslepost",
+    "loadingVehicles": "Laddar fordon...",
+    "noVehicles": {
+      "heading": "Inga fordon hittades",
+      "subtext": "Du behöver minst ett fordon för att börja logga bränsle.",
+      "cta": "Lägg till ditt första fordon"
+    },
+    "sections": {
+      "vehicleStation": "Fordon & Station",
+      "fuelCost": "Bränsle & Kostnad",
+      "receipt": "Kvitto"
+    },
+    "fields": {
+      "vehicle": "Fordon",
+      "fillingStation": "Bensinstation",
+      "fillingStationOptional": "Valfritt",
+      "fillingStationPlaceholder": "t.ex. Circle K, OKQ8",
+      "totalCost": "Total kostnad",
+      "currency": "Valuta",
+      "distance": "Sträcka (Km)",
+      "fuel": "Bränsle (L)",
+      "exchangeRate": "Växelkurs (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Hämtar...",
+      "converted": "Konverterat: {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Spara bränslelogg",
+      "saving": "Sparar logg...",
+      "locating": "Söker plats..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "Du måste vara inloggad för att spara.",
+      "addVehicleFirst": "Lägg till ett fordon i din profil först.",
+      "selectVehicle": "Välj ett fordon.",
+      "fillRequired": "Vänligen fyll i kostnad, sträcka och bränslemängd.",
+      "validNumbers": "Kostnad, sträcka (Km) och bränslemängd måste vara giltiga positiva siffror.",
+      "gettingLocation": "Försöker hämta plats...",
+      "locationCaptured": "Plats hämtad (Noggrannhet: {{accuracy}}m).",
+      "locationNotSupported": "Plats stöds inte av webbläsaren.",
+      "savingLog": "{{locationMsg}} Sparar logg...",
+      "uploadingReceipt": "Laddar upp kvittofoto...",
+      "savedSuccess": "Loggen sparades framgångsrikt!",
+      "savedNoLocation": "Loggen sparades framgångsrikt! (Plats hämtades inte)",
+      "saveError": "Fel vid sparande av logg. Försök igen.",
+      "fetchRateError": "Misslyckades med att hämta kurs för {{currency}}. Ställ in manuellt."
+    }
+  },
+  "history": {
+    "title": "Bränslehistorik",
+    "pageTitle": "Bränslehistorik & Trender",
+    "loading": "Laddar historik...",
+    "noLogs": "Inga bränsleloggar hittades. Lägg till din första post!",
+    "noLogsForFilter": "Inga loggar matchar de aktuella filtren.",
+    "exportPdf": "Exportera PDF",
+    "filters": {
+      "heading": "Filter",
+      "vehicle": "Fordon",
+      "allVehicles": "Alla fordon",
+      "archived": "Arkiverade",
+      "startDate": "Startdatum",
+      "endDate": "Slutdatum",
+      "brand": "Märke",
+      "allBrands": "Alla märken"
+    },
+    "viewToggle": {
+      "viewCards": "Visa kort",
+      "viewTable": "Visa tabell",
+      "switchToCards": "Växla till kortvy",
+      "switchToTable": "Växla till tabellvy"
+    },
+    "metrics": {
+      "totalSpent": "Totalt spenderat (filtrerat)",
+      "avgMpg": "Genomsnittlig MPG (UK) (filtrerat)",
+      "avgCostPerLitre": "Genomsnittlig kostnad / liter (filtrerat)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) över tid (filtrerat)",
+      "costPerLitreOverTime": "Bränslekostnad per liter över tid (filtrerat)",
+      "needMoreData": "Behöver minst två loggar i det filtrerade intervallet för att visa trender."
+    },
+    "logDetails": {
+      "heading": "Loggdetaljer",
+      "filteredCount": "({{filtered}} av {{total}} visas)",
+      "totalCount": "({{count}} totalt)"
+    },
+    "copyStatus": {
+      "idle": "Kopiera tabelldata",
+      "copying": "Kopierar...",
+      "copied": "Kopierat!",
+      "failed": "Kopiering misslyckades!",
+      "noData": "Ingen data",
+      "unavailable": "Urklipp inte tillgängligt"
+    },
+    "table": {
+      "date": "Datum",
+      "vehicle": "Fordon",
+      "brand": "Märke",
+      "cost": "Kostnad ({{currency}})",
+      "distance": "Sträcka (Km)",
+      "fuel": "Bränsle (L)",
+      "costPerMile": "Kostnad/mil",
+      "receipt": "Kvitto",
+      "actions": "Åtgärder",
+      "editLog": "Redigera logg",
+      "deleteLog": "Radera logg",
+      "edit": "Redigera",
+      "delete": "Radera"
+    },
+    "viewMode": {
+      "list": "Lista",
+      "chart": "Diagram",
+      "summary": "Sammanfattning"
+    },
+    "filter": {
+      "all": "Alla",
+      "thisMonth": "Denna månad",
+      "last3Months": "Senaste 3 månaderna",
+      "thisYear": "Detta år"
+    },
+    "chart": {
+      "fuelCost": "Bränslekostnad",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Kostnad/mil"
+    },
+    "summary": {
+      "totalSpend": "Total utgift",
+      "totalFuel": "Total bränslemängd",
+      "totalDistance": "Total sträcka",
+      "avgEfficiency": "Genomsnittlig effektivitet",
+      "avgCostPerKm": "Genomsnittlig kostnad/km",
+      "entries": "Poster"
+    },
+    "edit": {
+      "title": "Redigera logginlägg",
+      "vehicle": "Fordon",
+      "brand": "Bensinstation",
+      "cost": "Total kostnad ({{currency}})",
+      "distance": "Sträcka (Km)",
+      "fuel": "Bränslemängd (L)",
+      "save": "Spara ändringar",
+      "saving": "Sparar...",
+      "cancel": "Avbryt",
+      "receipt": "Kvittofoto",
+      "updateReceipt": "Uppdatera kvittofoto",
+      "receiptKept": "Nuvarande kvitto behålls om det inte ersätts."
+    },
+    "delete": {
+      "confirm": "Radera detta logginlägg? Denna åtgärd kan inte ångras."
+    },
+    "loadError": "Misslyckades med att ladda bränslehistorik. Kontrollera din anslutning och försök igen.",
+    "deleteError": "Misslyckades med att radera logginlägget. Försök igen.",
+    "updateError": "Misslyckades med att uppdatera loggen. Försök igen."
+  },
+  "imageUpload": {
+    "receiptPhoto": "Kvittofoto",
+    "snapOrSelect": "Fota eller välj"
+  },
+  "logCard": {
+    "distance": "Sträcka",
+    "fuelAdded": "Tankat bränsle",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Kostnad/mil",
+    "receipt": "Kvitto",
+    "tapToViewMap": "Tryck för att se karta",
+    "noLocation": "Ingen plats",
+    "unknownStation": "Okänd station",
+    "editEntry": "Redigera inlägg",
+    "deleteEntry": "Radera inlägg"
+  },
+  "profile": {
+    "appPreferences": "Appinställningar",
+    "homeCurrency": "Hemvaluta",
+    "homeCurrencyDesc": "Ställ in din primära valuta för alla bränsleloggar och sammanfattande analys.",
+    "measurementUnits": "Måttenheter",
+    "measurementUnitsSoon": "Kommer snart: Växla mellan metrisk (Km/L) och imperisk (MPG) standard.",
+    "vehicleFleet": "Vagnpark",
+    "vehicleFleetSubtext": "Hantera dina bilar och hyrbilar.",
+    "showArchived": "Visa arkiverade ({{count}})",
+    "hideArchived": "Dölj arkiverade",
+    "archivedFleet": "Arkiverad vagnpark",
+    "noActiveVehicles": "Inga aktiva fordon.",
+    "noActiveVehiclesSubtext": "Lägg till ett fordon nedan för att börja spåra.",
+    "addNewVehicle": "Lägg till nytt fordon",
+    "vehicleCard": {
+      "primary": "Primär",
+      "makeDefault": "Gör till standard",
+      "archive": "Arkivera",
+      "restore": "Återställ",
+      "delete": "Radera"
+    },
+    "vehicleForm": {
+      "nickname": "Smeknamn / Namn",
+      "nicknamePlaceholder": "t.ex. Min Polo",
+      "make": "Märke",
+      "makePlaceholder": "t.ex. VW",
+      "model": "Modell",
+      "modelPlaceholder": "t.ex. Polo",
+      "year": "År",
+      "fuelType": "Bränsletyp",
+      "fuelTypes": {
+        "petrol": "Bensin",
+        "diesel": "Diesel",
+        "hybrid": "Hybrid",
+        "electric": "El"
+      },
+      "setAsDefault": "Ställ in som standardfordon",
+      "register": "Registrera fordon",
+      "registering": "Initierar..."
+    },
+    "messages": {
+      "vehicleAdded": "Fordon tillagt framgångsrikt!",
+      "failedToAdd": "Misslyckades med att lägga till fordon. Försök igen.",
+      "permissionDenied": "Åtkomst nekad. Kontrollera Firestore-säkerhetsregler.",
+      "failedToDelete": "Misslyckades med att radera fordon.",
+      "permissionDeniedDelete": "Åtkomst nekad för radering.",
+      "failedToSetDefault": "Misslyckades med att ställa in standardfordon.",
+      "permissionDeniedDefault": "Åtkomst nekad för att uppdatera standardinställningar.",
+      "deleteConfirm": "Är du säker? Detta raderar inte loggar men tar bort kopplingen till dem."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Fyll i automatiskt med AI",
+    "analyzing": "Analyserar...",
+    "extractionResults": "AI-extraheringsresultat:",
+    "cost": "Kostnad",
+    "litres": "Liter",
+    "brand": "Märke",
+    "notFound": "Hittades inte",
+    "useValues": "Använd värden",
+    "discard": "Släng",
+    "extractionFailed": "Misslyckades med att extrahera data från kvitto.",
+    "autoFilled": "Fält fylldes i automatiskt från kvitto!"
+  },
+  "apiTokens": {
+    "title": "API-åtkomst",
+    "subtitle": "Anslut Claude och andra LLM:er till dina bränsledata via MCP",
+    "newToken": "Ny token",
+    "createToken": "Skapa ny API-token",
+    "tokenName": "Tokennamn",
+    "tokenNamePlaceholder": "t.ex. Claude Desktop - Hemma",
+    "permissions": "Behörigheter",
+    "scopes": {
+      "readLogs": "Läs loggar",
+      "writeLogs": "Skriv loggar",
+      "readVehicles": "Läs fordon",
+      "writeVehicles": "Skriv fordon"
+    },
+    "generate": "Generera token",
+    "generating": "Genererar…",
+    "cancel": "Avbryt",
+    "loadingTokens": "Laddar tokens…",
+    "noTokens": "Inga API-tokens ännu",
+    "noTokensSubtext": "Generera en token för att ansluta Claude Desktop eller valfri MCP-kompatibel LLM till dina Fuelog-data.",
+    "created": "API-token skapad",
+    "copyWarning": "Denna token kommer inte att visas igen. Kopiera den nu.",
+    "yourToken": "Din API-token",
+    "claudeConfig": "Konfiguration för Claude Desktop",
+    "claudeConfigNote": "Lägg till detta i din {{file}} under {{section}}.",
+    "copy": "Kopiera",
+    "copied": "Kopierad!",
+    "done": "Klart, jag har sparat min token",
+    "revokeConfirm": "Återkalla?",
+    "revokeYes": "Ja, återkalla",
+    "revoke": "Återkalla",
+    "created_at": "Skapad {{date}}",
+    "last_used": "Senast använd: {{date}}",
+    "never": "Aldrig",
+    "errors": {
+      "enterName": "Vänligen ange ett namn för denna token.",
+      "selectScope": "Välj minst en behörighetsnivå.",
+      "failedCreate": "Misslyckades med att skapa token. Försök igen.",
+      "permissionDenied": "Åtkomst nekad — Firestore-regler för apiTokens-samlingen kanske inte är distribuerade än. Se docs/MCP.md för installationsinstruktioner."
+    }
+  },
+  "about": {
+    "title": "Om Fuel Tracker",
+    "description": "Fuel Tracker är en webbapp som hjälper dig att spåra din bränsleförbrukning och dina kostnader.",
+    "featuresTitle": "Funktioner",
+    "features": {
+      "track": "Spåra bränsleförbrukning och kostnader",
+      "history": "Visa historik över bränsleloggar",
+      "import": "Importera bränsleloggar från en CSV-fil",
+      "quickLog": "Logga bränsleköp snabbt"
+    },
+    "loginPrompt": "För att få tillgång till fler funktioner, vänligen",
+    "login": "logga in"
+  },
+  "common": {
+    "loading": "Laddar...",
+    "saving": "Sparar...",
+    "error": "Ett fel uppstod.",
+    "optional": "Valfritt"
+  },
+  "language": {
+    "label": "Språk",
+    "en": "English",
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어",
+    "sv": "Svenska",
+    "no": "Norsk",
+    "fi": "Suomi"
+  }
+}

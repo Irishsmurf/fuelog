@@ -314,7 +314,10 @@
     "fr": "Français",
     "de": "Deutsch",
     "ja": "日本語",
-    "ko": "한국어"
+    "ko": "한국어",
+    "sv": "Svenska",
+    "no": "Norsk",
+    "fi": "Suomi"
   },
   "imageUpload": {
     "receiptPhoto": "Photo du Reçu",

@@ -1,0 +1,326 @@
+{
+  "nav": {
+    "log": "Logg",
+    "history": "Historikk",
+    "map": "Kart",
+    "profile": "Profil"
+  },
+  "login": {
+    "tagline": "Presisjon i drivstoffsporing",
+    "description": "Overvåk effektivitet, administrer bilparken din og eksporter profesjonelle rapporter i én sømløs mobilopplevelse.",
+    "getStarted": "Kom i gang med Google",
+    "initializing": "Initialiserer...",
+    "error": "Kunne ikke logge inn. Prøv igjen."
+  },
+  "quickLog": {
+    "title": "Logg ny drivstoffoppføring",
+    "loadingVehicles": "Laster kjøretøy...",
+    "noVehicles": {
+      "heading": "Ingen kjøretøy funnet",
+      "subtext": "Du trenger minst ett kjøretøy for å begynne å logge drivstoff.",
+      "cta": "Legg til ditt første kjøretøy"
+    },
+    "sections": {
+      "vehicleStation": "Kjøretøy og stasjon",
+      "fuelCost": "Drivstoff og kostnad",
+      "receipt": "Kvittering"
+    },
+    "fields": {
+      "vehicle": "Kjøretøy",
+      "fillingStation": "Bensinstasjon",
+      "fillingStationOptional": "Valgfritt",
+      "fillingStationPlaceholder": "f.eks. Circle K, Shell",
+      "totalCost": "Total kostnad",
+      "currency": "Valuta",
+      "distance": "Distanse (Km)",
+      "fuel": "Drivstoff (L)",
+      "exchangeRate": "Valutakurs (1 {{currency}} = X {{homeCurrency}})",
+      "fetching": "Henter...",
+      "converted": "Konvertert: {{symbol}}{{amount}}"
+    },
+    "submit": {
+      "save": "Lagre drivstofflogg",
+      "saving": "Lagrer logg...",
+      "locating": "Finner posisjon..."
+    },
+    "messages": {
+      "mustBeLoggedIn": "Du må være logget inn for å lagre.",
+      "addVehicleFirst": "Vennligst legg til et kjøretøy i profilen din først.",
+      "selectVehicle": "Vennligst velg et kjøretøy.",
+      "fillRequired": "Vennligst fyll ut kostnad, distanse og drivstoffmengde.",
+      "validNumbers": "Kostnad, distanse (Km) og drivstoffmengde må være gyldige positive tall.",
+      "gettingLocation": "Forsøker å hente posisjon...",
+      "locationCaptured": "Posisjon hentet (Nøyaktighet: {{accuracy}}m).",
+      "locationNotSupported": "Posisjon støttes ikke av nettleseren.",
+      "savingLog": "{{locationMsg}} Lagrer logg...",
+      "uploadingReceipt": "Laster opp kvitteringsbilde...",
+      "savedSuccess": "Loggen ble lagret!",
+      "savedNoLocation": "Loggen ble lagret! (Posisjon ikke hentet)",
+      "saveError": "Feil ved lagring av logg. Prøv igjen.",
+      "fetchRateError": "Kunne ikke hente kurs for {{currency}}. Vennligst sett manuelt."
+    }
+  },
+  "history": {
+    "title": "Drivstoffhistorikk",
+    "pageTitle": "Drivstoffhistorikk og trender",
+    "loading": "Laster historikk...",
+    "noLogs": "Ingen drivstofflogger funnet. Legg til din første oppføring!",
+    "noLogsForFilter": "Ingen logger samsvarer med gjeldende filtre.",
+    "exportPdf": "Eksporter PDF",
+    "filters": {
+      "heading": "Filtre",
+      "vehicle": "Kjøretøy",
+      "allVehicles": "Alle kjøretøy",
+      "archived": "Arkivert",
+      "startDate": "Startdato",
+      "endDate": "Sluttdato",
+      "brand": "Merke",
+      "allBrands": "Alle merker"
+    },
+    "viewToggle": {
+      "viewCards": "Vis kort",
+      "viewTable": "Vis tabell",
+      "switchToCards": "Bytt til kortvisning",
+      "switchToTable": "Bytt til tabellvisning"
+    },
+    "metrics": {
+      "totalSpent": "Totalt brukt (filtrert)",
+      "avgMpg": "Gjennomsnittlig MPG (UK) (filtrert)",
+      "avgCostPerLitre": "Gjennomsnittlig kostnad / liter (filtrert)"
+    },
+    "charts": {
+      "mpgOverTime": "MPG (UK) over tid (filtrert)",
+      "costPerLitreOverTime": "Drivstoffkostnad per liter over tid (filtrert)",
+      "needMoreData": "Trenger minst to logger i det filtrerte området for å vise trender."
+    },
+    "logDetails": {
+      "heading": "Loggdetaljer",
+      "filteredCount": "({{filtered}} av {{total}} vises)",
+      "totalCount": "({{count}} totalt)"
+    },
+    "copyStatus": {
+      "idle": "Kopier tabelldata",
+      "copying": "Kopierer...",
+      "copied": "Kopiert!",
+      "failed": "Kopiering mislyktes!",
+      "noData": "Ingen data",
+      "unavailable": "Utklippstavle ikke tilgjengelig"
+    },
+    "table": {
+      "date": "Dato",
+      "vehicle": "Kjøretøy",
+      "brand": "Merke",
+      "cost": "Kostnad ({{currency}})",
+      "distance": "Distanse (Km)",
+      "fuel": "Drivstoff (L)",
+      "costPerMile": "Kostnad/mil",
+      "receipt": "Kvittering",
+      "actions": "Handlinger",
+      "editLog": "Rediger logg",
+      "deleteLog": "Slett logg",
+      "edit": "Rediger",
+      "delete": "Slett"
+    },
+    "viewMode": {
+      "list": "Liste",
+      "chart": "Diagram",
+      "summary": "Sammendrag"
+    },
+    "filter": {
+      "all": "Alle",
+      "thisMonth": "Denne måneden",
+      "last3Months": "Siste 3 måneder",
+      "thisYear": "I år"
+    },
+    "chart": {
+      "fuelCost": "Drivstoffkostnad",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Kostnad/mil"
+    },
+    "summary": {
+      "totalSpend": "Total utgift",
+      "totalFuel": "Total drivstoffmengde",
+      "totalDistance": "Total distanse",
+      "avgEfficiency": "Gjennomsnittlig effektivitet",
+      "avgCostPerKm": "Gjennomsnittlig kostnad/km",
+      "entries": "Oppføringer"
+    },
+    "edit": {
+      "title": "Rediger loggoppføring",
+      "vehicle": "Kjøretøy",
+      "brand": "Bensinstasjon",
+      "cost": "Total kostnad ({{currency}})",
+      "distance": "Distanse (Km)",
+      "fuel": "Drivstoffmengde (L)",
+      "save": "Lagre endringer",
+      "saving": "Lagrer...",
+      "cancel": "Avbryt",
+      "receipt": "Kvitteringsbilde",
+      "updateReceipt": "Oppdater kvitteringsbilde",
+      "receiptKept": "Gjeldende kvittering beholdes med mindre den erstattes."
+    },
+    "delete": {
+      "confirm": "Slett denne loggoppføringen? Denne handlingen kan ikke angres."
+    },
+    "loadError": "Kunne ikke laste drivstoffhistorikk. Vennligst sjekk tilkoblingen din og prøv igjen.",
+    "deleteError": "Kunne ikke slette loggoppføringen. Prøv igjen.",
+    "updateError": "Kunne ikke oppdatere loggen. Prøv igjen."
+  },
+  "imageUpload": {
+    "receiptPhoto": "Kvitteringsbilde",
+    "snapOrSelect": "Ta bilde eller velg"
+  },
+  "logCard": {
+    "distance": "Distanse",
+    "fuelAdded": "Drivstoff fylt",
+    "mpg": "MPG",
+    "kmL": "km/L",
+    "l100km": "L/100km",
+    "costPerMile": "Kostnad/mil",
+    "receipt": "Kvittering",
+    "tapToViewMap": "Trykk for å se kart",
+    "noLocation": "Ingen posisjon",
+    "unknownStation": "Ukjent stasjon",
+    "editEntry": "Rediger oppføring",
+    "deleteEntry": "Slett oppføring"
+  },
+  "profile": {
+    "appPreferences": "App-innstillinger",
+    "homeCurrency": "Hjemmevaluta",
+    "homeCurrencyDesc": "Sett din primære valuta for alle drivstofflogger og sammendragsanalyse.",
+    "measurementUnits": "Måleenheter",
+    "measurementUnitsSoon": "Kommer snart: Bytt mellom metrisk (Km/L) og imperisk (MPG) standard.",
+    "vehicleFleet": "Bilpark",
+    "vehicleFleetSubtext": "Administrer bilene dine.",
+    "showArchived": "Vis arkiverte ({{count}})",
+    "hideArchived": "Skjul arkiverte",
+    "archivedFleet": "Arkivert bilpark",
+    "noActiveVehicles": "Ingen aktive kjøretøy.",
+    "noActiveVehiclesSubtext": "Legg til et kjøretøy nedenfor for å begynne sporingen.",
+    "addNewVehicle": "Legg til nytt kjøretøy",
+    "vehicleCard": {
+      "primary": "Primær",
+      "makeDefault": "Sett som standard",
+      "archive": "Arkiver",
+      "restore": "Gjenopprett",
+      "delete": "Slett"
+    },
+    "vehicleForm": {
+      "nickname": "Kallenavn / Navn",
+      "nicknamePlaceholder": "f.eks. Min bil",
+      "make": "Merke",
+      "makePlaceholder": "f.eks. VW",
+      "model": "Modell",
+      "modelPlaceholder": "f.eks. Polo",
+      "year": "År",
+      "fuelType": "Drivstofftype",
+      "fuelTypes": {
+        "petrol": "Bensin",
+        "diesel": "Diesel",
+        "hybrid": "Hybrid",
+        "electric": "El"
+      },
+      "setAsDefault": "Sett som standard kjøretøy",
+      "register": "Registrer kjøretøy",
+      "registering": "Initialiserer..."
+    },
+    "messages": {
+      "vehicleAdded": "Kjøretøy lagt til!",
+      "failedToAdd": "Kunne ikke legge til kjøretøy. Prøv igjen.",
+      "permissionDenied": "Tilgang nektet. Sjekk Firestore-sikkerhetsregler.",
+      "failedToDelete": "Kunne ikke slette kjøretøy.",
+      "permissionDeniedDelete": "Tilgang nektet for sletting.",
+      "failedToSetDefault": "Kunne ikke sette standard kjøretøy.",
+      "permissionDeniedDefault": "Tilgang nektet for å oppdatere standardinnstillinger.",
+      "deleteConfirm": "Er du sikker? Dette sletter ikke logger, men fjerner koblingen til dem."
+    }
+  },
+  "receipt": {
+    "autoFillWithAI": "Fyll ut automatisk med AI",
+    "analyzing": "Analyserer...",
+    "extractionResults": "AI-ekstraheringsresultater:",
+    "cost": "Kostnad",
+    "litres": "Liter",
+    "brand": "Merke",
+    "notFound": "Ikke funnet",
+    "useValues": "Bruk verdier",
+    "discard": "Forkast",
+    "extractionFailed": "Kunne ikke hente data fra kvittering.",
+    "autoFilled": "Felt fylt ut automatisk fra kvittering!"
+  },
+  "apiTokens": {
+    "title": "API-tilgang",
+    "subtitle": "Koble Claude og andre LLM-er til dine drivstoffdata via MCP",
+    "newToken": "Ny token",
+    "createToken": "Opprett ny API-token",
+    "tokenName": "Token-navn",
+    "tokenNamePlaceholder": "f.eks. Claude Desktop - Hjemme",
+    "permissions": "Tillatelser",
+    "scopes": {
+      "readLogs": "Les logger",
+      "writeLogs": "Skriv logger",
+      "readVehicles": "Les kjøretøy",
+      "writeVehicles": "Skriv kjøretøy"
+    },
+    "generate": "Generer token",
+    "generating": "Genererer…",
+    "cancel": "Avbryt",
+    "loadingTokens": "Laster tokens…",
+    "noTokens": "Ingen API-tokens ennå",
+    "noTokensSubtext": "Generer en token for å koble Claude Desktop eller en hvilken som helst MCP-kompatibel LLM til dine Fuelog-data.",
+    "created": "API-token opprettet",
+    "copyWarning": "Denne tokenen vil ikke bli vist igjen. Kopier den nå.",
+    "yourToken": "Din API-token",
+    "claudeConfig": "Konfigurasjon for Claude Desktop",
+    "claudeConfigNote": "Legg til dette i din {{file}} under {{section}}.",
+    "copy": "Kopier",
+    "copied": "Kopiert!",
+    "done": "Ferdig, jeg har lagret tokenen min",
+    "revokeConfirm": "Tilbakekalle?",
+    "revokeYes": "Ja, tilbakekall",
+    "revoke": "Tilbakekall",
+    "created_at": "Opprettet {{date}}",
+    "last_used": "Sist brukt: {{date}}",
+    "never": "Aldri",
+    "errors": {
+      "enterName": "Vennligst oppgi et navn for denne tokenen.",
+      "selectScope": "Velg minst ett tillatelsesomfang.",
+      "failedCreate": "Kunne ikke opprette token. Prøv igjen.",
+      "permissionDenied": "Tilgang nektet — Firestore-regler for apiTokens-samlingen er kanskje ikke distribuert ennå. Se docs/MCP.md for installasjonsinstruksjoner."
+    }
+  },
+  "about": {
+    "title": "Om Fuel Tracker",
+    "description": "Fuel Tracker er en webapp som hjelper deg med å spore drivstofforbruk og kostnader.",
+    "featuresTitle": "Funksjoner",
+    "features": {
+      "track": "Spor drivstofforbruk og kostnader",
+      "history": "Vis historikk over drivstofflogger",
+      "import": "Importer drivstofflogger fra en CSV-fil",
+      "quickLog": "Logg drivstoffkjøp raskt"
+    },
+    "loginPrompt": "For å få tilgang til flere funksjoner, vennligst",
+    "login": "logg inn"
+  },
+  "common": {
+    "loading": "Laster...",
+    "saving": "Lagrer...",
+    "error": "En feil oppstod.",
+    "optional": "Valgfritt"
+  },
+  "language": {
+    "label": "Språk",
+    "en": "English",
+    "ga": "Gaeilge",
+    "es": "Español",
+    "fr": "Français",
+    "de": "Deutsch",
+    "ja": "日本語",
+    "ko": "한국어",
+    "sv": "Svenska",
+    "no": "Norsk",
+    "fi": "Suomi"
+  }
+}

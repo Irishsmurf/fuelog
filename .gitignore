@@ -27,3 +27,4 @@ playwright-report/
 test-results/
 coverage/
 service-account.json
+.env.development

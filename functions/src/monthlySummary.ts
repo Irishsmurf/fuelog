@@ -1,14 +1,3 @@
-// functions/src/monthlySummary.ts
-//
-// Monthly fuel summary email — runs on the 1st of each month at 08:00 UTC.
-//
-// Prerequisites:
-//   1. Install the Firebase "Trigger Email" extension in the Firebase Console:
-//      firebase ext:install firebase/firestore-send-email
-//   2. Configure the extension to use a `mail` collection and your SMTP credentials.
-//
-// The function writes a document to the `mail` collection; the extension handles delivery.
-
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { getFirestore, AggregateField, Timestamp } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
@@ -46,6 +35,16 @@ function previousMonthRange(): { start: Timestamp; end: Timestamp; label: string
     return { start: Timestamp.fromDate(start), end: Timestamp.fromDate(end), label };
 }
 
+/**
+ * Monthly fuel summary email — runs on the 1st of each month at 08:00 UTC.
+ *
+ * This function writes a document to the `mail` collection, which is then
+ * processed and sent by the Firebase "Trigger Email" extension.
+ *
+ * Prerequisites:
+ * 1. Install the "Trigger Email" extension: firebase ext:install firebase/firestore-send-email
+ * 2. Configure the extension to use a `mail` collection and your SMTP credentials.
+ */
 export const sendMonthlySummary = onSchedule('0 8 1 * *', async () => {
     const db = getFirestore();
     const auth = getAuth();

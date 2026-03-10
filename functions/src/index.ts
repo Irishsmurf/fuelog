@@ -11,3 +11,4 @@ export { cleanupExpiredTokens } from './tokenCleanup';
 export { sendMonthlySummary } from './monthlySummary';
 export { processReceipt } from './receiptProcessing';
 export { sendWeeklyDigest } from './weeklyDigest';
+export { connectToyotaAccount, syncToyotaData } from './toyota';

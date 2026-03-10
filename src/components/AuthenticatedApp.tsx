@@ -8,14 +8,28 @@ import InstallPrompt from './InstallPrompt';
 import BottomNav from './BottomNav';
 import SyncStatus from './SyncStatus';
 
+// Wraps React.lazy with a single reload on chunk fetch failure.
+// This handles the stale-PWA-cache scenario where a new deploy renames
+// chunk files and an old service worker can no longer serve the old hash.
+function lazyWithRetry<T extends React.ComponentType<React.ComponentProps<T>>>(
+  factory: () => Promise<{ default: T }>
+) {
+  return lazy(() =>
+    factory().catch(() => {
+      window.location.reload();
+      return new Promise<never>(() => {});
+    })
+  );
+}
+
 // Lazy load pages for performance
-const QuickLogPage = lazy(() => import('../pages/QuickLogPage'));
-const HistoryPage = lazy(() => import('../pages/HistoryPage'));
-const ImportPage = lazy(() => import('../pages/ImportPage'));
-const ProfilePage = lazy(() => import('../pages/ProfilePage'));
-const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicyPage'));
-const AboutPage = lazy(() => import('../pages/AboutPage'));
-const FuelMapPage = lazy(() => import('./FuelMapPage'));
+const QuickLogPage = lazyWithRetry(() => import('../pages/QuickLogPage'));
+const HistoryPage = lazyWithRetry(() => import('../pages/HistoryPage'));
+const ImportPage = lazyWithRetry(() => import('../pages/ImportPage'));
+const ProfilePage = lazyWithRetry(() => import('../pages/ProfilePage'));
+const PrivacyPolicyPage = lazyWithRetry(() => import('../pages/PrivacyPolicyPage'));
+const AboutPage = lazyWithRetry(() => import('../pages/AboutPage'));
+const FuelMapPage = lazyWithRetry(() => import('./FuelMapPage'));
 
 /** Loading fallback for Suspense */
 const PageLoader = () => (

@@ -52,20 +52,20 @@ export const processReceipt = onObjectFinalized({ bucket: 'fuelog-paddez.firebas
             metadata: { contentType },
         });
 
-        // Build public URL for the thumbnail
+        // Build Firebase Storage download URL for the thumbnail.
+        // Using getMetadata + token avoids the iam.serviceAccounts.signBlob permission
+        // required by getSignedUrl, and produces the same URL format the client SDK uses.
         const thumbFile = bucket.file(thumbStoragePath);
-        const [thumbUrl] = await thumbFile.getSignedUrl({
-            action: 'read',
-            expires: '01-01-2100',
-        });
+        const [thumbMeta] = await thumbFile.getMetadata();
+        const thumbToken = thumbMeta.metadata?.firebaseStorageDownloadTokens as string;
+        const thumbUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(thumbStoragePath)}?alt=media&token=${thumbToken}`;
 
-        // Find the fuelLog that references this receipt URL and add the thumb URL.
-        // The original receipt URL is stored in fuelLogs.receiptUrl.
+        // Build the Firebase download URL for the original file using the same method so
+        // the URL matches what the client stored in fuelLogs.receiptUrl.
         const db = getFirestore();
-        const [originalFile] = await bucket.file(filePath).getSignedUrl({
-            action: 'read',
-            expires: '01-01-2100',
-        });
+        const [originalMeta] = await bucket.file(filePath).getMetadata();
+        const originalToken = originalMeta.metadata?.firebaseStorageDownloadTokens as string;
+        const originalFile = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media&token=${originalToken}`;
 
         // Extract userId from path: receipts/{userId}/filename
         const pathParts = filePath.split('/');

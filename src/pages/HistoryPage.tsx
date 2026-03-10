@@ -15,7 +15,7 @@ import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 // Import icons
-import { FileText } from 'lucide-react';
+import { FileText, Banknote, Droplets, Route, Fuel } from 'lucide-react';
 // Import the LogCard component
 import LogCard from '../components/LogCard'; // Adjust path if necessary
 import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode, Vehicle } from '../utils/types';
@@ -430,26 +430,38 @@ function HistoryPage(): JSX.Element {
 
             {/* --- Lifetime Stats (Server-side aggregation, no full data download) --- */}
             {lifetimeStats && !isLoading && !error && (
-                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                <div>
+                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
                         {t('history.lifetimeStats.heading', { defaultValue: 'Lifetime Totals' })}
-                    </h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.totalSpent', { defaultValue: 'Total Spent' })}</p>
-                            <p className="text-lg font-bold text-brand-primary font-mono">{homeCurrencySymbol}{lifetimeStats.totalCost.toFixed(2)}</p>
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
+                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+                                <Banknote size={18} />
+                            </div>
+                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.totalSpent', { defaultValue: 'Total Spent' })}</p>
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{homeCurrencySymbol}{lifetimeStats.totalCost.toFixed(2)}</p>
                         </div>
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.totalLitres', { defaultValue: 'Total Litres' })}</p>
-                            <p className="text-lg font-bold text-brand-primary font-mono">{lifetimeStats.totalLitres.toFixed(1)}L</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
+                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+                                <Droplets size={18} />
+                            </div>
+                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.totalLitres', { defaultValue: 'Total Litres' })}</p>
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{lifetimeStats.totalLitres.toFixed(1)}L</p>
                         </div>
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.totalDistance', { defaultValue: 'Total Distance' })}</p>
-                            <p className="text-lg font-bold text-brand-primary font-mono">{lifetimeStats.totalDistanceKm.toFixed(0)}km</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
+                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+                                <Route size={18} />
+                            </div>
+                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.totalDistance', { defaultValue: 'Total Distance' })}</p>
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{lifetimeStats.totalDistanceKm.toFixed(0)}km</p>
                         </div>
-                        <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.logCount', { defaultValue: 'Fill-ups' })}</p>
-                            <p className="text-lg font-bold text-brand-primary font-mono">{lifetimeStats.logCount}</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
+                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
+                                <Fuel size={18} />
+                            </div>
+                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.logCount', { defaultValue: 'Fill-ups' })}</p>
+                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{lifetimeStats.logCount}</p>
                         </div>
                     </div>
                 </div>

@@ -77,7 +77,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      // thinkingConfig is not yet in SDK types (v0.24.1) but is supported at runtime
+      ...({ generationConfig: { thinkingConfig: { thinkingBudget: 512 } } } as object),
+    });
 
     const prompt = `
       Analyze this receipt image and extract the following information for a fuel purchase:

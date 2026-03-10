@@ -140,14 +140,9 @@ describe('processReceipt', () => {
     it('queries Firestore with a Firebase download URL matching client-stored format', async () => {
         await handler(makeEvent());
 
-        // The where() chain should have been called with the reconstructed original URL
-        // (same format as what getDownloadURL() returns on the client)
-        const collectionCalls = vi.mocked(
-            (await import('firebase-admin/firestore')).getFirestore().collection
-        );
-        // Just verify getMetadata was called for the original file (second call)
+        // getMetadata called twice: once for thumb, once for original
         expect(mockGetMetadata).toHaveBeenCalledTimes(2);
-        // And the original URL is correctly constructed
+        // Original URL is in the correct Firebase Storage format
         expect(ORIGINAL_URL).toContain('orig-token-xyz');
     });
 

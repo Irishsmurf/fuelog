@@ -1,0 +1,39 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper: request is from an authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper: the path belongs to the requesting user
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Receipts: users can only read/write their own receipt images.
+    // Thumbnails (thumb_*) are written by the Cloud Function using the Admin SDK
+    // and are readable by the owning user.
+    match /receipts/{userId}/{fileName} {
+      // Owner can read originals and thumbnails
+      allow read: if isOwner(userId);
+
+      // Owner can upload new receipts
+      // Enforce: images only, max 10 MB
+      allow create: if isOwner(userId)
+        && request.resource.contentType.matches('image/.*')
+        && request.resource.size <= 10 * 1024 * 1024;
+
+      // Owner can replace an existing receipt (e.g. re-upload)
+      allow update: if isOwner(userId)
+        && request.resource.contentType.matches('image/.*')
+        && request.resource.size <= 10 * 1024 * 1024;
+
+      // Owner can delete their own receipts
+      allow delete: if isOwner(userId);
+    }
+
+  }
+}

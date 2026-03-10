@@ -1,0 +1,11 @@
+{
+  "projects": {},
+  "targets": {},
+  "etags": {
+    "fuelog-paddez": {
+      "extensionInstances": {
+        "firestore-send-email-58q0": "8df88440e84eff171e95143af37203c434d29aedb2a349d29f63c34d549ae2b1"
+      }
+    }
+  }
+}

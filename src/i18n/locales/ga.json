@@ -168,11 +168,11 @@
     "deleteError": "Theip ar an iontráil a scriosadh. Déan iarracht arís le do thoil.",
     "updateError": "Theip ar an iontráil a nuashonrú. Déan iarracht arís le do thoil.",
     "lifetimeStats": {
-      "heading": "Lifetime Totals",
-      "totalSpent": "Total Spent",
-      "totalLitres": "Total Litres",
-      "totalDistance": "Total Distance",
-      "logCount": "Fill-ups"
+      "heading": "Iomlán Saoil",
+      "totalSpent": "Iomlán Caite",
+      "totalLitres": "Líotair Iomlán",
+      "totalDistance": "Fad Iomlán",
+      "logCount": "Líonadh"
     }
   },
   "imageUpload": {
@@ -244,11 +244,11 @@
       "deleteConfirm": "An bhfuil tú cinnte? Ní scriosfar iontrálacha ach déanfar dínascadh orthu."
     },
     "notifications": {
-      "heading": "Notifications",
-      "weeklyDigest": "Weekly fuel digest",
-      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
-      "disable": "Disable",
-      "enable": "Enable"
+      "heading": "Fógraí",
+      "weeklyDigest": "Achoimre breosla seachtainiúil",
+      "weeklyDigestDesc": "Fógra brúite gach Luan le do achoimre breosla seachtainiúil.",
+      "disable": "Díchumasaigh",
+      "enable": "Cumasaigh"
     }
   },
   "receipt": {

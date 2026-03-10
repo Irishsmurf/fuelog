@@ -168,11 +168,11 @@
     "deleteError": "Kunne ikke slette loggoppføringen. Prøv igjen.",
     "updateError": "Kunne ikke oppdatere loggen. Prøv igjen.",
     "lifetimeStats": {
-      "heading": "Lifetime Totals",
-      "totalSpent": "Total Spent",
-      "totalLitres": "Total Litres",
-      "totalDistance": "Total Distance",
-      "logCount": "Fill-ups"
+      "heading": "Totalt noensinne",
+      "totalSpent": "Totalt brukt",
+      "totalLitres": "Totalt liter",
+      "totalDistance": "Total distanse",
+      "logCount": "Tankstopp"
     }
   },
   "imageUpload": {
@@ -244,11 +244,11 @@
       "deleteConfirm": "Er du sikker? Dette sletter ikke logger, men fjerner koblingen til dem."
     },
     "notifications": {
-      "heading": "Notifications",
-      "weeklyDigest": "Weekly fuel digest",
-      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
-      "disable": "Disable",
-      "enable": "Enable"
+      "heading": "Varsler",
+      "weeklyDigest": "Ukentlig drivstoffsammendrag",
+      "weeklyDigestDesc": "Push-varsel hver mandag med ditt ukentlige drivstoffsammendrag.",
+      "disable": "Deaktiver",
+      "enable": "Aktiver"
     }
   },
   "receipt": {

@@ -168,11 +168,11 @@
       "delete": "삭제"
     },
     "lifetimeStats": {
-      "heading": "Lifetime Totals",
-      "totalSpent": "Total Spent",
-      "totalLitres": "Total Litres",
-      "totalDistance": "Total Distance",
-      "logCount": "Fill-ups"
+      "heading": "전체 합계",
+      "totalSpent": "총 지출",
+      "totalLitres": "총 리터",
+      "totalDistance": "총 거리",
+      "logCount": "주유 횟수"
     }
   },
   "logCard": {
@@ -240,11 +240,11 @@
       "deleteConfirm": "확실합니까? 기록은 삭제되지 않지만 연결이 해제됩니다."
     },
     "notifications": {
-      "heading": "Notifications",
-      "weeklyDigest": "Weekly fuel digest",
-      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
-      "disable": "Disable",
-      "enable": "Enable"
+      "heading": "알림",
+      "weeklyDigest": "주간 연료 요약",
+      "weeklyDigestDesc": "매주 월요일 주간 연료 요약을 푸시 알림으로 받아보세요.",
+      "disable": "비활성화",
+      "enable": "활성화"
     }
   },
   "receipt": {

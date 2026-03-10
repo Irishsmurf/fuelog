@@ -168,11 +168,11 @@
       "delete": "Eliminar"
     },
     "lifetimeStats": {
-      "heading": "Lifetime Totals",
-      "totalSpent": "Total Spent",
-      "totalLitres": "Total Litres",
-      "totalDistance": "Total Distance",
-      "logCount": "Fill-ups"
+      "heading": "Totales históricos",
+      "totalSpent": "Total gastado",
+      "totalLitres": "Total de litros",
+      "totalDistance": "Distancia total",
+      "logCount": "Repostajes"
     }
   },
   "logCard": {
@@ -240,11 +240,11 @@
       "deleteConfirm": "¿Estás seguro? No se eliminarán los registros, pero se desvincularan."
     },
     "notifications": {
-      "heading": "Notifications",
-      "weeklyDigest": "Weekly fuel digest",
-      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
-      "disable": "Disable",
-      "enable": "Enable"
+      "heading": "Notificaciones",
+      "weeklyDigest": "Resumen semanal de combustible",
+      "weeklyDigestDesc": "Notificación push cada lunes con tu resumen semanal de combustible.",
+      "disable": "Desactivar",
+      "enable": "Activar"
     }
   },
   "receipt": {

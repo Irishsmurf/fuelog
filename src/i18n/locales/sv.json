@@ -168,11 +168,11 @@
     "deleteError": "Misslyckades med att radera logginlägget. Försök igen.",
     "updateError": "Misslyckades med att uppdatera loggen. Försök igen.",
     "lifetimeStats": {
-      "heading": "Lifetime Totals",
-      "totalSpent": "Total Spent",
-      "totalLitres": "Total Litres",
-      "totalDistance": "Total Distance",
-      "logCount": "Fill-ups"
+      "heading": "Total historik",
+      "totalSpent": "Totalt spenderat",
+      "totalLitres": "Totalt liter",
+      "totalDistance": "Total distans",
+      "logCount": "Tankningar"
     }
   },
   "imageUpload": {
@@ -244,11 +244,11 @@
       "deleteConfirm": "Är du säker? Detta raderar inte loggar men tar bort kopplingen till dem."
     },
     "notifications": {
-      "heading": "Notifications",
-      "weeklyDigest": "Weekly fuel digest",
-      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
-      "disable": "Disable",
-      "enable": "Enable"
+      "heading": "Aviseringar",
+      "weeklyDigest": "Veckovis bränsleöversikt",
+      "weeklyDigestDesc": "Push-avisering varje måndag med din veckovisa bränsleöversikt.",
+      "disable": "Inaktivera",
+      "enable": "Aktivera"
     }
   },
   "receipt": {

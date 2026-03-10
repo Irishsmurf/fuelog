@@ -166,7 +166,14 @@
     },
     "loadError": "Misslyckades med att ladda bränslehistorik. Kontrollera din anslutning och försök igen.",
     "deleteError": "Misslyckades med att radera logginlägget. Försök igen.",
-    "updateError": "Misslyckades med att uppdatera loggen. Försök igen."
+    "updateError": "Misslyckades med att uppdatera loggen. Försök igen.",
+    "lifetimeStats": {
+      "heading": "Total historik",
+      "totalSpent": "Totalt spenderat",
+      "totalLitres": "Totalt liter",
+      "totalDistance": "Total distans",
+      "logCount": "Tankningar"
+    }
   },
   "imageUpload": {
     "receiptPhoto": "Kvittofoto",
@@ -235,6 +242,13 @@
       "failedToSetDefault": "Misslyckades med att ställa in standardfordon.",
       "permissionDeniedDefault": "Åtkomst nekad för att uppdatera standardinställningar.",
       "deleteConfirm": "Är du säker? Detta raderar inte loggar men tar bort kopplingen till dem."
+    },
+    "notifications": {
+      "heading": "Aviseringar",
+      "weeklyDigest": "Veckovis bränsleöversikt",
+      "weeklyDigestDesc": "Push-avisering varje måndag med din veckovisa bränsleöversikt.",
+      "disable": "Inaktivera",
+      "enable": "Aktivera"
     }
   },
   "receipt": {

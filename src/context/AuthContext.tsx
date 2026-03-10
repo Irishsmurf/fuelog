@@ -3,11 +3,13 @@ import { createContext, JSX, useState, useEffect, useContext, useMemo, useCallba
 // Import User type from firebase/auth
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
-import { auth, db, signInWithGoogle, logout as firebaseLogout } from '../firebase/config'; // Ensure path is correct
+import { setUserProperties } from "firebase/analytics";
+import { auth, db, analytics, signInWithGoogle, logout as firebaseLogout } from '../firebase/config'; // Ensure path is correct
 
 /** User preferences and profile data stored in Firestore */
 interface UserProfile {
   homeCurrency: string;
+  tester_group: boolean;
 }
 
 // Define the shape of the context value
@@ -30,7 +32,8 @@ interface AuthProviderProps {
 }
 
 const DEFAULT_PROFILE: UserProfile = {
-  homeCurrency: 'EUR'
+  homeCurrency: 'EUR',
+  tester_group: false,
 };
 
 // Create a provider component
@@ -50,13 +53,20 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
         const profileRef = doc(db, "userProfiles", currentUser.uid);
         
         // Use onSnapshot for real-time profile updates
-        unsubscribeProfile = onSnapshot(profileRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setProfile(docSnap.data() as UserProfile);
-          } else {
-            // Initialize with default if not found
+        unsubscribeProfile = onSnapshot(profileRef, async (docSnap) => {
+          const profileData: UserProfile = docSnap.exists()
+            ? (docSnap.data() as UserProfile)
+            : DEFAULT_PROFILE;
+
+          if (!docSnap.exists()) {
             setDoc(profileRef, DEFAULT_PROFILE);
-            setProfile(DEFAULT_PROFILE);
+          }
+
+          setProfile(profileData);
+
+          const analyticsInstance = await analytics;
+          if (analyticsInstance) {
+            setUserProperties(analyticsInstance, { tester_group: String(profileData.tester_group) });
           }
           setLoading(false);
         }, (error) => {

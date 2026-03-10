@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
 import { URL } from 'url';
 import { validateToken, hasScope } from '../src/mcp/auth.js';
 import { getAdminDb } from '../src/mcp/firebase-admin.js';
-import { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp, AggregateField } from 'firebase-admin/firestore';
 import { log } from './_logger.js';
 import { calcMPG, calcKmL, calcL100km, calcFuelPrice } from '../src/mcp/calculations.js';
 import type { ServerLog, ServerVehicle } from '../src/mcp/types.js';
@@ -256,25 +256,31 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
           const startDate = url.searchParams.get('startDate');
           const endDate = url.searchParams.get('endDate');
 
-          let q = db.collection('fuelLogs').where('userId', '==', userId).orderBy('timestamp', 'desc') as FirebaseFirestore.Query;
+          let q = db.collection('fuelLogs').where('userId', '==', userId) as FirebaseFirestore.Query;
           if (vehicleId) q = q.where('vehicleId', '==', vehicleId);
           if (startDate) q = q.where('timestamp', '>=', Timestamp.fromDate(new Date(startDate)));
           if (endDate) q = q.where('timestamp', '<=', Timestamp.fromDate(new Date(endDate + 'T23:59:59Z')));
 
-          const [logsSnap, profileDoc] = await Promise.all([
-             q.get(),
+          const [aggSnap, profileDoc] = await Promise.all([
+             q.aggregate({
+               totalSpent: AggregateField.sum('cost'),
+               totalLiters: AggregateField.sum('fuelAmountLiters'),
+               totalKm: AggregateField.sum('distanceKm'),
+               logCount: AggregateField.count(),
+             }).get(),
              db.collection('userProfiles').doc(userId).get()
           ]);
 
-          const logs = logsSnap.docs.map(d => ({ id: d.id, ...d.data() } as ServerLog));
+          const aggData = aggSnap.data();
           const homeCurrency = profileDoc.exists ? (profileDoc.data()?.homeCurrency ?? 'EUR') : 'EUR';
 
-          const totalSpent = logs.reduce((s, l) => s + (l.cost ?? 0), 0);
-          const totalLiters = logs.reduce((s, l) => s + (l.fuelAmountLiters ?? 0), 0);
-          const totalKm = logs.reduce((s, l) => s + (l.distanceKm ?? 0), 0);
+          const totalSpent = aggData.totalSpent ?? 0;
+          const totalLiters = aggData.totalLiters ?? 0;
+          const totalKm = aggData.totalKm ?? 0;
+          const logCount = aggData.logCount ?? 0;
 
           const result = {
-            logCount: logs.length,
+            logCount,
             totalSpent: Math.round(totalSpent * 100) / 100,
             homeCurrency,
             totalFuelLiters: Math.round(totalLiters * 100) / 100,

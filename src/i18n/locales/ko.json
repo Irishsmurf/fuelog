@@ -166,6 +166,13 @@
       "deleteLog": "기록 삭제",
       "edit": "수정",
       "delete": "삭제"
+    },
+    "lifetimeStats": {
+      "heading": "전체 합계",
+      "totalSpent": "총 지출",
+      "totalLitres": "총 리터",
+      "totalDistance": "총 거리",
+      "logCount": "주유 횟수"
     }
   },
   "logCard": {
@@ -231,6 +238,13 @@
       "failedToSetDefault": "기본 차량 설정에 실패했습니다.",
       "permissionDeniedDefault": "기본값 업데이트 권한이 거부되었습니다.",
       "deleteConfirm": "확실합니까? 기록은 삭제되지 않지만 연결이 해제됩니다."
+    },
+    "notifications": {
+      "heading": "알림",
+      "weeklyDigest": "주간 연료 요약",
+      "weeklyDigestDesc": "매주 월요일 주간 연료 요약을 푸시 알림으로 받아보세요.",
+      "disable": "비활성화",
+      "enable": "활성화"
     }
   },
   "receipt": {

@@ -166,6 +166,13 @@
       "deleteLog": "Eliminar Registro",
       "edit": "Editar",
       "delete": "Eliminar"
+    },
+    "lifetimeStats": {
+      "heading": "Totales históricos",
+      "totalSpent": "Total gastado",
+      "totalLitres": "Total de litros",
+      "totalDistance": "Distancia total",
+      "logCount": "Repostajes"
     }
   },
   "logCard": {
@@ -231,6 +238,13 @@
       "failedToSetDefault": "Error al establecer el vehículo predeterminado.",
       "permissionDeniedDefault": "Permiso denegado para actualizar los valores predeterminados.",
       "deleteConfirm": "¿Estás seguro? No se eliminarán los registros, pero se desvincularan."
+    },
+    "notifications": {
+      "heading": "Notificaciones",
+      "weeklyDigest": "Resumen semanal de combustible",
+      "weeklyDigestDesc": "Notificación push cada lunes con tu resumen semanal de combustible.",
+      "disable": "Desactivar",
+      "enable": "Activar"
     }
   },
   "receipt": {

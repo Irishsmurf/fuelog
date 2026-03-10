@@ -166,6 +166,13 @@
       "deleteLog": "Eintrag löschen",
       "edit": "Bearbeiten",
       "delete": "Löschen"
+    },
+    "lifetimeStats": {
+      "heading": "Gesamtübersicht",
+      "totalSpent": "Gesamt ausgegeben",
+      "totalLitres": "Gesamtliter",
+      "totalDistance": "Gesamtstrecke",
+      "logCount": "Tankstopps"
     }
   },
   "logCard": {
@@ -231,6 +238,13 @@
       "failedToSetDefault": "Fehler beim Festlegen des Standardfahrzeugs.",
       "permissionDeniedDefault": "Zugriff zur Aktualisierung der Standards verweigert.",
       "deleteConfirm": "Sind Sie sicher? Einträge werden nicht gelöscht, aber die Verknüpfung wird aufgehoben."
+    },
+    "notifications": {
+      "heading": "Benachrichtigungen",
+      "weeklyDigest": "Wöchentliche Kraftstoffzusammenfassung",
+      "weeklyDigestDesc": "Push-Benachrichtigung jeden Montag mit Ihrer wöchentlichen Kraftstoffzusammenfassung.",
+      "disable": "Deaktivieren",
+      "enable": "Aktivieren"
     }
   },
   "receipt": {

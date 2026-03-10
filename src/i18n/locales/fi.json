@@ -166,7 +166,14 @@
     },
     "loadError": "Historian lataus epäonnistui. Tarkista yhteys ja yritä uudelleen.",
     "deleteError": "Merkinnän poisto epäonnistui. Yritä uudelleen.",
-    "updateError": "Login päivitys epäonnistui. Yritä uudelleen."
+    "updateError": "Login päivitys epäonnistui. Yritä uudelleen.",
+    "lifetimeStats": {
+      "heading": "Kaikki yhteensä",
+      "totalSpent": "Yhteensä käytetty",
+      "totalLitres": "Litroja yhteensä",
+      "totalDistance": "Kokonaismatka",
+      "logCount": "Tankkaukset"
+    }
   },
   "imageUpload": {
     "receiptPhoto": "Kuittikuva",
@@ -235,6 +242,13 @@
       "failedToSetDefault": "Oletusajoneuvon asetus epäonnistui.",
       "permissionDeniedDefault": "Ei oikeutta päivittää oletuksia.",
       "deleteConfirm": "Oletko varma? Tämä ei poista lokeja, mutta irrottaa ne ajoneuvosta."
+    },
+    "notifications": {
+      "heading": "Ilmoitukset",
+      "weeklyDigest": "Viikoittainen polttoaineyhteenveto",
+      "weeklyDigestDesc": "Push-ilmoitus joka maanantai viikoittaisella polttoaineyhteenvedollasi.",
+      "disable": "Poista käytöstä",
+      "enable": "Ota käyttöön"
     }
   },
   "receipt": {

@@ -179,7 +179,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
-    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', 'functions/**'],
     reporters: ['default', 'junit'],
     outputFile: {
       junit: './test-results/junit.xml',

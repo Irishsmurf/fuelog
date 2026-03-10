@@ -6,6 +6,7 @@ import {
     collection, query, where, orderBy, onSnapshot, getDocs,
     doc, deleteDoc, updateDoc, DocumentData, QuerySnapshot
 } from "firebase/firestore";
+import { getLifetimeStats, LifetimeStats } from '../firebase/aggregationService';
 // Import Firebase config and Auth hook
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
@@ -68,6 +69,9 @@ function HistoryPage(): JSX.Element {
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
     const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
 
+    // --- Lifetime Aggregation Stats ---
+    const [lifetimeStats, setLifetimeStats] = useState<LifetimeStats | null>(null);
+
     // --- Fetch Vehicles Effect ---
     useEffect(() => {
         if (!user) { setVehicles([]); return; }
@@ -87,6 +91,14 @@ function HistoryPage(): JSX.Element {
         };
         fetchVehicles();
     }, [user]);
+
+    // --- Fetch Lifetime Aggregation Stats ---
+    useEffect(() => {
+        if (!user) { setLifetimeStats(null); return; }
+        getLifetimeStats(user.uid, filterVehicleId || undefined)
+            .then(setLifetimeStats)
+            .catch(err => console.error('Error fetching lifetime stats:', err));
+    }, [user, filterVehicleId]);
 
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
@@ -412,6 +424,33 @@ function HistoryPage(): JSX.Element {
                         <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
                             {homeCurrencySymbol}{summaryMetrics.averageCost.toFixed(3)}
                         </p>
+                    </div>
+                </div>
+            )}
+
+            {/* --- Lifetime Stats (Server-side aggregation, no full data download) --- */}
+            {lifetimeStats && !isLoading && !error && (
+                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                        {t('history.lifetimeStats.heading', { defaultValue: 'Lifetime Totals' })}
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.totalSpent', { defaultValue: 'Total Spent' })}</p>
+                            <p className="text-lg font-bold text-brand-primary font-mono">{homeCurrencySymbol}{lifetimeStats.totalCost.toFixed(2)}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.totalLitres', { defaultValue: 'Total Litres' })}</p>
+                            <p className="text-lg font-bold text-brand-primary font-mono">{lifetimeStats.totalLitres.toFixed(1)}L</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.totalDistance', { defaultValue: 'Total Distance' })}</p>
+                            <p className="text-lg font-bold text-brand-primary font-mono">{lifetimeStats.totalDistanceKm.toFixed(0)}km</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{t('history.lifetimeStats.logCount', { defaultValue: 'Fill-ups' })}</p>
+                            <p className="text-lg font-bold text-brand-primary font-mono">{lifetimeStats.logCount}</p>
+                        </div>
                     </div>
                 </div>
             )}

@@ -166,6 +166,13 @@
       "deleteLog": "記録を削除",
       "edit": "編集",
       "delete": "削除"
+    },
+    "lifetimeStats": {
+      "heading": "通算合計",
+      "totalSpent": "合計支出",
+      "totalLitres": "合計リットル",
+      "totalDistance": "合計走行距離",
+      "logCount": "給油回数"
     }
   },
   "logCard": {
@@ -231,6 +238,13 @@
       "failedToSetDefault": "デフォルト車両の設定に失敗しました。",
       "permissionDeniedDefault": "デフォルトの更新のアクセスが拒否されました。",
       "deleteConfirm": "よろしいですか？記録は削除されませんが、リンクが解除されます。"
+    },
+    "notifications": {
+      "heading": "通知",
+      "weeklyDigest": "週間燃料サマリー",
+      "weeklyDigestDesc": "毎週月曜日に週間燃料サマリーをプッシュ通知でお届けします。",
+      "disable": "無効にする",
+      "enable": "有効にする"
     }
   },
   "receipt": {

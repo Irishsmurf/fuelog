@@ -166,7 +166,14 @@
     },
     "loadError": "Kunne ikke laste drivstoffhistorikk. Vennligst sjekk tilkoblingen din og prøv igjen.",
     "deleteError": "Kunne ikke slette loggoppføringen. Prøv igjen.",
-    "updateError": "Kunne ikke oppdatere loggen. Prøv igjen."
+    "updateError": "Kunne ikke oppdatere loggen. Prøv igjen.",
+    "lifetimeStats": {
+      "heading": "Totalt noensinne",
+      "totalSpent": "Totalt brukt",
+      "totalLitres": "Totalt liter",
+      "totalDistance": "Total distanse",
+      "logCount": "Tankstopp"
+    }
   },
   "imageUpload": {
     "receiptPhoto": "Kvitteringsbilde",
@@ -235,6 +242,13 @@
       "failedToSetDefault": "Kunne ikke sette standard kjøretøy.",
       "permissionDeniedDefault": "Tilgang nektet for å oppdatere standardinnstillinger.",
       "deleteConfirm": "Er du sikker? Dette sletter ikke logger, men fjerner koblingen til dem."
+    },
+    "notifications": {
+      "heading": "Varsler",
+      "weeklyDigest": "Ukentlig drivstoffsammendrag",
+      "weeklyDigestDesc": "Push-varsel hver mandag med ditt ukentlige drivstoffsammendrag.",
+      "disable": "Deaktiver",
+      "enable": "Aktiver"
     }
   },
   "receipt": {

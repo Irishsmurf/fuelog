@@ -166,6 +166,13 @@
       "deleteLog": "Supprimer la Saisie",
       "edit": "Modifier",
       "delete": "Supprimer"
+    },
+    "lifetimeStats": {
+      "heading": "Totaux cumulés",
+      "totalSpent": "Total dépensé",
+      "totalLitres": "Total de litres",
+      "totalDistance": "Distance totale",
+      "logCount": "Pleins"
     }
   },
   "logCard": {
@@ -231,6 +238,13 @@
       "failedToSetDefault": "Échec de la définition du véhicule par défaut.",
       "permissionDeniedDefault": "Permission refusée pour mettre à jour les valeurs par défaut.",
       "deleteConfirm": "Êtes-vous sûr ? Les saisies ne seront pas supprimées mais seront dissociées."
+    },
+    "notifications": {
+      "heading": "Notifications",
+      "weeklyDigest": "Récapitulatif hebdomadaire de carburant",
+      "weeklyDigestDesc": "Notification push chaque lundi avec votre récapitulatif hebdomadaire de carburant.",
+      "disable": "Désactiver",
+      "enable": "Activer"
     }
   },
   "receipt": {

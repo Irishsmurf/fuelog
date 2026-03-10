@@ -12,6 +12,22 @@
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { getFirestore, AggregateField, Timestamp } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const EMAIL_TEMPLATE = readFileSync(join(__dirname, 'templates/monthlySummary.html'), 'utf8');
+
+function renderTemplate(vars: Record<string, string>): string {
+    let html = EMAIL_TEMPLATE;
+    for (const [key, value] of Object.entries(vars)) {
+        html = html.split(`{{${key}}}`).join(value);
+    }
+    // Strip conditional blocks — {{#if x}}...{{/if}} shown only when var is non-empty
+    html = html.replace(/\{\{#if (\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (_, key, content) =>
+        vars[key] ? content : '',
+    );
+    return html;
+}
 
 interface VehicleData {
     name: string;
@@ -98,22 +114,17 @@ export const sendMonthlySummary = onSchedule('0 8 1 * *', async () => {
                 .join(', ');
 
             const subject = `Your Fuelog summary for ${label}`;
-            const html = `
-<h2>⛽ Your fuel summary for ${label}</h2>
-<table style="border-collapse:collapse; font-family:sans-serif; font-size:14px;">
-  <tr><td style="padding:6px 12px; color:#555;">Fill-ups</td><td style="padding:6px 12px; font-weight:bold;">${logCount}</td></tr>
-  <tr><td style="padding:6px 12px; color:#555;">Total spent</td><td style="padding:6px 12px; font-weight:bold;">${homeCurrency} ${totalSpent.toFixed(2)}</td></tr>
-  <tr><td style="padding:6px 12px; color:#555;">Total fuel</td><td style="padding:6px 12px; font-weight:bold;">${totalLitres.toFixed(1)} L</td></tr>
-  <tr><td style="padding:6px 12px; color:#555;">Total distance</td><td style="padding:6px 12px; font-weight:bold;">${totalKm.toFixed(0)} km</td></tr>
-  <tr><td style="padding:6px 12px; color:#555;">Avg cost/litre</td><td style="padding:6px 12px; font-weight:bold;">${homeCurrency} ${avgCostPerL}</td></tr>
-  <tr><td style="padding:6px 12px; color:#555;">Avg efficiency</td><td style="padding:6px 12px; font-weight:bold;">${avgMpg} MPG</td></tr>
-  ${vehicleNames ? `<tr><td style="padding:6px 12px; color:#555;">Vehicle(s)</td><td style="padding:6px 12px;">${vehicleNames}</td></tr>` : ''}
-</table>
-<p style="margin-top:16px; font-size:12px; color:#999;">
-  You're receiving this because you have a Fuelog account.
-  <a href="https://fuelog.app">Open Fuelog</a>
-</p>
-`;
+            const html = renderTemplate({
+                label,
+                logCount: String(logCount),
+                homeCurrency,
+                totalSpent: totalSpent.toFixed(2),
+                totalLitres: totalLitres.toFixed(1),
+                totalKm: totalKm.toFixed(0),
+                avgCostPerL,
+                avgMpg,
+                vehicleNames,
+            });
 
             // Write to `mail` collection — consumed by the Firebase Trigger Email extension
             await db.collection('mail').add({

@@ -75,12 +75,15 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     return sendResponse(res, 500, { error: 'Gemini API key is not configured on the server' });
   }
 
+  const geminiModel = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash';
+  const thinkingBudget = parseInt(process.env.GEMINI_THINKING_BUDGET ?? '512', 10);
+
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: geminiModel,
       // thinkingConfig is not yet in SDK types (v0.24.1) but is supported at runtime
-      ...({ generationConfig: { thinkingConfig: { thinkingBudget: 512 } } } as object),
+      ...({ generationConfig: { thinkingConfig: { thinkingBudget } } } as object),
     });
 
     const prompt = `

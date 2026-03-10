@@ -2,49 +2,37 @@
 import { getRemoteConfig, fetchAndActivate, getValue, RemoteConfig, Value } from "firebase/remote-config";
 import { app } from './config'; // Import the initialized Firebase app instance
 
-// --- Initialize Remote Config ---
-const remoteConfigInstance: RemoteConfig = getRemoteConfig(app);
-
-/**
- * Default configuration values for Remote Config.
- * These values are used if the app cannot fetch values from the Firebase backend,
- * or before the first fetch completes.
- * It's crucial to define defaults for all keys you intend to use.
- *
- * Example:
- * "newFeatureEnabled": false,
- * "welcomeMessage": "Hello from defaults!",
- * "maxItemsPerPage": 10
- */
-remoteConfigInstance.defaultConfig = {
+const DEFAULT_CONFIG: Record<string, boolean | string | number> = {
   "darkModeEnabled": true,
-  "exampleFeatureFlagEnabled": false, // Added for the example in step 3
-  "costPerLitreGraphEnabled": false, // Feature flag for Cost Per Litre graph
-  "totalSpentDisplayEnabled": false, // Feature flag for the Total Spent display
-  "receiptDigitizationEnabled": false, // Feature flag for Receipt Digitization
-  "receiptAutoFillEnabled": false, // Feature flag for Receipt Auto-fill via Gemini
-  // Add other remote config defaults here as key-value pairs
-  // e.g., "showNewDashboard": false,
-  //       "apiEndpoint": "https://api.example.com/v1"
+  "exampleFeatureFlagEnabled": false,
+  "costPerLitreGraphEnabled": false,
+  "totalSpentDisplayEnabled": false,
+  "receiptDigitizationEnabled": false,
+  "receiptAutoFillEnabled": false,
 };
 
-// Set minimum fetch interval. For development, you might want a lower value.
-// For production, a higher value (e.g., 1 hour to 12 hours) is typical.
-// Value is in milliseconds. 3600000ms = 1 hour.
-remoteConfigInstance.settings.minimumFetchIntervalMillis = 3600000;
-
-console.log("Remote Config initialized with defaults and settings.");
+// --- Initialize Remote Config ---
+// Initialization can fail in environments where IndexedDB is unavailable (e.g. private/incognito
+// browsing mode). We catch this at module load time and fall back to defaults-only mode.
+let remoteConfigInstance: RemoteConfig | null = null;
+try {
+  remoteConfigInstance = getRemoteConfig(app);
+  remoteConfigInstance.defaultConfig = DEFAULT_CONFIG;
+  remoteConfigInstance.settings.minimumFetchIntervalMillis = 3600000;
+  console.log("Remote Config initialized with defaults and settings.");
+} catch (error) {
+  console.warn("Remote Config: Failed to initialize (IndexedDB may be unavailable). Falling back to defaults.", error);
+}
 // --- End Remote Config Initialization ---
 
 /**
  * Fetches the latest Remote Config values from the Firebase backend and activates them.
- * Activation makes the fetched values available to the app via `getValue`, `getString`, etc.
- * This function respects the `minimumFetchIntervalMillis` setting to avoid excessive fetching.
- * It should typically be called once during app initialization.
- * @returns {Promise<boolean>} A promise that resolves to `true` if new values were fetched and activated,
- *                             and `false` if cached values were used (or if the fetch failed).
  */
 const activateRemoteConfig = async (): Promise<boolean> => {
+  if (!remoteConfigInstance) {
+    console.warn("Remote Config: Skipping fetch — not initialized. Using defaults.");
+    return false;
+  }
   try {
     const fetched = await fetchAndActivate(remoteConfigInstance);
     if (fetched) {
@@ -55,58 +43,59 @@ const activateRemoteConfig = async (): Promise<boolean> => {
     return fetched;
   } catch (error) {
     console.error("Remote Config: Fetch and activate failed.", error);
-    return false; // Indicates that the fetch or activation process failed
+    return false;
   }
 };
 
 /**
- * Retrieves a configuration value from Remote Config as a boolean.
- * @param {string} key The configuration key.
- * @returns {boolean} The boolean value of the parameter. Falls back to the default value
- *                    defined in `remoteConfigInstance.defaultConfig` if the key is not found
- *                    or if the fetched value cannot be converted to a boolean.
+ * Retrieves a configuration value as a boolean. Falls back to the default config if Remote Config
+ * is unavailable.
  */
 const getBoolean = (key: string): boolean => {
+  if (!remoteConfigInstance) {
+    const val = DEFAULT_CONFIG[key];
+    return typeof val === "boolean" ? val : Boolean(val);
+  }
   return getValue(remoteConfigInstance, key).asBoolean();
 };
 
 /**
- * Retrieves a configuration value from Remote Config as a string.
- * @param {string} key The configuration key.
- * @returns {string} The string value of the parameter. Falls back to the default value
- *                   (converted to a string) if the key is not found.
+ * Retrieves a configuration value as a string.
  */
 const getString = (key: string): string => {
+  if (!remoteConfigInstance) {
+    const val = DEFAULT_CONFIG[key];
+    return val !== undefined ? String(val) : "";
+  }
   return getValue(remoteConfigInstance, key).asString();
 };
 
 /**
- * Retrieves a configuration value from Remote Config as a number.
- * @param {string} key The configuration key.
- * @returns {number} The number value of the parameter. Falls back to the default value
- *                   (converted to a number) if the key is not found or if the fetched value
- *                   cannot be converted to a number.
+ * Retrieves a configuration value as a number.
  */
 const getNumber = (key: string): number => {
+  if (!remoteConfigInstance) {
+    const val = DEFAULT_CONFIG[key];
+    return typeof val === "number" ? val : Number(val);
+  }
   return getValue(remoteConfigInstance, key).asNumber();
 };
 
 /**
- * Retrieves a configuration value from Remote Config directly as a Firebase Value object.
- * This can be useful if you need to check the source of the value or handle types more dynamically.
- * @param {string} key The configuration key.
- * @returns {Value} The Firebase Value object.
+ * Retrieves a configuration value as a Firebase Value object.
  */
 const getRemoteConfigValue = (key: string): Value => {
+  if (!remoteConfigInstance) {
+    throw new Error(`Remote Config not initialized; use getBoolean/getString/getNumber for key "${key}"`);
+  }
   return getValue(remoteConfigInstance, key);
 };
 
-// Export the functions and the instance for direct access if needed (though functions are preferred)
 export {
-  remoteConfigInstance, // Export instance for advanced use cases or debugging
+  remoteConfigInstance,
   activateRemoteConfig,
   getBoolean,
   getString,
   getNumber,
-  getRemoteConfigValue // Re-exporting getValue essentially, but named for clarity
+  getRemoteConfigValue,
 };

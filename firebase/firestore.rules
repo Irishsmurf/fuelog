@@ -45,5 +45,16 @@ service cloud.firestore {
         && request.resource.data.tokenHash is string
         && request.resource.data.tokenHash.size() == 64;  // SHA-256 hex = 64 chars
     }
+
+    // FCM tokens: users can only read/write their own push notification tokens.
+    // Document ID is the FCM registration token itself.
+    match /fcmTokens/{tokenId} {
+      allow read, delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+      allow create, update: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.token is string
+        && request.resource.data.platform == 'web';
+    }
   }
 }

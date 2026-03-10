@@ -166,7 +166,14 @@
     },
     "loadError": "Failed to load fuel history. Please check your connection and try again.",
     "deleteError": "Failed to delete log entry. Please try again.",
-    "updateError": "Failed to update log. Please try again."
+    "updateError": "Failed to update log. Please try again.",
+    "lifetimeStats": {
+      "heading": "Lifetime Totals",
+      "totalSpent": "Total Spent",
+      "totalLitres": "Total Litres",
+      "totalDistance": "Total Distance",
+      "logCount": "Fill-ups"
+    }
   },
   "imageUpload": {
     "receiptPhoto": "Receipt Photo",
@@ -235,6 +242,13 @@
       "failedToSetDefault": "Failed to set default vehicle.",
       "permissionDeniedDefault": "Permission denied to update defaults.",
       "deleteConfirm": "Are you sure? This won't delete logs but will un-link them."
+    },
+    "notifications": {
+      "heading": "Notifications",
+      "weeklyDigest": "Weekly fuel digest",
+      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
+      "disable": "Disable",
+      "enable": "Enable"
     }
   },
   "receipt": {

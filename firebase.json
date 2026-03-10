@@ -2,5 +2,13 @@
   "firestore": {
     "rules": "firebase/firestore.rules",
     "indexes": "firebase/firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22"
+  },
+  "extensions": {
+    "firestore-send-email": "firebase/firestore-send-email@0.2.6",
+    "firestore-send-email-0l6e": "firebase/firestore-send-email@0.2.6"
   }
 }

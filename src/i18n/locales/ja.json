@@ -166,6 +166,13 @@
       "deleteLog": "記録を削除",
       "edit": "編集",
       "delete": "削除"
+    },
+    "lifetimeStats": {
+      "heading": "Lifetime Totals",
+      "totalSpent": "Total Spent",
+      "totalLitres": "Total Litres",
+      "totalDistance": "Total Distance",
+      "logCount": "Fill-ups"
     }
   },
   "logCard": {
@@ -231,6 +238,13 @@
       "failedToSetDefault": "デフォルト車両の設定に失敗しました。",
       "permissionDeniedDefault": "デフォルトの更新のアクセスが拒否されました。",
       "deleteConfirm": "よろしいですか？記録は削除されませんが、リンクが解除されます。"
+    },
+    "notifications": {
+      "heading": "Notifications",
+      "weeklyDigest": "Weekly fuel digest",
+      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
+      "disable": "Disable",
+      "enable": "Enable"
     }
   },
   "receipt": {

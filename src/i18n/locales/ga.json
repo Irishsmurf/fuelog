@@ -166,7 +166,14 @@
     },
     "loadError": "Theip ar stair breosla a lódáil. Seiceáil do nasc le do thoil agus déan iarracht arís.",
     "deleteError": "Theip ar an iontráil a scriosadh. Déan iarracht arís le do thoil.",
-    "updateError": "Theip ar an iontráil a nuashonrú. Déan iarracht arís le do thoil."
+    "updateError": "Theip ar an iontráil a nuashonrú. Déan iarracht arís le do thoil.",
+    "lifetimeStats": {
+      "heading": "Lifetime Totals",
+      "totalSpent": "Total Spent",
+      "totalLitres": "Total Litres",
+      "totalDistance": "Total Distance",
+      "logCount": "Fill-ups"
+    }
   },
   "imageUpload": {
     "receiptPhoto": "Grianghraf Admhála",
@@ -235,6 +242,13 @@
       "failedToSetDefault": "Theip ar an réamhshocrú feithicle a shocrú.",
       "permissionDeniedDefault": "Cead diúltaithe chun réamhshocruithe a nuashonrú.",
       "deleteConfirm": "An bhfuil tú cinnte? Ní scriosfar iontrálacha ach déanfar dínascadh orthu."
+    },
+    "notifications": {
+      "heading": "Notifications",
+      "weeklyDigest": "Weekly fuel digest",
+      "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
+      "disable": "Disable",
+      "enable": "Enable"
     }
   },
   "receipt": {

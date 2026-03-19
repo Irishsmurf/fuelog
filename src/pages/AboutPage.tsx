@@ -3,10 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
 
 const AboutPage: React.FC = () => {
   const { getBoolean } = useRemoteConfig();
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   return (
     <>
@@ -36,9 +38,17 @@ const AboutPage: React.FC = () => {
 
         <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
           <p>
-            {t('about.loginPrompt')}{' '}
-            <Link to="/" className="text-indigo-600 dark:text-indigo-400 hover:underline">{t('about.login')}</Link>
-            .
+            {user ? (
+              <Link to="/" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+                Go to Dashboard
+              </Link>
+            ) : (
+              <>
+                {t('about.loginPrompt')}{' '}
+                <Link to="/" className="text-indigo-600 dark:text-indigo-400 hover:underline">{t('about.login')}</Link>
+                .
+              </>
+            )}
           </p>
         </div>
       </div>

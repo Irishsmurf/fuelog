@@ -209,6 +209,18 @@ function QuickLogPage(): JSX.Element {
   };
 
 
+  // --- Real-time Validation ---
+  const isCostInvalid = cost !== '' && (isNaN(parseFloat(cost)) || parseFloat(cost) <= 0);
+  const isDistanceInvalid = distanceKmInput !== '' && (isNaN(parseFloat(distanceKmInput)) || parseFloat(distanceKmInput) <= 0);
+  const isFuelInvalid = fuelAmountLiters !== '' && (isNaN(parseFloat(fuelAmountLiters)) || parseFloat(fuelAmountLiters) <= 0);
+  const isFormValid = !!user && !!selectedVehicleId && cost !== '' && distanceKmInput !== '' && fuelAmountLiters !== '' && !isCostInvalid && !isDistanceInvalid && !isFuelInvalid;
+
+  const getInputClasses = (isInvalid: boolean) =>
+    `w-full px-3 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition duration-150 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ` +
+    (isInvalid
+      ? "border-red-500 focus:ring-red-500 dark:border-red-500 dark:focus:ring-red-500"
+      : "border-gray-300 dark:border-gray-600 focus:ring-indigo-500 dark:focus:ring-indigo-400");
+
   // --- Form Submit Handler ---
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -365,7 +377,8 @@ function QuickLogPage(): JSX.Element {
                   <div className="grid grid-cols-3 gap-3">
                       <div className="col-span-2">
                           <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.totalCost')}</label>
-                          <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
+                          <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className={getInputClasses(isCostInvalid)} disabled={isSaving} />
+                          {isCostInvalid && <p className="mt-1 text-xs text-red-600 dark:text-red-400">Valid number &gt; 0 required</p>}
                       </div>
                       <div>
                           <label htmlFor="currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.currency')}</label>
@@ -394,11 +407,13 @@ function QuickLogPage(): JSX.Element {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                         <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.distance')}</label>
-                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
+                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className={getInputClasses(isDistanceInvalid)} disabled={isSaving} />
+                        {isDistanceInvalid && <p className="mt-1 text-xs text-red-600 dark:text-red-400">Valid number &gt; 0</p>}
                     </div>
                     <div>
                         <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.fuel')}</label>
-                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
+                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className={getInputClasses(isFuelInvalid)} disabled={isSaving} />
+                        {isFuelInvalid && <p className="mt-1 text-xs text-red-600 dark:text-red-400">Valid number &gt; 0</p>}
                     </div>
                   </div>
                 </div>
@@ -418,7 +433,7 @@ function QuickLogPage(): JSX.Element {
                 />
 
                 {/* Submit Button */}
-                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center items-center py-3.5 px-4 border border-transparent shadow-lg text-base font-bold rounded-xl text-white bg-brand-primary hover:bg-brand-primary-hover focus:ring-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">
+                <button type="submit" disabled={isSaving || isLoadingBrands || !isFormValid} className="w-full inline-flex justify-center items-center py-3.5 px-4 border border-transparent shadow-lg text-base font-bold rounded-xl text-white bg-brand-primary hover:bg-brand-primary-hover focus:ring-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">
                     {isSaving && <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
                     {isSaving ? t(`quickLog.submit.${savingStep}`) : t('quickLog.submit.save')}
                 </button>

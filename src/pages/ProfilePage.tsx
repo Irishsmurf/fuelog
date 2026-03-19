@@ -252,7 +252,7 @@ function ProfilePage(): JSX.Element {
           </div>
         </div>
 
-        <div className="mt-8 opacity-40 grayscale pointer-events-none">
+        <div className="mt-8 opacity-40 grayscale cursor-not-allowed">
           <div className="flex items-center space-x-2 text-gray-400">
             <Settings size={18} />
             <h4 className="text-sm font-black uppercase tracking-widest">{t('profile.measurementUnits')}</h4>

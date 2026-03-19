@@ -16,6 +16,10 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
+vi.mock('../context/AuthContext', () => ({
+  useAuth: () => ({ user: null }),
+}));
+
 describe('AboutPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();

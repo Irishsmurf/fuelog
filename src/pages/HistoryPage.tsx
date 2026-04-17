@@ -331,12 +331,12 @@ function HistoryPage(): JSX.Element {
                 distanceKm: parsedDistanceKm, 
                 fuelAmountLiters: parsedFuel,
                 vehicleId: editFormData.vehicleId,
-                receiptUrl: receiptUrl || null
+                receiptUrl: receiptUrl || undefined
             };
             if (!isNaN(parsedOdometer)) {
                 updatedData.odometerKm = parsedOdometer;
             } else {
-                updatedData.odometerKm = null;
+                updatedData.odometerKm = undefined;
             }
             await updateDoc(logRef, updatedData);
             console.log(`Log ${editingLog.id} updated successfully.`);

@@ -5,7 +5,7 @@ import { db, analytics } from '../firebase/config';
 import { logEvent } from 'firebase/analytics';
 import { useAuth } from '../context/AuthContext';
 import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
-import { Vehicle } from '../utils/types';
+import { Vehicle, FuelLogData } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
@@ -288,8 +288,7 @@ function QuickLogPage(): JSX.Element {
       const costHomeCurrency = parsedCost * exchangeRate;
 
       // Prepare data object, including location if available
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const logData: any = {
+      const logData: Omit<FuelLogData, 'timestamp'> & { timestamp: Timestamp; userId: string } = {
         userId: user.uid,
         vehicleId: selectedVehicleId,
         timestamp: Timestamp.now(),
@@ -300,7 +299,7 @@ function QuickLogPage(): JSX.Element {
         currency: currency,
         originalCost: parsedCost,
         exchangeRate: exchangeRate,
-        receiptUrl: receiptUrl || null
+        receiptUrl: receiptUrl || undefined
       };
       if (!isNaN(parsedOdometer)) {
         logData.odometerKm = parsedOdometer;

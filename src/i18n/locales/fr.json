@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "p.ex., Total, BP",
       "totalCost": "Coût Total",
       "currency": "Devise",
+      "odometer": "Odometer (Km)",
       "distance": "Dist (Km)",
       "fuel": "Carburant (L)",
       "exchangeRate": "Taux (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "Récupération...",
-      "converted": "Converti : {{symbol}}{{amount}}"
+      "converted": "Converti : {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "Enregistrer la Saisie",
@@ -62,57 +66,11 @@
   },
   "history": {
     "title": "Historique de Carburant",
+    "pageTitle": "Historique de Carburant et Tendances",
     "loading": "Chargement de l'historique...",
     "noLogs": "Aucune saisie trouvée. Ajoutez votre première entrée !",
     "noLogsForFilter": "Aucune saisie ne correspond aux filtres actuels.",
     "exportPdf": "Exporter en PDF",
-    "viewMode": {
-      "list": "Liste",
-      "chart": "Graphique",
-      "summary": "Résumé"
-    },
-    "filter": {
-      "all": "Tout",
-      "thisMonth": "Ce Mois",
-      "last3Months": "3 Derniers Mois",
-      "thisYear": "Cette Année"
-    },
-    "chart": {
-      "fuelCost": "Coût du Carburant",
-      "mpg": "MPG",
-      "kmL": "km/L",
-      "l100km": "L/100km",
-      "costPerMile": "Coût/Mile"
-    },
-    "summary": {
-      "totalSpend": "Dépenses Totales",
-      "totalFuel": "Carburant Total",
-      "totalDistance": "Distance Totale",
-      "avgEfficiency": "Efficacité Moyenne",
-      "avgCostPerKm": "Coût Moyen/Km",
-      "entries": "Saisies"
-    },
-    "edit": {
-      "title": "Modifier la Saisie",
-      "brand": "Station-service",
-      "cost": "Coût Total ({{currency}})",
-      "distance": "Distance (Km)",
-      "fuel": "Quantité de Carburant (L)",
-      "save": "Enregistrer les Modifications",
-      "saving": "Enregistrement...",
-      "cancel": "Annuler",
-      "receipt": "Photo du Reçu",
-      "vehicle": "Véhicule",
-      "updateReceipt": "Mettre à Jour la Photo du Reçu",
-      "receiptKept": "Le reçu actuel sera conservé sauf remplacement."
-    },
-    "delete": {
-      "confirm": "Supprimer cette saisie ? Cette action est irréversible."
-    },
-    "loadError": "Échec du chargement de l'historique. Vérifiez votre connexion et réessayez.",
-    "deleteError": "Échec de la suppression de la saisie. Veuillez réessayer.",
-    "updateError": "Échec de la mise à jour. Veuillez réessayer.",
-    "pageTitle": "Historique de Carburant et Tendances",
     "filters": {
       "heading": "Filtres",
       "vehicle": "Véhicule",
@@ -157,6 +115,7 @@
       "vehicle": "Véhicule",
       "brand": "Marque",
       "cost": "Coût ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Distance (Km)",
       "fuel": "Carburant (L)",
       "costPerMile": "Coût/Mile",
@@ -167,6 +126,53 @@
       "edit": "Modifier",
       "delete": "Supprimer"
     },
+    "viewMode": {
+      "list": "Liste",
+      "chart": "Graphique",
+      "summary": "Résumé"
+    },
+    "filter": {
+      "all": "Tout",
+      "thisMonth": "Ce Mois",
+      "last3Months": "3 Derniers Mois",
+      "thisYear": "Cette Année"
+    },
+    "chart": {
+      "fuelCost": "Coût du Carburant",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Coût/Mile"
+    },
+    "summary": {
+      "totalSpend": "Dépenses Totales",
+      "totalFuel": "Carburant Total",
+      "totalDistance": "Distance Totale",
+      "avgEfficiency": "Efficacité Moyenne",
+      "avgCostPerKm": "Coût Moyen/Km",
+      "entries": "Saisies"
+    },
+    "edit": {
+      "title": "Modifier la Saisie",
+      "vehicle": "Véhicule",
+      "brand": "Station-service",
+      "cost": "Coût Total ({{currency}})",
+      "odometer": "Odometer (Km)",
+      "distance": "Distance (Km)",
+      "fuel": "Quantité de Carburant (L)",
+      "save": "Enregistrer les Modifications",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler",
+      "receipt": "Photo du Reçu",
+      "updateReceipt": "Mettre à Jour la Photo du Reçu",
+      "receiptKept": "Le reçu actuel sera conservé sauf remplacement."
+    },
+    "delete": {
+      "confirm": "Supprimer cette saisie ? Cette action est irréversible."
+    },
+    "loadError": "Échec du chargement de l'historique. Vérifiez votre connexion et réessayez.",
+    "deleteError": "Échec de la suppression de la saisie. Veuillez réessayer.",
+    "updateError": "Échec de la mise à jour. Veuillez réessayer.",
     "lifetimeStats": {
       "heading": "Totaux cumulés",
       "totalSpent": "Total dépensé",
@@ -174,6 +180,10 @@
       "totalDistance": "Distance totale",
       "logCount": "Pleins"
     }
+  },
+  "imageUpload": {
+    "receiptPhoto": "Photo du Reçu",
+    "snapOrSelect": "Photographier ou Sélectionner"
   },
   "logCard": {
     "distance": "Distance",
@@ -381,9 +391,5 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
-  },
-  "imageUpload": {
-    "receiptPhoto": "Photo du Reçu",
-    "snapOrSelect": "Photographier ou Sélectionner"
   }
 }

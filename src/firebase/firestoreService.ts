@@ -50,7 +50,7 @@ export const getLastOdometerReading = async (vehicleId: string): Promise<number 
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) return null;
         const lastLog = querySnapshot.docs[0].data() as FuelLogData;
-        return lastLog.odometerKm || null;
+        return lastLog.odometerKm ?? null;
     } catch (error) {
         console.error("Error fetching last odometer reading:", error);
         return null;

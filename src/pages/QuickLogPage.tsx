@@ -197,9 +197,7 @@ function QuickLogPage(): JSX.Element {
     const parsedOdo = parseFloat(val);
     if (!isNaN(parsedOdo) && lastOdometerReading !== null) {
       const diff = calculateDistance(parsedOdo, lastOdometerReading);
-      if (diff !== null) {
-        setDistanceKmInput(diff.toFixed(1));
-      }
+      setDistanceKmInput(diff !== null ? diff.toFixed(1) : '');
     }
   };
 

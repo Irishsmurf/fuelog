@@ -73,9 +73,13 @@ describe('Calculation Utilities', () => {
       expect(calculateDistance(800, 900)).toBeNull();
     });
 
-    it('returns null for zero or negative values', () => {
-      expect(calculateDistance(0, 100)).toBeNull();
-      expect(calculateDistance(100, 0)).toBeNull();
+    it('allows zero as a valid reading', () => {
+      expect(calculateDistance(100, 0)).toBe(100);
+    });
+
+    it('returns null for negative values', () => {
+      expect(calculateDistance(-1, 100)).toBeNull();
+      expect(calculateDistance(100, -1)).toBeNull();
     });
   });
 });

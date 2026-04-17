@@ -325,8 +325,7 @@ function HistoryPage(): JSX.Element {
             }
 
             const logRef = doc(db, "fuelLogs", editingLog.id);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const updatedData: any = { 
+            const updatedData: Partial<FuelLogData> = { 
                 brand: brand.trim() || 'Unknown', 
                 cost: parsedCost, 
                 distanceKm: parsedDistanceKm, 

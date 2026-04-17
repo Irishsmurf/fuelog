@@ -9,7 +9,7 @@ const getNumericMPG = (distanceKm: number, fuelAmountLiters: number): number | n
 const getNumericFuelPrice = (cost: number, fuelAmountLiters: number): number | null => { if (!cost || cost <= 0 || !fuelAmountLiters || fuelAmountLiters <= 0) return null; try { return cost / fuelAmountLiters; } catch { return null; } };
 
 const calculateDistance = (currentOdometer: number, previousOdometer: number): number | null => {
-    if (currentOdometer <= 0 || previousOdometer <= 0) return null;
+    if (currentOdometer < 0 || previousOdometer < 0) return null;
     const diff = currentOdometer - previousOdometer;
     return diff > 0 ? diff : null;
 };

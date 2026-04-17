@@ -1,7 +1,8 @@
 // src/firebase/firestoreService.ts
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, setDoc, increment, runTransaction } from 'firebase/firestore';
 import { db, auth } from './config'; // db and auth from your config file
-import { Log, FuelLogData } from '../utils/types'; // Adjust path as needed
+import { Log, FuelLogData, Station } from '../utils/types'; // Adjust path as needed
+import { OSMStation } from '../utils/locationService';
 
 export const fetchFuelLocations = async (): Promise<Log[]> => {
   if (!auth.currentUser) {
@@ -55,4 +56,84 @@ export const getLastOdometerReading = async (vehicleId: string): Promise<number 
         console.error("Error fetching last odometer reading:", error);
         return null;
     }
+};
+
+/**
+ * Gets a station by OSM ID or creates it if it doesn't exist.
+ * Sanitizes the ID for Firestore doc path.
+ */
+export const getOrCreateStation = async (osmStation: OSMStation): Promise<string> => {
+    // OSM IDs are unique, we use them as Firestore document IDs
+    const stationId = osmStation.id.replace(/\//g, '_'); 
+    const stationRef = doc(db, 'stations', stationId);
+    const stationSnap = await getDoc(stationRef);
+
+    if (stationSnap.exists()) {
+        return stationId;
+    }
+
+    const newStation: Omit<Station, 'id'> = {
+        osmId: osmStation.osmId,
+        name: osmStation.name,
+        brand: osmStation.brand || '',
+        latitude: osmStation.latitude,
+        longitude: osmStation.longitude,
+        address: osmStation.address || '',
+        logCount: 0,
+        avgPrice: 0
+    };
+
+    await setDoc(stationRef, newStation);
+    return stationId;
+};
+
+/**
+ * Updates station metrics when a new log is added.
+ * Uses a transaction to avoid race conditions when multiple users/logs update the same station.
+ */
+export const updateStationMetrics = async (stationId: string, pricePerLitre: number) => {
+    const stationRef = doc(db, 'stations', stationId);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const stationSnap = await transaction.get(stationRef);
+            if (!stationSnap.exists()) return;
+
+            const data = stationSnap.data() as Station;
+            const currentCount = data.logCount || 0;
+            const currentAvg = data.avgPrice || 0;
+
+            // Calculate new average
+            const newAvg = ((currentAvg * currentCount) + pricePerLitre) / (currentCount + 1);
+
+            transaction.update(stationRef, {
+                logCount: increment(1),
+                avgPrice: newAvg,
+                lastPrice: pricePerLitre
+            });
+        });
+    } catch (error) {
+        console.error("Transaction failed: ", error);
+    }
+};
+
+/**
+ * Fetches all unique stations for a set of logs.
+ */
+export const fetchUserStations = async (logs: Log[]): Promise<Station[]> => {
+    const stationIds = Array.from(new Set(logs.map(l => l.stationId).filter(Boolean))) as string[];
+    if (stationIds.length === 0) return [];
+
+    const stations: Station[] = [];
+    // Firestore limit for 'in' queries is 30, so we might need to batch if many stations
+    for (let i = 0; i < stationIds.length; i += 30) {
+        const batchIds = stationIds.slice(i, i + 30);
+        const q = query(collection(db, 'stations'), where('__name__', 'in', batchIds));
+        const snap = await getDocs(q);
+        snap.forEach(doc => {
+            stations.push({ id: doc.id, ...(doc.data() as Omit<Station, 'id'>) });
+        });
+    }
+
+    return stations;
 };

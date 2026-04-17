@@ -27,6 +27,8 @@ import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import ImageUpload from '../components/ImageUpload';
 import { uploadReceipt } from '../firebase/storageService';
 import { sanitizeUrl } from '../utils/sanitize';
+import { fetchUserStations } from '../firebase/firestoreService';
+import { Station } from '../utils/types';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -48,6 +50,7 @@ function HistoryPage(): JSX.Element {
     const odometerInputEnabled = getBoolean("odometerInputEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
+    const [stations, setStations] = useState<Station[]>([]); // Holds station info
     const [isLoading, setIsLoading] = useState<boolean>(true); // Tracks if logs are currently being fetched
     const [error, setError] = useState<string | null>(null); // Stores any error message during data fetching
     const [copyStatus, setCopyStatus] = useState<'idle' | 'copying' | 'copied' | 'failed' | 'noData' | 'unavailable'>('idle'); // Manages the text/state of the copy button
@@ -151,6 +154,15 @@ function HistoryPage(): JSX.Element {
         // Cleanup listener on unmount or user change
         return () => unsubscribe();
     }, [user, t]); // Dependency array ensures effect runs when user changes
+
+    // --- Fetch Stations Effect ---
+    useEffect(() => {
+        if (logs.length > 0) {
+            fetchUserStations(logs).then(setStations).catch(console.error);
+        } else {
+            setStations([]);
+        }
+    }, [logs]);
 
     // --- Filtering Logic using useMemo ---
     // Creates a memoized array of logs based on the current filter state.
@@ -569,7 +581,9 @@ function HistoryPage(): JSX.Element {
                                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString(i18n.language) ?? 'N/A'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-brand-primary font-mono tracking-tighter">{vehicleMap[log.vehicleId || ''] || '-'}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">{log.brand}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                                                {stations.find(s => s.id === log.stationId)?.name || log.brand}
+                                            </td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">
                                                 <div className="flex flex-col items-end">
                                                     <span>{homeCurrencySymbol}{log.cost?.toFixed(2)}</span>
@@ -645,6 +659,7 @@ function HistoryPage(): JSX.Element {
                                     onEdit={handleOpenEditModal} // Pass edit handler down
                                     onDelete={handleDeleteLog}   // Pass delete handler down
                                     vehicleName={vehicleMap[log.vehicleId || '']}
+                                    stationName={stations.find(s => s.id === log.stationId)?.name}
                                 />
                             ))}
                         </div>

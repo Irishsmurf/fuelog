@@ -61,7 +61,8 @@
       "savedSuccess": "Eintrag erfolgreich gespeichert!",
       "savedNoLocation": "Eintrag erfolgreich gespeichert! (Standort nicht erfasst)",
       "saveError": "Fehler beim Speichern. Bitte versuchen Sie es erneut.",
-      "fetchRateError": "Fehler beim Abrufen des {{currency}}-Kurses. Bitte manuell einstellen."
+      "fetchRateError": "Fehler beim Abrufen des {{currency}}-Kurses. Bitte manuell einstellen.",
+      "locationCapturedAt": "Located at {{station}}."
     }
   },
   "history": {
@@ -255,6 +256,15 @@
       "weeklyDigestDesc": "Push-Benachrichtigung jeden Montag mit Ihrer wöchentlichen Kraftstoffzusammenfassung.",
       "disable": "Deaktivieren",
       "enable": "Aktivieren"
+    },
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
     }
   },
   "receipt": {

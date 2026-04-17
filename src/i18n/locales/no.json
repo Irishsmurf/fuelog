@@ -61,7 +61,8 @@
       "savedSuccess": "Loggen ble lagret!",
       "savedNoLocation": "Loggen ble lagret! (Posisjon ikke hentet)",
       "saveError": "Feil ved lagring av logg. Prøv igjen.",
-      "fetchRateError": "Kunne ikke hente kurs for {{currency}}. Vennligst sett manuelt."
+      "fetchRateError": "Kunne ikke hente kurs for {{currency}}. Vennligst sett manuelt.",
+      "locationCapturedAt": "Located at {{station}}."
     }
   },
   "history": {
@@ -255,6 +256,15 @@
       "weeklyDigestDesc": "Push-varsel hver mandag med ditt ukentlige drivstoffsammendrag.",
       "disable": "Deaktiver",
       "enable": "Aktiver"
+    },
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
     }
   },
   "receipt": {

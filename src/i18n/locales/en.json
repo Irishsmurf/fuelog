@@ -55,6 +55,7 @@
       "validNumbers": "Cost, Distance (Km), and Fuel Amount must be valid positive numbers.",
       "gettingLocation": "Attempting to get location...",
       "locationCaptured": "Location captured (Accuracy: {{accuracy}}m).",
+      "locationCapturedAt": "Located at {{station}}.",
       "locationNotSupported": "Location not supported by browser.",
       "savingLog": "{{locationMsg}} Saving log...",
       "uploadingReceipt": "Uploading receipt photo...",
@@ -205,6 +206,15 @@
     "homeCurrencyDesc": "Set your primary currency for all fuel logs and summary analytics.",
     "measurementUnits": "Measurement Units",
     "measurementUnitsSoon": "Coming soon: Toggle between Metric (Km/L) and Imperial (MPG) defaults.",
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
+    },
     "vehicleFleet": "Vehicle Fleet",
     "vehicleFleetSubtext": "Manage your cars and rentals.",
     "showArchived": "Show Archived ({{count}})",

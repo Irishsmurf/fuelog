@@ -61,7 +61,8 @@
       "savedSuccess": "Loki tallennettu onnistuneesti!",
       "savedNoLocation": "Loki tallennettu onnistuneesti! (Sijaintia ei saatu)",
       "saveError": "Virhe tallennettaessa lokia. Yritä uudelleen.",
-      "fetchRateError": "Valuuttakurssin {{currency}} haku epäonnistui. Aseta manuaalisesti."
+      "fetchRateError": "Valuuttakurssin {{currency}} haku epäonnistui. Aseta manuaalisesti.",
+      "locationCapturedAt": "Located at {{station}}."
     }
   },
   "history": {
@@ -255,6 +256,15 @@
       "weeklyDigestDesc": "Push-ilmoitus joka maanantai viikoittaisella polttoaineyhteenvedollasi.",
       "disable": "Poista käytöstä",
       "enable": "Ota käyttöön"
+    },
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
     }
   },
   "receipt": {

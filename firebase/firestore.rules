@@ -46,6 +46,18 @@ service cloud.firestore {
         && request.resource.data.tokenHash.size() == 64;  // SHA-256 hex = 64 chars
     }
 
+    // Stations: global collection of petrol stations
+    match /stations/{stationId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated()
+        && request.resource.data.osmId is string
+        && request.resource.data.name is string;
+      allow update: if isAuthenticated()
+        && request.resource.data.osmId == resource.data.osmId // Prevent changing OSM ID
+        && request.resource.data.logCount is number
+        && request.resource.data.avgPrice is number;
+    }
+
     // FCM tokens: users can only read/write their own push notification tokens.
     // Document ID is the FCM registration token itself.
     match /fcmTokens/{tokenId} {

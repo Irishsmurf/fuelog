@@ -9,10 +9,10 @@ describe('locationService', () => {
     });
 
     it('returns null when Overpass API returns no elements', async () => {
-        (global.fetch as any).mockResolvedValue({
+        vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({ elements: [] })
-        });
+        } as Response);
 
         const result = await findNearestStation(53.3, -6.2);
         expect(result).toBeNull();
@@ -36,10 +36,10 @@ describe('locationService', () => {
             ]
         };
 
-        (global.fetch as any).mockResolvedValue({
+        vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => mockOsmData
-        });
+        } as Response);
 
         const result = await findNearestStation(53.3498, -6.2603);
         
@@ -51,7 +51,7 @@ describe('locationService', () => {
     });
 
     it('falls back to brand or operator if name is missing', async () => {
-        (global.fetch as any).mockResolvedValue({
+        vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({
                 elements: [
@@ -67,14 +67,14 @@ describe('locationService', () => {
                     }
                 ]
             })
-        });
+        } as Response);
 
         const result = await findNearestStation(53.3, -6.2);
         expect(result?.name).toBe('Circle K');
     });
 
     it('handles way-type stations with centers', async () => {
-        (global.fetch as any).mockResolvedValue({
+        vi.mocked(global.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({
                 elements: [
@@ -86,7 +86,7 @@ describe('locationService', () => {
                     }
                 ]
             })
-        });
+        } as Response);
 
         const result = await findNearestStation(53.4, -6.3);
         expect(result?.latitude).toBe(53.4);
@@ -94,10 +94,10 @@ describe('locationService', () => {
     });
 
     it('returns null on API error', async () => {
-        (global.fetch as any).mockResolvedValue({
+        vi.mocked(global.fetch).mockResolvedValue({
             ok: false,
             status: 500
-        });
+        } as Response);
 
         const result = await findNearestStation(53.3, -6.2);
         expect(result).toBeNull();
@@ -105,7 +105,7 @@ describe('locationService', () => {
 
     it('retries on 429 error and eventually succeeds', async () => {
         const mockFetch = vi.fn()
-            .mockResolvedValueOnce({ status: 429, ok: false })
+            .mockResolvedValueOnce({ status: 429, ok: false } as Response)
             .mockResolvedValueOnce({
                 ok: true,
                 json: async () => ({
@@ -114,12 +114,10 @@ describe('locationService', () => {
                         tags: { amenity: 'fuel', name: 'Retry Station' }
                     }]
                 })
-            });
+            } as Response);
 
         global.fetch = mockFetch;
 
-        // Use a small radius and mock timers if necessary, or just wait (the default delay is 2s now)
-        // To speed up tests, we could mock the delay, but for simplicity we'll just check if it was called twice
         const result = await findNearestStation(53.3, -6.2);
         
         expect(mockFetch).toHaveBeenCalledTimes(2);

@@ -21,6 +21,7 @@ function ProfilePage(): JSX.Element {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
+  const [migrationProgress, setMigrationProgress] = useState<{ current: number, total: number } | null>(null);
   const [migrationMessage, setMigrationMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // Form State
@@ -147,8 +148,11 @@ function ProfilePage(): JSX.Element {
     if (!user) return;
     setIsMigrating(true);
     setMigrationMessage(null);
+    setMigrationProgress({ current: 0, total: 0 });
     try {
-      const result = await migrateUserLogsToStations(user.uid);
+      const result = await migrateUserLogsToStations(user.uid, (current, total) => {
+        setMigrationProgress({ current, total });
+      });
       setMigrationMessage({ 
         type: 'success', 
         text: t('profile.maintenance.migrationSuccess', { count: result.migrated }) 
@@ -158,6 +162,7 @@ function ProfilePage(): JSX.Element {
       setMigrationMessage({ type: 'error', text: t('profile.maintenance.migrationError') });
     } finally {
       setIsMigrating(false);
+      setMigrationProgress(null);
     }
   };
 
@@ -445,14 +450,31 @@ function ProfilePage(): JSX.Element {
               {t('profile.maintenance.migrateStationsDesc')}
             </p>
           </div>
-          <button
-            onClick={handleMigrateStations}
-            disabled={isMigrating}
-            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-md ${isMigrating ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20'}`}
-          >
-            {isMigrating ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} />}
-            <span>{isMigrating ? t('profile.maintenance.migrating') : t('profile.maintenance.migrateStationsButton')}</span>
-          </button>
+          {!isMigrating ? (
+            <button
+              onClick={handleMigrateStations}
+              className="flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-md bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"
+            >
+              <RefreshCw size={16} />
+              <span>{t('profile.maintenance.migrateStationsButton')}</span>
+            </button>
+          ) : (
+            <div className="w-full md:w-48 space-y-2">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                <span>{t('profile.maintenance.migrating')}</span>
+                <span>{migrationProgress ? Math.round((migrationProgress.current / migrationProgress.total) * 100) : 0}%</span>
+              </div>
+              <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-amber-500 transition-all duration-300 ease-out" 
+                  style={{ width: `${migrationProgress ? (migrationProgress.current / migrationProgress.total) * 100 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-[10px] text-gray-400 text-center font-bold">
+                {migrationProgress?.current} / {migrationProgress?.total}
+              </p>
+            </div>
+          )}
         </div>
 
         {migrationMessage && (

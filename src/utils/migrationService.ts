@@ -7,7 +7,10 @@ import { getOrCreateStation, updateStationMetrics } from '../firebase/firestoreS
 /**
  * Migrates existing logs for a user that have coordinates but no stationId.
  */
-export async function migrateUserLogsToStations(userId: string): Promise<{ migrated: number, failed: number, skipped: number }> {
+export async function migrateUserLogsToStations(
+    userId: string, 
+    onProgress?: (current: number, total: number) => void
+): Promise<{ migrated: number, failed: number, skipped: number }> {
     const logsCollection = collection(db, 'fuelLogs');
     const q = query(
         logsCollection,
@@ -20,11 +23,14 @@ export async function migrateUserLogsToStations(userId: string): Promise<{ migra
         .map(doc => ({ id: doc.id, ...doc.data() } as Log))
         .filter(log => !log.stationId && log.latitude && log.longitude);
 
+    const total = logsToMigrate.length;
     let migrated = 0;
     let failed = 0;
     let skipped = 0;
+    let processed = 0;
 
-    console.log(`Starting migration for ${logsToMigrate.length} logs...`);
+    console.log(`Starting migration for ${total} logs...`);
+    if (onProgress) onProgress(0, total);
 
     for (const log of logsToMigrate) {
         try {
@@ -48,6 +54,9 @@ export async function migrateUserLogsToStations(userId: string): Promise<{ migra
         } catch (error) {
             console.error(`Failed to migrate log ${log.id}:`, error);
             failed++;
+        } finally {
+            processed++;
+            if (onProgress) onProgress(processed, total);
         }
     }
 

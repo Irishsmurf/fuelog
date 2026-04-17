@@ -9,6 +9,7 @@ import { useFCMToken } from '../hooks/useFCMToken';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../components/LanguageSelector';
+import { migrateUserLogsToStations } from '../utils/migrationService';
 
 function ProfilePage(): JSX.Element {
   const { user, profile, updateProfile } = useAuth();
@@ -19,6 +20,8 @@ function ProfilePage(): JSX.Element {
   const [isSaving, setIsUpdating] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
+  const [migrationMessage, setMigrationMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -137,6 +140,24 @@ function ProfilePage(): JSX.Element {
         ? t('profile.messages.permissionDeniedDefault')
         : t('profile.messages.failedToSetDefault');
       setMessage({ type: 'error', text: errorMsg });
+    }
+  };
+
+  const handleMigrateStations = async () => {
+    if (!user) return;
+    setIsMigrating(true);
+    setMigrationMessage(null);
+    try {
+      const result = await migrateUserLogsToStations(user.uid);
+      setMigrationMessage({ 
+        type: 'success', 
+        text: t('profile.maintenance.migrationSuccess', { count: result.migrated }) 
+      });
+    } catch (err) {
+      console.error("Migration error:", err);
+      setMigrationMessage({ type: 'error', text: t('profile.maintenance.migrationError') });
+    } finally {
+      setIsMigrating(false);
     }
   };
 
@@ -407,6 +428,40 @@ function ProfilePage(): JSX.Element {
 
       {/* API Access Section */}
       <ApiTokenManager />
+
+      {/* Maintenance Section */}
+      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 sm:p-8 border border-gray-100 dark:border-gray-700/50">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="bg-amber-500/10 p-2 rounded-lg text-amber-500">
+            <RefreshCw size={20} />
+          </div>
+          <h3 className="text-xl font-black tracking-tight">{t('profile.maintenance.heading')}</h3>
+        </div>
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <h4 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">{t('profile.maintenance.migrateStations')}</h4>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed max-w-md">
+              {t('profile.maintenance.migrateStationsDesc')}
+            </p>
+          </div>
+          <button
+            onClick={handleMigrateStations}
+            disabled={isMigrating}
+            className={`flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-md ${isMigrating ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20'}`}
+          >
+            {isMigrating ? <RefreshCw size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+            <span>{isMigrating ? t('profile.maintenance.migrating') : t('profile.maintenance.migrateStationsButton')}</span>
+          </button>
+        </div>
+
+        {migrationMessage && (
+          <div className={`mt-6 p-4 rounded-2xl border flex items-center space-x-3 animate-in slide-in-from-bottom-2 ${migrationMessage.type === 'success' ? 'bg-green-50 border-green-100 text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400' : 'bg-red-50 border-red-100 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'}`}>
+            {migrationMessage.type === 'success' ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+            <p className="text-sm font-bold">{migrationMessage.text}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

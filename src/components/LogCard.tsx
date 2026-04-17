@@ -28,6 +28,7 @@ interface LogCardProps {
   onEdit: (log: Log) => void;
   onDelete: (logId: string) => void;
   vehicleName?: string;
+  stationName?: string;
 }
 
 /** Small helper to fix the map view when flipping */
@@ -37,7 +38,7 @@ const RecenterMap = ({ center }: { center: L.LatLngExpression }) => {
     return null;
 };
 
-function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Element {
+function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardProps): JSX.Element {
   const { profile } = useAuth();
   const { getBoolean } = useRemoteConfig();
   const { t, i18n } = useTranslation();
@@ -91,7 +92,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
                 {hasGeo && <MapPin size={10} className="text-brand-primary shrink-0 animate-pulse" />}
               </div>
               <h4 className="text-lg font-black tracking-tight text-gray-900 dark:text-white leading-tight truncate">
-                {log.brand || t('logCard.unknownStation')}
+                {stationName || log.brand || t('logCard.unknownStation')}
               </h4>
               {vehicleName && (
                 <span className="inline-block bg-brand-primary/5 text-brand-primary text-[10px] px-2 py-0.5 rounded-full font-bold mt-1 border border-brand-primary/10">
@@ -185,7 +186,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
               </MapContainer>
             )}
             <div className="absolute top-3 left-3 z-[1000] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary">{log.brand || t('logCard.unknownStation')}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary">{stationName || log.brand || t('logCard.unknownStation')}</p>
             </div>
             <button
                 className="absolute bottom-3 right-3 z-[1000] bg-brand-primary text-white p-2.5 rounded-xl shadow-lg shadow-brand-primary/30"

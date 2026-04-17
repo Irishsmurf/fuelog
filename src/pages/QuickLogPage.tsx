@@ -9,9 +9,10 @@ import { Vehicle, FuelLogData } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
-import { getLastOdometerReading } from '../firebase/firestoreService';
+import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import { calculateDistance } from '../utils/calculations';
+import { findNearestStation } from '../utils/locationService';
 import ReceiptAISection from '../components/ReceiptAISection';
 import { useTranslation } from 'react-i18next';
 
@@ -263,16 +264,39 @@ function QuickLogPage(): JSX.Element {
 
     // --- Get Location ---
     const locationData = await getCurrentLocation();
+    
+    // --- Find Station ---
+    let linkedStationId: string | undefined;
+    let stationName: string | undefined;
+
+    if (locationData) {
+        try {
+            const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
+            if (nearest) {
+                linkedStationId = await getOrCreateStation(nearest);
+                stationName = nearest.name;
+                // If brand is empty, auto-fill it with station name
+                if (!brand.trim()) {
+                    setBrand(nearest.name);
+                }
+            }
+        } catch (err) {
+            console.error("Station lookup failed:", err);
+        }
+    }
+
     setSavingStep('saving');
     let locationMessage: string;
     if (locationData) {
-        locationMessage = t('quickLog.messages.locationCaptured', { accuracy: locationData.locationAccuracy.toFixed(0) });
+        locationMessage = stationName 
+            ? t('quickLog.messages.locationCapturedAt', { station: stationName })
+            : t('quickLog.messages.locationCaptured', { accuracy: locationData.locationAccuracy.toFixed(0) });
     } else if (!navigator.geolocation) {
         locationMessage = t('quickLog.messages.locationNotSupported');
     } else {
         locationMessage = t('quickLog.messages.locationNotSupported');
     }
-    // --- End Get Location ---
+    // --- End Get Location & Station ---
 
     setMessage({ type: 'info', text: t('quickLog.messages.savingLog', { locationMsg: locationMessage }) });
 
@@ -286,20 +310,22 @@ function QuickLogPage(): JSX.Element {
 
       // Calculate cost in home currency
       const costHomeCurrency = parsedCost * exchangeRate;
+      const pricePerLitre = costHomeCurrency / parsedFuel;
 
       // Prepare data object, including location if available
       const logData: Omit<FuelLogData, 'timestamp'> & { timestamp: Timestamp; userId: string } = {
         userId: user.uid,
         vehicleId: selectedVehicleId,
         timestamp: Timestamp.now(),
-        brand: brand.trim() || 'Unknown',
+        brand: brand.trim() || stationName || 'Unknown',
         cost: costHomeCurrency,
         distanceKm: parsedDistanceKm,
         fuelAmountLiters: parsedFuel,
         currency: currency,
         originalCost: parsedCost,
         exchangeRate: exchangeRate,
-        receiptUrl: receiptUrl || undefined
+        receiptUrl: receiptUrl || undefined,
+        stationId: linkedStationId
       };
       if (!isNaN(parsedOdometer)) {
         logData.odometerKm = parsedOdometer;
@@ -312,7 +338,13 @@ function QuickLogPage(): JSX.Element {
 
       // Save to Firestore
       await addDoc(collection(db, "fuelLogs"), logData);
-      analytics.then(a => { if (a) logEvent(a, 'fuel_log_submitted', { vehicle_id: selectedVehicleId, has_receipt: !!receiptFile, currency, used_ai_autofill: extractedData !== null }); });
+      
+      // Update station metrics if linked
+      if (linkedStationId) {
+        await updateStationMetrics(linkedStationId, pricePerLitre);
+      }
+
+      analytics.then(a => { if (a) logEvent(a, 'fuel_log_submitted', { vehicle_id: selectedVehicleId, has_receipt: !!receiptFile, currency, used_ai_autofill: extractedData !== null, has_station: !!linkedStationId }); });
 
       // Clear form on success
       setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');

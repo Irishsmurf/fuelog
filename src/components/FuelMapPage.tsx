@@ -10,8 +10,8 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';        // Cluster CSS
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'; // Cluster Default Theme CSS
 
-import { fetchFuelLocations } from '../firebase/firestoreService'; // Adjust path if needed
-import { Log } from '../utils/types';
+import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreService'; // Adjust path if needed
+import { Log, Station } from '../utils/types';
 
 // --- Icon Fix (points to public assets) ---
 const iconRetinaUrl = '/marker-icon-2x.png';
@@ -78,6 +78,7 @@ const LocateControl = () => {
 
 const FuelMapPage: React.FC = () => {
   const [locations, setLocations] = useState<Log[]>([]);
+  const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,10 +87,13 @@ const FuelMapPage: React.FC = () => {
            setLoading(true);
            setError(null);
            try {
-               const data = await fetchFuelLocations();
-               setLocations(data);
+               const logs = await fetchFuelLocations();
+               setLocations(logs);
+               
+               const stationData = await fetchUserStations(logs);
+               setStations(stationData);
            } catch (err) {
-               setError("Failed to load locations.");
+               setError("Failed to load map data.");
                console.error(err);
            } finally {
                setLoading(false);
@@ -114,6 +118,14 @@ const FuelMapPage: React.FC = () => {
 
   const validLocations = locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined);
 
+  // Group logs by station for better display
+  const stationGroups = validLocations.reduce((acc, log) => {
+      const key = log.stationId || `raw-${log.latitude}-${log.longitude}`;
+      if (!acc[key]) acc[key] = { logs: [], station: stations.find(s => s.id === log.stationId) };
+      acc[key].logs.push(log);
+      return acc;
+  }, {} as Record<string, { logs: Log[], station?: Station }>);
+
   // If no valid locations, we can default to user location or a default.
   const initialCenter: L.LatLngExpression = validLocations.length > 0
       ? [validLocations[0].latitude!, validLocations[0].longitude!]
@@ -135,24 +147,52 @@ const FuelMapPage: React.FC = () => {
         />
 
         <MarkerClusterGroup chunkedLoading>
-          {validLocations.map((log) => (
-            <Marker key={log.id} position={[log.latitude!, log.longitude!]}>
-              <Popup>
-                <div className="p-1 min-w-[150px]">
-                  <div className="flex items-center mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
-                      <MapPin className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" />
-                      <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{log.brand || 'N/A'}</span>
+          {Object.entries(stationGroups).map(([key, group]) => {
+            const firstLog = group.logs[0];
+            const pos: L.LatLngExpression = group.station 
+              ? [group.station.latitude, group.station.longitude]
+              : [firstLog.latitude!, firstLog.longitude!];
+              
+            return (
+              <Marker key={key} position={pos}>
+                <Popup>
+                  <div className="p-1 min-w-[180px]">
+                    <div className="flex flex-col mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
+                        <div className="flex items-center">
+                            <MapPin className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" />
+                            <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                                {group.station?.name || firstLog.brand || 'N/A'}
+                            </span>
+                        </div>
+                        {group.station?.avgPrice && (
+                            <div className="mt-1 flex items-center text-[10px] text-green-600 dark:text-green-400 font-bold uppercase">
+                                <span>Avg Price: €{group.station.avgPrice.toFixed(3)}/L</span>
+                            </div>
+                        )}
+                    </div>
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                        {group.logs.map(log => (
+                            <div key={log.id} className="text-xs border-b border-gray-50 dark:border-gray-800 pb-1 last:border-0">
+                                <p className="flex justify-between font-medium">
+                                    <span>{log.timestamp.toDate().toLocaleDateString()}</span>
+                                    <span className="text-green-600 dark:text-green-400">€{log.cost.toFixed(2)}</span>
+                                </p>
+                                <p className="text-[10px] text-gray-500">
+                                    {log.fuelAmountLiters.toFixed(2)}L @ {(log.cost / log.fuelAmountLiters).toFixed(3)}/L
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                    {group.logs.length > 1 && (
+                        <div className="mt-2 pt-1 border-t border-gray-200 dark:border-gray-700 text-[9px] text-gray-400 text-center font-bold uppercase tracking-wider">
+                            {group.logs.length} Fuelings at this station
+                        </div>
+                    )}
                   </div>
-                  <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                      <p className="flex justify-between"><span>Date:</span> <span className="font-medium">{log.timestamp.toDate().toLocaleDateString()}</span></p>
-                      <p className="flex justify-between"><span>Cost:</span> <span className="font-medium text-green-600 dark:text-green-400">€{log.cost.toFixed(2)}</span></p>
-                      <p className="flex justify-between"><span>Litres:</span> <span className="font-medium">{log.fuelAmountLiters.toFixed(2)} L</span></p>
-                      <p className="flex justify-between"><span>Distance:</span> <span className="font-medium">{log.distanceKm.toFixed(1)} km</span></p>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+                </Popup>
+              </Marker>
+            );
+          })}
         </MarkerClusterGroup>
 
         <FitBoundsToMarkers points={validLocations} />

@@ -45,7 +45,21 @@ interface FuelLogData {
     // Multi-vehicle support
     vehicleId?: string;         // Link to the vehicle (optional for backward compatibility)
     receiptUrl?: string;        // Optional URL for fuel receipt image (Cloud Storage)
+    stationId?: string;         // Link to the Station document
   }
+
+  interface Station {
+    id: string;               // Firestore Document ID
+    osmId: string;            // OpenStreetMap ID
+    name: string;             // Station Name (e.g., "Shell")
+    brand?: string;           // Station Brand (e.g., "Shell")
+    latitude: number;
+    longitude: number;
+    address?: string;         // Optional formatted address
+    lastPrice?: number;       // Last price logged at this station
+    avgPrice?: number;        // Average price logged at this station
+    logCount: number;         // Total logs for this station
+}
 
   interface Log extends FuelLogData {
     id: string;
@@ -74,4 +88,4 @@ interface EditFormData {
 type ViewMode = 'table' | 'cards';
 
 
-export type { FuelLogData, Log, ChartDataPoint, ViewMode, EditFormData, EditingLogState, Vehicle, VehicleFuelType, ApiToken };
+export type { FuelLogData, Log, ChartDataPoint, ViewMode, EditFormData, EditingLogState, Vehicle, VehicleFuelType, ApiToken, Station };

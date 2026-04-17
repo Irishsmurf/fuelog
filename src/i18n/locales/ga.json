@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "e.g., Circle K, Maxol",
       "totalCost": "Costas Iomlán",
       "currency": "Airgeadra",
+      "odometer": "Odometer (Km)",
       "distance": "Fad (Km)",
       "fuel": "Breosla (L)",
       "exchangeRate": "Ráta (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "Ag fáil...",
-      "converted": "Tiontaithe: {{symbol}}{{amount}}"
+      "converted": "Tiontaithe: {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "Sábháil Iontráil Breosla",
@@ -111,6 +115,7 @@
       "vehicle": "Feithicil",
       "brand": "Brandáil",
       "cost": "Costas ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Fad (Km)",
       "fuel": "Breosla (L)",
       "costPerMile": "Costas/Míle",
@@ -152,6 +157,7 @@
       "vehicle": "Feithicil",
       "brand": "Stáisiún Líonta",
       "cost": "Costas Iomlán ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Fad (Km)",
       "fuel": "Méid Breosla (L)",
       "save": "Sábháil Athruithe",

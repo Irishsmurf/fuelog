@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "e.g., Circle K, Maxol",
       "totalCost": "Total Cost",
       "currency": "Currency",
+      "odometer": "Odometer (Km)",
       "distance": "Dist (Km)",
       "fuel": "Fuel (L)",
       "exchangeRate": "Rate (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "Fetching...",
-      "converted": "Converted: {{symbol}}{{amount}}"
+      "converted": "Converted: {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "Save Fuel Log",
@@ -111,6 +115,7 @@
       "vehicle": "Vehicle",
       "brand": "Brand",
       "cost": "Cost ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Distance (Km)",
       "fuel": "Fuel (L)",
       "costPerMile": "Cost/Mile",
@@ -152,6 +157,7 @@
       "vehicle": "Vehicle",
       "brand": "Filling Station",
       "cost": "Total Cost ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Distance (Km)",
       "fuel": "Fuel Amount (L)",
       "save": "Save Changes",

@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "t.ex. Circle K, OKQ8",
       "totalCost": "Total kostnad",
       "currency": "Valuta",
+      "odometer": "Odometer (Km)",
       "distance": "Sträcka (Km)",
       "fuel": "Bränsle (L)",
       "exchangeRate": "Växelkurs (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "Hämtar...",
-      "converted": "Konverterat: {{symbol}}{{amount}}"
+      "converted": "Konverterat: {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "Spara bränslelogg",
@@ -111,6 +115,7 @@
       "vehicle": "Fordon",
       "brand": "Märke",
       "cost": "Kostnad ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Sträcka (Km)",
       "fuel": "Bränsle (L)",
       "costPerMile": "Kostnad/mil",
@@ -152,6 +157,7 @@
       "vehicle": "Fordon",
       "brand": "Bensinstation",
       "cost": "Total kostnad ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Sträcka (Km)",
       "fuel": "Bränslemängd (L)",
       "save": "Spara ändringar",

@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "예: SK에너지, GS칼텍스",
       "totalCost": "총 비용",
       "currency": "통화",
+      "odometer": "Odometer (Km)",
       "distance": "거리 (Km)",
       "fuel": "연료 (L)",
       "exchangeRate": "환율 (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "가져오는 중...",
-      "converted": "환산: {{symbol}}{{amount}}"
+      "converted": "환산: {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "기록 저장",
@@ -62,57 +66,11 @@
   },
   "history": {
     "title": "연료 내역",
+    "pageTitle": "연료 내역 및 트렌드",
     "loading": "내역 로드 중...",
     "noLogs": "기록이 없습니다. 첫 번째 항목을 추가하세요!",
     "noLogsForFilter": "현재 필터와 일치하는 기록이 없습니다.",
     "exportPdf": "PDF 내보내기",
-    "viewMode": {
-      "list": "목록",
-      "chart": "차트",
-      "summary": "요약"
-    },
-    "filter": {
-      "all": "전체",
-      "thisMonth": "이번 달",
-      "last3Months": "최근 3개월",
-      "thisYear": "올해"
-    },
-    "chart": {
-      "fuelCost": "연료 비용",
-      "mpg": "MPG",
-      "kmL": "km/L",
-      "l100km": "L/100km",
-      "costPerMile": "비용/마일"
-    },
-    "summary": {
-      "totalSpend": "총 지출",
-      "totalFuel": "총 연료",
-      "totalDistance": "총 거리",
-      "avgEfficiency": "평균 효율",
-      "avgCostPerKm": "평균 비용/Km",
-      "entries": "건수"
-    },
-    "edit": {
-      "title": "기록 수정",
-      "brand": "주유소",
-      "cost": "총 비용 ({{currency}})",
-      "distance": "거리 (Km)",
-      "fuel": "연료량 (L)",
-      "save": "변경사항 저장",
-      "saving": "저장 중...",
-      "cancel": "취소",
-      "receipt": "영수증 사진",
-      "vehicle": "차량",
-      "updateReceipt": "영수증 사진 업데이트",
-      "receiptKept": "교체하지 않으면 현재 영수증이 유지됩니다."
-    },
-    "delete": {
-      "confirm": "이 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-    },
-    "loadError": "연료 내역을 불러오는 데 실패했습니다. 연결 상태를 확인하고 다시 시도해 주세요.",
-    "deleteError": "기록을 삭제하는 데 실패했습니다. 다시 시도해 주세요.",
-    "updateError": "기록을 업데이트하는 데 실패했습니다. 다시 시도해 주세요.",
-    "pageTitle": "연료 내역 및 트렌드",
     "filters": {
       "heading": "필터",
       "vehicle": "차량",
@@ -157,6 +115,7 @@
       "vehicle": "차량",
       "brand": "브랜드",
       "cost": "비용 ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "거리 (Km)",
       "fuel": "연료 (L)",
       "costPerMile": "비용/마일",
@@ -167,6 +126,53 @@
       "edit": "수정",
       "delete": "삭제"
     },
+    "viewMode": {
+      "list": "목록",
+      "chart": "차트",
+      "summary": "요약"
+    },
+    "filter": {
+      "all": "전체",
+      "thisMonth": "이번 달",
+      "last3Months": "최근 3개월",
+      "thisYear": "올해"
+    },
+    "chart": {
+      "fuelCost": "연료 비용",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "비용/마일"
+    },
+    "summary": {
+      "totalSpend": "총 지출",
+      "totalFuel": "총 연료",
+      "totalDistance": "총 거리",
+      "avgEfficiency": "평균 효율",
+      "avgCostPerKm": "평균 비용/Km",
+      "entries": "건수"
+    },
+    "edit": {
+      "title": "기록 수정",
+      "vehicle": "차량",
+      "brand": "주유소",
+      "cost": "총 비용 ({{currency}})",
+      "odometer": "Odometer (Km)",
+      "distance": "거리 (Km)",
+      "fuel": "연료량 (L)",
+      "save": "변경사항 저장",
+      "saving": "저장 중...",
+      "cancel": "취소",
+      "receipt": "영수증 사진",
+      "updateReceipt": "영수증 사진 업데이트",
+      "receiptKept": "교체하지 않으면 현재 영수증이 유지됩니다."
+    },
+    "delete": {
+      "confirm": "이 기록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+    },
+    "loadError": "연료 내역을 불러오는 데 실패했습니다. 연결 상태를 확인하고 다시 시도해 주세요.",
+    "deleteError": "기록을 삭제하는 데 실패했습니다. 다시 시도해 주세요.",
+    "updateError": "기록을 업데이트하는 데 실패했습니다. 다시 시도해 주세요.",
     "lifetimeStats": {
       "heading": "전체 합계",
       "totalSpent": "총 지출",
@@ -174,6 +180,10 @@
       "totalDistance": "총 거리",
       "logCount": "주유 횟수"
     }
+  },
+  "imageUpload": {
+    "receiptPhoto": "영수증 사진",
+    "snapOrSelect": "촬영 또는 선택"
   },
   "logCard": {
     "distance": "거리",
@@ -381,9 +391,5 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
-  },
-  "imageUpload": {
-    "receiptPhoto": "영수증 사진",
-    "snapOrSelect": "촬영 또는 선택"
   }
 }

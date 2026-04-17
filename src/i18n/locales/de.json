@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "z.B. Aral, Shell",
       "totalCost": "Gesamtkosten",
       "currency": "Währung",
+      "odometer": "Odometer (Km)",
       "distance": "Dist (Km)",
       "fuel": "Kraftstoff (L)",
       "exchangeRate": "Kurs (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "Wird abgerufen...",
-      "converted": "Umgerechnet: {{symbol}}{{amount}}"
+      "converted": "Umgerechnet: {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "Eintrag speichern",
@@ -62,57 +66,11 @@
   },
   "history": {
     "title": "Kraftstoffverlauf",
+    "pageTitle": "Kraftstoffverlauf & Trends",
     "loading": "Verlauf wird geladen...",
     "noLogs": "Keine Einträge gefunden. Fügen Sie Ihren ersten Eintrag hinzu!",
     "noLogsForFilter": "Keine Einträge entsprechen den aktuellen Filtern.",
     "exportPdf": "PDF exportieren",
-    "viewMode": {
-      "list": "Liste",
-      "chart": "Diagramm",
-      "summary": "Zusammenfassung"
-    },
-    "filter": {
-      "all": "Alle",
-      "thisMonth": "Dieser Monat",
-      "last3Months": "Letzte 3 Monate",
-      "thisYear": "Dieses Jahr"
-    },
-    "chart": {
-      "fuelCost": "Kraftstoffkosten",
-      "mpg": "MPG",
-      "kmL": "km/L",
-      "l100km": "L/100km",
-      "costPerMile": "Kosten/Meile"
-    },
-    "summary": {
-      "totalSpend": "Gesamtausgaben",
-      "totalFuel": "Kraftstoff gesamt",
-      "totalDistance": "Gesamtdistanz",
-      "avgEfficiency": "Ø Effizienz",
-      "avgCostPerKm": "Ø Kosten/Km",
-      "entries": "Einträge"
-    },
-    "edit": {
-      "title": "Eintrag bearbeiten",
-      "brand": "Tankstelle",
-      "cost": "Gesamtkosten ({{currency}})",
-      "distance": "Distanz (Km)",
-      "fuel": "Kraftstoffmenge (L)",
-      "save": "Änderungen speichern",
-      "saving": "Wird gespeichert...",
-      "cancel": "Abbrechen",
-      "receipt": "Quittungsfoto",
-      "vehicle": "Fahrzeug",
-      "updateReceipt": "Quittungsfoto aktualisieren",
-      "receiptKept": "Die aktuelle Quittung wird beibehalten, sofern sie nicht ersetzt wird."
-    },
-    "delete": {
-      "confirm": "Diesen Eintrag löschen? Diese Aktion kann nicht rückgängig gemacht werden."
-    },
-    "loadError": "Fehler beim Laden des Kraftstoffverlaufs. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
-    "deleteError": "Fehler beim Löschen des Eintrags. Bitte versuchen Sie es erneut.",
-    "updateError": "Fehler beim Aktualisieren. Bitte versuchen Sie es erneut.",
-    "pageTitle": "Kraftstoffverlauf & Trends",
     "filters": {
       "heading": "Filter",
       "vehicle": "Fahrzeug",
@@ -157,6 +115,7 @@
       "vehicle": "Fahrzeug",
       "brand": "Marke",
       "cost": "Kosten ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Distanz (Km)",
       "fuel": "Kraftstoff (L)",
       "costPerMile": "Kosten/Meile",
@@ -167,6 +126,53 @@
       "edit": "Bearbeiten",
       "delete": "Löschen"
     },
+    "viewMode": {
+      "list": "Liste",
+      "chart": "Diagramm",
+      "summary": "Zusammenfassung"
+    },
+    "filter": {
+      "all": "Alle",
+      "thisMonth": "Dieser Monat",
+      "last3Months": "Letzte 3 Monate",
+      "thisYear": "Dieses Jahr"
+    },
+    "chart": {
+      "fuelCost": "Kraftstoffkosten",
+      "mpg": "MPG",
+      "kmL": "km/L",
+      "l100km": "L/100km",
+      "costPerMile": "Kosten/Meile"
+    },
+    "summary": {
+      "totalSpend": "Gesamtausgaben",
+      "totalFuel": "Kraftstoff gesamt",
+      "totalDistance": "Gesamtdistanz",
+      "avgEfficiency": "Ø Effizienz",
+      "avgCostPerKm": "Ø Kosten/Km",
+      "entries": "Einträge"
+    },
+    "edit": {
+      "title": "Eintrag bearbeiten",
+      "vehicle": "Fahrzeug",
+      "brand": "Tankstelle",
+      "cost": "Gesamtkosten ({{currency}})",
+      "odometer": "Odometer (Km)",
+      "distance": "Distanz (Km)",
+      "fuel": "Kraftstoffmenge (L)",
+      "save": "Änderungen speichern",
+      "saving": "Wird gespeichert...",
+      "cancel": "Abbrechen",
+      "receipt": "Quittungsfoto",
+      "updateReceipt": "Quittungsfoto aktualisieren",
+      "receiptKept": "Die aktuelle Quittung wird beibehalten, sofern sie nicht ersetzt wird."
+    },
+    "delete": {
+      "confirm": "Diesen Eintrag löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "loadError": "Fehler beim Laden des Kraftstoffverlaufs. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "deleteError": "Fehler beim Löschen des Eintrags. Bitte versuchen Sie es erneut.",
+    "updateError": "Fehler beim Aktualisieren. Bitte versuchen Sie es erneut.",
     "lifetimeStats": {
       "heading": "Gesamtübersicht",
       "totalSpent": "Gesamt ausgegeben",
@@ -174,6 +180,10 @@
       "totalDistance": "Gesamtstrecke",
       "logCount": "Tankstopps"
     }
+  },
+  "imageUpload": {
+    "receiptPhoto": "Quittungsfoto",
+    "snapOrSelect": "Foto aufnehmen oder auswählen"
   },
   "logCard": {
     "distance": "Distanz",
@@ -381,9 +391,5 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
-  },
-  "imageUpload": {
-    "receiptPhoto": "Quittungsfoto",
-    "snapOrSelect": "Foto aufnehmen oder auswählen"
   }
 }

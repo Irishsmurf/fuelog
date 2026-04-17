@@ -35,6 +35,7 @@ interface FuelLogData {
     latitude?: number;
     longitude?: number;
     locationAccuracy?: number;
+    odometerKm?: number;
     
     // Multi-currency support
     currency?: string;          // e.g., "GBP"
@@ -66,6 +67,7 @@ interface EditFormData {
     cost: string;
     distanceKm: string;
     fuelAmountLiters: string;
+    odometerKm: string;
     vehicleId?: string; // Multi-vehicle support
 }
 // Type for view mode state

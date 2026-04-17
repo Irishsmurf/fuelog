@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatMPG, formatCostPerMile, formatKmL, formatL100km, getNumericMPG, getNumericFuelPrice } from './calculations';
+import { formatMPG, formatCostPerMile, formatKmL, formatL100km, getNumericMPG, getNumericFuelPrice, calculateDistance } from './calculations';
 
 describe('Calculation Utilities', () => {
   describe('formatMPG', () => {
@@ -62,5 +62,24 @@ describe('Calculation Utilities', () => {
        it('returns null for invalid input', () => {
           expect(getNumericFuelPrice(0, 10)).toBeNull();
       });
+  });
+
+  describe('calculateDistance', () => {
+    it('calculates distance between two odometer readings', () => {
+      expect(calculateDistance(1000, 900)).toBe(100);
+    });
+
+    it('returns null if current is less than previous', () => {
+      expect(calculateDistance(800, 900)).toBeNull();
+    });
+
+    it('allows zero as a valid reading', () => {
+      expect(calculateDistance(100, 0)).toBe(100);
+    });
+
+    it('returns null for negative values', () => {
+      expect(calculateDistance(-1, 100)).toBeNull();
+      expect(calculateDistance(100, -1)).toBeNull();
+    });
   });
 });

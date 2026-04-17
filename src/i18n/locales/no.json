@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "f.eks. Circle K, Shell",
       "totalCost": "Total kostnad",
       "currency": "Valuta",
+      "odometer": "Odometer (Km)",
       "distance": "Distanse (Km)",
       "fuel": "Drivstoff (L)",
       "exchangeRate": "Valutakurs (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "Henter...",
-      "converted": "Konvertert: {{symbol}}{{amount}}"
+      "converted": "Konvertert: {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "Lagre drivstofflogg",
@@ -111,6 +115,7 @@
       "vehicle": "Kjøretøy",
       "brand": "Merke",
       "cost": "Kostnad ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Distanse (Km)",
       "fuel": "Drivstoff (L)",
       "costPerMile": "Kostnad/mil",
@@ -152,6 +157,7 @@
       "vehicle": "Kjøretøy",
       "brand": "Bensinstasjon",
       "cost": "Total kostnad ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Distanse (Km)",
       "fuel": "Drivstoffmengde (L)",
       "save": "Lagre endringer",

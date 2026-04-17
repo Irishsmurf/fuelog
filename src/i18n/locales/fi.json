@@ -32,11 +32,15 @@
       "fillingStationPlaceholder": "esim. Neste, ABC",
       "totalCost": "Kokonaiskustannus",
       "currency": "Valuutta",
+      "odometer": "Odometer (Km)",
       "distance": "Matka (Km)",
       "fuel": "Polttoaine (L)",
       "exchangeRate": "Valuuttakurssi (1 {{currency}} = X {{homeCurrency}})",
       "fetching": "Haetaan...",
-      "converted": "Muunnettu: {{symbol}}{{amount}}"
+      "converted": "Muunnettu: {{symbol}}{{amount}}",
+      "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
+      "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
     },
     "submit": {
       "save": "Tallenna loki",
@@ -111,6 +115,7 @@
       "vehicle": "Ajoneuvo",
       "brand": "Merkki",
       "cost": "Kustannus ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Matka (Km)",
       "fuel": "Polttoaine (L)",
       "costPerMile": "Kulu/maili",
@@ -152,6 +157,7 @@
       "vehicle": "Ajoneuvo",
       "brand": "Huoltoasema",
       "cost": "Kokonaiskustannus ({{currency}})",
+      "odometer": "Odometer (Km)",
       "distance": "Matka (Km)",
       "fuel": "Polttoainemäärä (L)",
       "save": "Tallenna muutokset",

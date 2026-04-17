@@ -7,6 +7,7 @@ import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Info, Edit3, Trash2, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import { useTranslation } from 'react-i18next';
 
@@ -38,9 +39,12 @@ const RecenterMap = ({ center }: { center: L.LatLngExpression }) => {
 
 function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Element {
   const { profile } = useAuth();
+  const { getBoolean } = useRemoteConfig();
   const { t, i18n } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
+
+  const odometerInputEnabled = getBoolean('odometerInputEnabled');
 
   const homeCurrency = profile?.homeCurrency || 'EUR';
   const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
@@ -103,20 +107,29 @@ function LogCard({ log, onEdit, onDelete, vehicleName }: LogCardProps): JSX.Elem
               )}
             </div>
           </div>
+{/* Metrics Grid */}
+<div className="grid grid-cols-2 gap-3 py-3 border-y border-gray-50 dark:border-gray-700/50 mb-3">
+  {odometerInputEnabled && log.odometerKm !== undefined && log.odometerKm !== null ? (
+    <>
+      {renderMetric(t('history.table.odometer'), log.odometerKm.toFixed(0), " Km")}
+      {renderMetric(t('logCard.distance'), log.distanceKm?.toFixed(1), " Km")}
+    </>
+  ) : (
+    <>
+      {renderMetric(t('logCard.distance'), log.distanceKm?.toFixed(1), " Km")}
+      {renderMetric(t('logCard.fuelAdded'), log.fuelAmountLiters?.toFixed(2), " L")}
+    </>
+  )}
+</div>
 
-          {/* Metrics Grid */}
-          <div className="grid grid-cols-2 gap-3 py-3 border-y border-gray-50 dark:border-gray-700/50 mb-3">
-            {renderMetric(t('logCard.distance'), log.distanceKm?.toFixed(1), " Km")}
-            {renderMetric(t('logCard.fuelAdded'), log.fuelAmountLiters?.toFixed(2), " L")}
-          </div>
-
-          {/* Efficiency Grid */}
-          <div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-4">
-            {renderMetric(t('logCard.mpg'), formatMPG(log.distanceKm, log.fuelAmountLiters))}
-            {renderMetric(t('logCard.kmL'), formatKmL(log.distanceKm, log.fuelAmountLiters))}
-            {renderMetric(t('logCard.l100km'), formatL100km(log.distanceKm, log.fuelAmountLiters))}
-            {renderMetric(t('logCard.costPerMile'), formatCostPerMile(log.cost, log.distanceKm))}
-          </div>
+{/* Efficiency Grid */}
+<div className="grid grid-cols-2 gap-y-3 gap-x-4 mb-4">
+  {odometerInputEnabled && log.odometerKm !== undefined && log.odometerKm !== null && renderMetric(t('logCard.fuelAdded'), log.fuelAmountLiters?.toFixed(2), " L")}
+  {renderMetric(t('logCard.mpg'), formatMPG(log.distanceKm, log.fuelAmountLiters))}
+  {renderMetric(t('logCard.kmL'), formatKmL(log.distanceKm, log.fuelAmountLiters))}
+  {renderMetric(t('logCard.l100km'), formatL100km(log.distanceKm, log.fuelAmountLiters))}
+  {renderMetric(t('logCard.costPerMile'), formatCostPerMile(log.cost, log.distanceKm))}
+</div>
 
           {/* Receipt Section */}
           {log.receiptUrl && (

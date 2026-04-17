@@ -9,6 +9,7 @@ const DEFAULT_CONFIG: Record<string, boolean | string | number> = {
   "totalSpentDisplayEnabled": false,
   "receiptDigitizationEnabled": false,
   "receiptAutoFillEnabled": false,
+  "odometerInputEnabled": false,
 };
 
 // --- Initialize Remote Config ---

@@ -28,8 +28,8 @@ export async function migrateUserLogsToStations(userId: string): Promise<{ migra
 
     for (const log of logsToMigrate) {
         try {
-            // Add a small delay to avoid hitting Overpass API rate limits too hard
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Add a delay to avoid hitting Overpass API rate limits too hard (2s)
+            await new Promise(resolve => setTimeout(resolve, 2000));
 
             const nearest = await findNearestStation(log.latitude!, log.longitude!);
             if (nearest) {

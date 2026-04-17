@@ -102,4 +102,27 @@ describe('locationService', () => {
         const result = await findNearestStation(53.3, -6.2);
         expect(result).toBeNull();
     });
+
+    it('retries on 429 error and eventually succeeds', async () => {
+        const mockFetch = vi.fn()
+            .mockResolvedValueOnce({ status: 429, ok: false })
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    elements: [{
+                        type: 'node', id: 1, lat: 53.3, lon: -6.2,
+                        tags: { amenity: 'fuel', name: 'Retry Station' }
+                    }]
+                })
+            });
+
+        global.fetch = mockFetch;
+
+        // Use a small radius and mock timers if necessary, or just wait (the default delay is 2s now)
+        // To speed up tests, we could mock the delay, but for simplicity we'll just check if it was called twice
+        const result = await findNearestStation(53.3, -6.2);
+        
+        expect(mockFetch).toHaveBeenCalledTimes(2);
+        expect(result?.name).toBe('Retry Station');
+    });
 });

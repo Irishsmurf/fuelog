@@ -1,5 +1,5 @@
 // src/firebase/firestoreService.ts
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, setDoc, increment, runTransaction } from 'firebase/firestore';
 import { db, auth } from './config'; // db and auth from your config file
 import { Log, FuelLogData, Station } from '../utils/types'; // Adjust path as needed
 import { OSMStation } from '../utils/locationService';
@@ -89,25 +89,32 @@ export const getOrCreateStation = async (osmStation: OSMStation): Promise<string
 
 /**
  * Updates station metrics when a new log is added.
+ * Uses a transaction to avoid race conditions when multiple users/logs update the same station.
  */
 export const updateStationMetrics = async (stationId: string, pricePerLitre: number) => {
     const stationRef = doc(db, 'stations', stationId);
-    const stationSnap = await getDoc(stationRef);
 
-    if (!stationSnap.exists()) return;
+    try {
+        await runTransaction(db, async (transaction) => {
+            const stationSnap = await transaction.get(stationRef);
+            if (!stationSnap.exists()) return;
 
-    const data = stationSnap.data() as Station;
-    const currentCount = data.logCount || 0;
-    const currentAvg = data.avgPrice || 0;
+            const data = stationSnap.data() as Station;
+            const currentCount = data.logCount || 0;
+            const currentAvg = data.avgPrice || 0;
 
-    // Calculate new average
-    const newAvg = ((currentAvg * currentCount) + pricePerLitre) / (currentCount + 1);
+            // Calculate new average
+            const newAvg = ((currentAvg * currentCount) + pricePerLitre) / (currentCount + 1);
 
-    await updateDoc(stationRef, {
-        logCount: increment(1),
-        avgPrice: newAvg,
-        lastPrice: pricePerLitre
-    });
+            transaction.update(stationRef, {
+                logCount: increment(1),
+                avgPrice: newAvg,
+                lastPrice: pricePerLitre
+            });
+        });
+    } catch (error) {
+        console.error("Transaction failed: ", error);
+    }
 };
 
 /**

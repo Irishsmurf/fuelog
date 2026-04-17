@@ -1,5 +1,5 @@
 // src/components/FuelMapPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster'; // Import the cluster group
@@ -102,6 +102,18 @@ const FuelMapPage: React.FC = () => {
        loadData();
   }, []);
 
+  const validLocations = useMemo(() => locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined), [locations]);
+
+  // Group logs by station for better display - Memoized for performance
+  const stationGroups = useMemo(() => {
+      return validLocations.reduce((acc, log) => {
+          const key = log.stationId || `raw-${log.latitude}-${log.longitude}`;
+          if (!acc[key]) acc[key] = { logs: [], station: stations.find(s => s.id === log.stationId) };
+          acc[key].logs.push(log);
+          return acc;
+      }, {} as Record<string, { logs: Log[], station?: Station }>);
+  }, [validLocations, stations]);
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
        <Loader className="w-8 h-8 animate-spin mb-2" />
@@ -115,16 +127,6 @@ const FuelMapPage: React.FC = () => {
           <p>{error}</p>
       </div>
   );
-
-  const validLocations = locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined);
-
-  // Group logs by station for better display
-  const stationGroups = validLocations.reduce((acc, log) => {
-      const key = log.stationId || `raw-${log.latitude}-${log.longitude}`;
-      if (!acc[key]) acc[key] = { logs: [], station: stations.find(s => s.id === log.stationId) };
-      acc[key].logs.push(log);
-      return acc;
-  }, {} as Record<string, { logs: Log[], station?: Station }>);
 
   // If no valid locations, we can default to user location or a default.
   const initialCenter: L.LatLngExpression = validLocations.length > 0

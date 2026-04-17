@@ -61,7 +61,8 @@
       "savedSuccess": "Loggen sparades framgångsrikt!",
       "savedNoLocation": "Loggen sparades framgångsrikt! (Plats hämtades inte)",
       "saveError": "Fel vid sparande av logg. Försök igen.",
-      "fetchRateError": "Misslyckades med att hämta kurs för {{currency}}. Ställ in manuellt."
+      "fetchRateError": "Misslyckades med att hämta kurs för {{currency}}. Ställ in manuellt.",
+      "locationCapturedAt": "Located at {{station}}."
     }
   },
   "history": {
@@ -255,6 +256,15 @@
       "weeklyDigestDesc": "Push-avisering varje måndag med din veckovisa bränsleöversikt.",
       "disable": "Inaktivera",
       "enable": "Aktivera"
+    },
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
     }
   },
   "receipt": {

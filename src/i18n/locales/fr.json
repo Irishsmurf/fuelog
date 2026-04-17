@@ -61,7 +61,8 @@
       "savedSuccess": "Saisie enregistrée avec succès !",
       "savedNoLocation": "Saisie enregistrée avec succès ! (Localisation non capturée)",
       "saveError": "Erreur lors de l'enregistrement. Veuillez réessayer.",
-      "fetchRateError": "Échec de la récupération du taux {{currency}}. Veuillez le définir manuellement."
+      "fetchRateError": "Échec de la récupération du taux {{currency}}. Veuillez le définir manuellement.",
+      "locationCapturedAt": "Located at {{station}}."
     }
   },
   "history": {
@@ -255,6 +256,15 @@
       "weeklyDigestDesc": "Notification push chaque lundi avec votre récapitulatif hebdomadaire de carburant.",
       "disable": "Désactiver",
       "enable": "Activer"
+    },
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
     }
   },
   "receipt": {

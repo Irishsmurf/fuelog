@@ -61,7 +61,8 @@
       "savedSuccess": "記録が正常に保存されました！",
       "savedNoLocation": "記録が正常に保存されました！（位置情報なし）",
       "saveError": "記録の保存中にエラーが発生しました。もう一度お試しください。",
-      "fetchRateError": "{{currency}}のレートの取得に失敗しました。手動で設定してください。"
+      "fetchRateError": "{{currency}}のレートの取得に失敗しました。手動で設定してください。",
+      "locationCapturedAt": "Located at {{station}}."
     }
   },
   "history": {
@@ -255,6 +256,15 @@
       "weeklyDigestDesc": "毎週月曜日に週間燃料サマリーをプッシュ通知でお届けします。",
       "disable": "無効にする",
       "enable": "有効にする"
+    },
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
     }
   },
   "receipt": {

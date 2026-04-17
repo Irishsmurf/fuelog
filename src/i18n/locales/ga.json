@@ -61,7 +61,8 @@
       "savedSuccess": "Iontráil sábháilte go rathúil!",
       "savedNoLocation": "Iontráil sábháilte go rathúil! (Suíomh gan gabhail)",
       "saveError": "Earráid agus iontráil á sábháil. Déan iarracht arís le do thoil.",
-      "fetchRateError": "Theip ar an ráta {{currency}} a fháil. Socraigh de láimh le do thoil."
+      "fetchRateError": "Theip ar an ráta {{currency}} a fháil. Socraigh de láimh le do thoil.",
+      "locationCapturedAt": "Located at {{station}}."
     }
   },
   "history": {
@@ -255,6 +256,15 @@
       "weeklyDigestDesc": "Fógra brúite gach Luan le do achoimre breosla seachtainiúil.",
       "disable": "Díchumasaigh",
       "enable": "Cumasaigh"
+    },
+    "maintenance": {
+      "heading": "Maintenance",
+      "migrateStations": "Link Stations",
+      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "Identify Stations",
+      "migrating": "Analyzing...",
+      "migrationSuccess": "Successfully migrated {{count}} logs!",
+      "migrationError": "Migration failed. Please try again."
     }
   },
   "receipt": {

@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import LanguageSelector from './LanguageSelector';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { BASE_LANGUAGES } from '../i18n/languages';
 
@@ -25,7 +24,17 @@ vi.mock('lucide-react', () => ({
 }));
 
 describe('LanguageSelector (pseudolocale disabled)', () => {
-  it(`renders all ${BASE_LANGUAGES.length} base languages in the dropdown`, () => {
+  beforeEach(() => {
+    vi.stubEnv('VITE_ENABLE_PSEUDOLOCALE', 'false');
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it(`renders all ${BASE_LANGUAGES.length} base languages in the dropdown`, async () => {
+    const { default: LanguageSelector } = await import('./LanguageSelector');
     render(<LanguageSelector />);
     const select = screen.getByRole('combobox', { name: 'Language' });
     const options = Array.from(select.querySelectorAll('option'));
@@ -38,7 +47,8 @@ describe('LanguageSelector (pseudolocale disabled)', () => {
     }
   });
 
-  it('does not show en-XA option when pseudolocale is disabled', () => {
+  it('does not show en-XA option when pseudolocale is disabled', async () => {
+    const { default: LanguageSelector } = await import('./LanguageSelector');
     render(<LanguageSelector />);
     const select = screen.getByRole('combobox', { name: 'Language' });
     const options = Array.from(select.querySelectorAll('option'));
@@ -47,8 +57,9 @@ describe('LanguageSelector (pseudolocale disabled)', () => {
 
   it.each(BASE_LANGUAGES)(
     'selecting "$label" calls changeLanguage with "$code"',
-    ({ code }) => {
+    async ({ code }) => {
       mockChangeLanguage.mockClear();
+      const { default: LanguageSelector } = await import('./LanguageSelector');
       render(<LanguageSelector />);
       const select = screen.getByRole('combobox', { name: 'Language' });
       fireEvent.change(select, { target: { value: code } });

@@ -46,12 +46,13 @@ export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string
   doc.text(`Average Efficiency: ${avgEfficiency} MPG (UK)`, 80, 70);
 
   // --- Table Generation ---
-  const tableHeaders = [['Date', 'Brand', `Cost (${homeCurrency})`, 'Original Cost', 'Dist (Km)', 'Fuel (L)', 'MPG']];
+  const tableHeaders = [['Date', 'Brand', `Cost (${homeCurrency})`, 'Original Cost', 'Odo (Km)', 'Dist (Km)', 'Fuel (L)', 'MPG']];
   const tableData = logs.map(log => [
     log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A',
     log.brand || 'Unknown',
     `${homeCurrencySymbol}${log.cost?.toFixed(2)}`,
     log.currency && log.currency !== homeCurrency ? `${log.originalCost?.toFixed(2)} ${log.currency}` : '-',
+    log.odometerKm?.toFixed(0) || '-',
     log.distanceKm?.toFixed(1),
     log.fuelAmountLiters?.toFixed(2),
     formatMPG(log.distanceKm, log.fuelAmountLiters)

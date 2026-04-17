@@ -37,6 +37,14 @@ vi.mock('../context/AuthContext', () => ({
   })
 }));
 
+// Mock RemoteConfigContext
+vi.mock('../context/RemoteConfigContext', () => ({
+  useRemoteConfig: () => ({
+    getBoolean: vi.fn(() => false),
+    loading: false
+  })
+}));
+
 // Mock react-leaflet to avoid map rendering issues in tests
 vi.mock('react-leaflet', () => ({
   MapContainer: ({ children }: { children: ReactNode }) => <div data-testid="map-container">{children}</div>,

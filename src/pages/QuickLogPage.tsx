@@ -9,7 +9,9 @@ import { Vehicle } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
+import { getLastOdometerReading } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
+import { calculateDistance } from '../utils/calculations';
 import ReceiptAISection from '../components/ReceiptAISection';
 import { useTranslation } from 'react-i18next';
 
@@ -33,10 +35,12 @@ function QuickLogPage(): JSX.Element {
   const { t } = useTranslation();
   const receiptDigitizationEnabled = getBoolean('receiptDigitizationEnabled');
   const receiptAutoFillEnabled = getBoolean('receiptAutoFillEnabled');
+  const odometerInputEnabled = getBoolean('odometerInputEnabled');
 
   const [brand, setBrand] = useState<string>('');
   const [cost, setCost] = useState<string>('');
   const [distanceKmInput, setDistanceKmInput] = useState<string>('');
+  const [odometerKmInput, setOdometerKmInput] = useState<string>('');
   const [fuelAmountLiters, setFuelAmountLiters] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [savingStep, setSavingStep] = useState<'locating' | 'saving'>('saving');
@@ -50,6 +54,7 @@ function QuickLogPage(): JSX.Element {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
   const [isLoadingVehicles, setIsLoadingVehicles] = useState<boolean>(true);
+  const [lastOdometerReading, setLastOdometerReading] = useState<number | null>(null);
 
   // --- Multi-Currency State ---
   const [currency, setCurrency] = useState<string>(homeCurrency); // Transaction Currency
@@ -124,6 +129,19 @@ function QuickLogPage(): JSX.Element {
     fetchVehicles();
   }, [user, t]);
 
+  // --- Fetch Last Odometer ---
+  useEffect(() => {
+    if (!selectedVehicleId) {
+      setLastOdometerReading(null);
+      return;
+    }
+    const fetchLastOdometer = async () => {
+      const reading = await getLastOdometerReading(selectedVehicleId);
+      setLastOdometerReading(reading);
+    };
+    fetchLastOdometer();
+  }, [selectedVehicleId]);
+
   // --- Fetch Exchange Rate when currency changes ---
   useEffect(() => {
     if (currency === homeCurrency) {
@@ -171,6 +189,19 @@ function QuickLogPage(): JSX.Element {
   // --- Input Change Handler ---
   const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) =>
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setter(e.target.value); };
+
+  const handleOdometerChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setOdometerKmInput(val);
+    
+    const parsedOdo = parseFloat(val);
+    if (!isNaN(parsedOdo) && lastOdometerReading !== null) {
+      const diff = calculateDistance(parsedOdo, lastOdometerReading);
+      if (diff !== null) {
+        setDistanceKmInput(diff.toFixed(1));
+      }
+    }
+  };
 
   // --- Exchange Rate Change Handler ---
   const handleRateChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -221,6 +252,7 @@ function QuickLogPage(): JSX.Element {
     const parsedCost = parseFloat(cost);
     const parsedDistanceKm = parseFloat(distanceKmInput);
     const parsedFuel = parseFloat(fuelAmountLiters);
+    const parsedOdometer = parseFloat(odometerKmInput);
 
     if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) {
       setMessage({ type: 'error', text: t('quickLog.messages.validNumbers') });
@@ -272,6 +304,9 @@ function QuickLogPage(): JSX.Element {
         exchangeRate: exchangeRate,
         receiptUrl: receiptUrl || null
       };
+      if (!isNaN(parsedOdometer)) {
+        logData.odometerKm = parsedOdometer;
+      }
       if (locationData) {
         logData.latitude = locationData.latitude;
         logData.longitude = locationData.longitude;
@@ -284,6 +319,7 @@ function QuickLogPage(): JSX.Element {
 
       // Clear form on success
       setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
+      setOdometerKmInput('');
       setReceiptFile(null);
       setMessage({ type: 'success', text: locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation') });
 
@@ -391,16 +427,38 @@ function QuickLogPage(): JSX.Element {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                        <label htmlFor="distance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.distance')}</label>
-                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
+                  <div className="grid grid-cols-3 gap-3">
+                    {odometerInputEnabled && (
+                      <div>
+                          <label htmlFor="odometer" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.odometer')}</label>
+                          <input type="number" inputMode="decimal" id="odometer" value={odometerKmInput} onChange={handleOdometerChange} placeholder="0" step="1" min="0" className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150" disabled={isSaving} />
+                      </div>
+                    )}
+                    <div className={odometerInputEnabled ? "" : "col-span-2"}>
+                        <label htmlFor="distance" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.distance')}</label>
+                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150" disabled={isSaving} />
                     </div>
                     <div>
-                        <label htmlFor="fuelAmount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.fuel')}</label>
-                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
+                        <label htmlFor="fuelAmount" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.fuel')}</label>
+                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150" disabled={isSaving} />
                     </div>
                   </div>
+
+                  {odometerInputEnabled && odometerKmInput && (
+                    <div className="mt-1">
+                      {lastOdometerReading === null ? (
+                        <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium italic">
+                          {t('quickLog.fields.odometerHintBaseline')}
+                        </p>
+                      ) : (
+                        <p className={`text-[10px] font-medium italic ${parseFloat(odometerKmInput) < lastOdometerReading ? 'text-red-500' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                          {parseFloat(odometerKmInput) < lastOdometerReading 
+                            ? t('quickLog.fields.odometerErrorLower', { last: lastOdometerReading })
+                            : t('quickLog.fields.odometerHintCalculating', { last: lastOdometerReading })}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Section 3: Receipt Digitization */}

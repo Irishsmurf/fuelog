@@ -8,4 +8,10 @@ const formatL100km = (distanceKm: number, fuelAmountLiters: number): string => {
 const getNumericMPG = (distanceKm: number, fuelAmountLiters: number): number | null => { if (!distanceKm || distanceKm <= 0 || !fuelAmountLiters || fuelAmountLiters <= 0) return null; try { const distanceMiles = distanceKm * KM_TO_MILES; const gallonsUK = fuelAmountLiters / LITRES_TO_UK_GALLONS; return distanceMiles / gallonsUK; } catch { return null; } };
 const getNumericFuelPrice = (cost: number, fuelAmountLiters: number): number | null => { if (!cost || cost <= 0 || !fuelAmountLiters || fuelAmountLiters <= 0) return null; try { return cost / fuelAmountLiters; } catch { return null; } };
 
-export { formatMPG, formatCostPerMile, formatKmL, formatL100km, getNumericMPG, getNumericFuelPrice };
+const calculateDistance = (currentOdometer: number, previousOdometer: number): number | null => {
+    if (currentOdometer <= 0 || previousOdometer <= 0) return null;
+    const diff = currentOdometer - previousOdometer;
+    return diff > 0 ? diff : null;
+};
+
+export { formatMPG, formatCostPerMile, formatKmL, formatL100km, getNumericMPG, getNumericFuelPrice, calculateDistance };

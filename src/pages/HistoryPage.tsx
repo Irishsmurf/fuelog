@@ -45,6 +45,7 @@ function HistoryPage(): JSX.Element {
     const costPerLitreGraphEnabled = getBoolean("costPerLitreGraphEnabled");
     const totalSpentDisplayEnabled = getBoolean("totalSpentDisplayEnabled");
     const receiptDigitizationEnabled = getBoolean("receiptDigitizationEnabled");
+    const odometerInputEnabled = getBoolean("odometerInputEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [isLoading, setIsLoading] = useState<boolean>(true); // Tracks if logs are currently being fetched
@@ -58,7 +59,7 @@ function HistoryPage(): JSX.Element {
     // --- State for Edit Modal ---
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // Controls visibility of the edit modal
     const [editingLog, setEditingLog] = useState<EditingLogState>(null); // Stores the full log object being edited
-    const [editFormData, setEditFormData] = useState<EditFormData>({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', vehicleId: '' }); // Holds the current values in the edit form inputs
+    const [editFormData, setEditFormData] = useState<EditFormData>({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', odometerKm: '', vehicleId: '' }); // Holds the current values in the edit form inputs
     const [editReceiptFile, setEditReceiptFile] = useState<File | null>(null); // New receipt file
     const [isUpdating, setIsUpdating] = useState<boolean>(false); // Tracks if an update operation is in progress
     const [modalError, setModalError] = useState<string | null>(null); // Stores error messages specific to the edit modal form
@@ -286,6 +287,7 @@ function HistoryPage(): JSX.Element {
             cost: log.cost?.toString() || '',
             distanceKm: log.distanceKm?.toString() || '', 
             fuelAmountLiters: log.fuelAmountLiters?.toString() || '',
+            odometerKm: log.odometerKm?.toString() || '',
             vehicleId: log.vehicleId || ''
         });
         setEditReceiptFile(null);
@@ -295,7 +297,7 @@ function HistoryPage(): JSX.Element {
     /** Closes the edit modal and resets state. */
     const handleCloseModal = () => {
         setIsModalOpen(false); setEditingLog(null);
-        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '' });
+        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', odometerKm: '' });
         setEditReceiptFile(null);
         setModalError(null); setIsUpdating(false);
     };
@@ -309,9 +311,10 @@ function HistoryPage(): JSX.Element {
     /** Handles submission of the edit form, validates, and updates Firestore. */
     const handleUpdateLog = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault(); if (!editingLog) return;
-        const { brand, cost, distanceKm, fuelAmountLiters } = editFormData;
+        const { brand, cost, distanceKm, fuelAmountLiters, odometerKm } = editFormData;
         if (!cost || !distanceKm || !fuelAmountLiters) { setModalError('Cost, Distance, and Fuel Amount cannot be empty.'); return; }
         const parsedCost = parseFloat(cost); const parsedDistanceKm = parseFloat(distanceKm); const parsedFuel = parseFloat(fuelAmountLiters);
+        const parsedOdometer = parseFloat(odometerKm);
         if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) { setModalError('Cost, Distance (Km), and Fuel Amount must be valid positive numbers.'); return; }
 
         setIsUpdating(true); setModalError(null);
@@ -322,7 +325,8 @@ function HistoryPage(): JSX.Element {
             }
 
             const logRef = doc(db, "fuelLogs", editingLog.id);
-            const updatedData = { 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const updatedData: any = { 
                 brand: brand.trim() || 'Unknown', 
                 cost: parsedCost, 
                 distanceKm: parsedDistanceKm, 
@@ -330,6 +334,11 @@ function HistoryPage(): JSX.Element {
                 vehicleId: editFormData.vehicleId,
                 receiptUrl: receiptUrl || null
             };
+            if (!isNaN(parsedOdometer)) {
+                updatedData.odometerKm = parsedOdometer;
+            } else {
+                updatedData.odometerKm = null;
+            }
             await updateDoc(logRef, updatedData);
             console.log(`Log ${editingLog.id} updated successfully.`);
             handleCloseModal(); // Close modal on success
@@ -554,7 +563,7 @@ function HistoryPage(): JSX.Element {
                         <div className="w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 
-                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.date')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.vehicle')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.brand')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.cost', { currency: homeCurrency })}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.distance')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.fuel')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.costPerMile')}</th>{receiptDigitizationEnabled && <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.receipt')}</th>}<th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.actions')}</th></tr></thead>
+                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.date')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.vehicle')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.brand')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.cost', { currency: homeCurrency })}</th>{odometerInputEnabled && <th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.odometer')}</th>}<th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.distance')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.fuel')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.costPerMile')}</th>{receiptDigitizationEnabled && <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.receipt')}</th>}<th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.actions')}</th></tr></thead>
                                 <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
@@ -572,6 +581,7 @@ function HistoryPage(): JSX.Element {
                                                     )}
                                                 </div>
                                             </td>
+                                            {odometerInputEnabled && <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.odometerKm?.toFixed(0) || '-'}</td>}
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.distanceKm?.toFixed(1)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.fuelAmountLiters?.toFixed(2)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
@@ -667,9 +677,12 @@ function HistoryPage(): JSX.Element {
                             {/* Form Inputs (Brand, Cost, Distance, Fuel) */}
                             <div><label htmlFor="edit-brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.brand')}</label><input type="text" name="brand" id="edit-brand" value={editFormData.brand} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             <div><label htmlFor="edit-cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.cost', { currency: homeCurrency })}</label><input type="number" inputMode="decimal" name="cost" id="edit-cost" value={editFormData.cost} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
-                            <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.distance')}</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
-                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.fuel')}</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
-                            
+                            <div className={`grid ${odometerInputEnabled ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
+                               {odometerInputEnabled && (
+                                   <div><label htmlFor="edit-odometerKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.odometer')}</label><input type="number" inputMode="decimal" name="odometerKm" id="edit-odometerKm" value={editFormData.odometerKm} onChange={handleEditFormChange} step="1" min="0" className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                               )}
+                               <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.distance')}</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
+                            </div>                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.fuel')}</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>                            
                             {/* Receipt Upload in Modal */}
                             {receiptDigitizationEnabled && (
                               <div className="pt-2">

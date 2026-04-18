@@ -4,7 +4,7 @@ import { createContext, JSX, useState, useEffect, useContext, useMemo, useCallba
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
 import { setUserProperties } from "firebase/analytics";
-import { auth, db, analytics, signInWithGoogle, logout as firebaseLogout } from '../firebase/config'; // Ensure path is correct
+import { auth, db, analytics, signInWithGoogle, logout, handleRedirectResult } from '../firebase/config'; // Ensure path is correct
 
 /** User preferences and profile data stored in Firestore */
 interface UserProfile {
@@ -17,7 +17,7 @@ interface AuthContextType {
   user: User | null; // Firebase User object or null
   profile: UserProfile | null; // Custom profile data
   loading: boolean;
-  login: () => Promise<unknown>; // Adjust return type if needed based on signInWithGoogle
+  login: () => Promise<void>; // Adjust return type if needed based on signInWithGoogle
   logout: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
@@ -47,6 +47,9 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: User | null) => {
       setUser(currentUser);
+
+      // Handle redirect result immediately when the auth state changes
+      await handleRedirectResult();
       
       if (currentUser) {
         // Fetch or Initialize Profile

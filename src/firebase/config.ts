@@ -6,6 +6,8 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect, // Add signInWithRedirect
+  getRedirectResult,  // Add getRedirectResult
   signOut,
   Auth,
   UserCredential
@@ -103,7 +105,28 @@ const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();
 
 
 // --- Authentication Functions (remain the same) ---
-const signInWithGoogle = async (): Promise<UserCredential> => { try { const result: UserCredential = await signInWithPopup(auth, googleProvider); console.log("Google Sign-In Successful:", result.user.displayName); return result; } catch (error) { console.error("Google Sign-In Error:", error); throw error; } };
+const signInWithGoogle = async (): Promise<void> => { // Changed return type to void
+  try {
+    await signInWithRedirect(auth, googleProvider); // Use signInWithRedirect
+    // After redirect, the result will be handled by getRedirectResult
+  } catch (error) {
+    console.error("Google Sign-In Error:", error);
+    throw error;
+  }
+};
+
+const handleRedirectResult = async (): Promise<UserCredential | null> => {
+  try {
+    const result = await getRedirectResult(auth);
+    if (result) {
+      console.log("Google Sign-In Redirect Successful:", result.user.displayName);
+    }
+    return result;
+  } catch (error) {
+    console.error("Google Sign-In Redirect Error:", error);
+    throw error;
+  }
+};
 const logout = async (): Promise<void> => { try { await signOut(auth); console.log("User signed out successfully."); } catch (error) { console.error("Sign Out Error:", error); throw error; } };
 
 
@@ -117,5 +140,6 @@ export {
   perf,
   googleProvider,
   signInWithGoogle,
+  handleRedirectResult, // Export handleRedirectResult
   logout
 };

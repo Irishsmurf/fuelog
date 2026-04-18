@@ -137,3 +137,35 @@ export const fetchUserStations = async (logs: Log[]): Promise<Station[]> => {
 
     return stations;
 };
+
+/**
+ * Fetches fuel log data for a specific station.
+ * @param stationId The ID of the station to fetch logs for.
+ * @returns A promise that resolves to an array of Log objects.
+ */
+export const fetchFuelLogsByStationId = async (stationId: string): Promise<Log[]> => {
+    if (!auth.currentUser) {
+        console.error("No user logged in");
+        return [];
+    }
+
+    const logsCollection = collection(db, 'fuelLogs');
+    const q = query(
+        logsCollection,
+        where('userId', '==', auth.currentUser.uid),
+        where('stationId', '==', stationId),
+        orderBy('timestamp', 'desc')
+    );
+
+    try {
+        const querySnapshot = await getDocs(q);
+        const logs: Log[] = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...(doc.data() as Omit<Log, 'id'>)
+        }));
+        return logs;
+    } catch (error) {
+        console.error(`Error fetching fuel logs for station ${stationId}:`, error);
+        return [];
+    }
+};

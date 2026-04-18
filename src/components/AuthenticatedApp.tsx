@@ -1,26 +1,4 @@
-import { JSX, lazy, Suspense } from 'react';
-import { useAuth } from '../context/AuthContext';
-import ErrorBoundary from './ErrorBoundary';
-import { useTranslation } from 'react-i18next';
-import ThemeToggle from './ThemeToggle';
-import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import InstallPrompt from './InstallPrompt';
-import BottomNav from './BottomNav';
-import SyncStatus from './SyncStatus';
-
-// Wraps React.lazy with a single reload on chunk fetch failure.
-// This handles the stale-PWA-cache scenario where a new deploy renames
-// chunk files and an old service worker can no longer serve the old hash.
-function lazyWithRetry<T extends React.ComponentType<React.ComponentProps<T>>>(
-  factory: () => Promise<{ default: T }>
-) {
-  return lazy(() =>
-    factory().catch(() => {
-      window.location.reload();
-      return new Promise<never>(() => {});
-    })
-  );
-}
+import { useRemoteConfig } from '../context/RemoteConfigContext'; // Import useRemoteConfig
 
 // Lazy load pages for performance
 const QuickLogPage = lazyWithRetry(() => import('../pages/QuickLogPage'));
@@ -30,6 +8,7 @@ const ProfilePage = lazyWithRetry(() => import('../pages/ProfilePage'));
 const PrivacyPolicyPage = lazyWithRetry(() => import('../pages/PrivacyPolicyPage'));
 const AboutPage = lazyWithRetry(() => import('../pages/AboutPage'));
 const FuelMapPage = lazyWithRetry(() => import('./FuelMapPage'));
+const StationsPage = lazyWithRetry(() => import('../pages/StationsPage')); // Lazy load StationsPage
 
 /** Loading fallback for Suspense */
 const PageLoader = () => (
@@ -43,13 +22,9 @@ function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
   const location = useLocation();
   const { t } = useTranslation();
+  const { getBoolean } = useRemoteConfig(); // Access getBoolean from useRemoteConfig
 
-  const getNavLinkClass = (path: string): string => {
-    const baseClass = "px-3 py-1.5 text-sm font-bold rounded-xl transition-all duration-200";
-    const activeClass = "bg-brand-primary text-white shadow-md shadow-brand-primary/20 scale-105";
-    const inactiveClass = "text-gray-600 dark:text-gray-400 hover:text-brand-primary dark:hover:text-brand-primary hover:bg-gray-100 dark:hover:bg-gray-800";
-    return `${baseClass} ${location.pathname === path ? activeClass : inactiveClass}`;
-  };
+  const stationsPageEnabled = getBoolean('feature_stations_page_enabled'); // Get the feature flag value
 
   return (<>
     <div className="min-h-screen flex flex-col pb-16 sm:pb-0 overflow-x-hidden">
@@ -67,6 +42,9 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
             <Link to="/profile" className={getNavLinkClass("/profile")}>Profile</Link>
             <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
+            {stationsPageEnabled && (
+              <Link to="/stations" className={getNavLinkClass("/stations")}>Stations</Link>
+            )}
           </div>
 
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -100,6 +78,9 @@ function AuthenticatedApp(): JSX.Element {
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/map" element={<FuelMapPage />} />
+            {stationsPageEnabled && (
+              <Route path="/stations" element={<StationsPage />} />
+            )}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
@@ -119,7 +100,7 @@ function AuthenticatedApp(): JSX.Element {
       </footer>
 
       {/* Mobile Only Navigation */}
-      <BottomNav />
+      <BottomNav stationsPageEnabled={stationsPageEnabled} />
       
       <InstallPrompt />
     </div>

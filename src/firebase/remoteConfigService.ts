@@ -10,6 +10,7 @@ const DEFAULT_CONFIG: Record<string, boolean | string | number> = {
   "receiptDigitizationEnabled": false,
   "receiptAutoFillEnabled": false,
   "odometerInputEnabled": false,
+  "feature_stations_page_enabled": false, // New feature flag for Stations page
 };
 
 // --- Initialize Remote Config ---

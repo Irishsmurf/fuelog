@@ -300,7 +300,9 @@ function HistoryPage(): JSX.Element {
             distanceKm: log.distanceKm?.toString() || '', 
             fuelAmountLiters: log.fuelAmountLiters?.toString() || '',
             odometerKm: log.odometerKm?.toString() || '',
-            vehicleId: log.vehicleId || ''
+            vehicleId: log.vehicleId || '',
+            latitude: log.latitude?.toString() || '',
+            longitude: log.longitude?.toString() || ''
         });
         setEditReceiptFile(null);
         setModalError(null); setIsModalOpen(true);
@@ -309,7 +311,7 @@ function HistoryPage(): JSX.Element {
     /** Closes the edit modal and resets state. */
     const handleCloseModal = () => {
         setIsModalOpen(false); setEditingLog(null);
-        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', odometerKm: '' });
+        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', odometerKm: '', latitude: '', longitude: '' });
         setEditReceiptFile(null);
         setModalError(null); setIsUpdating(false);
     };
@@ -323,11 +325,16 @@ function HistoryPage(): JSX.Element {
     /** Handles submission of the edit form, validates, and updates Firestore. */
     const handleUpdateLog = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault(); if (!editingLog) return;
-        const { brand, cost, distanceKm, fuelAmountLiters, odometerKm } = editFormData;
+        const { brand, cost, distanceKm, fuelAmountLiters, odometerKm, latitude, longitude } = editFormData;
         if (!cost || !distanceKm || !fuelAmountLiters) { setModalError('Cost, Distance, and Fuel Amount cannot be empty.'); return; }
         const parsedCost = parseFloat(cost); const parsedDistanceKm = parseFloat(distanceKm); const parsedFuel = parseFloat(fuelAmountLiters);
         const parsedOdometer = parseFloat(odometerKm);
+        const parsedLat = latitude ? parseFloat(latitude) : undefined;
+        const parsedLon = longitude ? parseFloat(longitude) : undefined;
+
         if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) { setModalError('Cost, Distance (Km), and Fuel Amount must be valid positive numbers.'); return; }
+        if (latitude && (isNaN(parsedLat!) || parsedLat! < -90 || parsedLat! > 90)) { setModalError('Latitude must be a number between -90 and 90.'); return; }
+        if (longitude && (isNaN(parsedLon!) || parsedLon! < -180 || parsedLon! > 180)) { setModalError('Longitude must be a number between -180 and 180.'); return; }
 
         setIsUpdating(true); setModalError(null);
         try {
@@ -349,6 +356,10 @@ function HistoryPage(): JSX.Element {
                 updatedData.odometerKm = parsedOdometer;
             } else {
                 updatedData.odometerKm = undefined;
+            }
+            if (parsedLat !== undefined && parsedLon !== undefined) {
+                updatedData.latitude = parsedLat;
+                updatedData.longitude = parsedLon;
             }
             await updateDoc(logRef, updatedData);
             console.log(`Log ${editingLog.id} updated successfully.`);
@@ -697,6 +708,11 @@ function HistoryPage(): JSX.Element {
                                )}
                                <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.distance')}</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             </div>                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.fuel')}</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>                            
+                            {/* Location Editing */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <div><label htmlFor="edit-latitude" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Latitude</label><input type="number" inputMode="decimal" name="latitude" id="edit-latitude" value={editFormData.latitude} onChange={handleEditFormChange} step="0.000001" min="-90" max="90" className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g. 51.5074" /></div>
+                                <div><label htmlFor="edit-longitude" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Longitude</label><input type="number" inputMode="decimal" name="longitude" id="edit-longitude" value={editFormData.longitude} onChange={handleEditFormChange} step="0.000001" min="-180" max="180" className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g. -0.1278" /></div>
+                            </div>
                             {/* Receipt Upload in Modal */}
                             {receiptDigitizationEnabled && (
                               <div className="pt-2">

@@ -83,6 +83,8 @@ interface EditFormData {
     fuelAmountLiters: string;
     odometerKm: string;
     vehicleId?: string; // Multi-vehicle support
+    latitude?: string;
+    longitude?: string;
 }
 // Type for view mode state
 type ViewMode = 'table' | 'cards';

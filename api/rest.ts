@@ -151,6 +151,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
         delete updates.id;
         if (timestamp) updates.timestamp = Timestamp.fromDate(new Date(timestamp));
 
+        // Basic validation for coordinates
+        if (updates.latitude !== undefined) {
+          if (typeof updates.latitude !== 'number' || updates.latitude < -90 || updates.latitude > 90) {
+            return sendResponse(res, 400, { error: 'Invalid latitude' });
+          }
+        }
+        if (updates.longitude !== undefined) {
+          if (typeof updates.longitude !== 'number' || updates.longitude < -180 || updates.longitude > 180) {
+            return sendResponse(res, 400, { error: 'Invalid longitude' });
+          }
+        }
+
         await docRef.update(updates);
         return sendResponse(res, 200, { success: true });
       }

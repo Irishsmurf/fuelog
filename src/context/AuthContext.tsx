@@ -44,19 +44,36 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
   useEffect(() => {
     let unsubscribeProfile: (() => void) | undefined;
+    let mounted = true;
+
+    // getRedirectResult MUST be initiated on mount, before onAuthStateChanged
+    // resolves. Calling it inside the auth callback is too late — Firebase has
+    // already evaluated auth state as null by then, so the second callback
+    // (with the signed-in user) never fires and the app stays on Login.
+    const redirectPromise = handleRedirectResult()
+      .then(result => !!result)
+      .catch(err => {
+        console.error("Redirect result error:", err);
+        return false;
+      });
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: User | null) => {
+      if (!currentUser) {
+        // Wait for any pending redirect before treating null as "not signed in".
+        // If the redirect succeeded, onAuthStateChanged will re-fire with the user
+        // and we return here without setting state.
+        const hadRedirect = await redirectPromise;
+        if (hadRedirect) return;
+      }
+
+      if (!mounted) return;
+
       setUser(currentUser);
 
-      // Handle redirect result immediately when the auth state changes
-      await handleRedirectResult();
-      
       if (currentUser) {
-        // Fetch or Initialize Profile
         const profileRef = doc(db, "userProfiles", currentUser.uid);
-        
-        // Use onSnapshot for real-time profile updates
         unsubscribeProfile = onSnapshot(profileRef, async (docSnap) => {
+          if (!mounted) return;
           const profileData: UserProfile = docSnap.exists()
             ? (docSnap.data() as UserProfile)
             : DEFAULT_PROFILE;
@@ -68,27 +85,28 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
           setProfile(profileData);
 
           const analyticsInstance = await analytics;
-          if (analyticsInstance) {
+          if (analyticsInstance && mounted) {
             setUserProperties(analyticsInstance, { tester_group: String(profileData.tester_group) });
           }
-          setLoading(false);
+          if (mounted) setLoading(false);
         }, (error) => {
           console.error("Profile Snapshot Error:", error);
           if (error.code === 'permission-denied') {
             console.warn("Firestore rules might be missing for userProfiles collection.");
           }
-          setLoading(false);
+          if (mounted) setLoading(false);
         });
       } else {
         setProfile(null);
         if (unsubscribeProfile) unsubscribeProfile();
         setLoading(false);
       }
-      
+
       console.log("Auth State Changed:", currentUser ? `User: ${currentUser.uid}` : "No User");
     });
 
     return () => {
+      mounted = false;
       unsubscribeAuth();
       if (unsubscribeProfile) unsubscribeProfile();
     };

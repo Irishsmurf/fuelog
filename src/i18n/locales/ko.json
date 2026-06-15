@@ -3,7 +3,8 @@
     "log": "기록",
     "history": "내역",
     "map": "지도",
-    "profile": "프로필"
+    "profile": "프로필",
+    "stations": "[ko] Stations"
   },
   "login": {
     "tagline": "정밀한 연료 추적",
@@ -11,6 +12,34 @@
     "getStarted": "Google로 시작하기",
     "initializing": "초기화 중...",
     "error": "로그인에 실패했습니다. 다시 시도해 주세요."
+  },
+  "stations": {
+    "title": "[ko] Fuel Stations",
+    "loading": "[ko] Loading fuel stations...",
+    "errorLoading": "[ko] Failed to load fuel stations. Please try again.",
+    "noStationsFound": "[ko] No fuel stations found with logged entries. Log some fuel with location data!",
+    "selectStationPrompt": "[ko] Select a station from the left to view details."
+  },
+  "stationTable": {
+    "name": "[ko] Name",
+    "brand": "[ko] Brand",
+    "avgPrice": "[ko] Avg. Price",
+    "logCount": "[ko] Logs",
+    "unknownBrand": "[ko] Unknown Brand",
+    "noData": "[ko] N/A"
+  },
+  "stationDetail": {
+    "unknownBrand": "[ko] Unknown Brand",
+    "noData": "[ko] N/A",
+    "avgPrice": "[ko] Average Price",
+    "lastPrice": "[ko] Last Price",
+    "logCount": "[ko] Total Logs",
+    "priceHistory": "[ko] Price History (per Litre)",
+    "notEnoughDataForChart": "[ko] Not enough data to display chart (at least 2 logs needed).",
+    "recentLogs": "[ko] Recent Logs",
+    "noLogsFound": "[ko] No fuel logs found for this station.",
+    "loading": "[ko] Loading station details...",
+    "errorLoading": "[ko] Failed to load station details. Please try again."
   },
   "quickLog": {
     "title": "새 연료 기록",

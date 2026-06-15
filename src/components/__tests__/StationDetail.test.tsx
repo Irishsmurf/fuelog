@@ -2,7 +2,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import StationDetail from '../StationDetail';
-import { Log, Station } from '../../utils/types';
+import { Log } from '../../utils/types';
 import { Timestamp } from 'firebase/firestore';
 import { fetchFuelLogsByStationId } from '../../firebase/firestoreService'; // Import the actual function for type inference with vi.mocked
 

@@ -107,7 +107,7 @@ describe('StationTable', () => {
   });
 
   it('sorts by name in ascending and descending order', () => {
-    const { rerender } = render(<StationTable stations={mockStations} onSelectStation={onSelectStation} selectedStationId={null} />);
+    render(<StationTable stations={mockStations} onSelectStation={onSelectStation} selectedStationId={null} />);
     
     // Initial order (as per mockStations)
     let rows = screen.getAllByRole('row').slice(1).map(row => row.children[0].textContent);
@@ -125,7 +125,7 @@ describe('StationTable', () => {
   });
 
   it('sorts by Avg. Price in ascending and descending order', () => {
-    const { rerender } = render(<StationTable stations={mockStations} onSelectStation={onSelectStation} selectedStationId={null} />);
+    render(<StationTable stations={mockStations} onSelectStation={onSelectStation} selectedStationId={null} />);
     
     // Sort by Avg. Price Ascending
     fireEvent.click(screen.getByText('Avg. Price'));
@@ -139,7 +139,7 @@ describe('StationTable', () => {
   });
 
   it('sorts by Logs count in ascending and descending order', () => {
-    const { rerender } = render(<StationTable stations={mockStations} onSelectStation={onSelectStation} selectedStationId={null} />);
+    render(<StationTable stations={mockStations} onSelectStation={onSelectStation} selectedStationId={null} />);
     
     // Sort by Logs Ascending
     fireEvent.click(screen.getByText('Logs'));

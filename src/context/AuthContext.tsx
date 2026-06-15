@@ -106,7 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     profile,
     loading,
     login: signInWithGoogle,
-    logout: firebaseLogout,
+    logout: logout, // Correctly reference the imported logout function
     updateProfile
   }), [user, profile, loading, updateProfile]);
 

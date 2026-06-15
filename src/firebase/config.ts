@@ -5,9 +5,8 @@ import { getPerformance, FirebasePerformance } from "firebase/performance";
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithPopup,
-  signInWithRedirect, // Add signInWithRedirect
-  getRedirectResult,  // Add getRedirectResult
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   Auth,
   UserCredential

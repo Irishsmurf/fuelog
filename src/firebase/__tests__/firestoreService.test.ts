@@ -38,11 +38,14 @@ const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 describe('firestoreService', () => {
     const mockUserId = 'testUserId';
     const mockStationId = 'testStationId';
+    let mockCurrentUser: any = null;
 
     beforeEach(() => {
         vi.clearAllMocks();
-        consoleErrorSpy.mockClear(); // Clear mock calls before each test
-        auth.currentUser = { uid: mockUserId } as any; // Mock logged-in user
+        consoleErrorSpy.mockClear();
+        
+        mockCurrentUser = { uid: mockUserId };
+        vi.spyOn(auth, 'currentUser', 'get').mockImplementation(() => mockCurrentUser);
         
         // Reset mock implementations for each test
         vi.mocked(collection).mockReturnValue({} as any);
@@ -53,6 +56,7 @@ describe('firestoreService', () => {
 
     describe('fetchFuelLogsByStationId', () => {
         it('should fetch logs for a given stationId and userId successfully', async () => {
+            // mockCurrentUser is already set in beforeEach
             const mockLogs: Log[] = [
                 {
                     id: 'log1',
@@ -97,7 +101,7 @@ describe('firestoreService', () => {
         });
 
         it('should return an empty array if no user is logged in', async () => {
-            auth.currentUser = null;
+            mockCurrentUser = null; // Set to null for this test
 
             const result = await fetchFuelLogsByStationId(mockStationId);
 

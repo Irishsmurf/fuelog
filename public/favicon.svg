@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Fuelog">
+  <!--
+    Gauge scaled from 512×512 logo (factor 32/512 = 0.0625).
+    center: (16, 17.2) ≈ (16, 17)  radius: 10
+    E (200°): (6.6, 13.8)           F (340°): (25.4, 13.8)
+    Active arc end — 3/4 (305°): (21.7, 9.0)
+    Needle tip (r=8.75, 305°): (21.0, 9.8)
+  -->
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg   { fill: #FFFFFF; }
+      .track { stroke: #E2E8F0; }
+    }
+  </style>
+
+  <!-- Background -->
+  <rect class="bg" width="32" height="32" rx="7" fill="#0A0F1E"/>
+
+  <!-- Track (200° → 340°, 140° CW) -->
+  <path class="track"
+        d="M 6.6 13.8 A 10 10 0 0 1 25.4 13.8"
+        fill="none" stroke="#1A2744" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Active arc (200° → 305°, 105° CW) -->
+  <path d="M 6.6 13.8 A 10 10 0 0 1 21.7 9.0"
+        fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- Needle -->
+  <line x1="16" y1="17" x2="21" y2="9.8"
+        stroke="#F1F5F9" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Center hub -->
+  <circle cx="16" cy="17" r="2.2" fill="#F59E0B"/>
+  <circle cx="16" cy="17" r="1"   fill="#0A0F1E"/>
+</svg>

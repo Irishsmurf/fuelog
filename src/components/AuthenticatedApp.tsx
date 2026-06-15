@@ -1,4 +1,27 @@
-import { useRemoteConfig } from '../context/RemoteConfigContext'; // Import useRemoteConfig
+import React, { JSX, lazy, Suspense } from 'react';
+import { useAuth } from '../context/AuthContext';
+import ErrorBoundary from './ErrorBoundary';
+import { useTranslation } from 'react-i18next';
+import ThemeToggle from './ThemeToggle';
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import InstallPrompt from './InstallPrompt';
+import BottomNav from './BottomNav';
+import SyncStatus from './SyncStatus';
+import { useRemoteConfig } from '../context/RemoteConfigContext';
+
+// Wraps React.lazy with a single reload on chunk fetch failure.
+// This handles the stale-PWA-cache scenario where a new deploy renames
+// chunk files and an old service worker can no longer serve the old hash.
+function lazyWithRetry<T extends React.ComponentType<React.ComponentProps<T>>>(
+  factory: () => Promise<{ default: T }>
+) {
+  return lazy(() =>
+    factory().catch(() => {
+      window.location.reload();
+      return new Promise<never>(() => {});
+    })
+  );
+}
 
 // Lazy load pages for performance
 const QuickLogPage = lazyWithRetry(() => import('../pages/QuickLogPage'));
@@ -8,13 +31,13 @@ const ProfilePage = lazyWithRetry(() => import('../pages/ProfilePage'));
 const PrivacyPolicyPage = lazyWithRetry(() => import('../pages/PrivacyPolicyPage'));
 const AboutPage = lazyWithRetry(() => import('../pages/AboutPage'));
 const FuelMapPage = lazyWithRetry(() => import('./FuelMapPage'));
-const StationsPage = lazyWithRetry(() => import('../pages/StationsPage')); // Lazy load StationsPage
+const StationsPage = lazyWithRetry(() => import('../pages/StationsPage'));
 
 /** Loading fallback for Suspense */
 const PageLoader = () => (
   <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
-    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium animate-pulse">Loading...</p>
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+    <p className="text-gray-500 dark:text-gray-400 text-sm font-mono animate-pulse tracking-widest uppercase text-xs">Loading</p>
   </div>
 );
 
@@ -22,17 +45,24 @@ function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
   const location = useLocation();
   const { t } = useTranslation();
-  const { getBoolean } = useRemoteConfig(); // Access getBoolean from useRemoteConfig
+  const { getBoolean } = useRemoteConfig();
 
-  const stationsPageEnabled = getBoolean('feature_stations_page_enabled'); // Get the feature flag value
+  const stationsPageEnabled = getBoolean('feature_stations_page_enabled');
+
+  const getNavLinkClass = (path: string): string => {
+    const baseClass = "px-3 py-1.5 text-sm font-bold rounded-xl transition-all duration-200";
+    const activeClass = "bg-brand-primary text-white shadow-md shadow-brand-primary/20 scale-105";
+    const inactiveClass = "text-gray-600 dark:text-gray-400 hover:text-brand-primary dark:hover:text-brand-primary hover:bg-gray-100 dark:hover:bg-gray-800";
+    return `${baseClass} ${location.pathname === path ? activeClass : inactiveClass}`;
+  };
 
   return (<>
     <div className="min-h-screen flex flex-col pb-16 sm:pb-0 overflow-x-hidden">
       {/* Brand Glass Header */}
       <header className="glass-header">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <Link to="/" className="text-2xl font-black tracking-tighter text-brand-primary hover:opacity-80 transition-opacity">
-            fuel<span className="text-gray-400 dark:text-gray-500">og</span>
+          <Link to="/" className="font-display text-2xl font-bold tracking-tight hover:opacity-80 transition-opacity" style={{ letterSpacing: '-0.03em' }}>
+            <span className="text-amber-500">fuel</span><span className="text-gray-400 dark:text-gray-600">og</span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -90,10 +120,10 @@ function AuthenticatedApp(): JSX.Element {
       <footer className="hidden sm:block bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 mb-0">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
                {t('footer.copyright', { year: new Date().getFullYear() })} | {' '}
-               <Link to="/about" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
+               <Link to="/about" className="hover:text-amber-600 dark:hover:text-amber-400 underline underline-offset-2">
                    {t('footer.about')}
                </Link> | {' '}
-              <Link to="/privacy" className="hover:text-indigo-600 dark:hover:text-indigo-400 underline">
+              <Link to="/privacy" className="hover:text-amber-600 dark:hover:text-amber-400 underline underline-offset-2">
                   {t('footer.privacyPolicy')}
               </Link>
           </div>

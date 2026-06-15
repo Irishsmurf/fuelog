@@ -8,10 +8,10 @@ function AppContent(): JSX.Element {
   const { user, loading } = useAuth();
 
   if (loading) {
-    // Ensure loading indicator respects dark mode
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
-        <p className="text-gray-500 dark:text-gray-400 animate-pulse">Loading Authentication...</p>
+      <div className="flex flex-col justify-center items-center min-h-screen bg-[#0A0F1E] gap-4">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500" />
+        <p className="font-mono text-[10px] text-gray-600 uppercase tracking-[0.2em] animate-pulse">Fuelog</p>
       </div>
     );
   }

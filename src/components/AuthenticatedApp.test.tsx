@@ -14,6 +14,18 @@ vi.mock('react-i18next', async (importOriginal) => {
   };
 });
 
+vi.mock('../firebase/config', () => ({
+  db: {},
+}));
+
+vi.mock('firebase/firestore', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('firebase/firestore')>();
+  return {
+    ...actual,
+    onSnapshotsInSync: vi.fn(() => vi.fn()),
+  };
+});
+
 vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({ user: { displayName: 'Test User', uid: 'u1' }, logout: vi.fn() }),
 }));

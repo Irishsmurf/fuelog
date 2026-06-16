@@ -300,7 +300,8 @@
       "weeklyDigest": "Viikoittainen polttoaineyhteenveto",
       "weeklyDigestDesc": "Push-ilmoitus joka maanantai viikoittaisella polttoaineyhteenvedollasi.",
       "disable": "Poista käytöstä",
-      "enable": "Ota käyttöön"
+      "enable": "Ota käyttöön",
+      "permissionDenied": "Ilmoitukset on estetty tälle sivustolle selaimesi asetuksissa. Ota ne käyttöön selaimesi sivustoluvissa ja yritä uudelleen."
     },
     "maintenance": {
       "heading": "Maintenance",

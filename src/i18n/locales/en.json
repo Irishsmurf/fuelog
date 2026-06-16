@@ -309,7 +309,8 @@
       "weeklyDigest": "Weekly fuel digest",
       "weeklyDigestDesc": "Push notification every Monday with your weekly fuel summary.",
       "disable": "Disable",
-      "enable": "Enable"
+      "enable": "Enable",
+      "permissionDenied": "Notifications are blocked for this site in your browser settings. Enable them in your browser's site permissions, then try again."
     }
   },
   "receipt": {

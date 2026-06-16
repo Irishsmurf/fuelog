@@ -20,8 +20,9 @@ vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({ user: mockUser, profile: mockProfile, updateProfile: mockUpdateProfile }),
 }));
 
+let mockFCMState = { isEnabled: false, isLoading: false, permissionDenied: false };
 vi.mock('../hooks/useFCMToken', () => ({
-  useFCMToken: () => ({ isEnabled: false, isLoading: false, enable: vi.fn(), disable: vi.fn() }),
+  useFCMToken: () => ({ ...mockFCMState, enable: vi.fn(), disable: vi.fn() }),
 }));
 
 vi.mock('../components/ApiTokenManager', () => ({ default: () => <div /> }));
@@ -53,6 +54,7 @@ describe('ProfilePage monthly budget field', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockProfile = { homeCurrency: 'EUR' };
+    mockFCMState = { isEnabled: false, isLoading: false, permissionDenied: false };
     vi.mocked(getDocs).mockResolvedValue(mockSnapshot([]) as never);
   });
 
@@ -111,5 +113,19 @@ describe('ProfilePage monthly budget field', () => {
     fireEvent.blur(input);
 
     expect(mockUpdateProfile).not.toHaveBeenCalled();
+  });
+
+  it('shows a browser-permission warning when notifications are denied', async () => {
+    mockFCMState = { isEnabled: false, isLoading: false, permissionDenied: true };
+    render(<ProfilePage />);
+    await waitFor(() => {
+      expect(screen.getByText(/Notifications are blocked for this site/)).toBeInTheDocument();
+    });
+  });
+
+  it('does not show the permission warning when notifications are not denied', async () => {
+    render(<ProfilePage />);
+    await waitFor(() => expect(screen.getByText('Weekly fuel digest')).toBeInTheDocument());
+    expect(screen.queryByText(/Notifications are blocked for this site/)).not.toBeInTheDocument();
   });
 });

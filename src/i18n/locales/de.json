@@ -300,7 +300,8 @@
       "weeklyDigest": "Wöchentliche Kraftstoffzusammenfassung",
       "weeklyDigestDesc": "Push-Benachrichtigung jeden Montag mit Ihrer wöchentlichen Kraftstoffzusammenfassung.",
       "disable": "Deaktivieren",
-      "enable": "Aktivieren"
+      "enable": "Aktivieren",
+      "permissionDenied": "Benachrichtigungen sind für diese Website in Ihren Browsereinstellungen blockiert. Aktivieren Sie sie in den Website-Berechtigungen Ihres Browsers und versuchen Sie es erneut."
     },
     "maintenance": {
       "heading": "Maintenance",

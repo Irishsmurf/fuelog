@@ -10,6 +10,8 @@ export interface FCMTokenState {
     isEnabled: boolean;
     /** Whether a permission/token request is in progress */
     isLoading: boolean;
+    /** True after the browser notification permission was explicitly denied */
+    permissionDenied: boolean;
     /** Enable notifications: request permission and persist FCM token */
     enable: () => Promise<void>;
     /** Disable notifications: delete stored FCM token */
@@ -17,9 +19,10 @@ export interface FCMTokenState {
 }
 
 export function useFCMToken(): FCMTokenState {
-    const { user } = useAuth();
+    const { user, updateProfile } = useAuth();
     const [isEnabled, setIsEnabled] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [permissionDenied, setPermissionDenied] = useState(false);
 
     // Check on mount whether the user already has a stored token
     useEffect(() => {
@@ -42,9 +45,15 @@ export function useFCMToken(): FCMTokenState {
     const enable = useCallback(async () => {
         if (!user) return;
         setIsLoading(true);
+        setPermissionDenied(false);
         try {
             const token = await requestNotificationPermission();
-            if (!token) return;
+            if (!token) {
+                if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+                    setPermissionDenied(true);
+                }
+                return;
+            }
 
             // Store token in Firestore — document ID is the token itself for easy upsert
             await setDoc(doc(db, 'fcmTokens', token), {
@@ -54,13 +63,17 @@ export function useFCMToken(): FCMTokenState {
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             });
+            // notificationsEnabled on the profile is the source of truth the
+            // weeklyDigest Cloud Function checks before sending, separate
+            // from token presence (a stale token shouldn't imply consent).
+            await updateProfile({ notificationsEnabled: true });
             setIsEnabled(true);
         } catch (err) {
             console.error('Failed to enable notifications:', err);
         } finally {
             setIsLoading(false);
         }
-    }, [user]);
+    }, [user, updateProfile]);
 
     const disable = useCallback(async () => {
         if (!user) return;
@@ -69,13 +82,14 @@ export function useFCMToken(): FCMTokenState {
             const q = query(collection(db, 'fcmTokens'), where('userId', '==', user.uid));
             const snap = await getDocs(q);
             await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+            await updateProfile({ notificationsEnabled: false });
             setIsEnabled(false);
         } catch (err) {
             console.error('Failed to disable notifications:', err);
         } finally {
             setIsLoading(false);
         }
-    }, [user]);
+    }, [user, updateProfile]);
 
-    return { isEnabled, isLoading, enable, disable };
+    return { isEnabled, isLoading, permissionDenied, enable, disable };
 }

@@ -300,7 +300,8 @@
       "weeklyDigest": "Achoimre breosla seachtainiúil",
       "weeklyDigestDesc": "Fógra brúite gach Luan le do achoimre breosla seachtainiúil.",
       "disable": "Díchumasaigh",
-      "enable": "Cumasaigh"
+      "enable": "Cumasaigh",
+      "permissionDenied": "Tá fógraí coiscthe don suíomh seo i socruithe do bhrabhsálaí. Cumasaigh iad i gceadanna suímh do bhrabhsálaí, ansin bain triail eile as."
     },
     "maintenance": {
       "heading": "Maintenance",

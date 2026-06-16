@@ -14,7 +14,7 @@ import { migrateUserLogsToStations } from '../utils/migrationService';
 function ProfilePage(): JSX.Element {
   const { user, profile, updateProfile } = useAuth();
   const { t } = useTranslation();
-  const { isEnabled: notificationsEnabled, isLoading: notificationsLoading, enable: enableNotifications, disable: disableNotifications } = useFCMToken();
+  const { isEnabled: notificationsEnabled, isLoading: notificationsLoading, permissionDenied: notificationsPermissionDenied, enable: enableNotifications, disable: disableNotifications } = useFCMToken();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsUpdating] = useState<boolean>(false);
@@ -464,6 +464,11 @@ function ProfilePage(): JSX.Element {
               : t('profile.notifications.enable', { defaultValue: 'Enable' })}
           </button>
         </div>
+        {notificationsPermissionDenied && (
+          <p className="mt-4 text-sm text-red-600 dark:text-red-400">
+            {t('profile.notifications.permissionDenied', { defaultValue: 'Notifications are blocked for this site in your browser settings. Enable them in your browser\'s site permissions, then try again.' })}
+          </p>
+        )}
       </div>
 
       {/* API Access Section */}

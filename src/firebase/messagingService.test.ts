@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { isSupported } from 'firebase/analytics';
 
@@ -41,7 +41,11 @@ describe('messagingService', () => {
             configurable: true,
         });
 
-        import.meta.env.VITE_FIREBASE_VAPID_KEY = 'test-vapid-key';
+        vi.stubEnv('VITE_FIREBASE_VAPID_KEY', 'test-vapid-key');
+    });
+
+    afterEach(() => {
+        vi.unstubAllEnvs();
     });
 
     it('requests a token from getToken when permission is granted', async () => {

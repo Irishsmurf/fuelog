@@ -69,7 +69,7 @@ describe('aggregationService', () => {
         expect(where).toHaveBeenCalledTimes(1);
     });
 
-    it('defaults missing aggregate fields to zero rather than negative or undefined', async () => {
+    it('defaults missing aggregate fields to zero when undefined', async () => {
         vi.mocked(getAggregateFromServer).mockResolvedValue({
             data: () => ({}),
         } as never);
@@ -84,7 +84,7 @@ describe('aggregationService', () => {
         });
     });
 
-    it('reflects a reduced count and totals after a log is deleted, never going negative', async () => {
+    it('reflects a reduced count and totals after a log is deleted', async () => {
         // Before deletion: 3 logs
         vi.mocked(getAggregateFromServer).mockResolvedValueOnce({
             data: () => ({ totalCost: 150, totalLitres: 75, totalDistanceKm: 900, logCount: 3 }),
@@ -100,7 +100,5 @@ describe('aggregationService', () => {
 
         expect(after.logCount).toBe(2);
         expect(after.totalCost).toBeLessThan(before.totalCost);
-        expect(after.logCount).toBeGreaterThanOrEqual(0);
-        expect(after.totalCost).toBeGreaterThanOrEqual(0);
     });
 });

@@ -34,6 +34,19 @@ interface OverpassElement {
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 
 /**
+ * GPS accuracy (in metres) beyond which we no longer trust a position
+ * fix to reliably resolve the correct nearby station.
+ */
+export const GPS_ACCURACY_THRESHOLD_METERS = 100;
+
+/**
+ * Whether a GPS fix is accurate enough to attempt automatic station matching.
+ */
+export function isAccurateEnoughForStationMatch(locationAccuracy: number): boolean {
+    return locationAccuracy <= GPS_ACCURACY_THRESHOLD_METERS;
+}
+
+/**
  * Find the nearest petrol station within a radius (default 150m) of the given coordinates.
  */
 export async function findNearestStation(lat: number, lon: number, radiusMeters: number = 150): Promise<OSMStation | null> {

@@ -12,12 +12,12 @@ import { uploadReceipt } from '../firebase/storageService';
 import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import { calculateDistance } from '../utils/calculations';
-import { findNearestStation } from '../utils/locationService';
+import { findNearestStation, isAccurateEnoughForStationMatch, GPS_ACCURACY_THRESHOLD_METERS } from '../utils/locationService';
 import ReceiptAISection from '../components/ReceiptAISection';
 import { useTranslation } from 'react-i18next';
 
 // Types
-type MessageType = 'success' | 'error' | 'info' | '';
+type MessageType = 'success' | 'error' | 'info' | 'warning' | '';
 interface MessageState {
   type: MessageType;
   text: string;
@@ -275,24 +275,35 @@ function QuickLogPage(): JSX.Element {
 
     // --- Get Location ---
     const locationData = await getCurrentLocation();
-    
+
     // --- Find Station ---
     let linkedStationId: string | undefined;
     let stationName: string | undefined;
 
     if (locationData) {
-        try {
-            const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
-            if (nearest) {
-                linkedStationId = await getOrCreateStation(nearest);
-                stationName = nearest.name;
-                // If brand is empty, auto-fill it with station name
-                if (!brand.trim()) {
-                    setBrand(nearest.name);
+        if (!isAccurateEnoughForStationMatch(locationData.locationAccuracy)) {
+            console.warn(
+                `GPS accuracy (${locationData.locationAccuracy.toFixed(0)}m) exceeds threshold ` +
+                `(${GPS_ACCURACY_THRESHOLD_METERS}m); skipping automatic station association.`
+            );
+            setMessage({ type: 'warning', text: t('quickLog.messages.lowAccuracySkippedStation', {
+                accuracy: locationData.locationAccuracy.toFixed(0),
+                defaultValue: 'GPS accuracy is low ({{accuracy}}m); skipping station detection.',
+            }) });
+        } else {
+            try {
+                const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
+                if (nearest) {
+                    linkedStationId = await getOrCreateStation(nearest);
+                    stationName = nearest.name;
+                    // If brand is empty, auto-fill it with station name
+                    if (!brand.trim()) {
+                        setBrand(nearest.name);
+                    }
                 }
+            } catch (err) {
+                console.error("Station lookup failed:", err);
             }
-        } catch (err) {
-            console.error("Station lookup failed:", err);
         }
     }
 
@@ -383,7 +394,9 @@ function QuickLogPage(): JSX.Element {
     ? 'text-red-700 bg-red-100 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800'
     : message.type === 'success'
       ? 'text-green-700 bg-green-100 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800'
-      : 'text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
+      : message.type === 'warning'
+        ? 'text-yellow-700 bg-yellow-100 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800'
+        : 'text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
 
   const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
 

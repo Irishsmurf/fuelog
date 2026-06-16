@@ -25,7 +25,7 @@ vi.mock('../context/ThemeContext', () => ({
   useTheme: () => ({ theme: 'light' }),
 }));
 
-const mockGetBoolean = vi.fn((_key: string) => false);
+const mockGetBoolean = vi.fn<(key: string) => boolean>(() => false);
 vi.mock('../context/RemoteConfigContext', () => ({
   useRemoteConfig: () => ({ getBoolean: mockGetBoolean }),
 }));

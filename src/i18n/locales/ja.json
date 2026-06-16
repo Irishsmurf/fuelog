@@ -44,7 +44,9 @@
     "recentLogs": "最近の記録",
     "noLogsFound": "このスタンドの給油記録が見つかりません。",
     "loading": "スタンドの詳細を読み込み中...",
-    "errorLoading": "スタンドの詳細の読み込みに失敗しました。再試行してください。"
+    "errorLoading": "スタンドの詳細の読み込みに失敗しました。再試行してください。",
+    "showMore": "さらに{{count}}件表示",
+    "showFewer": "表示を減らす"
   },
   "quickLog": {
     "title": "新しい燃料記録",

@@ -44,7 +44,9 @@
     "recentLogs": "Senaste loggar",
     "noLogsFound": "Inga bränsleloggar hittades för denna station.",
     "loading": "Laddar stationsdetaljer...",
-    "errorLoading": "Misslyckades med att ladda stationsdetaljer. Försök igen."
+    "errorLoading": "Misslyckades med att ladda stationsdetaljer. Försök igen.",
+    "showMore": "Visa {{count}} till",
+    "showFewer": "Visa färre"
   },
   "quickLog": {
     "title": "Logga ny bränslepost",

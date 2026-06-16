@@ -44,7 +44,9 @@
     "recentLogs": "Logaí Le Déanaí",
     "noLogsFound": "Níor aimsíodh aon logaí breosla don stáisiún seo.",
     "loading": "Sonraí an stáisiúin á luchtú...",
-    "errorLoading": "Theip ar luchtú sonraí an stáisiúin. Bain triail eile as."
+    "errorLoading": "Theip ar luchtú sonraí an stáisiúin. Bain triail eile as.",
+    "showMore": "Taispeáin {{count}} eile",
+    "showFewer": "Taispeáin níos lú"
   },
   "quickLog": {
     "title": "Iontráil Breosla Nua",

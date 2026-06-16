@@ -1,5 +1,5 @@
 // src/components/__tests__/StationDetail.test.tsx
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import StationDetail from '../StationDetail';
 import { Log } from '../../utils/types';
@@ -30,6 +30,8 @@ vi.mock('react-i18next', () => ({
         'stationDetail.notEnoughDataForChart': 'Not enough data to display chart.',
         'stationDetail.recentLogs': 'Recent Logs',
         'stationDetail.noLogsFound': 'No fuel logs found for this station.',
+        'stationDetail.showMore': 'Show more',
+        'stationDetail.showFewer': 'Show fewer',
         'stationTable.noData': 'N/A', // from stationTable, used by stationDetail
       };
       return translations[key] || key;
@@ -228,6 +230,44 @@ describe('StationDetail', () => {
 
     await waitFor(() => {
       expect(fetchFuelLogsByStationId).toHaveBeenCalledWith(mockStationId, 12);
+    });
+  });
+
+  it('does not render a nested scroll container for the recent logs list', async () => {
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
+    const { container } = render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Recent Logs')).toBeInTheDocument();
+    });
+
+    expect(container.querySelector('.overflow-y-auto')).not.toBeInTheDocument();
+    expect(container.querySelector('.max-h-48')).not.toBeInTheDocument();
+  });
+
+  it('collapses logs beyond the default limit behind a "Show more" toggle', async () => {
+    const manyLogs: Log[] = Array.from({ length: 7 }, (_, i) => ({
+      ...mockLogs[0],
+      id: `log${i}`,
+      cost: 10 + i,
+    }));
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(manyLogs);
+    render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('€10.00 (40.00L @ 0.250/L)')).toBeInTheDocument();
+    });
+
+    // Only the first 5 are shown by default
+    expect(screen.getByText('€14.00 (40.00L @ 0.350/L)')).toBeInTheDocument();
+    expect(screen.queryByText('€16.00 (40.00L @ 0.400/L)')).not.toBeInTheDocument();
+
+    const toggle = screen.getByText('Show more');
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      expect(screen.getByText('€16.00 (40.00L @ 0.400/L)')).toBeInTheDocument();
+      expect(screen.getByText('Show fewer')).toBeInTheDocument();
     });
   });
 });

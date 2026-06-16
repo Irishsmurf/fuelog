@@ -1,7 +1,8 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import * as Sentry from '@sentry/react';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface Props {
+interface Props extends WithTranslation {
   children: ReactNode;
   fallback?: ReactNode;
 }
@@ -31,20 +32,21 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
+      const { t } = this.props;
       return (
         <div className="flex flex-col items-center justify-center min-h-[40vh] p-8 text-center">
           <p className="text-2xl mb-2">⚠️</p>
           <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-1">
-            Something went wrong
+            {t('common.somethingWentWrong')}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            {this.state.error?.message ?? 'An unexpected error occurred.'}
+            {this.state.error?.message ?? t('common.unexpectedError')}
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
             className="px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
           >
-            Try again
+            {t('common.tryAgain')}
           </button>
         </div>
       );
@@ -53,4 +55,4 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default ErrorBoundary;
+export default withTranslation()(ErrorBoundary);

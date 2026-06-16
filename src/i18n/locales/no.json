@@ -5,7 +5,8 @@
     "map": "Kart",
     "profile": "Profil",
     "stations": "Stasjoner",
-    "dashboard": "Oversikt"
+    "dashboard": "Oversikt",
+    "import": "[no] Import"
   },
   "login": {
     "tagline": "Presisjon i drivstoffsporing",
@@ -423,7 +424,14 @@
     "loading": "Laster...",
     "saving": "Lagrer...",
     "error": "En feil oppstod.",
-    "optional": "Valgfritt"
+    "optional": "Valgfritt",
+    "user": "[no] User",
+    "signOut": "[no] Sign Out",
+    "offlineMode": "[no] Offline Mode",
+    "syncingData": "[no] Syncing Data...",
+    "somethingWentWrong": "[no] Something went wrong",
+    "unexpectedError": "[no] An unexpected error occurred.",
+    "tryAgain": "[no] Try again"
   },
   "language": {
     "label": "Språk",
@@ -460,5 +468,11 @@
       "monthlySpend": "Månedlige Utgifter (Siste 6 Måneder)",
       "spend": "Utgift"
     }
+  },
+  "installPrompt": {
+    "title": "[no] Install Fuelog",
+    "subtitle": "[no] Add to home screen for easy access",
+    "later": "[no] Later",
+    "install": "[no] Install"
   }
 }

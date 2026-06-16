@@ -5,7 +5,8 @@
     "map": "Karte",
     "profile": "Profil",
     "stations": "Tankstellen",
-    "dashboard": "Übersicht"
+    "dashboard": "Übersicht",
+    "import": "[de] Import"
   },
   "login": {
     "tagline": "Präzise Kraftstoffverfolgung",
@@ -423,7 +424,14 @@
     "loading": "Wird geladen...",
     "saving": "Wird gespeichert...",
     "error": "Ein Fehler ist aufgetreten.",
-    "optional": "Optional"
+    "optional": "Optional",
+    "user": "[de] User",
+    "signOut": "[de] Sign Out",
+    "offlineMode": "[de] Offline Mode",
+    "syncingData": "[de] Syncing Data...",
+    "somethingWentWrong": "[de] Something went wrong",
+    "unexpectedError": "[de] An unexpected error occurred.",
+    "tryAgain": "[de] Try again"
   },
   "language": {
     "label": "Sprache",
@@ -460,5 +468,11 @@
       "monthlySpend": "Monatliche Ausgaben (Letzte 6 Monate)",
       "spend": "Ausgaben"
     }
+  },
+  "installPrompt": {
+    "title": "[de] Install Fuelog",
+    "subtitle": "[de] Add to home screen for easy access",
+    "later": "[de] Later",
+    "install": "[de] Install"
   }
 }

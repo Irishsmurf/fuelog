@@ -1,4 +1,5 @@
 import { useState, useEffect, JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -13,6 +14,7 @@ interface BeforeInstallPromptEvent extends Event {
  * Component to handle the PWA installation prompt.
  */
 const InstallPrompt = (): JSX.Element | null => {
+  const { t } = useTranslation();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -59,8 +61,8 @@ const InstallPrompt = (): JSX.Element | null => {
             </svg>
           </div>
           <div>
-            <p className="font-bold text-sm">Install Fuelog</p>
-            <p className="text-xs text-indigo-100">Add to home screen for easy access</p>
+            <p className="font-bold text-sm">{t('installPrompt.title')}</p>
+            <p className="text-xs text-indigo-100">{t('installPrompt.subtitle')}</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -68,13 +70,13 @@ const InstallPrompt = (): JSX.Element | null => {
             onClick={() => setIsVisible(false)}
             className="px-3 py-2 text-xs font-medium text-indigo-100 hover:text-white transition-colors"
           >
-            Later
+            {t('installPrompt.later')}
           </button>
-          <button 
+          <button
             onClick={handleInstallClick}
             className="bg-white text-indigo-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-indigo-50 transition-colors shadow-sm"
           >
-            Install
+            {t('installPrompt.install')}
           </button>
         </div>
       </div>

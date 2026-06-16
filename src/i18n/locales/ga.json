@@ -5,7 +5,8 @@
     "map": "Léarscáil",
     "profile": "Próifíl",
     "stations": "Stáisiúin",
-    "dashboard": "Painéal"
+    "dashboard": "Painéal",
+    "import": "[ga] Import"
   },
   "login": {
     "tagline": "Rianú Breosla Cruinn",
@@ -423,7 +424,14 @@
     "loading": "Ag lódáil...",
     "saving": "Ag sábháil...",
     "error": "Tharla earráid.",
-    "optional": "Roghnach"
+    "optional": "Roghnach",
+    "user": "[ga] User",
+    "signOut": "[ga] Sign Out",
+    "offlineMode": "[ga] Offline Mode",
+    "syncingData": "[ga] Syncing Data...",
+    "somethingWentWrong": "[ga] Something went wrong",
+    "unexpectedError": "[ga] An unexpected error occurred.",
+    "tryAgain": "[ga] Try again"
   },
   "language": {
     "label": "Teanga",
@@ -460,5 +468,11 @@
       "monthlySpend": "Caiteachas Míosúil (Seacht Mí Anuas)",
       "spend": "Caiteachas"
     }
+  },
+  "installPrompt": {
+    "title": "[ga] Install Fuelog",
+    "subtitle": "[ga] Add to home screen for easy access",
+    "later": "[ga] Later",
+    "install": "[ga] Install"
   }
 }

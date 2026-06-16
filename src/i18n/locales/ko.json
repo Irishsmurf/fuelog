@@ -5,7 +5,8 @@
     "map": "지도",
     "profile": "프로필",
     "stations": "주유소",
-    "dashboard": "대시보드"
+    "dashboard": "대시보드",
+    "import": "[ko] Import"
   },
   "login": {
     "tagline": "정밀한 연료 추적",
@@ -423,7 +424,14 @@
     "loading": "로드 중...",
     "saving": "저장 중...",
     "error": "오류가 발생했습니다.",
-    "optional": "선택사항"
+    "optional": "선택사항",
+    "user": "[ko] User",
+    "signOut": "[ko] Sign Out",
+    "offlineMode": "[ko] Offline Mode",
+    "syncingData": "[ko] Syncing Data...",
+    "somethingWentWrong": "[ko] Something went wrong",
+    "unexpectedError": "[ko] An unexpected error occurred.",
+    "tryAgain": "[ko] Try again"
   },
   "language": {
     "label": "언어",
@@ -460,5 +468,11 @@
       "monthlySpend": "월별 지출 (최근 6개월)",
       "spend": "지출"
     }
+  },
+  "installPrompt": {
+    "title": "[ko] Install Fuelog",
+    "subtitle": "[ko] Add to home screen for easy access",
+    "later": "[ko] Later",
+    "install": "[ko] Install"
   }
 }

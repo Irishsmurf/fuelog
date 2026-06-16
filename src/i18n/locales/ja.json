@@ -5,7 +5,8 @@
     "map": "地図",
     "profile": "プロフィール",
     "stations": "ガソリンスタンド",
-    "dashboard": "ダッシュボード"
+    "dashboard": "ダッシュボード",
+    "import": "[ja] Import"
   },
   "login": {
     "tagline": "精確な燃料追跡",
@@ -423,7 +424,14 @@
     "loading": "読み込み中...",
     "saving": "保存中...",
     "error": "エラーが発生しました。",
-    "optional": "任意"
+    "optional": "任意",
+    "user": "[ja] User",
+    "signOut": "[ja] Sign Out",
+    "offlineMode": "[ja] Offline Mode",
+    "syncingData": "[ja] Syncing Data...",
+    "somethingWentWrong": "[ja] Something went wrong",
+    "unexpectedError": "[ja] An unexpected error occurred.",
+    "tryAgain": "[ja] Try again"
   },
   "language": {
     "label": "言語",
@@ -460,5 +468,11 @@
       "monthlySpend": "月間支出（過去6か月）",
       "spend": "支出"
     }
+  },
+  "installPrompt": {
+    "title": "[ja] Install Fuelog",
+    "subtitle": "[ja] Add to home screen for easy access",
+    "later": "[ja] Later",
+    "install": "[ja] Install"
   }
 }

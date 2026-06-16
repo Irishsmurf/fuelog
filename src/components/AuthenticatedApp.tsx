@@ -55,12 +55,15 @@ const DashboardPage = lazyWithRetry(() => import('../pages/DashboardPage'));
 const WIDE_LAYOUT_PATHS = new Set(['/history', '/stations']);
 
 /** Loading fallback for Suspense */
-const PageLoader = () => (
-  <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
-    <p className="text-gray-500 dark:text-gray-400 text-sm font-mono animate-pulse tracking-widest uppercase text-xs">Loading</p>
-  </div>
-);
+const PageLoader = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+      <p className="text-gray-500 dark:text-gray-400 text-sm font-mono animate-pulse tracking-widest uppercase text-xs">{t('common.loading')}</p>
+    </div>
+  );
+};
 
 function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
@@ -88,26 +91,26 @@ function AuthenticatedApp(): JSX.Element {
           
           {/* Desktop Navigation */}
           <div className="hidden sm:flex items-center space-x-2">
-            <Link to="/" className={getNavLinkClass("/")}>Log</Link>
-            <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>Dashboard</Link>
-            <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
-            <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
-            <Link to="/profile" className={getNavLinkClass("/profile")}>Profile</Link>
-            <Link to="/map" className={getNavLinkClass("/map")}>Map</Link>
+            <Link to="/" className={getNavLinkClass("/")}>{t('nav.log')}</Link>
+            <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>{t('nav.dashboard')}</Link>
+            <Link to="/history" className={getNavLinkClass("/history")}>{t('nav.history')}</Link>
+            <Link to="/import" className={getNavLinkClass("/import")}>{t('nav.import')}</Link>
+            <Link to="/profile" className={getNavLinkClass("/profile")}>{t('nav.profile')}</Link>
+            <Link to="/map" className={getNavLinkClass("/map")}>{t('nav.map')}</Link>
             {stationsPageEnabled && (
-              <Link to="/stations" className={getNavLinkClass("/stations")}>Stations</Link>
+              <Link to="/stations" className={getNavLinkClass("/stations")}>{t('nav.stations')}</Link>
             )}
           </div>
 
           <div className="flex items-center space-x-3 sm:space-x-4">
             <ThemeToggle />
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden lg:inline">
-              {user?.displayName?.split(' ')[0] || 'User'}
+              {user?.displayName?.split(' ')[0] || t('common.user')}
             </span>
             <button
               onClick={logout}
               className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-90"
-              title="Sign Out"
+              title={t('common.signOut')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />

@@ -101,15 +101,12 @@ describe('firestoreService', () => {
             expect(result).toEqual(mockLogs);
         });
 
-        it('should return an empty array if no user is logged in', async () => {
+        it('should throw if no user is logged in', async () => {
             mockCurrentUser = null; // Set to null for this test
 
-            const result = await fetchFuelLogsByStationId(mockStationId);
-
-            expect(result).toEqual([]);
+            await expect(fetchFuelLogsByStationId(mockStationId)).rejects.toThrow('No user logged in');
             expect(collection).not.toHaveBeenCalled();
             expect(getDocs).not.toHaveBeenCalled();
-            expect(console.error).toHaveBeenCalledWith("No user logged in");
         });
 
         it('should return an empty array if no logs are found for the stationId', async () => {
@@ -124,14 +121,20 @@ describe('firestoreService', () => {
             expect(getDocs).toHaveBeenCalled();
         });
 
-        it('should return an empty array and log an error if fetching fails', async () => {
+        it('should propagate the error if fetching fails', async () => {
             const mockError = new Error('Firestore error');
             vi.mocked(getDocs).mockRejectedValueOnce(mockError);
 
-            const result = await fetchFuelLogsByStationId(mockStationId);
-
-            expect(result).toEqual([]);
+            await expect(fetchFuelLogsByStationId(mockStationId)).rejects.toThrow('Firestore error');
             expect(console.error).toHaveBeenCalledWith(`Error fetching fuel logs for station ${mockStationId}:`, mockError);
+        });
+
+        it('should throw a FirestoreOfflineError when the browser is offline', async () => {
+            const mockError = new Error('Firestore error');
+            vi.mocked(getDocs).mockRejectedValueOnce(mockError);
+            vi.spyOn(navigator, 'onLine', 'get').mockReturnValueOnce(false);
+
+            await expect(fetchFuelLogsByStationId(mockStationId)).rejects.toThrow('You are offline');
         });
     });
 });

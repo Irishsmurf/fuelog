@@ -44,7 +44,9 @@
     "recentLogs": "Recent Logs",
     "noLogsFound": "No fuel logs found for this station.",
     "loading": "Loading station details...",
-    "errorLoading": "Failed to load station details. Please try again."
+    "errorLoading": "Failed to load station details. Please try again.",
+    "showMore": "Show {{count}} more",
+    "showFewer": "Show fewer"
   },
   "quickLog": {
     "title": "Log New Fuel Entry",

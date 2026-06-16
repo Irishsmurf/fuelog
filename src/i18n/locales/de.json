@@ -44,7 +44,9 @@
     "recentLogs": "Letzte Einträge",
     "noLogsFound": "Keine Tankeinträge für diese Tankstelle gefunden.",
     "loading": "Tankstellendetails werden geladen...",
-    "errorLoading": "Tankstellendetails konnten nicht geladen werden. Bitte versuchen Sie es erneut."
+    "errorLoading": "Tankstellendetails konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "showMore": "{{count}} weitere anzeigen",
+    "showFewer": "Weniger anzeigen"
   },
   "quickLog": {
     "title": "Neuer Kraftstoffeintrag",

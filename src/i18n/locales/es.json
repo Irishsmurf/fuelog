@@ -44,7 +44,9 @@
     "recentLogs": "Registros recientes",
     "noLogsFound": "No se encontraron registros de combustible para esta gasolinera.",
     "loading": "Cargando los detalles de la gasolinera...",
-    "errorLoading": "No se pudieron cargar los detalles de la gasolinera. Inténtalo de nuevo."
+    "errorLoading": "No se pudieron cargar los detalles de la gasolinera. Inténtalo de nuevo.",
+    "showMore": "Mostrar {{count}} más",
+    "showFewer": "Mostrar menos"
   },
   "quickLog": {
     "title": "Nuevo Registro de Combustible",

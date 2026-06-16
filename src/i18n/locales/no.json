@@ -44,7 +44,9 @@
     "recentLogs": "Siste logger",
     "noLogsFound": "Ingen drivstofflogger funnet for denne stasjonen.",
     "loading": "Laster stasjonsdetaljer...",
-    "errorLoading": "Kunne ikke laste stasjonsdetaljer. Prøv igjen."
+    "errorLoading": "Kunne ikke laste stasjonsdetaljer. Prøv igjen.",
+    "showMore": "Vis {{count}} til",
+    "showFewer": "Vis færre"
   },
   "quickLog": {
     "title": "Logg ny drivstoffoppføring",

@@ -44,7 +44,9 @@
     "recentLogs": "Entrées récentes",
     "noLogsFound": "Aucune entrée de carburant trouvée pour cette station.",
     "loading": "Chargement des détails de la station...",
-    "errorLoading": "Impossible de charger les détails de la station. Veuillez réessayer."
+    "errorLoading": "Impossible de charger les détails de la station. Veuillez réessayer.",
+    "showMore": "Afficher {{count}} de plus",
+    "showFewer": "Afficher moins"
   },
   "quickLog": {
     "title": "Nouvelle Saisie de Carburant",

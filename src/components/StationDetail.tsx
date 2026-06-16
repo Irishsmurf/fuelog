@@ -11,6 +11,7 @@ import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestor
 import { formatDate } from '../utils/formatDate';
 
 const RECENT_LOGS_LIMIT = 12;
+const RECENT_LOGS_COLLAPSED_LIMIT = 5;
 
 interface StationDetailProps {
     stationId: string;
@@ -22,6 +23,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
     const [fuelLogs, setFuelLogs] = useState<Log[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [showAllLogs, setShowAllLogs] = useState(false);
 
     useEffect(() => {
         const loadStationData = async () => {
@@ -215,18 +217,31 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
 
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('stationDetail.recentLogs')}</h3>
             {fuelLogs.length > 0 ? (
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                    {fuelLogs.map(log => (
-                        <div key={log.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
-                            <p className="text-sm text-gray-900 dark:text-gray-100">
-                                {formatDate(log.timestamp.toDate())}
-                            </p>
-                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                                €{log.cost.toFixed(2)} ({log.fuelAmountLiters.toFixed(2)}L @ {isFinite(log.cost / log.fuelAmountLiters) ? (log.cost / log.fuelAmountLiters).toFixed(3) : t('stationTable.noData')}/L)
-                            </p>
-                        </div>
-                    ))}
-                </div>
+                <>
+                    <div className="space-y-2">
+                        {(showAllLogs ? fuelLogs : fuelLogs.slice(0, RECENT_LOGS_COLLAPSED_LIMIT)).map(log => (
+                            <div key={log.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                                <p className="text-sm text-gray-900 dark:text-gray-100">
+                                    {formatDate(log.timestamp.toDate())}
+                                </p>
+                                <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                                    €{log.cost.toFixed(2)} ({log.fuelAmountLiters.toFixed(2)}L @ {isFinite(log.cost / log.fuelAmountLiters) ? (log.cost / log.fuelAmountLiters).toFixed(3) : t('stationTable.noData')}/L)
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                    {fuelLogs.length > RECENT_LOGS_COLLAPSED_LIMIT && (
+                        <button
+                            type="button"
+                            onClick={() => setShowAllLogs(prev => !prev)}
+                            className="mt-3 text-sm font-medium text-brand-primary hover:underline"
+                        >
+                            {showAllLogs
+                                ? t('stationDetail.showFewer')
+                                : t('stationDetail.showMore', { count: fuelLogs.length - RECENT_LOGS_COLLAPSED_LIMIT })}
+                        </button>
+                    )}
+                </>
             ) : (
                 <div className="text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-4 rounded-md">
                     <p>{t('stationDetail.noLogsFound')}</p>

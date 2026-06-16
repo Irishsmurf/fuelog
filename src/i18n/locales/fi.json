@@ -44,7 +44,9 @@
     "recentLogs": "Viimeisimmät merkinnät",
     "noLogsFound": "Tälle asemalle ei löytynyt polttoainemerkintöjä.",
     "loading": "Ladataan aseman tietoja...",
-    "errorLoading": "Aseman tietojen lataaminen epäonnistui. Yritä uudelleen."
+    "errorLoading": "Aseman tietojen lataaminen epäonnistui. Yritä uudelleen.",
+    "showMore": "Näytä {{count}} lisää",
+    "showFewer": "Näytä vähemmän"
   },
   "quickLog": {
     "title": "Kirjaa uusi tankkaus",

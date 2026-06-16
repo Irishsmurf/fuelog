@@ -12,3 +12,4 @@ export { sendMonthlySummary } from './monthlySummary';
 export { processReceipt } from './receiptProcessing';
 export { sendWeeklyDigest } from './weeklyDigest';
 export { checkBudgetAlert } from './budgetAlerts';
+export { sendTestNotification } from './devNotifications';

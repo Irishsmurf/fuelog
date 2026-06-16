@@ -19,6 +19,7 @@ import {
     FirestoreSettings // Type for settings object
 } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
+import { getFunctions, Functions } from "firebase/functions";
 
 // Config interface (remains the same)
 interface FirebaseConfig {
@@ -56,6 +57,9 @@ const auth: Auth = getAuth(app);
 
 // Initialize Firebase Storage
 const storage: FirebaseStorage = getStorage(app);
+
+// Initialize Cloud Functions client (for callable functions like sendTestNotification)
+const functions: Functions = getFunctions(app);
 
 // --- Initialize Firestore with Offline Persistence Settings ---
 let db: Firestore; // Declare db variable
@@ -127,6 +131,7 @@ export {
   auth,
   db,
   storage,
+  functions,
   analytics,
   perf,
   googleProvider,

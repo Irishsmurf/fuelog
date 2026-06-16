@@ -28,7 +28,8 @@
     "avgPrice": "Ø-Preis",
     "logCount": "Einträge",
     "unknownBrand": "Unbekannte Marke",
-    "noData": "k. A."
+    "noData": "k. A.",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "Unbekannte Marke",

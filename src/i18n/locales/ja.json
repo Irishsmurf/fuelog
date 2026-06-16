@@ -28,7 +28,8 @@
     "avgPrice": "平均価格",
     "logCount": "記録数",
     "unknownBrand": "不明なブランド",
-    "noData": "なし"
+    "noData": "なし",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "不明なブランド",

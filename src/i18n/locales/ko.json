@@ -28,7 +28,8 @@
     "avgPrice": "평균 가격",
     "logCount": "기록 수",
     "unknownBrand": "알 수 없는 브랜드",
-    "noData": "해당 없음"
+    "noData": "해당 없음",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "알 수 없는 브랜드",

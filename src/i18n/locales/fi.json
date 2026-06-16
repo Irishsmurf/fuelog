@@ -28,7 +28,8 @@
     "avgPrice": "Keskihinta",
     "logCount": "Merkinnät",
     "unknownBrand": "Tuntematon merkki",
-    "noData": "Ei tietoa"
+    "noData": "Ei tietoa",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "Tuntematon merkki",

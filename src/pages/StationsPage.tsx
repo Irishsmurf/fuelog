@@ -1,10 +1,11 @@
 // src/pages/StationsPage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader, AlertCircle } from 'lucide-react';
 
 import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
+import { Coordinates, getCurrentPosition } from '../utils/locationService';
 import StationTable from '../components/StationTable'; // Will create this component
 import StationDetail from '../components/StationDetail'; // Will create this component
 
@@ -14,6 +15,10 @@ const StationsPage: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedStationId, setSelectedStationId] = useState<string | null>(null);
+    const [origin, setOrigin] = useState<Coordinates | null>(null);
+    // Geolocation should always win over the fallback, regardless of which
+    // resolves first; this guards the fallback from clobbering a real fix.
+    const hasGeolocationFix = useRef(false);
 
     useEffect(() => {
         const loadStations = async () => {
@@ -23,6 +28,12 @@ const StationsPage: React.FC = () => {
                 const logs = await fetchFuelLocations();
                 const userStations = await fetchUserStations(logs);
                 setStations(userStations);
+                // Fallback origin: the most recent fill-up location (logs are
+                // ordered timestamp desc and pre-filtered to have coordinates).
+                const lastLog = logs[0];
+                if (!hasGeolocationFix.current && lastLog?.latitude !== undefined && lastLog?.longitude !== undefined) {
+                    setOrigin({ latitude: lastLog.latitude, longitude: lastLog.longitude });
+                }
             } catch (err) {
                 console.error("Failed to load stations:", err);
                 setError(t('stations.errorLoading'));
@@ -33,6 +44,17 @@ const StationsPage: React.FC = () => {
 
         loadStations();
     }, [t]);
+
+    useEffect(() => {
+        let cancelled = false;
+        getCurrentPosition().then((position) => {
+            if (!cancelled && position) {
+                hasGeolocationFix.current = true;
+                setOrigin(position);
+            }
+        });
+        return () => { cancelled = true; };
+    }, []);
 
     const handleSelectStation = (stationId: string) => {
         setSelectedStationId(stationId);
@@ -67,10 +89,11 @@ const StationsPage: React.FC = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-1">
-                        <StationTable 
-                            stations={stations} 
-                            onSelectStation={handleSelectStation} 
-                            selectedStationId={selectedStationId} 
+                        <StationTable
+                            stations={stations}
+                            onSelectStation={handleSelectStation}
+                            selectedStationId={selectedStationId}
+                            origin={origin}
                         />
                     </div>
                     <div className="md:col-span-2">

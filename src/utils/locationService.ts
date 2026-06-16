@@ -46,6 +46,52 @@ export function isAccurateEnoughForStationMatch(locationAccuracy: number): boole
     return locationAccuracy <= GPS_ACCURACY_THRESHOLD_METERS;
 }
 
+const EARTH_RADIUS_KM = 6371;
+
+/**
+ * Great-circle distance between two coordinates, in kilometres.
+ */
+export function haversineDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export interface Coordinates {
+    latitude: number;
+    longitude: number;
+}
+
+/**
+ * Resolves the browser's current position for rough proximity sorting.
+ * Never rejects: resolves null if geolocation is unsupported, denied, or errors.
+ */
+export function getCurrentPosition(): Promise<Coordinates | null> {
+    return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+            resolve(null);
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                });
+            },
+            (error) => {
+                console.warn(`Geolocation error (${error.code}): ${error.message}`);
+                resolve(null);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+    });
+}
+
 /**
  * Find the nearest petrol station within a radius (default 150m) of the given coordinates.
  */

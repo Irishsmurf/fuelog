@@ -29,8 +29,8 @@ vi.mock('../../firebase/firestoreService', () => ({
 
 // Mock StationTable and StationDetail components
 vi.mock('../../components/StationTable', () => ({
-  default: vi.fn(({ stations, onSelectStation, selectedStationId }) => (
-    <div data-testid="station-table">
+  default: vi.fn(({ stations, onSelectStation, selectedStationId, origin }) => (
+    <div data-testid="station-table" data-origin={origin ? `${origin.latitude},${origin.longitude}` : ''}>
       {stations.map((station: Station) => (
         <div key={station.id} data-testid={`station-item-${station.id}`} onClick={() => onSelectStation(station.id)}>
           {station.name} {selectedStationId === station.id && '(Selected)'}
@@ -38,6 +38,11 @@ vi.mock('../../components/StationTable', () => ({
       ))}
     </div>
   )),
+}));
+
+const mockGetCurrentPosition = vi.fn();
+vi.mock('../../utils/locationService', () => ({
+  getCurrentPosition: () => mockGetCurrentPosition(),
 }));
 vi.mock('../../components/StationDetail', () => ({
   default: vi.fn(({ stationId }) => (
@@ -75,6 +80,7 @@ describe('StationsPage', () => {
     vi.clearAllMocks();
     vi.mocked(fetchFuelLocations).mockResolvedValue([]);
     vi.mocked(fetchUserStations).mockResolvedValue([]); // Default to no stations
+    mockGetCurrentPosition.mockResolvedValue(null); // Default: geolocation denied/unavailable
   });
 
   it('renders loading state initially', () => {
@@ -135,6 +141,32 @@ describe('StationsPage', () => {
       expect(screen.getByTestId('station-detail')).toBeInTheDocument();
       expect(screen.getByText('Station Detail for station1')).toBeInTheDocument();
       expect(screen.getByText('Shell A (Selected)')).toBeInTheDocument();
+    });
+  });
+
+  it('falls back to the most recent logged location as origin when geolocation is unavailable', async () => {
+    const mockLogs = [{ id: 'log1', latitude: 15, longitude: 25 }] as never;
+    vi.mocked(fetchFuelLocations).mockResolvedValue(mockLogs);
+    vi.mocked(fetchUserStations).mockResolvedValue(mockStations);
+    mockGetCurrentPosition.mockResolvedValue(null);
+
+    render(<StationsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('station-table')).toHaveAttribute('data-origin', '15,25');
+    });
+  });
+
+  it('uses the resolved geolocation position as origin once available', async () => {
+    const mockLogs = [{ id: 'log1', latitude: 15, longitude: 25 }] as never;
+    vi.mocked(fetchFuelLocations).mockResolvedValue(mockLogs);
+    vi.mocked(fetchUserStations).mockResolvedValue(mockStations);
+    mockGetCurrentPosition.mockResolvedValue({ latitude: 50, longitude: 60 });
+
+    render(<StationsPage />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('station-table')).toHaveAttribute('data-origin', '50,60');
     });
   });
 });

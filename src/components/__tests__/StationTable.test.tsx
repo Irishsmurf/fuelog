@@ -16,6 +16,7 @@ vi.mock('react-i18next', () => ({
         'stationTable.logCount': 'Logs',
         'stationTable.unknownBrand': 'Unknown Brand',
         'stationTable.noData': 'N/A',
+        'stationTable.distance': 'Distance',
       };
       return translations[key] || key;
     },
@@ -137,5 +138,43 @@ describe('StationTable', () => {
 
     fireEvent.click(screen.getByTestId('sort-logCount'));
     expect(orderedNames()).toEqual(['NoBrand C', 'Shell A', 'Maxol B']); // 15, 10, 5
+  });
+
+  it('does not show a Distance sort option when no origin is provided', () => {
+    render(<StationTable stations={mockStations} onSelectStation={onSelectStation} selectedStationId={null} />);
+    expect(screen.queryByTestId('sort-distance')).not.toBeInTheDocument();
+  });
+
+  it('defaults to nearest-first distance sort when an origin is provided', () => {
+    // Origin near station2 (11, 21); station1 (10,20) and station3 (12,22) are
+    // roughly equidistant on either side, so station2 should sort first.
+    render(
+      <StationTable
+        stations={mockStations}
+        onSelectStation={onSelectStation}
+        selectedStationId={null}
+        origin={{ latitude: 11, longitude: 21 }}
+      />
+    );
+
+    expect(screen.getByTestId('sort-distance')).toBeInTheDocument();
+    expect(screen.getByTestId('sort-distance')).toHaveAttribute('aria-pressed', 'true');
+    expect(orderedNames()[0]).toEqual('Maxol B');
+  });
+
+  it('toggles distance sort direction on click', () => {
+    render(
+      <StationTable
+        stations={mockStations}
+        onSelectStation={onSelectStation}
+        selectedStationId={null}
+        origin={{ latitude: 11, longitude: 21 }}
+      />
+    );
+
+    const nearestFirst = orderedNames();
+    fireEvent.click(screen.getByTestId('sort-distance'));
+    const farthestFirst = orderedNames();
+    expect(farthestFirst).toEqual([...nearestFirst].reverse());
   });
 });

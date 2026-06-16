@@ -28,7 +28,8 @@
     "avgPrice": "Genomsnittligt pris",
     "logCount": "Loggar",
     "unknownBrand": "Okänt märke",
-    "noData": "Ej tillgänglig"
+    "noData": "Ej tillgänglig",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "Okänt märke",

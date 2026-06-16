@@ -204,15 +204,19 @@ function QuickLogPage(): JSX.Element {
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setter(e.target.value); };
 
   const handleOdometerChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setOdometerKmInput(val);
-    
-    const parsedOdo = parseFloat(val);
-    if (!isNaN(parsedOdo) && lastOdometerReading !== null) {
-      const diff = calculateDistance(parsedOdo, lastOdometerReading);
-      setDistanceKmInput(diff !== null ? diff.toFixed(1) : '');
-    }
+    setOdometerKmInput(e.target.value);
   };
+
+  // Recalculate distance whenever the odometer reading or the last known
+  // reading changes, so a late-arriving lastOdometerReading (e.g. slow
+  // network) still auto-fills the distance instead of being silently missed.
+  useEffect(() => {
+    if (!odometerKmInput || lastOdometerReading === null) return;
+    const parsedOdo = parseFloat(odometerKmInput);
+    if (isNaN(parsedOdo)) return;
+    const diff = calculateDistance(parsedOdo, lastOdometerReading);
+    setDistanceKmInput(diff !== null ? diff.toFixed(1) : '');
+  }, [odometerKmInput, lastOdometerReading]);
 
   // --- Exchange Rate Change Handler ---
   const handleRateChange = (e: ChangeEvent<HTMLInputElement>) => {

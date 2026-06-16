@@ -81,7 +81,7 @@ function AuthenticatedApp(): JSX.Element {
       {/* Brand Glass Header */}
       <header className="glass-header">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <Link to="/" className="font-display text-2xl font-bold tracking-tight hover:opacity-80 transition-opacity" style={{ letterSpacing: '-0.03em' }}>
+          <Link to="/" className="font-display text-2xl font-bold tracking-tight hover:opacity-80 transition-opacity flex-shrink-0" style={{ letterSpacing: '-0.03em' }}>
             <span className="text-amber-500">fuel</span><span className="text-gray-400 dark:text-gray-600">og</span>
           </Link>
           
@@ -96,7 +96,7 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/stations" className={getNavLinkClass("/stations")}>{t('nav.stations')}</Link>
           </div>
 
-          <div className="flex items-center space-x-3 sm:space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
             <ThemeToggle />
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden lg:inline">
               {user?.displayName?.split(' ')[0] || t('common.user')}

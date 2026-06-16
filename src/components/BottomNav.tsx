@@ -23,7 +23,7 @@ const BottomNav = (): JSX.Element => {
 
   return (
     <nav className="sm:hidden glass-nav">
-      <div className="flex justify-around items-center h-16">
+      <div className="grid grid-cols-6 items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -40,7 +40,7 @@ const BottomNav = (): JSX.Element => {
               <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-brand-primary/10' : ''}`}>
                 <Icon size={22} strokeWidth={isActive ? 2.5 : 1.75} className={isActive ? 'animate-in zoom-in duration-300' : ''} />
               </div>
-              <span className={`text-[9px] mt-0.5 uppercase font-black tracking-widest transition-all ${isActive ? 'opacity-100 scale-110' : 'opacity-50'}`}>
+              <span className={`text-[9px] mt-0.5 px-1 w-full text-center uppercase font-black tracking-widest transition-all truncate ${isActive ? 'opacity-100 scale-110' : 'opacity-50'}`}>
                 {item.label}
               </span>
             </Link>

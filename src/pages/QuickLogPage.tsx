@@ -79,7 +79,8 @@ function QuickLogPage(): JSX.Element {
       setMessage({ type: '', text: '' });
     } catch (error) {
       console.error("Extraction error:", error);
-      setMessage({ type: 'error', text: t('receipt.extractionFailed') });
+      const text = error instanceof Error ? error.message : t('receipt.extractionFailed');
+      setMessage({ type: 'error', text });
     } finally {
       setIsExtracting(false);
     }

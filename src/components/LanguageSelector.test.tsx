@@ -66,6 +66,18 @@ describe('LanguageSelector (pseudolocale disabled)', () => {
       expect(mockChangeLanguage).toHaveBeenCalledWith(code);
     }
   );
+
+  it('renders short language codes instead of full labels in compact mode (#139)', async () => {
+    const { default: LanguageSelector } = await import('./LanguageSelector');
+    render(<LanguageSelector compact />);
+    const select = screen.getByRole('combobox', { name: 'Language' });
+    const options = Array.from(select.querySelectorAll('option'));
+
+    for (const lang of BASE_LANGUAGES) {
+      const option = options.find(o => o.value === lang.code);
+      expect(option?.textContent).toBe(lang.code.toUpperCase());
+    }
+  });
 });
 
 describe('LanguageSelector (pseudolocale enabled)', () => {

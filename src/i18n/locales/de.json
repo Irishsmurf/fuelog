@@ -440,7 +440,8 @@
     "somethingWentWrong": "Etwas ist schiefgelaufen",
     "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
     "tryAgain": "Erneut versuchen",
-    "loadingMapData": "Kartendaten werden geladen..."
+    "loadingMapData": "Kartendaten werden geladen...",
+    "unassignedLocation": "Nicht zugeordneter Standort"
   },
   "language": {
     "label": "Sprache",

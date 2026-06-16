@@ -440,7 +440,8 @@
     "somethingWentWrong": "Algo salió mal",
     "unexpectedError": "Se produjo un error inesperado.",
     "tryAgain": "Intentar de nuevo",
-    "loadingMapData": "Cargando datos del mapa..."
+    "loadingMapData": "Cargando datos del mapa...",
+    "unassignedLocation": "Ubicación sin asignar"
   },
   "language": {
     "label": "Idioma",

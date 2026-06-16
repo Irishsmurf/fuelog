@@ -440,7 +440,8 @@
     "somethingWentWrong": "Tharla earráid",
     "unexpectedError": "Tharla earráid gan choinne.",
     "tryAgain": "Bain triail eile as",
-    "loadingMapData": "Sonraí léarscáile á luchtú..."
+    "loadingMapData": "Sonraí léarscáile á luchtú...",
+    "unassignedLocation": "Suíomh Gan Sannadh"
   },
   "language": {
     "label": "Teanga",

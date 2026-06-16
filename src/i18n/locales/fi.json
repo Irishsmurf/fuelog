@@ -440,7 +440,8 @@
     "somethingWentWrong": "Jokin menu pieleen",
     "unexpectedError": "Tapahtui odottamaton virhe.",
     "tryAgain": "Yritä uudelleen",
-    "loadingMapData": "Ladataan karttatietoja..."
+    "loadingMapData": "Ladataan karttatietoja...",
+    "unassignedLocation": "Ei kohdistettu sijainti"
   },
   "language": {
     "label": "Kieli",

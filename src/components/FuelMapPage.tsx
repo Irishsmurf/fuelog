@@ -14,7 +14,8 @@ import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreServ
 import { Log, Station } from '../utils/types';
 import { formatDate } from '../utils/formatDate';
 import { useTheme } from '../context/ThemeContext';
-import { MAP_TILES } from '../utils/mapConstants';
+import { MAP_TILES, createStationIcon } from '../utils/mapConstants';
+import { useTranslation } from 'react-i18next';
 
 // --- Icon Fix (points to public assets) ---
 const iconRetinaUrl = '/marker-icon-2x.png';
@@ -81,6 +82,7 @@ const LocateControl = () => {
 
 const FuelMapPage: React.FC = () => {
   const { theme } = useTheme();
+  const { t } = useTranslation();
   const [locations, setLocations] = useState<Log[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,18 +112,22 @@ const FuelMapPage: React.FC = () => {
       return locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined);
   }, [locations]);
 
-  // Group logs by latitude & longitude
+  // Group logs by stationId — the canonical grouping key, since a station's
+  // stored coordinates and a log's raw GPS reading are independent values
+  // that don't reliably round to the same key. Logs with no stationId
+  // (pre-station-association logs, or low-GPS-accuracy logs that skipped
+  // association) fall back to coordinate-rounding so they still appear on
+  // the map, grouped separately and flagged as unassigned.
   const stationGroups = useMemo(() => {
-     const stationsByCoord = new Map<string, Station>();
-     stations.forEach(s => {
-         stationsByCoord.set(`${s.latitude.toFixed(4)}_${s.longitude.toFixed(4)}`, s);
-     });
+     const stationsById = new Map(stations.map(s => [s.id, s]));
 
      const groups: { [key: string]: { logs: Log[], station?: Station } } = {};
      validLocations.forEach(log => {
-         const key = `${log.latitude!.toFixed(4)}_${log.longitude!.toFixed(4)}`;
+         const key = log.stationId
+             ? `station-${log.stationId}`
+             : `coord-${log.latitude!.toFixed(4)}_${log.longitude!.toFixed(4)}`;
          if (!groups[key]) {
-             groups[key] = { logs: [], station: stationsByCoord.get(key) };
+             groups[key] = { logs: [], station: log.stationId ? stationsById.get(log.stationId) : undefined };
          }
          groups[key].logs.push(log);
      });
@@ -172,7 +178,7 @@ const FuelMapPage: React.FC = () => {
               : [firstLog.latitude!, firstLog.longitude!];
               
             return (
-              <Marker key={key} position={pos}>
+              <Marker key={key} position={pos} icon={createStationIcon(!group.station)}>
                 <Popup>
                   <div className="p-1 min-w-[180px]">
                     <div className="flex flex-col mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
@@ -182,6 +188,11 @@ const FuelMapPage: React.FC = () => {
                                 {group.station?.name || firstLog.brand || 'N/A'}
                             </span>
                         </div>
+                        {!group.station && (
+                            <div className="mt-1 text-[10px] text-gray-400 font-bold uppercase">
+                                {t('common.unassignedLocation')}
+                            </div>
+                        )}
                         {group.station?.avgPrice && (
                             <div className="mt-1 flex items-center text-[10px] text-green-600 dark:text-green-400 font-bold uppercase">
                                 <span>Avg Price: €{group.station.avgPrice.toFixed(3)}/L</span>

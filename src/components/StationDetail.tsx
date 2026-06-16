@@ -13,7 +13,7 @@ import { Log, Station } from '../utils/types';
 import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
 import { formatDate } from '../utils/formatDate';
 import { useTheme } from '../context/ThemeContext';
-import { MAP_TILES } from '../utils/mapConstants';
+import { MAP_TILES, createStationIcon } from '../utils/mapConstants';
 
 // Leaflet's default marker icon URLs are broken under bundlers like Vite;
 // point them at the public assets instead. Safe to call more than once
@@ -196,7 +196,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                             attribution={MAP_TILES.attribution}
                             url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
                         />
-                        <Marker position={[station.latitude, station.longitude]} />
+                        <Marker position={[station.latitude, station.longitude]} icon={createStationIcon()} />
                     </MapContainer>
                 </div>
             ) : (

@@ -7,7 +7,6 @@ import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import InstallPrompt from './InstallPrompt';
 import BottomNav from './BottomNav';
 import SyncStatus from './SyncStatus';
-import { useRemoteConfig } from '../context/RemoteConfigContext';
 
 // Wraps React.lazy with a single reload on chunk fetch failure.
 // This handles the stale-PWA-cache scenario where a new deploy renames
@@ -69,9 +68,6 @@ function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
   const location = useLocation();
   const { t } = useTranslation();
-  const { getBoolean } = useRemoteConfig();
-
-  const stationsPageEnabled = getBoolean('feature_stations_page_enabled');
 
   const getNavLinkClass = (path: string): string => {
     const baseClass = "px-3 py-1.5 text-sm font-bold rounded-xl transition-all duration-200";
@@ -97,9 +93,7 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/import" className={getNavLinkClass("/import")}>{t('nav.import')}</Link>
             <Link to="/profile" className={getNavLinkClass("/profile")}>{t('nav.profile')}</Link>
             <Link to="/map" className={getNavLinkClass("/map")}>{t('nav.map')}</Link>
-            {stationsPageEnabled && (
-              <Link to="/stations" className={getNavLinkClass("/stations")}>{t('nav.stations')}</Link>
-            )}
+            <Link to="/stations" className={getNavLinkClass("/stations")}>{t('nav.stations')}</Link>
           </div>
 
           <div className="flex items-center space-x-3 sm:space-x-4">
@@ -136,9 +130,7 @@ function AuthenticatedApp(): JSX.Element {
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/map" element={<FuelMapPage />} />
-            {stationsPageEnabled && (
-              <Route path="/stations" element={<StationsPage />} />
-            )}
+            <Route path="/stations" element={<StationsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
@@ -158,7 +150,7 @@ function AuthenticatedApp(): JSX.Element {
       </footer>
 
       {/* Mobile Only Navigation */}
-      <BottomNav stationsPageEnabled={stationsPageEnabled} />
+      <BottomNav />
       
       <InstallPrompt />
     </div>

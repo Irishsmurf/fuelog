@@ -7,21 +7,18 @@ import { useTranslation } from 'react-i18next';
  * Mobile-first bottom navigation component.
  * Positioned fixed at the bottom of the screen.
  */
-const BottomNav = ({ stationsPageEnabled }: { stationsPageEnabled: boolean }): JSX.Element => {
+const BottomNav = (): JSX.Element => {
   const location = useLocation();
   const { t } = useTranslation();
 
-  const baseNavItems = [
+  const navItems = [
     { path: '/', label: t('nav.log'), icon: PlusCircle },
     { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: '/history', label: t('nav.history'), icon: History },
     { path: '/map', label: t('nav.map'), icon: MapIcon },
+    { path: '/stations', label: t('nav.stations'), icon: Fuel },
     { path: '/profile', label: t('nav.profile'), icon: User },
   ];
-
-  const navItems = stationsPageEnabled
-    ? [...baseNavItems.slice(0, 4), { path: '/stations', label: t('nav.stations'), icon: Fuel }, ...baseNavItems.slice(4)]
-    : baseNavItems;
 
 
   return (

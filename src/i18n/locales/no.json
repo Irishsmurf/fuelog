@@ -46,7 +46,8 @@
     "loading": "Laster stasjonsdetaljer...",
     "errorLoading": "Kunne ikke laste stasjonsdetaljer. Prøv igjen.",
     "showMore": "Vis {{count}} til",
-    "showFewer": "Vis færre"
+    "showFewer": "Vis færre",
+    "noLocationData": "Ingen posisjonsdata tilgjengelig for denne stasjonen."
   },
   "quickLog": {
     "title": "Logg ny drivstoffoppføring",

@@ -46,7 +46,8 @@
     "loading": "Ladataan aseman tietoja...",
     "errorLoading": "Aseman tietojen lataaminen epäonnistui. Yritä uudelleen.",
     "showMore": "Näytä {{count}} lisää",
-    "showFewer": "Näytä vähemmän"
+    "showFewer": "Näytä vähemmän",
+    "noLocationData": "Tälle asemalle ei ole sijaintitietoja."
   },
   "quickLog": {
     "title": "Kirjaa uusi tankkaus",

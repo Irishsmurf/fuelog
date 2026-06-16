@@ -46,7 +46,8 @@
     "loading": "주유소 세부 정보를 불러오는 중...",
     "errorLoading": "주유소 세부 정보를 불러오지 못했습니다. 다시 시도해 주세요.",
     "showMore": "{{count}}개 더 보기",
-    "showFewer": "간략히 보기"
+    "showFewer": "간략히 보기",
+    "noLocationData": "이 주유소에 대한 위치 데이터가 없습니다."
   },
   "quickLog": {
     "title": "새 연료 기록",

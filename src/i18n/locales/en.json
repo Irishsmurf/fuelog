@@ -46,7 +46,8 @@
     "loading": "Loading station details...",
     "errorLoading": "Failed to load station details. Please try again.",
     "showMore": "Show {{count}} more",
-    "showFewer": "Show fewer"
+    "showFewer": "Show fewer",
+    "noLocationData": "No location data available for this station."
   },
   "quickLog": {
     "title": "Log New Fuel Entry",

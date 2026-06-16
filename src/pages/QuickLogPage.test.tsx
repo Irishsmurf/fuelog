@@ -4,11 +4,13 @@ import { addDoc, getDocs } from 'firebase/firestore';
 import { fetchExchangeRate } from '../utils/currencyApi';
 import { getLastOdometerReading } from '../firebase/firestoreService';
 import { extractDataFromReceipt } from '../utils/gemini';
+import { isAccurateEnoughForStationMatch } from '../utils/locationService';
 import QuickLogPage from './QuickLogPage';
 
 const mockT = (key: string, opts?: Record<string, unknown>) => {
-  if (opts && 'defaultValue' in opts) return opts.defaultValue as string;
-  return key;
+  const template = opts && 'defaultValue' in opts ? (opts.defaultValue as string) : key;
+  if (!opts) return template;
+  return template.replace(/\{\{(\w+)\}\}/g, (_match, name) => String(opts[name] ?? ''));
 };
 
 vi.mock('react-i18next', () => ({
@@ -71,7 +73,7 @@ vi.mock('../utils/gemini', () => ({
 
 vi.mock('../utils/locationService', () => ({
   findNearestStation: vi.fn().mockResolvedValue(null),
-  isAccurateEnoughForStationMatch: () => true,
+  isAccurateEnoughForStationMatch: vi.fn(() => true),
   GPS_ACCURACY_THRESHOLD_METERS: 100,
 }));
 
@@ -203,5 +205,91 @@ describe('QuickLogPage', () => {
     expect((screen.getByLabelText('quickLog.fields.totalCost') as HTMLInputElement).value).toBe('42.5');
     expect((screen.getByLabelText('quickLog.fields.fuel') as HTMLInputElement).value).toBe('28');
     expect((screen.getByLabelText(/quickLog\.fields\.fillingStation/) as HTMLInputElement).value).toBe('Esso');
+  });
+
+  describe('low GPS accuracy warning', () => {
+    const setGeolocationAccuracy = (accuracy: number) => {
+      Object.defineProperty(global.navigator, 'geolocation', {
+        value: {
+          getCurrentPosition: vi.fn((success) => {
+            success({ coords: { latitude: 53.3, longitude: -6.2, accuracy } });
+          }),
+        },
+        configurable: true,
+      });
+    };
+
+    it('shows a persistent warning banner that survives the save flow when accuracy is poor', async () => {
+      vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(false);
+      setGeolocationAccuracy(500);
+
+      render(<QuickLogPage />);
+
+      await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+      fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+      fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+      // The warning appears during station-detection...
+      await waitFor(() =>
+        expect(screen.getByText('GPS accuracy is low (500m); skipping station detection.')).toBeInTheDocument()
+      );
+
+      // ...and is still visible once the save completes successfully (not overwritten
+      // by the subsequent "saving"/"success" status messages, which share a different slot).
+      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+      expect(screen.getByText('GPS accuracy is low (500m); skipping station detection.')).toBeInTheDocument();
+    });
+
+    it('does not show the warning banner when accuracy is within the threshold', async () => {
+      vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(true);
+      setGeolocationAccuracy(20);
+
+      render(<QuickLogPage />);
+
+      await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+      fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+      fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+      expect(screen.queryByText(/skipping station detection/)).not.toBeInTheDocument();
+    });
+
+    it('clears a previous warning when a new submission has good accuracy', async () => {
+      vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(false);
+      setGeolocationAccuracy(500);
+
+      render(<QuickLogPage />);
+      await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+      fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+      fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+      await waitFor(() =>
+        expect(screen.getByText('GPS accuracy is low (500m); skipping station detection.')).toBeInTheDocument()
+      );
+      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+
+      // Second submission with good accuracy should clear the stale warning.
+      vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(true);
+      setGeolocationAccuracy(20);
+
+      fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '60' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '300' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '20' } });
+      fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(2));
+      expect(screen.queryByText(/skipping station detection/)).not.toBeInTheDocument();
+    });
   });
 });

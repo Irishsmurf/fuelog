@@ -112,16 +112,16 @@ const FuelMapPage: React.FC = () => {
 
   // Group logs by latitude & longitude
   const stationGroups = useMemo(() => {
+     const stationsByCoord = new Map<string, Station>();
+     stations.forEach(s => {
+         stationsByCoord.set(`${s.latitude.toFixed(4)}_${s.longitude.toFixed(4)}`, s);
+     });
+
      const groups: { [key: string]: { logs: Log[], station?: Station } } = {};
      validLocations.forEach(log => {
          const key = `${log.latitude!.toFixed(4)}_${log.longitude!.toFixed(4)}`;
          if (!groups[key]) {
-             // Find matching station if it exists
-             const matchedStation = stations.find(s => 
-               s.latitude.toFixed(4) === log.latitude!.toFixed(4) && 
-               s.longitude.toFixed(4) === log.longitude!.toFixed(4)
-             );
-             groups[key] = { logs: [], station: matchedStation };
+             groups[key] = { logs: [], station: stationsByCoord.get(key) };
          }
          groups[key].logs.push(log);
      });

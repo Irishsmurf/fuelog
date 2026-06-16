@@ -87,6 +87,23 @@ describe('LogCard', () => {
     expect(screen.getByText('28.25')).toBeInTheDocument();
   });
 
+  it('keeps the receipt thumbnail clipped within the card boundary (#162)', () => {
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
+    const logWithReceipt: Log = { ...mockLog, receiptUrl: 'https://example.com/receipt.jpg' };
+
+    render(<LogCard log={logWithReceipt} onEdit={onEdit} onDelete={onDelete} />);
+
+    const receiptImg = screen.getByAltText('Receipt');
+    expect(receiptImg).toBeInTheDocument();
+
+    // The front face must clip any overflowing content (e.g. the receipt
+    // thumbnail) instead of letting it spill outside the card's rounded
+    // boundary, which is what caused #162.
+    const frontFace = receiptImg.closest('.backface-hidden');
+    expect(frontFace).toHaveClass('overflow-y-auto');
+  });
+
   it('calls onEdit when edit button is clicked', () => {
     const onEdit = vi.fn();
     const onDelete = vi.fn();
@@ -97,6 +114,30 @@ describe('LogCard', () => {
 
     expect(onEdit).toHaveBeenCalledTimes(1);
     expect(onEdit).toHaveBeenCalledWith(mockLog);
+  });
+
+  describe('flip-to-map vs. scroll/drag (#162)', () => {
+    const logWithGeo: Log = { ...mockLog, latitude: 51.5, longitude: -0.1 };
+
+    it('flips to the map on a tap (no pointer movement)', () => {
+      const { container } = render(<LogCard log={logWithGeo} onEdit={vi.fn()} onDelete={vi.fn()} />);
+      const card = container.firstChild as HTMLElement;
+
+      fireEvent.pointerDown(card, { clientX: 100, clientY: 100 });
+      fireEvent.click(card, { clientX: 100, clientY: 100 });
+
+      expect(screen.getByTestId('map-container')).toBeInTheDocument();
+    });
+
+    it('does not flip when the pointer moved beyond the drag threshold (scrolling overflowing content)', () => {
+      const { container, queryByTestId } = render(<LogCard log={logWithGeo} onEdit={vi.fn()} onDelete={vi.fn()} />);
+      const card = container.firstChild as HTMLElement;
+
+      fireEvent.pointerDown(card, { clientX: 100, clientY: 100 });
+      fireEvent.click(card, { clientX: 100, clientY: 150 });
+
+      expect(queryByTestId('map-container')).not.toBeInTheDocument();
+    });
   });
 
   it('calls onDelete when delete button is clicked', () => {

@@ -3,7 +3,7 @@ import { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch, 
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle, VehicleFuelType } from '../utils/types';
-import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw, Settings, Coins, Bell, BellOff } from 'lucide-react';
+import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw, Settings, Coins, Bell, BellOff, Wallet } from 'lucide-react';
 import ApiTokenManager from '../components/ApiTokenManager';
 import { useFCMToken } from '../hooks/useFCMToken';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
@@ -23,6 +23,7 @@ function ProfilePage(): JSX.Element {
   const [isMigrating, setIsMigrating] = useState(false);
   const [migrationProgress, setMigrationProgress] = useState<{ current: number, total: number } | null>(null);
   const [migrationMessage, setMigrationMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [budgetInput, setBudgetInput] = useState<string>('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -48,6 +49,19 @@ function ProfilePage(): JSX.Element {
   }, [user]);
 
   useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
+
+  // Seed the budget input from the loaded profile (0/unset renders as an empty field).
+  useEffect(() => {
+    setBudgetInput(profile?.monthlyBudget ? String(profile.monthlyBudget) : '');
+  }, [profile?.monthlyBudget]);
+
+  const handleBudgetBlur = () => {
+    const parsed = parseFloat(budgetInput);
+    const monthlyBudget = !isNaN(parsed) && parsed > 0 ? parsed : 0;
+    if (monthlyBudget !== (profile?.monthlyBudget ?? 0)) {
+      updateProfile({ monthlyBudget });
+    }
+  };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -242,7 +256,7 @@ function ProfilePage(): JSX.Element {
           <h3 className="text-xl font-black tracking-tight">{t('profile.appPreferences')}</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-brand-primary">
               <Coins size={18} />
@@ -262,6 +276,27 @@ function ProfilePage(): JSX.Element {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 text-brand-primary">
+              <Wallet size={18} />
+              <h4 className="text-sm font-black uppercase tracking-widest">{t('profile.monthlyBudget')}</h4>
+            </div>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed">
+              {t('profile.monthlyBudgetDesc')}
+            </p>
+            <input
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="1"
+              value={budgetInput}
+              onChange={(e) => setBudgetInput(e.target.value)}
+              onBlur={handleBudgetBlur}
+              placeholder={t('profile.monthlyBudgetPlaceholder')}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white"
+            />
           </div>
 
           <div className="space-y-4">

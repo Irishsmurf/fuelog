@@ -234,6 +234,9 @@
     "appPreferences": "App Preferences",
     "homeCurrency": "Home Currency",
     "homeCurrencyDesc": "Set your primary currency for all fuel logs and summary analytics.",
+    "monthlyBudget": "Monthly Budget",
+    "monthlyBudgetDesc": "Set an optional monthly fuel spend budget to get alerted at 80% and 100%.",
+    "monthlyBudgetPlaceholder": "No budget set",
     "measurementUnits": "Measurement Units",
     "measurementUnitsSoon": "Coming soon: Toggle between Metric (Km/L) and Imperial (MPG) defaults.",
     "maintenance": {

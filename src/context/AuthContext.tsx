@@ -10,6 +10,8 @@ import { auth, db, analytics, signInWithGoogle, logout } from '../firebase/confi
 interface UserProfile {
   homeCurrency: string;
   tester_group: boolean;
+  /** Optional monthly fuel spend budget, in homeCurrency. Unset = no budget alerts. */
+  monthlyBudget?: number;
 }
 
 // Define the shape of the context value

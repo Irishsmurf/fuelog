@@ -131,4 +131,36 @@ describe('gemini utility', () => {
 
     await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow('Failed to extract data from receipt.');
   });
+
+  it('rejects unsupported file types before processing', async () => {
+    const gemini = await import('./gemini');
+    const mockFile = new File(['mock content'], 'receipt.pdf', { type: 'application/pdf' });
+
+    await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow(
+      'Unsupported file type. Please use JPEG, PNG, or WebP.'
+    );
+    expect(global.createImageBitmap).not.toHaveBeenCalled();
+  });
+
+  it('rejects files larger than 10MB before processing', async () => {
+    const gemini = await import('./gemini');
+    const bigContent = new Uint8Array(10 * 1024 * 1024 + 1);
+    const mockFile = new File([bigContent], 'big.jpg', { type: 'image/jpeg' });
+
+    await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow(
+      'File too large (max 10 MB). Please compress the image.'
+    );
+    expect(global.createImageBitmap).not.toHaveBeenCalled();
+  });
+
+  it('surfaces a friendly error when the image cannot be decoded', async () => {
+    global.createImageBitmap = vi.fn().mockRejectedValue(new Error('decode failed'));
+
+    const gemini = await import('./gemini');
+    const mockFile = new File(['mock content'], 'corrupt.jpg', { type: 'image/jpeg' });
+
+    await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow(
+      'Could not process image — please try a different photo.'
+    );
+  });
 });

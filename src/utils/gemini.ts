@@ -12,8 +12,26 @@ export interface ReceiptData {
 const MAX_DIMENSION = import.meta.env.DEV ? 768 : 1600;
 const JPEG_QUALITY = import.meta.env.DEV ? 0.7 : 0.9;
 
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+const SUPPORTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+export function validateReceiptFile(file: File): void {
+  if (!SUPPORTED_MIME_TYPES.includes(file.type)) {
+    throw new Error('Unsupported file type. Please use JPEG, PNG, or WebP.');
+  }
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error('File too large (max 10 MB). Please compress the image.');
+  }
+}
+
 async function resizeAndEncode(file: File): Promise<{ base64Data: string; mimeType: string }> {
-  const bitmap = await createImageBitmap(file);
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch (error) {
+    console.error('Failed to decode image:', error);
+    throw new Error('Could not process image — please try a different photo.');
+  }
   const { width, height } = bitmap;
 
   const scale = Math.min(1, MAX_DIMENSION / Math.max(width, height));
@@ -49,6 +67,8 @@ export async function extractDataFromReceipt(file: File): Promise<ReceiptData> {
     throw new Error('User is not authenticated.');
   }
   const idToken = await user.getIdToken();
+
+  validateReceiptFile(file);
 
   analytics.then(a => { if (a) logEvent(a, 'receipt_scan_started'); });
 

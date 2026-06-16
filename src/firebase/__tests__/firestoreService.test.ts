@@ -1,6 +1,6 @@
 // src/firebase/__tests__/firestoreService.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { CollectionReference, Query, QueryConstraint, QuerySnapshot } from 'firebase/firestore';
+import type { CollectionReference, Query, QueryConstraint, QuerySnapshot, QueryFieldFilterConstraint, QueryOrderByConstraint } from 'firebase/firestore';
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../config'; // Mocked config for auth and db
 import { fetchFuelLogsByStationId } from '../firestoreService';
@@ -46,13 +46,13 @@ describe('firestoreService', () => {
         consoleErrorSpy.mockClear();
         
         mockCurrentUser = { uid: mockUserId };
-        vi.spyOn(auth, 'currentUser', 'get').mockImplementation(() => mockCurrentUser);
-        
+        vi.spyOn(auth, 'currentUser', 'get').mockImplementation(() => mockCurrentUser as unknown as import('firebase/auth').User | null);
+
         // Reset mock implementations for each test
         vi.mocked(collection).mockReturnValue({} as CollectionReference);
         vi.mocked(query).mockReturnValue({} as Query);
-        vi.mocked(where).mockReturnValue({} as QueryConstraint);
-        vi.mocked(orderBy).mockReturnValue({} as QueryConstraint);
+        vi.mocked(where).mockReturnValue({} as unknown as QueryFieldFilterConstraint);
+        vi.mocked(orderBy).mockReturnValue({} as unknown as QueryOrderByConstraint);
     });
 
     describe('fetchFuelLogsByStationId', () => {

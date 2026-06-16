@@ -4,7 +4,7 @@
     "history": "Historik",
     "map": "Karta",
     "profile": "Profil",
-    "stations": "[sv] Stations",
+    "stations": "Stationer",
     "dashboard": "Översikt"
   },
   "login": {
@@ -15,35 +15,35 @@
     "error": "Misslyckades med att logga in. Försök igen."
   },
   "stations": {
-    "title": "[sv] Fuel Stations",
-    "loading": "[sv] Laddar bränslestationer...",
-    "errorLoading": "[sv] Misslyckades med att ladda bränslestationer. Försök igen.",
-    "noStationsFound": "[sv] Inga bränslestationer hittades med loggade poster. Logga bränsle med platsdata!",
-    "selectStationPrompt": "[sv] Välj en station från vänster för att se detaljer."
+    "title": "Bränslestationer",
+    "loading": "Laddar bränslestationer...",
+    "errorLoading": "Misslyckades med att ladda bränslestationer. Försök igen.",
+    "noStationsFound": "Inga bränslestationer hittades med loggade poster. Logga bränsle med platsdata!",
+    "selectStationPrompt": "Välj en station från vänster för att se detaljer."
   },
   "stationTable": {
-    "sortBy": "[sv] Sort by",
-    "name": "[sv] Namn",
-    "brand": "[sv] Märke",
-    "avgPrice": "[sv] Genomsnittligt pris",
-    "logCount": "[sv] Loggar",
-    "unknownBrand": "[sv] Okänt märke",
-    "noData": "[sv] Ej tillgänglig"
+    "sortBy": "Sortera efter",
+    "name": "Namn",
+    "brand": "Märke",
+    "avgPrice": "Genomsnittligt pris",
+    "logCount": "Loggar",
+    "unknownBrand": "Okänt märke",
+    "noData": "Ej tillgänglig"
   },
   "stationDetail": {
-    "unknownBrand": "[sv] Okänt märke",
-    "noData": "[sv] Ej tillgänglig",
-    "avgPrice": "[sv] Genomsnittligt pris",
-    "lastPrice": "[sv] Senaste pris",
-    "logCount": "[sv] Totalt antal loggar",
-    "priceHistory": "[sv] Prishistorik (per liter)",
+    "unknownBrand": "Okänt märke",
+    "noData": "Ej tillgänglig",
+    "avgPrice": "Genomsnittligt pris",
+    "lastPrice": "Senaste pris",
+    "logCount": "Totalt antal loggar",
+    "priceHistory": "Prishistorik (per liter)",
     "chartAxisDate": "Tankningsdatum",
     "chartAxisPrice": "Pris per Liter",
-    "notEnoughDataForChart": "[sv] Inte tillräckligt med data för att visa diagram (minst 2 loggar behövs).",
-    "recentLogs": "[sv] Senaste loggar",
-    "noLogsFound": "[sv] Inga bränsleloggar hittades för denna station.",
-    "loading": "[sv] Laddar stationsdetaljer...",
-    "errorLoading": "[sv] Misslyckades med att ladda stationsdetaljer. Försök igen."
+    "notEnoughDataForChart": "Inte tillräckligt med data för att visa diagram (minst 2 loggar behövs).",
+    "recentLogs": "Senaste loggar",
+    "noLogsFound": "Inga bränsleloggar hittades för denna station.",
+    "loading": "Laddar stationsdetaljer...",
+    "errorLoading": "Misslyckades med att ladda stationsdetaljer. Försök igen."
   },
   "quickLog": {
     "title": "Logga ny bränslepost",

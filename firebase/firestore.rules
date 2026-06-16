@@ -75,5 +75,12 @@ service cloud.firestore {
     match /budgetAlerts/{alertId} {
       allow read, write: if false;
     }
+
+    // Audit trail for the sendTestNotification dev tool: written only by
+    // that Cloud Function via the Admin SDK (which bypasses these rules).
+    // No client access needed or allowed.
+    match /testNotifications/{notificationId} {
+      allow read, write: if false;
+    }
   }
 }

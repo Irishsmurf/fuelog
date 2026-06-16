@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) 시간 추이 (필터됨)",
       "costPerLitreOverTime": "리터당 연료 비용 시간 추이 (필터됨)",
-      "needMoreData": "트렌드를 표시하려면 필터된 범위에 최소 두 개의 기록이 필요합니다."
+      "needMoreData": "트렌드를 표시하려면 필터된 범위에 최소 두 개의 기록이 필요합니다.",
+      "vehicleComparison": "차량 비교",
+      "avgL100km": "평균 L/100km",
+      "avgCostPerLitre": "평균 가격/리터",
+      "totalSpend": "총 지출"
     },
     "logDetails": {
       "heading": "기록 세부정보",

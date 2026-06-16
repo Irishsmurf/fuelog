@@ -12,7 +12,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 // Import Recharts components for charting
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+    LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 // Import icons
 import { FileText, Banknote, Droplets, Route, Fuel } from 'lucide-react';
@@ -30,6 +30,14 @@ import { sanitizeUrl } from '../utils/sanitize';
 import { formatDate } from '../utils/formatDate';
 import { fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
+
+interface VehicleComparisonDatum {
+    vehicleId: string;
+    name: string;
+    avgL100km: number;
+    avgCostPerLitre: number;
+    totalSpend: number;
+}
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -49,6 +57,7 @@ function HistoryPage(): JSX.Element {
     const totalSpentDisplayEnabled = getBoolean("totalSpentDisplayEnabled");
     const receiptDigitizationEnabled = getBoolean("receiptDigitizationEnabled");
     const odometerInputEnabled = getBoolean("odometerInputEnabled");
+    const vehicleComparisonEnabled = getBoolean("vehicleComparisonEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [stations, setStations] = useState<Station[]>([]); // Holds station info
@@ -77,6 +86,9 @@ function HistoryPage(): JSX.Element {
     // --- Lifetime Aggregation Stats ---
     const [lifetimeStats, setLifetimeStats] = useState<LifetimeStats | null>(null);
 
+    // --- Multi-Vehicle Comparison Stats ---
+    const [vehicleComparisonStats, setVehicleComparisonStats] = useState<VehicleComparisonDatum[]>([]);
+
     // --- Fetch Vehicles Effect ---
     useEffect(() => {
         if (!user) { setVehicles([]); return; }
@@ -104,6 +116,36 @@ function HistoryPage(): JSX.Element {
             .then(setLifetimeStats)
             .catch(err => console.error('Error fetching lifetime stats:', err));
     }, [user, filterVehicleId]);
+
+    // --- Fetch Per-Vehicle Comparison Stats ---
+    // One getLifetimeStats aggregation call per active vehicle (no raw document reads).
+    useEffect(() => {
+        if (!user || !vehicleComparisonEnabled) { setVehicleComparisonStats([]); return; }
+        const activeVehicles = vehicles.filter(v => !v.isArchived);
+        if (activeVehicles.length < 2) { setVehicleComparisonStats([]); return; }
+
+        let cancelled = false;
+        Promise.all(
+            activeVehicles.map(vehicle =>
+                getLifetimeStats(user.uid, vehicle.id).then(stats => ({ vehicle, stats }))
+            )
+        )
+            .then(results => {
+                if (cancelled) return;
+                const withLogs = results.filter(({ stats }) => stats.logCount > 0);
+                if (withLogs.length < 2) { setVehicleComparisonStats([]); return; }
+                setVehicleComparisonStats(withLogs.map(({ vehicle, stats }) => ({
+                    vehicleId: vehicle.id,
+                    name: vehicle.name,
+                    avgL100km: stats.totalDistanceKm > 0 ? (stats.totalLitres / stats.totalDistanceKm) * 100 : 0,
+                    avgCostPerLitre: stats.totalLitres > 0 ? stats.totalCost / stats.totalLitres : 0,
+                    totalSpend: stats.totalCost,
+                })));
+            })
+            .catch(err => console.error('Error fetching vehicle comparison stats:', err));
+
+        return () => { cancelled = true; };
+    }, [user, vehicles, vehicleComparisonEnabled]);
 
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
@@ -558,6 +600,40 @@ function HistoryPage(): JSX.Element {
                             <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
                             <Line type="monotone" dataKey="fuelPrice" name="Cost Per Litre" stroke="#82ca9d" strokeWidth={2} activeDot={{ r: 6 }} connectNulls />
                         </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            )}
+
+            {/* Multi-vehicle efficiency/cost comparison, behind vehicleComparisonEnabled flag */}
+            {vehicleComparisonEnabled && vehicleComparisonStats.length >= 2 && (
+                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 mt-8">
+                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">{t('history.charts.vehicleComparison')}</h3>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={vehicleComparisonStats} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
+                            <XAxis dataKey="name" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} />
+                            <YAxis
+                                yAxisId="left"
+                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
+                            />
+                            <YAxis
+                                yAxisId="right"
+                                orientation="right"
+                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
+                            />
+                            <Tooltip
+                                contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#2D3748' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0' }}
+                                formatter={(value: number, name: string) => name === t('history.charts.totalSpend')
+                                    ? `${homeCurrencySymbol}${value.toFixed(2)}`
+                                    : name === t('history.charts.avgCostPerLitre')
+                                        ? `${homeCurrencySymbol}${value.toFixed(3)}`
+                                        : value.toFixed(2)}
+                            />
+                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
+                            <Bar yAxisId="left" dataKey="avgL100km" name={t('history.charts.avgL100km')} fill="#8884d8" />
+                            <Bar yAxisId="left" dataKey="avgCostPerLitre" name={t('history.charts.avgCostPerLitre')} fill="#82ca9d" />
+                            <Bar yAxisId="right" dataKey="totalSpend" name={t('history.charts.totalSpend')} fill="#fbbf24" />
+                        </BarChart>
                     </ResponsiveContainer>
                 </div>
             )}

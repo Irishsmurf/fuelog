@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) の推移（フィルター済み）",
       "costPerLitreOverTime": "リットルあたり燃料コストの推移（フィルター済み）",
-      "needMoreData": "トレンドを表示するには、フィルター範囲内に少なくとも2件の記録が必要です。"
+      "needMoreData": "トレンドを表示するには、フィルター範囲内に少なくとも2件の記録が必要です。",
+      "vehicleComparison": "車両比較",
+      "avgL100km": "平均 L/100km",
+      "avgCostPerLitre": "平均 価格/リットル",
+      "totalSpend": "合計支出"
     },
     "logDetails": {
       "heading": "記録詳細",

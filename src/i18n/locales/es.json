@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) a lo Largo del Tiempo (Filtrado)",
       "costPerLitreOverTime": "Coste de Combustible por Litro a lo Largo del Tiempo (Filtrado)",
-      "needMoreData": "Se necesitan al menos dos registros en el rango filtrado para mostrar tendencias."
+      "needMoreData": "Se necesitan al menos dos registros en el rango filtrado para mostrar tendencias.",
+      "vehicleComparison": "Comparación de vehículos",
+      "avgL100km": "Prom. L/100km",
+      "avgCostPerLitre": "Prom. precio/litro",
+      "totalSpend": "Gasto total"
     },
     "logDetails": {
       "heading": "Detalles del Registro",

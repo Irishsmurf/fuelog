@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) im Zeitverlauf (Gefiltert)",
       "costPerLitreOverTime": "Kraftstoffkosten pro Liter im Zeitverlauf (Gefiltert)",
-      "needMoreData": "Mindestens zwei Einträge im gefilterten Bereich sind erforderlich, um Trends anzuzeigen."
+      "needMoreData": "Mindestens zwei Einträge im gefilterten Bereich sind erforderlich, um Trends anzuzeigen.",
+      "vehicleComparison": "Fahrzeugvergleich",
+      "avgL100km": "Ø L/100km",
+      "avgCostPerLitre": "Ø Preis/Liter",
+      "totalSpend": "Gesamtausgaben"
     },
     "logDetails": {
       "heading": "Eintragsdetails",

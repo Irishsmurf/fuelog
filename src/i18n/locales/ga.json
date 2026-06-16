@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) Thar Am (Scagtha)",
       "costPerLitreOverTime": "Costas Breosla In Aghaidh an Lítir Thar Am (Scagtha)",
-      "needMoreData": "Teastaíonn dhá iontráil ar a laghad sa raon scagtha le treochtaí a thaispeáint."
+      "needMoreData": "Teastaíonn dhá iontráil ar a laghad sa raon scagtha le treochtaí a thaispeáint.",
+      "vehicleComparison": "Comparáid Feithiclí",
+      "avgL100km": "Meán L/100km",
+      "avgCostPerLitre": "Meánphraghas/lítear",
+      "totalSpend": "Caiteachas Iomlán"
     },
     "logDetails": {
       "heading": "Sonraí Iontrálacha",

@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) Over Time (Filtered)",
       "costPerLitreOverTime": "Fuel Cost Per Litre Over Time (Filtered)",
-      "needMoreData": "Need at least two logs in the filtered range to show trends."
+      "needMoreData": "Need at least two logs in the filtered range to show trends.",
+      "vehicleComparison": "Vehicle Comparison",
+      "avgL100km": "Avg L/100km",
+      "avgCostPerLitre": "Avg Cost/Litre",
+      "totalSpend": "Total Spend"
     },
     "logDetails": {
       "heading": "Log Details",

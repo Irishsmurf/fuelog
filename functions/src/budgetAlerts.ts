@@ -1,14 +1,16 @@
 // functions/src/budgetAlerts.ts
 //
-// Firestore trigger: fires whenever a fuelLogs document is created/updated/deleted.
-// If the log falls in the current calendar month and the user has an opt-in
-// monthly budget set, checks cumulative spend for the month against the
-// budget and sends an FCM push notification the first time 80% and 100%
-// thresholds are crossed. Idempotency is tracked per user per calendar month
-// in the `budgetAlerts` collection.
+// Firestore trigger: fires whenever a fuelLogs document is created, updated,
+// or deleted. If the write could change the current month's spend total for
+// the user (cost or timestamp changed, or the doc was created/deleted) and
+// the user has an opt-in monthly budget set, checks cumulative spend for the
+// month against the budget and sends an FCM push notification the first
+// time 80% and 100% thresholds are crossed. Idempotency — and rollback, if a
+// later edit/deletion drops spend back below a previously-crossed threshold
+// — is tracked per user per calendar month in the `budgetAlerts` collection.
 
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
-import { getFirestore, AggregateField, Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, AggregateField, Timestamp } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 
 export const ALERT_THRESHOLDS = [80, 100] as const;
@@ -36,6 +38,22 @@ export function shouldAlert(
     return null;
 }
 
+/**
+ * Pure function: given current spend, a monthly budget, and the thresholds
+ * previously recorded as sent, returns the subset that no longer apply
+ * (spend has dropped back below them, e.g. after a log edit/deletion) so
+ * they can be un-recorded and re-alerted if crossed again later.
+ */
+export function thresholdsToRollback(
+    spent: number,
+    budget: number | null | undefined,
+    alertsSent: number[]
+): number[] {
+    if (!budget || budget <= 0) return alertsSent;
+    const pct = (spent / budget) * 100;
+    return alertsSent.filter(t => pct < t);
+}
+
 function currentMonthRange(): { start: Timestamp; end: Timestamp; monthKey: string } {
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -44,18 +62,35 @@ function currentMonthRange(): { start: Timestamp; end: Timestamp; monthKey: stri
     return { start: Timestamp.fromDate(start), end: Timestamp.fromDate(end), monthKey };
 }
 
-export const checkBudgetAlert = onDocumentWritten('fuelLogs/{logId}', async (event) => {
-    const afterData = event.data?.after.data();
-    if (!afterData) return; // Document deleted — nothing to alert on.
+interface LogFields {
+    userId?: string;
+    timestamp?: Timestamp;
+    cost?: number;
+}
 
-    const userId = afterData.userId as string | undefined;
-    const timestamp = afterData.timestamp as Timestamp | undefined;
-    if (!userId || !timestamp) return;
+export const checkBudgetAlert = onDocumentWritten('fuelLogs/{logId}', async (event) => {
+    const beforeData = event.data?.before.data() as LogFields | undefined;
+    const afterData = event.data?.after.data() as LogFields | undefined;
+
+    const userId = afterData?.userId ?? beforeData?.userId;
+    if (!userId) return;
+
+    // Skip writes that can't possibly change a monthly spend total — e.g. a
+    // receipt thumbnail or odometer-only edit. Avoids running an aggregate
+    // query + transaction on every unrelated field edit.
+    const costChanged = beforeData?.cost !== afterData?.cost;
+    const timestampChanged = beforeData?.timestamp?.toMillis() !== afterData?.timestamp?.toMillis();
+    const created = !beforeData;
+    const deleted = !afterData;
+    if (!created && !deleted && !costChanged && !timestampChanged) return;
+
+    // Either the before or after timestamp could land in the current month
+    // (e.g. a log retimestamped out of this month, or deleted from it).
+    const relevantTimestamp = afterData?.timestamp ?? beforeData?.timestamp;
+    if (!relevantTimestamp) return;
 
     const { start, end, monthKey } = currentMonthRange();
-
-    // Only logs in the current calendar month can affect this month's budget status.
-    if (timestamp.toDate() < start.toDate() || timestamp.toDate() >= end.toDate()) return;
+    if (relevantTimestamp.toDate() < start.toDate() || relevantTimestamp.toDate() >= end.toDate()) return;
 
     const db = getFirestore();
 
@@ -63,46 +98,49 @@ export const checkBudgetAlert = onDocumentWritten('fuelLogs/{logId}', async (eve
     const monthlyBudget = profileDoc.exists ? (profileDoc.data()?.monthlyBudget as number | undefined) : undefined;
     if (!monthlyBudget || monthlyBudget <= 0) return; // Opt-in only.
 
-    const aggSnap = await db
+    const spendQuery = db
         .collection('fuelLogs')
         .where('userId', '==', userId)
         .where('timestamp', '>=', start)
         .where('timestamp', '<', end)
-        .aggregate({ totalSpent: AggregateField.sum('cost') })
-        .get();
-    const spent = aggSnap.data().totalSpent ?? 0;
+        .aggregate({ totalSpent: AggregateField.sum('cost') });
 
     const alertDocRef = db.collection('budgetAlerts').doc(`${userId}_${monthKey}`);
 
-    // Transaction avoids double-sending if two log writes race past the threshold check
-    // at nearly the same time.
-    const thresholdToAlert = await db.runTransaction(async (tx) => {
-        const alertDoc = await tx.get(alertDocRef);
+    // Both the spend total and the idempotency doc are read inside the same
+    // transaction, so a concurrent log write can't be evaluated against a
+    // stale spend figure (which could otherwise miss/mis-rank an alert).
+    const result = await db.runTransaction(async (tx) => {
+        const [aggSnap, alertDoc] = await Promise.all([tx.get(spendQuery), tx.get(alertDocRef)]);
+        const spent = aggSnap.data().totalSpent ?? 0;
         const alertsSent: number[] = alertDoc.exists ? (alertDoc.data()?.thresholds ?? []) : [];
 
+        const rollback = thresholdsToRollback(spent, monthlyBudget, alertsSent);
         const threshold = shouldAlert(spent, monthlyBudget, alertsSent);
-        if (threshold === null) return null;
 
+        if (threshold === null && rollback.length === 0) return { spent, threshold: null };
+
+        const remaining = alertsSent.filter(t => !rollback.includes(t));
         tx.set(alertDocRef, {
             userId,
             monthKey,
-            thresholds: FieldValue.arrayUnion(threshold),
+            thresholds: threshold !== null ? [...remaining, threshold] : remaining,
             updatedAt: Timestamp.now(),
-        }, { merge: true });
+        }, { merge: false });
 
-        return threshold;
+        return { spent, threshold };
     });
 
-    if (thresholdToAlert === null) return;
+    if (result.threshold === null) return;
 
     const tokensSnap = await db.collection('fcmTokens').where('userId', '==', userId).get();
     if (tokensSnap.empty) return;
 
     const homeCurrency: string = profileDoc.data()?.homeCurrency ?? 'EUR';
-    const title = thresholdToAlert >= 100
+    const title = result.threshold >= 100
         ? '⚠️ Monthly fuel budget exceeded'
         : '⛽ Approaching your fuel budget';
-    const body = `You've spent ${homeCurrency} ${spent.toFixed(2)} of your ${homeCurrency} ${monthlyBudget.toFixed(2)} budget (${thresholdToAlert}%+) this month.`;
+    const body = `You've spent ${homeCurrency} ${result.spent.toFixed(2)} of your ${homeCurrency} ${monthlyBudget.toFixed(2)} budget (${result.threshold}%+) this month.`;
 
     const results = await Promise.allSettled(
         tokensSnap.docs.map((tokenDoc) => {

@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.2.0](https://github.com/Irishsmurf/fuelog/compare/v2.1.0...v2.2.0) (2026-06-16)
+
+
+### Features
+
+* add cost-per-litre trend line to HistoryPage chart ([#109](https://github.com/Irishsmurf/fuelog/issues/109)) ([4bc1e95](https://github.com/Irishsmurf/fuelog/commit/4bc1e95d5b4002afee0ef1596f06ff591a93e9ea))
+* add multi-vehicle efficiency comparison chart to HistoryPage ([#110](https://github.com/Irishsmurf/fuelog/issues/110)) ([b02e6c4](https://github.com/Irishsmurf/fuelog/commit/b02e6c47be1f37229869098b280e9421b417126f))
+* make language switcher reachable from anywhere in the app ([#139](https://github.com/Irishsmurf/fuelog/issues/139)) ([#159](https://github.com/Irishsmurf/fuelog/issues/159)) ([035268f](https://github.com/Irishsmurf/fuelog/commit/035268f3d1a8e0257b912b60e7b6c7f42a4bafaf))
+* move CSV import into Profile, add one-time onboarding prompt ([#154](https://github.com/Irishsmurf/fuelog/issues/154)) ([#161](https://github.com/Irishsmurf/fuelog/issues/161)) ([d34fb0b](https://github.com/Irishsmurf/fuelog/commit/d34fb0b161cf8ef9dcc68b75a21551b0241f2201))
+* persist notification opt-in and gate weekly digest by it ([#108](https://github.com/Irishsmurf/fuelog/issues/108)) ([e720f2f](https://github.com/Irishsmurf/fuelog/commit/e720f2f4d5754afcb796a2f1e848af85683f041e))
+* use a quieter CartoDB basemap theme for all maps ([#140](https://github.com/Irishsmurf/fuelog/issues/140)) ([c831360](https://github.com/Irishsmurf/fuelog/commit/c831360d3fb91227c8261c46ecbb2c0d31db60d7))
+
+
+### Bug Fixes
+
+* clip overflowing card content instead of letting it escape the card ([#162](https://github.com/Irishsmurf/fuelog/issues/162)) ([#163](https://github.com/Irishsmurf/fuelog/issues/163)) ([4068305](https://github.com/Irishsmurf/fuelog/commit/4068305c01e70ba141aed354ebcaaf272ee06241))
+* drop Dashboard from mobile bottom nav to reduce crowding ([#141](https://github.com/Irishsmurf/fuelog/issues/141)) ([#158](https://github.com/Irishsmurf/fuelog/issues/158)) ([31f592b](https://github.com/Irishsmurf/fuelog/commit/31f592b3cb00550f18e08675913fe51fb2310784))
+* group map markers by stationId and use a themed pin icon ([#150](https://github.com/Irishsmurf/fuelog/issues/150)) ([c6d499f](https://github.com/Irishsmurf/fuelog/commit/c6d499fda070963d792db491e9f73b12612198da))
+* recalculate distance reactively when odometer or last reading changes ([#135](https://github.com/Irishsmurf/fuelog/issues/135)) ([#157](https://github.com/Irishsmurf/fuelog/issues/157)) ([31752bb](https://github.com/Irishsmurf/fuelog/commit/31752bbb34bb8ebfc247f6025163d2d55e83b910))
+* regenerate PWA icon set to match amber/navy branding ([#165](https://github.com/Irishsmurf/fuelog/issues/165)) ([c409856](https://github.com/Irishsmurf/fuelog/commit/c4098569b777a455a93fda8f3070da5ebfb904f0))
+
+
+### Performance Improvements
+
+* pre-map stations by coordinate in FuelMapPage grouping ([#140](https://github.com/Irishsmurf/fuelog/issues/140)) ([6110eab](https://github.com/Irishsmurf/fuelog/commit/6110eab233033b379ddc5092a25ffcfd8d11402f))
+
 ## [2.1.0](https://github.com/Irishsmurf/fuelog/compare/v2.0.0...v2.1.0) (2026-06-16)
 
 

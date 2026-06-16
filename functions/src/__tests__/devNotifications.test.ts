@@ -46,13 +46,36 @@ vi.mock('firebase-admin/firestore', () => ({
     })),
 }));
 
-import { sendTestNotification } from '../devNotifications';
+import { sendTestNotification, checkDeveloperAccess } from '../devNotifications';
 import { HttpsError } from 'firebase-functions/v2/https';
 
 const handler = sendTestNotification as unknown as (req: {
     auth?: { uid: string };
     data: { targetUid: string; title: string; body: string; data?: Record<string, string> };
 }) => Promise<{ sentCount: number; failedCount: number }>;
+
+const accessHandler = checkDeveloperAccess as unknown as (req: {
+    auth?: { uid: string };
+}) => Promise<{ isDeveloper: boolean }>;
+
+describe('checkDeveloperAccess', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        mockParamValue.mockReturnValue('dev-uid-1, dev-uid-2');
+    });
+
+    it('returns false when unauthenticated', async () => {
+        expect(await accessHandler({})).toEqual({ isDeveloper: false });
+    });
+
+    it('returns false for a uid not in the allowlist', async () => {
+        expect(await accessHandler({ auth: { uid: 'not-a-dev' } })).toEqual({ isDeveloper: false });
+    });
+
+    it('returns true for an allowlisted uid', async () => {
+        expect(await accessHandler({ auth: { uid: 'dev-uid-1' } })).toEqual({ isDeveloper: true });
+    });
+});
 
 describe('sendTestNotification', () => {
     beforeEach(() => {

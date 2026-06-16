@@ -36,6 +36,18 @@ function isAuthorizedDeveloper(uid: string): boolean {
     return allowedUids.includes(uid);
 }
 
+/**
+ * Lets the client check whether the signed-in user is allowed to use the
+ * dev notification tools, so the Admin Console page can gate itself without
+ * exposing the allowlist contents.
+ */
+export const checkDeveloperAccess = onCall<unknown, Promise<{ isDeveloper: boolean }>>(async (request) => {
+    if (!request.auth) {
+        return { isDeveloper: false };
+    }
+    return { isDeveloper: isAuthorizedDeveloper(request.auth.uid) };
+});
+
 export const sendTestNotification = onCall<SendTestNotificationRequest, Promise<SendTestNotificationResponse>>(
     async (request) => {
         if (!request.auth) {

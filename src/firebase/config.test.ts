@@ -22,6 +22,10 @@ vi.mock('firebase/storage', () => ({
   getStorage: vi.fn().mockReturnValue({}),
 }));
 
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn().mockReturnValue({}),
+}));
+
 vi.mock('firebase/performance', () => ({
   getPerformance: vi.fn().mockReturnValue({ name: 'mock-perf' }),
 }));

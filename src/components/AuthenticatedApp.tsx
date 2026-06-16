@@ -49,6 +49,7 @@ const AboutPage = lazyWithRetry(() => import('../pages/AboutPage'));
 const FuelMapPage = lazyWithRetry(() => import('./FuelMapPage'));
 const StationsPage = lazyWithRetry(() => import('../pages/StationsPage'));
 const DashboardPage = lazyWithRetry(() => import('../pages/DashboardPage'));
+const AdminConsolePage = lazyWithRetry(() => import('../pages/AdminConsolePage'));
 
 // Pages with wide data tables need more horizontal room than the default
 // max-w-5xl content column allows, or their tables overflow into a
@@ -134,6 +135,7 @@ function AuthenticatedApp(): JSX.Element {
             <Route path="/about" element={<AboutPage />} />
             <Route path="/map" element={<FuelMapPage />} />
             <Route path="/stations" element={<StationsPage />} />
+            <Route path="/admin" element={<AdminConsolePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

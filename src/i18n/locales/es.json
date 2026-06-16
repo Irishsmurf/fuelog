@@ -36,6 +36,8 @@
     "lastPrice": "[es] Last Price",
     "logCount": "[es] Total Logs",
     "priceHistory": "[es] Price History (per Litre)",
+    "chartAxisDate": "Fecha de Repostaje",
+    "chartAxisPrice": "Precio por Litro",
     "notEnoughDataForChart": "[es] Not enough data to display chart (at least 2 logs needed).",
     "recentLogs": "[es] Recent Logs",
     "noLogsFound": "[es] No fuel logs found for this station.",

@@ -1,14 +1,15 @@
 // src/components/__tests__/StationDetail.test.tsx
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import StationDetail from '../StationDetail';
 import { Log } from '../../utils/types';
 import { Timestamp } from 'firebase/firestore';
-import { fetchFuelLogsByStationId } from '../../firebase/firestoreService'; // Import the actual function for type inference with vi.mocked
+import { fetchFuelLogsByStationId, fetchStationById } from '../../firebase/firestoreService'; // Import the actual function for type inference with vi.mocked
 
 // Mock firebase/firestoreService
 vi.mock('../../firebase/firestoreService', () => ({
   fetchFuelLogsByStationId: vi.fn(), // Initially mock as a simple fn
+  fetchStationById: vi.fn(),
 }));
 
 // Mock react-i18next
@@ -24,6 +25,8 @@ vi.mock('react-i18next', () => ({
         'stationDetail.lastPrice': 'Last Price',
         'stationDetail.logCount': 'Total Logs',
         'stationDetail.priceHistory': 'Price History (per Litre)',
+        'stationDetail.chartAxisDate': 'Fill Date',
+        'stationDetail.chartAxisPrice': 'Price per Litre',
         'stationDetail.notEnoughDataForChart': 'Not enough data to display chart.',
         'stationDetail.recentLogs': 'Recent Logs',
         'stationDetail.noLogsFound': 'No fuel logs found for this station.',
@@ -74,6 +77,8 @@ describe('StationDetail', () => {
     vi.clearAllMocks();
     vi.mocked(fetchFuelLogsByStationId).mockReset(); // Reset the mock before each test
     vi.mocked(fetchFuelLogsByStationId).mockResolvedValue([]); // Default mock implementation
+    vi.mocked(fetchStationById).mockReset();
+    vi.mocked(fetchStationById).mockResolvedValue(null); // No stored station doc by default — falls back to log-derived stats
   });
 
   it('renders loading state initially', async () => {
@@ -114,7 +119,7 @@ describe('StationDetail', () => {
       expect(screen.getByText('€1.250/L')).toBeInTheDocument(); // 50/40 = 1.25
       expect(screen.getByText('Total Logs')).toBeInTheDocument();
       expect(screen.getByText('2')).toBeInTheDocument();
-      expect(screen.getByText('Price History (per Litre)')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Price History (per Litre)' })).toBeInTheDocument();
       expect(screen.getByText('Recent Logs')).toBeInTheDocument();
       expect(screen.getByText('€50.00 (40.00L @ 1.250/L)')).toBeInTheDocument();
       expect(screen.getByText('€60.00 (45.00L @ 1.333/L)')).toBeInTheDocument();
@@ -163,6 +168,52 @@ describe('StationDetail', () => {
       expect(screen.getAllByText('No station data available.')).toHaveLength(2); // Avg price and Last price
       expect(screen.getByText('Not enough data to display chart.')).toBeInTheDocument();
       expect(screen.getByText('€50.00 (0.00L @ N/A/L)')).toBeInTheDocument();
+    });
+  });
+
+  it('renders an accessible screen-reader data table alongside the chart', async () => {
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
+    render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      const table = screen.getByRole('table');
+      expect(table).toBeInTheDocument();
+      expect(within(table).getByText('Fill Date')).toBeInTheDocument();
+      expect(within(table).getByText('Price per Litre')).toBeInTheDocument();
+      expect(within(table).getAllByRole('row')).toHaveLength(3); // header + 2 data rows
+    });
+  });
+
+  it('prefers the stored station document over log-derived stats when available', async () => {
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
+    vi.mocked(fetchStationById).mockResolvedValue({
+      id: mockStationId,
+      osmId: 'node/123',
+      name: 'Shell Lifetime Name',
+      brand: 'Shell',
+      latitude: 1,
+      longitude: 2,
+      logCount: 47, // Lifetime count, larger than the 2 fetched recent logs
+      avgPrice: 1.4,
+      lastPrice: 1.45,
+    });
+
+    render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Shell Lifetime Name' })).toBeInTheDocument();
+      expect(screen.getByText('47')).toBeInTheDocument();
+      expect(screen.getByText('€1.400/L')).toBeInTheDocument();
+      expect(screen.getByText('€1.450/L')).toBeInTheDocument();
+    });
+  });
+
+  it('requests only the most recent logs, not the full history', async () => {
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
+    render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      expect(fetchFuelLogsByStationId).toHaveBeenCalledWith(mockStationId, 12);
     });
   });
 });

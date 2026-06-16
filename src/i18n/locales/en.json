@@ -36,6 +36,8 @@
     "lastPrice": "Last Price",
     "logCount": "Total Logs",
     "priceHistory": "Price History (per Litre)",
+    "chartAxisDate": "Fill Date",
+    "chartAxisPrice": "Price per Litre",
     "notEnoughDataForChart": "Not enough data to display chart (at least 2 logs needed).",
     "recentLogs": "Recent Logs",
     "noLogsFound": "No fuel logs found for this station.",

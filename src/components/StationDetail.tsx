@@ -7,7 +7,9 @@ import {
 } from 'recharts';
 
 import { Log, Station } from '../utils/types';
-import { fetchFuelLogsByStationId } from '../firebase/firestoreService';
+import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
+
+const RECENT_LOGS_LIMIT = 12;
 
 interface StationDetailProps {
     stationId: string;
@@ -20,41 +22,30 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    // This component currently doesn't directly fetch station details,
-    // it assumes the parent (StationsPage) already has the list of stations.
-    // For a more robust solution, we might want to pass the full station object
-    // or fetch it here if we navigate directly to a station detail page.
-    // For now, it will look for the station in the overall stations list (passed down via context or prop)
-
     useEffect(() => {
         const loadStationData = async () => {
             setLoading(true);
             setError(null);
             try {
-                // In a real app, you might fetch the single station here if navigating directly
-                // For now, assume StationsPage passes the station object or it's in a global state
-                // We don't have access to the full `stations` array here, so we will only fetch logs.
-                // The `StationsPage` parent component is responsible for knowing the `station` object.
-                // A better pattern would be to pass `Station` object itself as a prop.
-                
-                // For now, let's assume we can fetch the station from parent's state or a dedicated API call if needed.
-                // For simplicity, we'll rely on the parent (StationsPage) to provide the full station object
-                // if we want to display more than what's available from the logs.
-                // Given the current structure, let's just fetch the logs and display the ID for now.
-                // The Station object itself could be passed as a prop from StationsPage.
-
-                const logs = await fetchFuelLogsByStationId(stationId);
+                // Fetch only the most recent fills — used for the price-trend chart and
+                // recent-logs list. Lifetime stats (avg/last price, total log count) come
+                // from the station document's server-maintained aggregates (updated on every
+                // fill via updateStationMetrics), not from this limited log window.
+                const [logs, stationDoc] = await Promise.all([
+                    fetchFuelLogsByStationId(stationId, RECENT_LOGS_LIMIT),
+                    fetchStationById(stationId),
+                ]);
                 setFuelLogs(logs);
 
-                // Simulate fetching station details, as it's not directly fetched by ID here
-                // In a real application, you would fetch it from Firestore if it's not passed as a prop.
-                // This mock assumes the station data is available in the parent and can be passed down.
-                // For now, we will construct a partial station object for display from the logs.
-                if (logs.length > 0) {
+                if (stationDoc) {
+                    setStation(stationDoc);
+                } else if (logs.length > 0) {
+                    // Fallback for stations without a stored doc (shouldn't normally happen):
+                    // derive lifetime-ish stats from the fetched log window.
                     const firstLog = logs[0];
                     setStation({
                         id: stationId,
-                        osmId: '', // Not available from log
+                        osmId: '',
                         name: firstLog.brand || 'Unknown Station',
                         brand: firstLog.brand,
                         latitude: firstLog.latitude || 0,
@@ -73,7 +64,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                             : undefined,
                     });
                 } else {
-                    setStation(null); // No logs, no station to display
+                    setStation(null); // No station doc and no logs — nothing to display
                 }
 
             } catch (err) {
@@ -85,7 +76,11 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
         };
 
         loadStationData();
-    }, [stationId, t]);
+        // t is intentionally excluded below: re-running this fetch on every locale change isn't
+        // needed, and including it risks a refetch loop since useTranslation() returns a new t
+        // reference on every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [stationId]);
 
     const chartData = useMemo(() => {
         return fuelLogs
@@ -153,14 +148,29 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                 </div>
             </div>
 
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('stationDetail.priceHistory')}</h3>
+            <h3 id="price-history-heading" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('stationDetail.priceHistory')}</h3>
             {chartData.length > 1 ? (
-                <div className="h-64 w-full mb-6">
+                <div
+                    className="h-64 w-full mb-6"
+                    role="img"
+                    aria-labelledby="price-history-heading"
+                    aria-describedby="price-history-table"
+                >
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" className="dark:stroke-gray-700" />
-                            <XAxis dataKey="date" stroke="#888888" className="dark:stroke-gray-400" />
-                            <YAxis stroke="#888888" className="dark:stroke-gray-400" domain={['auto', 'auto']} />
+                            <XAxis
+                                dataKey="date"
+                                stroke="#888888"
+                                className="dark:stroke-gray-400"
+                                label={{ value: t('stationDetail.chartAxisDate'), position: 'insideBottom', offset: -5, style: { fontSize: 12, fill: '#888888' } }}
+                            />
+                            <YAxis
+                                stroke="#888888"
+                                className="dark:stroke-gray-400"
+                                domain={['auto', 'auto']}
+                                label={{ value: t('stationDetail.chartAxisPrice'), angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#888888', textAnchor: 'middle' } }}
+                            />
                             <Tooltip
                                 contentStyle={{ backgroundColor: 'var(--color-bg-light)', border: 'none', borderRadius: '4px' }}
                                 itemStyle={{ color: 'var(--color-text-light)' }}
@@ -168,6 +178,24 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                             <Line type="monotone" dataKey="pricePerLiter" stroke="#8b5cf6" strokeWidth={2} dot={false} />
                         </LineChart>
                     </ResponsiveContainer>
+                    {/* Screen-reader-only data table fallback for the chart above */}
+                    <table id="price-history-table" className="sr-only">
+                        <caption>{t('stationDetail.priceHistory')}</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">{t('stationDetail.chartAxisDate')}</th>
+                                <th scope="col">{t('stationDetail.chartAxisPrice')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {chartData.map((point, idx) => (
+                                <tr key={idx}>
+                                    <td>{point.date}</td>
+                                    <td>{point.pricePerLiter}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             ) : (
                 <div className="text-center text-gray-500 dark:text-gray-400 h-64 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700 rounded-md mb-6">

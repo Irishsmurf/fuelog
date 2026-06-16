@@ -36,6 +36,8 @@
     "lastPrice": "[sv] Senaste pris",
     "logCount": "[sv] Totalt antal loggar",
     "priceHistory": "[sv] Prishistorik (per liter)",
+    "chartAxisDate": "Tankningsdatum",
+    "chartAxisPrice": "Pris per Liter",
     "notEnoughDataForChart": "[sv] Inte tillräckligt med data för att visa diagram (minst 2 loggar behövs).",
     "recentLogs": "[sv] Senaste loggar",
     "noLogsFound": "[sv] Inga bränsleloggar hittades för denna station.",

@@ -73,6 +73,17 @@ export const getLastOdometerReading = async (vehicleId: string): Promise<number 
 };
 
 /**
+ * Fetches a single station document by its Firestore doc ID.
+ * Returns null if no such station exists.
+ */
+export const fetchStationById = async (stationId: string): Promise<Station | null> => {
+    const stationRef = doc(db, 'stations', stationId);
+    const stationSnap = await getDoc(stationRef);
+    if (!stationSnap.exists()) return null;
+    return { id: stationSnap.id, ...(stationSnap.data() as Omit<Station, 'id'>) };
+};
+
+/**
  * Gets a station by OSM ID or creates it if it doesn't exist.
  * Sanitizes the ID for Firestore doc path.
  */
@@ -157,7 +168,7 @@ export const fetchUserStations = async (logs: Log[]): Promise<Station[]> => {
  * @param stationId The ID of the station to fetch logs for.
  * @returns A promise that resolves to an array of Log objects.
  */
-export const fetchFuelLogsByStationId = async (stationId: string): Promise<Log[]> => {
+export const fetchFuelLogsByStationId = async (stationId: string, maxResults: number = 12): Promise<Log[]> => {
     if (!auth.currentUser) {
         throw new Error('No user logged in');
     }
@@ -167,7 +178,8 @@ export const fetchFuelLogsByStationId = async (stationId: string): Promise<Log[]
         logsCollection,
         where('userId', '==', auth.currentUser.uid),
         where('stationId', '==', stationId),
-        orderBy('timestamp', 'desc')
+        orderBy('timestamp', 'desc'),
+        limit(maxResults)
     );
 
     try {

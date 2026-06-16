@@ -98,7 +98,7 @@ function AuthenticatedApp(): JSX.Element {
           </div>
 
           <div className="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
-            <LanguageSelector />
+            <LanguageSelector compact />
             <ThemeToggle />
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden lg:inline">
               {user?.displayName?.split(' ')[0] || t('common.user')}

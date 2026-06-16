@@ -8,7 +8,18 @@ const LANGUAGES =
     ? [...BASE_LANGUAGES, PSEUDOLOCALE]
     : BASE_LANGUAGES;
 
-function LanguageSelector(): JSX.Element {
+interface LanguageSelectorProps {
+  /**
+   * Native <select> elements always render the selected <option>'s full
+   * text in the closed state — CSS truncation doesn't apply to that box in
+   * any browser. When `compact` is set, the option text is the language
+   * code (e.g. "EN") instead of the full label, so the control stays small
+   * in space-constrained contexts like the app header.
+   */
+  compact?: boolean;
+}
+
+function LanguageSelector({ compact = false }: LanguageSelectorProps): JSX.Element {
   const { i18n, t } = useTranslation();
 
   const handleChange = (code: string) => {
@@ -28,15 +39,15 @@ function LanguageSelector(): JSX.Element {
         }
         onChange={(e) => handleChange(e.target.value)}
         aria-label={t('language.label')}
-        className="text-xs font-bold bg-transparent border-none focus:ring-0 text-gray-600 dark:text-gray-300 cursor-pointer pr-1 max-w-[5.5rem] sm:max-w-none truncate"
+        className="text-xs font-bold bg-transparent border-none focus:ring-0 text-gray-600 dark:text-gray-300 cursor-pointer pr-1"
       >
         {LANGUAGES.map((lang) => (
-          <option 
-            key={lang.code} 
+          <option
+            key={lang.code}
             value={lang.code}
             className="bg-white dark:bg-brand-dark-surface text-gray-900 dark:text-gray-100"
           >
-            {lang.label}
+            {compact ? lang.code.toUpperCase() : lang.label}
           </option>
         ))}
       </select>

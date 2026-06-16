@@ -11,7 +11,8 @@
     "test:e2e": "playwright test",
     "lint": "eslint .",
     "preview": "vite preview",
-    "validate-env": "node scripts/validate-env.js"
+    "validate-env": "node scripts/validate-env.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -51,6 +52,8 @@
     "uuid": "^11.1.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "@eslint/js": "^9.21.0",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/postcss": "^4.2.1",
@@ -71,6 +74,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^17.4.0",
+    "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.3",

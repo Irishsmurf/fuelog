@@ -431,7 +431,8 @@
     "syncingData": "Sonraí á sioncronú...",
     "somethingWentWrong": "Tharla earráid",
     "unexpectedError": "Tharla earráid gan choinne.",
-    "tryAgain": "Bain triail eile as"
+    "tryAgain": "Bain triail eile as",
+    "loadingMapData": "Sonraí léarscáile á luchtú..."
   },
   "language": {
     "label": "Teanga",

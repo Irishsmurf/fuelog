@@ -431,7 +431,8 @@
     "syncingData": "データを同期中...",
     "somethingWentWrong": "問題が発生しました",
     "unexpectedError": "予期しないエラーが発生しました。",
-    "tryAgain": "再試行"
+    "tryAgain": "再試行",
+    "loadingMapData": "地図データを読み込み中..."
   },
   "language": {
     "label": "言語",

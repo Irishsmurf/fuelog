@@ -431,7 +431,8 @@
     "syncingData": "Synkronoidaan tietoja...",
     "somethingWentWrong": "Jokin menu pieleen",
     "unexpectedError": "Tapahtui odottamaton virhe.",
-    "tryAgain": "Yritä uudelleen"
+    "tryAgain": "Yritä uudelleen",
+    "loadingMapData": "Ladataan karttatietoja..."
   },
   "language": {
     "label": "Kieli",

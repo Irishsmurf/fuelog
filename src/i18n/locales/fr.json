@@ -431,7 +431,8 @@
     "syncingData": "Synchronisation des données...",
     "somethingWentWrong": "Quelque chose s'est mal passé",
     "unexpectedError": "Une erreur inattendue s'est produite.",
-    "tryAgain": "Réessayer"
+    "tryAgain": "Réessayer",
+    "loadingMapData": "Chargement des données de la carte..."
   },
   "language": {
     "label": "Langue",

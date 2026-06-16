@@ -431,7 +431,8 @@
     "syncingData": "데이터 동기화 중...",
     "somethingWentWrong": "문제가 발생했습니다",
     "unexpectedError": "예기치 않은 오류가 발생했습니다.",
-    "tryAgain": "다시 시도"
+    "tryAgain": "다시 시도",
+    "loadingMapData": "지도 데이터를 불러오는 중..."
   },
   "language": {
     "label": "언어",

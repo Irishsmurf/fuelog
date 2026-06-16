@@ -1,5 +1,6 @@
 // src/components/FuelMapPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster'; // Import the cluster group
@@ -78,6 +79,7 @@ const LocateControl = () => {
 
 
 const FuelMapPage: React.FC = () => {
+  const { t } = useTranslation();
   const [locations, setLocations] = useState<Log[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +120,7 @@ const FuelMapPage: React.FC = () => {
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
        <Loader className="w-8 h-8 animate-spin mb-2" />
-       <p>Loading map data...</p>
+       <p>{t('common.loadingMapData')}</p>
     </div>
   );
 

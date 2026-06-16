@@ -431,7 +431,8 @@
     "syncingData": "Synkroniserar data...",
     "somethingWentWrong": "Något gick fel",
     "unexpectedError": "Ett oväntat fel inträffade.",
-    "tryAgain": "Försök igen"
+    "tryAgain": "Försök igen",
+    "loadingMapData": "Laddar kartdata..."
   },
   "language": {
     "label": "Språk",

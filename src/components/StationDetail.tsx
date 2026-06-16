@@ -5,10 +5,31 @@ import { Loader, AlertCircle, MapPin } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 import { Log, Station } from '../utils/types';
 import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
 import { formatDate } from '../utils/formatDate';
+
+// Leaflet's default marker icon URLs are broken under bundlers like Vite;
+// point them at the public assets instead. Safe to call more than once
+// (e.g. if FuelMapPage.tsx also runs this) since mergeOptions is idempotent.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: '/marker-icon-2x.png',
+    iconUrl: '/marker-icon.png',
+    shadowUrl: '/marker-shadow.png',
+});
+
+// A station with no recorded coordinates (or an exact 0,0 — the null-island
+// default for missing OSM data) has nothing useful to plot on a map.
+const hasValidCoordinates = (station: Station): boolean =>
+    Number.isFinite(station.latitude) &&
+    Number.isFinite(station.longitude) &&
+    !(station.latitude === 0 && station.longitude === 0);
 
 const RECENT_LOGS_LIMIT = 12;
 const RECENT_LOGS_COLLAPSED_LIMIT = 5;
@@ -159,6 +180,27 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                     <p className="text-gray-900 dark:text-gray-100 font-semibold">{station.logCount}</p>
                 </div>
             </div>
+
+            {hasValidCoordinates(station) ? (
+                <div className="h-56 mb-6 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <MapContainer
+                        center={[station.latitude, station.longitude]}
+                        zoom={15}
+                        scrollWheelZoom={false}
+                        style={{ height: '100%', width: '100%' }}
+                    >
+                        <TileLayer
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <Marker position={[station.latitude, station.longitude]} />
+                    </MapContainer>
+                </div>
+            ) : (
+                <div className="text-center text-gray-500 dark:text-gray-400 h-24 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700 rounded-md mb-6">
+                    <p>{t('stationDetail.noLocationData')}</p>
+                </div>
+            )}
 
             <h3 id={`price-history-heading-${stationId}`} className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('stationDetail.priceHistory')}</h3>
             {chartData.length > 1 ? (

@@ -32,11 +32,19 @@ vi.mock('react-i18next', () => ({
         'stationDetail.noLogsFound': 'No fuel logs found for this station.',
         'stationDetail.showMore': 'Show more',
         'stationDetail.showFewer': 'Show fewer',
+        'stationDetail.noLocationData': 'No location data available for this station.',
         'stationTable.noData': 'N/A', // from stationTable, used by stationDetail
       };
       return translations[key] || key;
     },
   }),
+}));
+
+// Mock react-leaflet to avoid map rendering issues in tests
+vi.mock('react-leaflet', () => ({
+  MapContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="map-container">{children}</div>,
+  TileLayer: () => <div />,
+  Marker: () => <div data-testid="map-marker" />,
 }));
 
 // Mock Recharts components (simplified)
@@ -230,6 +238,47 @@ describe('StationDetail', () => {
 
     await waitFor(() => {
       expect(fetchFuelLogsByStationId).toHaveBeenCalledWith(mockStationId, 12);
+    });
+  });
+
+  it('shows a map centered on the station when valid coordinates are available', async () => {
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
+    vi.mocked(fetchStationById).mockResolvedValue({
+      id: mockStationId,
+      osmId: 'node/123',
+      name: 'Shell',
+      brand: 'Shell',
+      latitude: 53.349805,
+      longitude: -6.260310,
+      logCount: 2,
+    });
+
+    render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('map-container')).toBeInTheDocument();
+      expect(screen.getByTestId('map-marker')).toBeInTheDocument();
+      expect(screen.queryByText('No location data available for this station.')).not.toBeInTheDocument();
+    });
+  });
+
+  it('shows a placeholder instead of a map when the station has no valid coordinates', async () => {
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
+    vi.mocked(fetchStationById).mockResolvedValue({
+      id: mockStationId,
+      osmId: 'node/123',
+      name: 'Shell',
+      brand: 'Shell',
+      latitude: 0,
+      longitude: 0,
+      logCount: 2,
+    });
+
+    render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('No location data available for this station.')).toBeInTheDocument();
+      expect(screen.queryByTestId('map-container')).not.toBeInTheDocument();
     });
   });
 

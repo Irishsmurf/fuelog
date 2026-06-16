@@ -46,7 +46,8 @@
     "loading": "Tankstellendetails werden geladen...",
     "errorLoading": "Tankstellendetails konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "showMore": "{{count}} weitere anzeigen",
-    "showFewer": "Weniger anzeigen"
+    "showFewer": "Weniger anzeigen",
+    "noLocationData": "Für diese Tankstelle sind keine Standortdaten verfügbar."
   },
   "quickLog": {
     "title": "Neuer Kraftstoffeintrag",

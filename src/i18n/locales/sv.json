@@ -46,7 +46,8 @@
     "loading": "Laddar stationsdetaljer...",
     "errorLoading": "Misslyckades med att ladda stationsdetaljer. Försök igen.",
     "showMore": "Visa {{count}} till",
-    "showFewer": "Visa färre"
+    "showFewer": "Visa färre",
+    "noLocationData": "Inga platsdata tillgängliga för denna station."
   },
   "quickLog": {
     "title": "Logga ny bränslepost",

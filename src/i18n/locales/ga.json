@@ -46,7 +46,8 @@
     "loading": "Sonraí an stáisiúin á luchtú...",
     "errorLoading": "Theip ar luchtú sonraí an stáisiúin. Bain triail eile as.",
     "showMore": "Taispeáin {{count}} eile",
-    "showFewer": "Taispeáin níos lú"
+    "showFewer": "Taispeáin níos lú",
+    "noLocationData": "Níl sonraí suímh ar fáil don stáisiún seo."
   },
   "quickLog": {
     "title": "Iontráil Breosla Nua",

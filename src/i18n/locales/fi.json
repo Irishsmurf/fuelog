@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) ajan myötä (suodatettu)",
       "costPerLitreOverTime": "Polttoaineen hinta per litra ajan myötä (suodatettu)",
-      "needMoreData": "Tarvitaan vähintään kaksi lokia trendien näyttämiseksi."
+      "needMoreData": "Tarvitaan vähintään kaksi lokia trendien näyttämiseksi.",
+      "vehicleComparison": "Ajoneuvovertailu",
+      "avgL100km": "Keskiarvo l/100km",
+      "avgCostPerLitre": "Keskihinta/litra",
+      "totalSpend": "Kokonaiskulut"
     },
     "logDetails": {
       "heading": "Login tiedot",

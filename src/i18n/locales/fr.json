@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) dans le Temps (Filtré)",
       "costPerLitreOverTime": "Coût du Carburant par Litre dans le Temps (Filtré)",
-      "needMoreData": "Au moins deux saisies dans la plage filtrée sont nécessaires pour afficher les tendances."
+      "needMoreData": "Au moins deux saisies dans la plage filtrée sont nécessaires pour afficher les tendances.",
+      "vehicleComparison": "Comparaison des véhicules",
+      "avgL100km": "Moy. L/100km",
+      "avgCostPerLitre": "Prix moy./litre",
+      "totalSpend": "Dépense totale"
     },
     "logDetails": {
       "heading": "Détails des Saisies",

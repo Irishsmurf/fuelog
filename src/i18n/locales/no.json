@@ -133,7 +133,11 @@
     "charts": {
       "mpgOverTime": "MPG (UK) over tid (filtrert)",
       "costPerLitreOverTime": "Drivstoffkostnad per liter over tid (filtrert)",
-      "needMoreData": "Trenger minst to logger i det filtrerte området for å vise trender."
+      "needMoreData": "Trenger minst to logger i det filtrerte området for å vise trender.",
+      "vehicleComparison": "Kjøretøysammenligning",
+      "avgL100km": "Snitt l/100km",
+      "avgCostPerLitre": "Snittpris/liter",
+      "totalSpend": "Totale utgifter"
     },
     "logDetails": {
       "heading": "Loggdetaljer",

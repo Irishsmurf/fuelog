@@ -12,6 +12,8 @@ import 'leaflet/dist/leaflet.css';
 import { Log, Station } from '../utils/types';
 import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
 import { formatDate } from '../utils/formatDate';
+import { useTheme } from '../context/ThemeContext';
+import { MAP_TILES } from '../utils/mapConstants';
 
 // Leaflet's default marker icon URLs are broken under bundlers like Vite;
 // point them at the public assets instead. Safe to call more than once
@@ -40,6 +42,7 @@ interface StationDetailProps {
 
 const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
     const { t } = useTranslation();
+    const { theme } = useTheme();
     const [station, setStation] = useState<Station | null>(null);
     const [fuelLogs, setFuelLogs] = useState<Log[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -190,8 +193,8 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                         style={{ height: '100%', width: '100%' }}
                     >
                         <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution={MAP_TILES.attribution}
+                            url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
                         />
                         <Marker position={[station.latitude, station.longitude]} />
                     </MapContainer>

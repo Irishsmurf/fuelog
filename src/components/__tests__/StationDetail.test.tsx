@@ -12,6 +12,15 @@ vi.mock('../../firebase/firestoreService', () => ({
   fetchStationById: vi.fn(),
 }));
 
+// Mock RemoteConfigContext so useTheme (consumed for map tile theming) doesn't
+// pull in the real firebase/config module, which fails under CI's dummy API key.
+vi.mock('../../context/RemoteConfigContext', () => ({
+  useRemoteConfig: () => ({
+    getBoolean: vi.fn(() => false),
+    loading: false,
+  }),
+}));
+
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

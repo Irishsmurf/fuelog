@@ -3,7 +3,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster'; // Import the cluster group
-import { MapPin, Navigation, AlertCircle, Loader } from 'lucide-react'; // Icons
+import { MapPin, Navigation, AlertCircle, Loader, Layers, Activity } from 'lucide-react'; // Icons
+import HeatmapLayer from './HeatmapLayer';
 
 // CSS Imports
 import 'leaflet/dist/leaflet.css';
@@ -87,6 +88,7 @@ const FuelMapPage: React.FC = () => {
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'cluster' | 'heatmap'>('cluster');
 
   useEffect(() => {
        const loadData = async () => {
@@ -111,6 +113,10 @@ const FuelMapPage: React.FC = () => {
   const validLocations = useMemo(() => {
       return locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined);
   }, [locations]);
+
+  const heatmapPoints = useMemo(() => {
+      return validLocations.map(log => [log.latitude!, log.longitude!, 1] as [number, number, number]);
+  }, [validLocations]);
 
   // Group logs by stationId — the canonical grouping key, since a station's
   // stored coordinates and a log's raw GPS reading are independent values
@@ -164,65 +170,86 @@ const FuelMapPage: React.FC = () => {
            </div>
        )}
 
+       <div className="absolute top-4 right-4 z-[1000] bg-white dark:bg-gray-800 rounded-md shadow-md border border-gray-200 dark:border-gray-700 flex overflow-hidden">
+         <button 
+           onClick={() => setViewMode('cluster')}
+           className={`px-3 py-1.5 text-sm font-medium flex items-center ${viewMode === 'cluster' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+         >
+           <Layers className="w-4 h-4 mr-1.5" />
+           {t('map.clusters', 'Clusters')}
+         </button>
+         <button 
+           onClick={() => setViewMode('heatmap')}
+           className={`px-3 py-1.5 text-sm font-medium flex items-center ${viewMode === 'heatmap' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+         >
+           <Activity className="w-4 h-4 mr-1.5" />
+           {t('map.heatmap', 'Heatmap')}
+         </button>
+       </div>
+
       <MapContainer center={initialCenter} zoom={validLocations.length > 0 ? 10 : 6} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           attribution={MAP_TILES.attribution}
           url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
         />
 
-        <MarkerClusterGroup chunkedLoading>
-          {Object.entries(stationGroups).map(([key, group]) => {
-            const firstLog = group.logs[0];
-            const pos: L.LatLngExpression = group.station 
-              ? [group.station.latitude, group.station.longitude]
-              : [firstLog.latitude!, firstLog.longitude!];
-              
-            return (
-              <Marker key={key} position={pos} icon={createStationIcon(!group.station)}>
-                <Popup>
-                  <div className="p-1 min-w-[180px]">
-                    <div className="flex flex-col mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
-                        <div className="flex items-center">
-                            <MapPin className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" />
-                            <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-                                {group.station?.name || firstLog.brand || 'N/A'}
-                            </span>
-                        </div>
-                        {!group.station && (
-                            <div className="mt-1 text-[10px] text-gray-400 font-bold uppercase">
-                                {t('common.unassignedLocation')}
-                            </div>
-                        )}
-                        {group.station?.avgPrice && (
-                            <div className="mt-1 flex items-center text-[10px] text-green-600 dark:text-green-400 font-bold uppercase">
-                                <span>Avg Price: €{group.station.avgPrice.toFixed(3)}/L</span>
-                            </div>
-                        )}
+        {viewMode === 'cluster' ? (
+          <MarkerClusterGroup chunkedLoading>
+            {Object.entries(stationGroups).map(([key, group]) => {
+              const firstLog = group.logs[0];
+              const pos: L.LatLngExpression = group.station 
+                ? [group.station.latitude, group.station.longitude]
+                : [firstLog.latitude!, firstLog.longitude!];
+                
+              return (
+                <Marker key={key} position={pos} icon={createStationIcon(!group.station)}>
+                  <Popup>
+                    <div className="p-1 min-w-[180px]">
+                      <div className="flex flex-col mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
+                          <div className="flex items-center">
+                              <MapPin className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" />
+                              <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                                  {group.station?.name || firstLog.brand || 'N/A'}
+                              </span>
+                          </div>
+                          {!group.station && (
+                              <div className="mt-1 text-[10px] text-gray-400 font-bold uppercase">
+                                  {t('common.unassignedLocation')}
+                              </div>
+                          )}
+                          {group.station?.avgPrice && (
+                              <div className="mt-1 flex items-center text-[10px] text-green-600 dark:text-green-400 font-bold uppercase">
+                                  <span>Avg Price: €{group.station.avgPrice.toFixed(3)}/L</span>
+                              </div>
+                          )}
+                      </div>
+                      <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                          {group.logs.map(log => (
+                              <div key={log.id} className="text-xs border-b border-gray-50 dark:border-gray-800 pb-1 last:border-0">
+                                  <p className="flex justify-between font-medium">
+                                      <span>{formatDate(log.timestamp.toDate())}</span>
+                                      <span className="text-green-600 dark:text-green-400">€{log.cost.toFixed(2)}</span>
+                                  </p>
+                                  <p className="text-[10px] text-gray-500">
+                                      {log.fuelAmountLiters.toFixed(2)}L @ {(log.cost / log.fuelAmountLiters).toFixed(3)}/L
+                                  </p>
+                              </div>
+                          ))}
+                      </div>
+                      {group.logs.length > 1 && (
+                          <div className="mt-2 pt-1 border-t border-gray-200 dark:border-gray-700 text-[9px] text-gray-400 text-center font-bold uppercase tracking-wider">
+                              {group.logs.length} Fuelings at this station
+                          </div>
+                      )}
                     </div>
-                    <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                        {group.logs.map(log => (
-                            <div key={log.id} className="text-xs border-b border-gray-50 dark:border-gray-800 pb-1 last:border-0">
-                                <p className="flex justify-between font-medium">
-                                    <span>{formatDate(log.timestamp.toDate())}</span>
-                                    <span className="text-green-600 dark:text-green-400">€{log.cost.toFixed(2)}</span>
-                                </p>
-                                <p className="text-[10px] text-gray-500">
-                                    {log.fuelAmountLiters.toFixed(2)}L @ {(log.cost / log.fuelAmountLiters).toFixed(3)}/L
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                    {group.logs.length > 1 && (
-                        <div className="mt-2 pt-1 border-t border-gray-200 dark:border-gray-700 text-[9px] text-gray-400 text-center font-bold uppercase tracking-wider">
-                            {group.logs.length} Fuelings at this station
-                        </div>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
-        </MarkerClusterGroup>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        ) : (
+          <HeatmapLayer points={heatmapPoints} options={{ radius: 25, blur: 15, maxZoom: 10 }} />
+        )}
 
         <FitBoundsToMarkers points={validLocations} />
         <LocateControl />

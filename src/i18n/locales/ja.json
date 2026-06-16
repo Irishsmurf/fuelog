@@ -137,7 +137,8 @@
       "vehicleComparison": "車両比較",
       "avgL100km": "平均 L/100km",
       "avgCostPerLitre": "平均 価格/リットル",
-      "totalSpend": "合計支出"
+      "totalSpend": "合計支出",
+      "pricePerLitre": "価格/L"
     },
     "logDetails": {
       "heading": "記録詳細",

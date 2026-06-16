@@ -86,6 +86,16 @@ function HistoryPage(): JSX.Element {
     // --- Lifetime Aggregation Stats ---
     const [lifetimeStats, setLifetimeStats] = useState<LifetimeStats | null>(null);
 
+    // --- Main Chart Series Visibility (toggled via Legend click) ---
+    const [hiddenChartSeries, setHiddenChartSeries] = useState<Set<string>>(new Set());
+    const toggleChartSeries = (dataKey: string) => {
+        setHiddenChartSeries(prev => {
+            const next = new Set(prev);
+            if (next.has(dataKey)) next.delete(dataKey); else next.add(dataKey);
+            return next;
+        });
+    };
+
     // --- Multi-Vehicle Comparison Stats ---
     const [vehicleComparisonStats, setVehicleComparisonStats] = useState<VehicleComparisonDatum[]>([]);
 
@@ -561,7 +571,15 @@ function HistoryPage(): JSX.Element {
                         <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
                             <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
-                            <YAxis tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} domain={['auto', 'auto']} label={{ value: 'MPG (UK)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }} />
+                            <YAxis yAxisId="left" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} domain={['auto', 'auto']} label={{ value: 'MPG (UK)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }} />
+                            <YAxis
+                                yAxisId="right"
+                                orientation="right"
+                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
+                                domain={['auto', 'auto']}
+                                tickFormatter={(value: number) => value.toFixed(3)}
+                                label={{ value: `${t('history.charts.pricePerLitre')} (${homeCurrencySymbol})`, angle: 90, position: 'insideRight', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }}
+                            />
                             <Tooltip
                                 contentStyle={{
                                     fontSize: '12px',
@@ -570,10 +588,16 @@ function HistoryPage(): JSX.Element {
                                     color: theme === 'dark' ? 'white' : 'black',
                                     border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0'
                                 }}
-                                formatter={(value: number) => value?.toFixed(2)}
+                                formatter={(value: number, name: string) => name === t('history.charts.pricePerLitre')
+                                    ? `${homeCurrencySymbol}${value.toFixed(3)}`
+                                    : value?.toFixed(2)}
                             />
-                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
-                            <Line type="monotone" dataKey="mpg" name="MPG (UK)" stroke="#8884d8" strokeWidth={2} activeDot={{ r: 6 }} connectNulls />
+                            <Legend
+                                wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black', cursor: 'pointer' }}
+                                onClick={(e) => toggleChartSeries(e.dataKey as string)}
+                            />
+                            <Line yAxisId="left" type="monotone" dataKey="mpg" name="MPG (UK)" stroke="#8884d8" strokeWidth={2} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('mpg')} />
+                            <Line yAxisId="right" type="monotone" dataKey="fuelPrice" name={t('history.charts.pricePerLitre')} stroke="#F59E0B" strokeWidth={2} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('fuelPrice')} />
                         </LineChart>
                     </ResponsiveContainer>
                 </div>

@@ -137,7 +137,8 @@
       "vehicleComparison": "Comparación de vehículos",
       "avgL100km": "Prom. L/100km",
       "avgCostPerLitre": "Prom. precio/litro",
-      "totalSpend": "Gasto total"
+      "totalSpend": "Gasto total",
+      "pricePerLitre": "Precio/L"
     },
     "logDetails": {
       "heading": "Detalles del Registro",

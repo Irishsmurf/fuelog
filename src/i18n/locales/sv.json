@@ -137,7 +137,8 @@
       "vehicleComparison": "Fordonsjämförelse",
       "avgL100km": "Snitt L/100km",
       "avgCostPerLitre": "Snittpris/liter",
-      "totalSpend": "Totala utgifter"
+      "totalSpend": "Totala utgifter",
+      "pricePerLitre": "Pris/L"
     },
     "logDetails": {
       "heading": "Loggdetaljer",

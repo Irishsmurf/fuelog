@@ -137,7 +137,8 @@
       "vehicleComparison": "Fahrzeugvergleich",
       "avgL100km": "Ø L/100km",
       "avgCostPerLitre": "Ø Preis/Liter",
-      "totalSpend": "Gesamtausgaben"
+      "totalSpend": "Gesamtausgaben",
+      "pricePerLitre": "Preis/L"
     },
     "logDetails": {
       "heading": "Eintragsdetails",

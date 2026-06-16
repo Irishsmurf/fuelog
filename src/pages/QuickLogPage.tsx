@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
 import { Vehicle, FuelLogData } from '../utils/types';
 import { Link } from 'react-router-dom';
+import { LayoutDashboard } from 'lucide-react';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
 import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
@@ -409,7 +410,16 @@ function QuickLogPage(): JSX.Element {
   return (
     <div className="container mx-auto max-w-lg px-4">
         <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">{t('quickLog.title')}</h2>
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white text-center">{t('quickLog.title')}</h2>
+              <Link
+                to="/dashboard"
+                aria-label={t('nav.dashboard')}
+                className="sm:hidden p-2 -m-2 text-gray-400 dark:text-gray-500 hover:text-brand-primary transition-colors"
+              >
+                <LayoutDashboard size={20} />
+              </Link>
+            </div>
 
             {isLoadingVehicles ? (
               <div className="text-center py-8">

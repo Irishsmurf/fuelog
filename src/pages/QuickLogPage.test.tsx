@@ -6,6 +6,7 @@ import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from
 import { extractDataFromReceipt } from '../utils/gemini';
 import { findNearestStation, isAccurateEnoughForStationMatch } from '../utils/locationService';
 import QuickLogPage from './QuickLogPage';
+import { MemoryRouter } from 'react-router-dom';
 
 const mockT = (key: string, opts?: Record<string, unknown>) => {
   const template = opts && 'defaultValue' in opts ? (opts.defaultValue as string) : key;
@@ -105,7 +106,7 @@ describe('QuickLogPage', () => {
   });
 
   it('saves a fuel log with the correct payload on the happy path', async () => {
-    render(<QuickLogPage />);
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -133,7 +134,7 @@ describe('QuickLogPage', () => {
   });
 
   it('shows a validation error when required fields are missing', async () => {
-    render(<QuickLogPage />);
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -146,7 +147,7 @@ describe('QuickLogPage', () => {
   it('auto-populates distance from the odometer reading when a prior reading exists', async () => {
     vi.mocked(getLastOdometerReading).mockResolvedValue(10000);
 
-    render(<QuickLogPage />);
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.odometer')).toBeInTheDocument());
 
@@ -160,7 +161,7 @@ describe('QuickLogPage', () => {
   it('fetches the exchange rate and stores originalCost + exchangeRate when a non-home currency is selected', async () => {
     vi.mocked(fetchExchangeRate).mockResolvedValue(1.1);
 
-    render(<QuickLogPage />);
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.currency')).toBeInTheDocument());
 
@@ -189,7 +190,7 @@ describe('QuickLogPage', () => {
   it('extracts and pre-fills form fields from a receipt image', async () => {
     vi.mocked(extractDataFromReceipt).mockResolvedValue({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso' });
 
-    render(<QuickLogPage />);
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -221,7 +222,7 @@ describe('QuickLogPage', () => {
       vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(false);
       setGeolocationAccuracy(500);
 
-      render(<QuickLogPage />);
+      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
       await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -246,7 +247,7 @@ describe('QuickLogPage', () => {
       vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(true);
       setGeolocationAccuracy(20);
 
-      render(<QuickLogPage />);
+      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
       await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -264,7 +265,7 @@ describe('QuickLogPage', () => {
       vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(false);
       setGeolocationAccuracy(500);
 
-      render(<QuickLogPage />);
+      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
       await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
       fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
@@ -314,7 +315,7 @@ describe('QuickLogPage', () => {
       })
     );
 
-    render(<QuickLogPage />);
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 

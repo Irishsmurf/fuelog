@@ -137,8 +137,18 @@ function QuickLogPage(): JSX.Element {
       return;
     }
     const fetchLastOdometer = async () => {
-      const reading = await getLastOdometerReading(selectedVehicleId);
-      setLastOdometerReading(reading);
+      try {
+        const reading = await getLastOdometerReading(selectedVehicleId);
+        setLastOdometerReading(reading);
+      } catch (error) {
+        console.error('Error fetching last odometer reading:', error);
+        setMessage({
+          type: 'error',
+          text: !navigator.onLine
+            ? t('quickLog.messages.offline', { defaultValue: 'You are offline. Please check your connection and try again.' })
+            : t('quickLog.messages.fetchOdometerError', { defaultValue: 'Failed to load last odometer reading.' }),
+        });
+      }
     };
     fetchLastOdometer();
   }, [selectedVehicleId]);

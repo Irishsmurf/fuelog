@@ -4,10 +4,24 @@ import { db, auth } from './config'; // db and auth from your config file
 import { Log, FuelLogData, Station } from '../utils/types'; // Adjust path as needed
 import { OSMStation } from '../utils/locationService';
 
+export class FirestoreOfflineError extends Error {
+  constructor(message = 'You are offline. Please check your connection and try again.') {
+    super(message);
+    this.name = 'FirestoreOfflineError';
+  }
+}
+
+const rethrowFirestoreError = (error: unknown, context: string): never => {
+  console.error(context, error);
+  if (!navigator.onLine) {
+    throw new FirestoreOfflineError();
+  }
+  throw error instanceof Error ? error : new Error(String(error));
+};
+
 export const fetchFuelLocations = async (): Promise<Log[]> => {
   if (!auth.currentUser) {
-    console.error("No user logged in");
-    return [];
+    throw new Error('No user logged in');
   }
 
   const logsCollection = collection(db, 'fuelLogs');
@@ -29,16 +43,17 @@ export const fetchFuelLocations = async (): Promise<Log[]> => {
     // Additional filtering just in case Firestore rules change or for robustness
     return locations.filter(p => p.latitude !== undefined && p.longitude !== undefined);
   } catch (error) {
-    console.error("Error fetching fuel locations:", error);
-    return [];
+    return rethrowFirestoreError(error, 'Error fetching fuel locations:');
   }
 };
 
 // You could add other Firestore-related functions here later (e.g., addFuelLog, updateFuelLog)
 
 export const getLastOdometerReading = async (vehicleId: string): Promise<number | null> => {
-    if (!auth.currentUser) return null;
-    
+    if (!auth.currentUser) {
+        throw new Error('No user logged in');
+    }
+
     const q = query(
         collection(db, 'fuelLogs'),
         where('userId', '==', auth.currentUser.uid),
@@ -46,15 +61,14 @@ export const getLastOdometerReading = async (vehicleId: string): Promise<number 
         orderBy('timestamp', 'desc'),
         limit(1)
     );
-    
+
     try {
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) return null;
         const lastLog = querySnapshot.docs[0].data() as FuelLogData;
         return lastLog.odometerKm ?? null;
     } catch (error) {
-        console.error("Error fetching last odometer reading:", error);
-        return null;
+        return rethrowFirestoreError(error, 'Error fetching last odometer reading:');
     }
 };
 
@@ -145,8 +159,7 @@ export const fetchUserStations = async (logs: Log[]): Promise<Station[]> => {
  */
 export const fetchFuelLogsByStationId = async (stationId: string): Promise<Log[]> => {
     if (!auth.currentUser) {
-        console.error("No user logged in");
-        return [];
+        throw new Error('No user logged in');
     }
 
     const logsCollection = collection(db, 'fuelLogs');
@@ -165,7 +178,6 @@ export const fetchFuelLogsByStationId = async (stationId: string): Promise<Log[]
         }));
         return logs;
     } catch (error) {
-        console.error(`Error fetching fuel logs for station ${stationId}:`, error);
-        return [];
+        return rethrowFirestoreError(error, `Error fetching fuel logs for station ${stationId}:`);
     }
 };

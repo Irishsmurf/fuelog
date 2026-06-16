@@ -147,7 +147,11 @@ function HistoryPage(): JSX.Element {
         }, (err) => {
             // Handle Firestore errors
             console.error("Error fetching fuel logs:", err);
-            setError(t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' }));
+            setError(
+                !navigator.onLine
+                    ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
+                    : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' })
+            );
             setIsLoading(false);
         });
 
@@ -158,7 +162,14 @@ function HistoryPage(): JSX.Element {
     // --- Fetch Stations Effect ---
     useEffect(() => {
         if (logs.length > 0) {
-            fetchUserStations(logs).then(setStations).catch(console.error);
+            fetchUserStations(logs).then(setStations).catch(err => {
+                console.error('Error fetching stations:', err);
+                setError(
+                    !navigator.onLine
+                        ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
+                        : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' })
+                );
+            });
         } else {
             setStations([]);
         }

@@ -137,7 +137,8 @@
       "vehicleComparison": "Comparaison des véhicules",
       "avgL100km": "Moy. L/100km",
       "avgCostPerLitre": "Prix moy./litre",
-      "totalSpend": "Dépense totale"
+      "totalSpend": "Dépense totale",
+      "pricePerLitre": "Prix/L"
     },
     "logDetails": {
       "heading": "Détails des Saisies",

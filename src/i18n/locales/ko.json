@@ -137,7 +137,8 @@
       "vehicleComparison": "차량 비교",
       "avgL100km": "평균 L/100km",
       "avgCostPerLitre": "평균 가격/리터",
-      "totalSpend": "총 지출"
+      "totalSpend": "총 지출",
+      "pricePerLitre": "가격/L"
     },
     "logDetails": {
       "heading": "기록 세부정보",

@@ -137,7 +137,8 @@
       "vehicleComparison": "Comparáid Feithiclí",
       "avgL100km": "Meán L/100km",
       "avgCostPerLitre": "Meánphraghas/lítear",
-      "totalSpend": "Caiteachas Iomlán"
+      "totalSpend": "Caiteachas Iomlán",
+      "pricePerLitre": "Praghas/L"
     },
     "logDetails": {
       "heading": "Sonraí Iontrálacha",

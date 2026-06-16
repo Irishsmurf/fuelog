@@ -137,7 +137,8 @@
       "vehicleComparison": "Ajoneuvovertailu",
       "avgL100km": "Keskiarvo l/100km",
       "avgCostPerLitre": "Keskihinta/litra",
-      "totalSpend": "Kokonaiskulut"
+      "totalSpend": "Kokonaiskulut",
+      "pricePerLitre": "Hinta/l"
     },
     "logDetails": {
       "heading": "Login tiedot",

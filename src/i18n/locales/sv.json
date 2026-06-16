@@ -300,7 +300,8 @@
       "weeklyDigest": "Veckovis bränsleöversikt",
       "weeklyDigestDesc": "Push-avisering varje måndag med din veckovisa bränsleöversikt.",
       "disable": "Inaktivera",
-      "enable": "Aktivera"
+      "enable": "Aktivera",
+      "permissionDenied": "Aviseringar är blockerade för denna webbplats i dina webbläsarinställningar. Aktivera dem i webbläsarens webbplatsbehörigheter och försök igen."
     },
     "maintenance": {
       "heading": "Maintenance",

@@ -30,6 +30,11 @@ export const sendWeeklyDigest = onSchedule('every monday 08:00', async () => {
         tokensSnap.docs.map(async (tokenDoc) => {
             const { userId, token } = tokenDoc.data() as { userId: string; token: string };
 
+            // notificationsEnabled on the user's profile is the source of truth for
+            // opt-in/opt-out — a leftover or stale fcmTokens doc shouldn't imply consent.
+            const profileDoc = await db.collection('userProfiles').doc(userId).get();
+            if (profileDoc.data()?.notificationsEnabled !== true) return;
+
             // Aggregate stats for the past 7 days
             const aggSnap = await db
                 .collection('fuelLogs')
@@ -49,7 +54,6 @@ export const sendWeeklyDigest = onSchedule('every monday 08:00', async () => {
             // Skip if no activity this week
             if (logCount === 0) return;
 
-            const profileDoc = await db.collection('userProfiles').doc(userId).get();
             const homeCurrency: string = profileDoc.exists ? (profileDoc.data()?.homeCurrency ?? 'EUR') : 'EUR';
 
             const totalSpent = agg.totalSpent ?? 0;

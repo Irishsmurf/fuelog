@@ -300,7 +300,8 @@
       "weeklyDigest": "Récapitulatif hebdomadaire de carburant",
       "weeklyDigestDesc": "Notification push chaque lundi avec votre récapitulatif hebdomadaire de carburant.",
       "disable": "Désactiver",
-      "enable": "Activer"
+      "enable": "Activer",
+      "permissionDenied": "Les notifications sont bloquées pour ce site dans les paramètres de votre navigateur. Activez-les dans les autorisations de site de votre navigateur, puis réessayez."
     },
     "maintenance": {
       "heading": "Maintenance",

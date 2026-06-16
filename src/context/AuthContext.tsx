@@ -12,6 +12,8 @@ interface UserProfile {
   tester_group: boolean;
   /** Optional monthly fuel spend budget, in homeCurrency. Unset = no budget alerts. */
   monthlyBudget?: number;
+  /** Whether the user has opted in to the weekly fuel digest push notification. */
+  notificationsEnabled?: boolean;
 }
 
 // Define the shape of the context value

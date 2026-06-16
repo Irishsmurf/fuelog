@@ -300,7 +300,8 @@
       "weeklyDigest": "週間燃料サマリー",
       "weeklyDigestDesc": "毎週月曜日に週間燃料サマリーをプッシュ通知でお届けします。",
       "disable": "無効にする",
-      "enable": "有効にする"
+      "enable": "有効にする",
+      "permissionDenied": "このサイトの通知はブラウザの設定でブロックされています。ブラウザのサイト権限で通知を有効にしてから、再度お試しください。"
     },
     "maintenance": {
       "heading": "Maintenance",

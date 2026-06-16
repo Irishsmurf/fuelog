@@ -300,7 +300,8 @@
       "weeklyDigest": "주간 연료 요약",
       "weeklyDigestDesc": "매주 월요일 주간 연료 요약을 푸시 알림으로 받아보세요.",
       "disable": "비활성화",
-      "enable": "활성화"
+      "enable": "활성화",
+      "permissionDenied": "이 사이트의 알림이 브라우저 설정에서 차단되어 있습니다. 브라우저의 사이트 권한에서 알림을 활성화한 후 다시 시도하세요."
     },
     "maintenance": {
       "heading": "Maintenance",

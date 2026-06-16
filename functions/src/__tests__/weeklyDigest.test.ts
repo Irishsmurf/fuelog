@@ -58,10 +58,43 @@ describe('sendWeeklyDigest', () => {
         expect(mockSend).not.toHaveBeenCalled();
     });
 
+    it('skips users who have not opted in (notificationsEnabled !== true)', async () => {
+        mockFcmGet.mockResolvedValue({
+            empty: false,
+            docs: [{ data: () => ({ userId: 'user1', token: 'fcm-token-123' }) }],
+        });
+        mockProfileGet.mockResolvedValue({
+            exists: true,
+            data: () => ({ homeCurrency: 'EUR', notificationsEnabled: false }),
+        });
+
+        await handler();
+
+        expect(mockSend).not.toHaveBeenCalled();
+        // Never even needs to aggregate fuel logs for an opted-out user.
+        expect(mockAggGet).not.toHaveBeenCalled();
+    });
+
+    it('skips users with no profile document (no explicit opt-in)', async () => {
+        mockFcmGet.mockResolvedValue({
+            empty: false,
+            docs: [{ data: () => ({ userId: 'user1', token: 'fcm-token-123' }) }],
+        });
+        mockProfileGet.mockResolvedValue({ exists: false, data: () => undefined });
+
+        await handler();
+
+        expect(mockSend).not.toHaveBeenCalled();
+    });
+
     it('skips users with no activity in the past 7 days', async () => {
         mockFcmGet.mockResolvedValue({
             empty: false,
             docs: [{ data: () => ({ userId: 'user1', token: 'fcm-token-123' }) }],
+        });
+        mockProfileGet.mockResolvedValue({
+            exists: true,
+            data: () => ({ homeCurrency: 'EUR', notificationsEnabled: true }),
         });
         mockAggGet.mockResolvedValue({
             data: () => ({ logCount: 0, totalSpent: 0, totalLitres: 0, totalKm: 0 }),
@@ -72,17 +105,17 @@ describe('sendWeeklyDigest', () => {
         expect(mockSend).not.toHaveBeenCalled();
     });
 
-    it('sends a push notification for users with activity', async () => {
+    it('sends a push notification for opted-in users with activity', async () => {
         mockFcmGet.mockResolvedValue({
             empty: false,
             docs: [{ data: () => ({ userId: 'user1', token: 'fcm-token-abc' }) }],
         });
-        mockAggGet.mockResolvedValue({
-            data: () => ({ logCount: 3, totalSpent: 90.5, totalLitres: 60.0, totalKm: 400 }),
-        });
         mockProfileGet.mockResolvedValue({
             exists: true,
-            data: () => ({ homeCurrency: 'EUR' }),
+            data: () => ({ homeCurrency: 'EUR', notificationsEnabled: true }),
+        });
+        mockAggGet.mockResolvedValue({
+            data: () => ({ logCount: 3, totalSpent: 90.5, totalLitres: 60.0, totalKm: 400 }),
         });
 
         await handler();
@@ -95,15 +128,15 @@ describe('sendWeeklyDigest', () => {
         expect(call.notification.body).toContain('EUR 90.50');
     });
 
-    it('defaults to EUR when no user profile exists', async () => {
+    it('defaults to EUR when the opted-in profile has no homeCurrency set', async () => {
         mockFcmGet.mockResolvedValue({
             empty: false,
             docs: [{ data: () => ({ userId: 'user2', token: 'fcm-token-xyz' }) }],
         });
+        mockProfileGet.mockResolvedValue({ exists: true, data: () => ({ notificationsEnabled: true }) });
         mockAggGet.mockResolvedValue({
             data: () => ({ logCount: 1, totalSpent: 50, totalLitres: 30, totalKm: 200 }),
         });
-        mockProfileGet.mockResolvedValue({ exists: false, data: () => null });
 
         await handler();
 
@@ -119,10 +152,13 @@ describe('sendWeeklyDigest', () => {
                 { data: () => ({ userId: 'user2', token: 'token-b' }) },
             ],
         });
+        mockProfileGet.mockResolvedValue({
+            exists: true,
+            data: () => ({ homeCurrency: 'EUR', notificationsEnabled: true }),
+        });
         mockAggGet.mockResolvedValue({
             data: () => ({ logCount: 2, totalSpent: 40, totalLitres: 25, totalKm: 150 }),
         });
-        mockProfileGet.mockResolvedValue({ exists: false, data: () => null });
 
         mockSend
             .mockRejectedValueOnce(new Error('token invalid'))

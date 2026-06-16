@@ -300,7 +300,8 @@
       "weeklyDigest": "Resumen semanal de combustible",
       "weeklyDigestDesc": "Notificación push cada lunes con tu resumen semanal de combustible.",
       "disable": "Desactivar",
-      "enable": "Activar"
+      "enable": "Activar",
+      "permissionDenied": "Las notificaciones están bloqueadas para este sitio en la configuración de tu navegador. Habilítalas en los permisos del sitio de tu navegador e inténtalo de nuevo."
     },
     "maintenance": {
       "heading": "Maintenance",

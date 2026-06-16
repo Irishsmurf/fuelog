@@ -5,8 +5,7 @@
     "map": "地図",
     "profile": "プロフィール",
     "stations": "ガソリンスタンド",
-    "dashboard": "ダッシュボード",
-    "import": "インポート"
+    "dashboard": "ダッシュボード"
   },
   "login": {
     "tagline": "精確な燃料追跡",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "予算未設定",
     "measurementUnits": "測定単位",
     "measurementUnitsSoon": "近日公開：メートル法 (Km/L) とヤード・ポンド法 (MPG) の切り替え。",
+    "dataImport": {
+      "heading": "データインポート",
+      "description": "他の場所で既に燃料を記録していますか？CSVファイルから過去の記録をインポートできます。",
+      "cta": "インポートへ"
+    },
     "vehicleFleet": "車両フリート",
     "vehicleFleetSubtext": "あなたの車やレンタカーを管理します。",
     "showArchived": "アーカイブ済みを表示 ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "{{row}}行目：列が不足しています。",
       "foundErrors": "解析中に{{count}}個のエラーが見つかりました。最初の数件：{{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "既存の燃料記録をインポート",
+    "description": "他の場所で既に燃料を記録していますか？CSVファイルから過去の記録を数クリックでインポートできます。",
+    "cta": "今すぐインポート",
+    "dismiss": "閉じる"
   },
   "apiTokens": {
     "title": "APIアクセス",

@@ -5,8 +5,7 @@
     "map": "Léarscáil",
     "profile": "Próifíl",
     "stations": "Stáisiúin",
-    "dashboard": "Painéal",
-    "import": "Iompórtáil"
+    "dashboard": "Painéal"
   },
   "login": {
     "tagline": "Rianú Breosla Cruinn",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "Níl buiséad socraithe",
     "measurementUnits": "Aonaid Tomhais",
     "measurementUnitsSoon": "Le teacht: Malartú idir Méadrach (Km/L) agus Impiriúil (MPG).",
+    "dataImport": {
+      "heading": "Iompórtáil Sonraí",
+      "description": "An bhfuil tú ag rianú breosla in áit eile cheana féin? Iompórtáil do shean-logaí ó chomhad CSV.",
+      "cta": "Téigh chuig Iompórtáil"
+    },
     "vehicleFleet": "Cabhlach Feithiclí",
     "vehicleFleetSubtext": "Bainistigh do charranna agus do charrthaisligh.",
     "showArchived": "Taispeáin Cartlannaithe ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Ró {{row}}: Colúin neamhleor.",
       "foundErrors": "Aimsíodh {{count}} earráid le linn an parsála. An chéad chúpla: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Iompórtáil do logaí breosla atá ann",
+    "description": "An bhfuil tú ag rianú breosla in áit eile cheana féin? Iompórtáil do shean-logaí ó chomhad CSV i gcúpla cliceáil.",
+    "cta": "Iompórtáil anois",
+    "dismiss": "Dún"
   },
   "apiTokens": {
     "title": "Rochtain API",

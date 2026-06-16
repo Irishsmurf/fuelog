@@ -8,6 +8,7 @@ import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import InstallPrompt from './InstallPrompt';
 import BottomNav from './BottomNav';
 import SyncStatus from './SyncStatus';
+import ImportOnboardingPrompt from './ImportOnboardingPrompt';
 
 // Wraps React.lazy with a single reload on chunk fetch failure.
 // This handles the stale-PWA-cache scenario where a new deploy renames
@@ -91,7 +92,6 @@ function AuthenticatedApp(): JSX.Element {
             <Link to="/" className={getNavLinkClass("/")}>{t('nav.log')}</Link>
             <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>{t('nav.dashboard')}</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>{t('nav.history')}</Link>
-            <Link to="/import" className={getNavLinkClass("/import")}>{t('nav.import')}</Link>
             <Link to="/profile" className={getNavLinkClass("/profile")}>{t('nav.profile')}</Link>
             <Link to="/map" className={getNavLinkClass("/map")}>{t('nav.map')}</Link>
             <Link to="/stations" className={getNavLinkClass("/stations")}>{t('nav.stations')}</Link>
@@ -121,6 +121,7 @@ function AuthenticatedApp(): JSX.Element {
       <main className={`flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full min-w-0 ${
         WIDE_LAYOUT_PATHS.has(location.pathname.replace(/\/$/, '')) ? 'max-w-7xl' : 'max-w-5xl'
       }`}>
+        <ImportOnboardingPrompt />
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>

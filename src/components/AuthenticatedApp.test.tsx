@@ -27,7 +27,12 @@ vi.mock('firebase/firestore', async (importOriginal) => {
 });
 
 vi.mock('../context/AuthContext', () => ({
-  useAuth: () => ({ user: { displayName: 'Test User', uid: 'u1' }, logout: vi.fn() }),
+  useAuth: () => ({
+    user: { displayName: 'Test User', uid: 'u1' },
+    profile: { hasSeenImportOnboarding: false },
+    updateProfile: vi.fn(),
+    logout: vi.fn(),
+  }),
 }));
 
 vi.mock('../context/ThemeContext', () => ({
@@ -48,5 +53,25 @@ describe('AuthenticatedApp header', () => {
     );
 
     expect(screen.getByLabelText('language.label')).toBeInTheDocument();
+  });
+
+  it('no longer shows Import as a top-level nav destination (#154)', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AuthenticatedApp />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText('nav.import')).not.toBeInTheDocument();
+  });
+
+  it('shows the import onboarding prompt for a user who has not seen it (#154)', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AuthenticatedApp />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('importOnboarding.heading')).toBeInTheDocument();
   });
 });

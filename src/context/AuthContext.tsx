@@ -14,6 +14,8 @@ interface UserProfile {
   monthlyBudget?: number;
   /** Whether the user has opted in to the weekly fuel digest push notification. */
   notificationsEnabled?: boolean;
+  /** Whether the one-time CSV import onboarding prompt has been shown/dismissed. */
+  hasSeenImportOnboarding?: boolean;
 }
 
 // Define the shape of the context value

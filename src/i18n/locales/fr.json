@@ -5,8 +5,7 @@
     "map": "Carte",
     "profile": "Profil",
     "stations": "Stations",
-    "dashboard": "Tableau de bord",
-    "import": "Importer"
+    "dashboard": "Tableau de bord"
   },
   "login": {
     "tagline": "Suivi de Carburant Précis",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "Aucun budget défini",
     "measurementUnits": "Unités de Mesure",
     "measurementUnitsSoon": "Bientôt : Basculer entre Métrique (Km/L) et Impérial (MPG).",
+    "dataImport": {
+      "heading": "Importation de Données",
+      "description": "Vous suivez déjà votre consommation ailleurs ? Importez vos anciens relevés depuis un fichier CSV.",
+      "cta": "Aller à l'import"
+    },
     "vehicleFleet": "Flotte de Véhicules",
     "vehicleFleetSubtext": "Gérez vos voitures et locations.",
     "showArchived": "Afficher les Archivés ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Ligne {{row}} : Colonnes insuffisantes.",
       "foundErrors": "{{count}} erreurs trouvées lors de l'analyse. Premières erreurs : {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Importez vos pleins existants",
+    "description": "Vous suivez déjà votre consommation ailleurs ? Importez vos anciens relevés depuis un fichier CSV en quelques clics.",
+    "cta": "Importer maintenant",
+    "dismiss": "Fermer"
   },
   "apiTokens": {
     "title": "Accès API",

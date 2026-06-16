@@ -5,8 +5,7 @@
     "map": "Karte",
     "profile": "Profil",
     "stations": "Tankstellen",
-    "dashboard": "Übersicht",
-    "import": "Import"
+    "dashboard": "Übersicht"
   },
   "login": {
     "tagline": "Präzise Kraftstoffverfolgung",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "Kein Budget festgelegt",
     "measurementUnits": "Maßeinheiten",
     "measurementUnitsSoon": "Demnächst: Umschalten zwischen Metrisch (Km/L) und Imperial (MPG).",
+    "dataImport": {
+      "heading": "Datenimport",
+      "description": "Erfasst du Tankdaten schon anderswo? Importiere deine bisherigen Einträge aus einer CSV-Datei.",
+      "cta": "Zum Import"
+    },
     "vehicleFleet": "Fahrzeugflotte",
     "vehicleFleetSubtext": "Verwalten Sie Ihre Autos und Mietwagen.",
     "showArchived": "Archivierte anzeigen ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Zeile {{row}}: Unzureichende Spaltenanzahl.",
       "foundErrors": "{{count}} Fehler bei der Verarbeitung gefunden. Erste Fehler: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Importiere deine bestehenden Tankprotokolle",
+    "description": "Erfasst du Tankdaten schon anderswo? Importiere deine bisherigen Einträge per CSV-Datei in wenigen Klicks.",
+    "cta": "Jetzt importieren",
+    "dismiss": "Schließen"
   },
   "apiTokens": {
     "title": "API-Zugang",

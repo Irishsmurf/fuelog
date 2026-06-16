@@ -5,8 +5,7 @@
     "map": "Karta",
     "profile": "Profil",
     "stations": "Stationer",
-    "dashboard": "Översikt",
-    "import": "Importera"
+    "dashboard": "Översikt"
   },
   "login": {
     "tagline": "Precision i bränsleuppföljning",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "Ingen budget angiven",
     "measurementUnits": "Måttenheter",
     "measurementUnitsSoon": "Kommer snart: Växla mellan metrisk (Km/L) och imperisk (MPG) standard.",
+    "dataImport": {
+      "heading": "Dataimport",
+      "description": "Spårar du redan bränsle någon annanstans? Importera dina tidigare loggar från en CSV-fil.",
+      "cta": "Gå till import"
+    },
     "vehicleFleet": "Vagnpark",
     "vehicleFleetSubtext": "Hantera dina bilar och hyrbilar.",
     "showArchived": "Visa arkiverade ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Rad {{row}}: Otillräckliga kolumner.",
       "foundErrors": "Hittade {{count}} fel under analysen. Första få: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Importera dina befintliga tankningsloggar",
+    "description": "Spårar du redan bränsle någon annanstans? Importera dina tidigare loggar från en CSV-fil med några klick.",
+    "cta": "Importera nu",
+    "dismiss": "Stäng"
   },
   "apiTokens": {
     "title": "API-åtkomst",

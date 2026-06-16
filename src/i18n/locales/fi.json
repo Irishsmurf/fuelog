@@ -5,8 +5,7 @@
     "map": "Kartta",
     "profile": "Profiili",
     "stations": "Asemat",
-    "dashboard": "Yleiskatsaus",
-    "import": "Tuo"
+    "dashboard": "Yleiskatsaus"
   },
   "login": {
     "tagline": "Tarkka polttoaineen seuranta",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "Budjettia ei asetettu",
     "measurementUnits": "Mittayksiköt",
     "measurementUnitsSoon": "Tulossa pian: Vaihda metrisen (Km/L) ja imperiaalisen (MPG) välillä.",
+    "dataImport": {
+      "heading": "Tietojen tuonti",
+      "description": "Seuraatko polttoaineenkulutusta jo muualla? Tuo aiemmat merkinnät CSV-tiedostosta.",
+      "cta": "Siirry tuontiin"
+    },
     "vehicleFleet": "Ajoneuvot",
     "vehicleFleetSubtext": "Hallitse autojasi.",
     "showArchived": "Näytä arkistoidut ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Rivi {{row}}: Liian vähän sarakkeita.",
       "foundErrors": "Löytyi {{count}} virhettä jäsennyksen aikana. Ensimmäiset: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Tuo aiemmat polttoainemerkinnät",
+    "description": "Seuraatko polttoaineenkulutusta jo muualla? Tuo aiemmat merkinnät CSV-tiedostosta muutamalla klikkauksella.",
+    "cta": "Tuo nyt",
+    "dismiss": "Sulje"
   },
   "apiTokens": {
     "title": "API-pääsy",

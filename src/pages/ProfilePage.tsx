@@ -3,7 +3,8 @@ import { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch, 
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle, VehicleFuelType } from '../utils/types';
-import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw, Settings, Coins, Bell, BellOff, Wallet } from 'lucide-react';
+import { Car, Archive, Trash2, CheckCircle2, AlertCircle, PlusCircle, RefreshCw, Settings, Coins, Bell, BellOff, Wallet, UploadCloud } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ApiTokenManager from '../components/ApiTokenManager';
 import { useFCMToken } from '../hooks/useFCMToken';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
@@ -469,6 +470,26 @@ function ProfilePage(): JSX.Element {
             {t('profile.notifications.permissionDenied', { defaultValue: 'Notifications are blocked for this site in your browser settings. Enable them in your browser\'s site permissions, then try again.' })}
           </p>
         )}
+      </div>
+
+      {/* Data Import Section */}
+      <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
+            <UploadCloud className="w-5 h-5 text-indigo-500" />
+          </div>
+          <h3 className="text-xl font-black tracking-tight">{t('profile.dataImport.heading')}</h3>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">{t('profile.dataImport.description')}</p>
+          <Link
+            to="/import"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 shrink-0"
+          >
+            <UploadCloud className="w-4 h-4" />
+            {t('profile.dataImport.cta')}
+          </Link>
+        </div>
       </div>
 
       {/* API Access Section */}

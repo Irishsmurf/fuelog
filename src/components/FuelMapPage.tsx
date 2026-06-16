@@ -12,6 +12,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'; // Cluster Defaul
 
 import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreService'; // Adjust path if needed
 import { Log, Station } from '../utils/types';
+import { formatDate } from '../utils/formatDate';
 
 // --- Icon Fix (points to public assets) ---
 const iconRetinaUrl = '/marker-icon-2x.png';
@@ -176,7 +177,7 @@ const FuelMapPage: React.FC = () => {
                         {group.logs.map(log => (
                             <div key={log.id} className="text-xs border-b border-gray-50 dark:border-gray-800 pb-1 last:border-0">
                                 <p className="flex justify-between font-medium">
-                                    <span>{log.timestamp.toDate().toLocaleDateString()}</span>
+                                    <span>{formatDate(log.timestamp.toDate())}</span>
                                     <span className="text-green-600 dark:text-green-400">€{log.cost.toFixed(2)}</span>
                                 </p>
                                 <p className="text-[10px] text-gray-500">

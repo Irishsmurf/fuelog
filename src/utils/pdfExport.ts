@@ -2,6 +2,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Log } from './types';
 import { formatMPG } from './calculations';
+import { formatDate } from './formatDate';
 
 /**
  * Generates and saves a PDF report of the fuel history.
@@ -48,7 +49,7 @@ export const exportLogsToPDF = (logs: Log[], userName: string, dateRange: string
   // --- Table Generation ---
   const tableHeaders = [['Date', 'Brand', `Cost (${homeCurrency})`, 'Original Cost', 'Odo (Km)', 'Dist (Km)', 'Fuel (L)', 'MPG']];
   const tableData = logs.map(log => [
-    log.timestamp?.toDate().toLocaleDateString('en-IE') ?? 'N/A',
+    log.timestamp?.toDate() ? formatDate(log.timestamp.toDate()) : 'N/A',
     log.brand || 'Unknown',
     `${homeCurrencySymbol}${log.cost?.toFixed(2)}`,
     log.currency && log.currency !== homeCurrency ? `${log.originalCost?.toFixed(2)} ${log.currency}` : '-',

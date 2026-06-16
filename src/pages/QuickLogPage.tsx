@@ -415,7 +415,7 @@ function QuickLogPage(): JSX.Element {
               <Link
                 to="/dashboard"
                 aria-label={t('nav.dashboard')}
-                className="sm:hidden text-gray-400 dark:text-gray-500 hover:text-brand-primary transition-colors"
+                className="sm:hidden p-2 -m-2 text-gray-400 dark:text-gray-500 hover:text-brand-primary transition-colors"
               >
                 <LayoutDashboard size={20} />
               </Link>

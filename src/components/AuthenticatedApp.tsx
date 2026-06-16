@@ -12,14 +12,29 @@ import { useRemoteConfig } from '../context/RemoteConfigContext';
 // Wraps React.lazy with a single reload on chunk fetch failure.
 // This handles the stale-PWA-cache scenario where a new deploy renames
 // chunk files and an old service worker can no longer serve the old hash.
+// Guarded by sessionStorage so a chunk that still 404s after the reload
+// (e.g. CDN propagation lag, offline) falls through to the route's
+// ErrorBoundary instead of reload-looping forever.
+const CHUNK_RELOAD_KEY = 'fuelog-chunk-reload-attempted';
+
 function lazyWithRetry<T extends React.ComponentType<React.ComponentProps<T>>>(
   factory: () => Promise<{ default: T }>
 ) {
   return lazy(() =>
-    factory().catch(() => {
-      window.location.reload();
-      return new Promise<never>(() => {});
-    })
+    factory()
+      .then((module) => {
+        sessionStorage.removeItem(CHUNK_RELOAD_KEY);
+        return module;
+      })
+      .catch((error) => {
+        const alreadyReloaded = sessionStorage.getItem(CHUNK_RELOAD_KEY) === 'true';
+        if (!alreadyReloaded) {
+          sessionStorage.setItem(CHUNK_RELOAD_KEY, 'true');
+          window.location.reload();
+          return new Promise<never>(() => {});
+        }
+        throw error;
+      })
   );
 }
 

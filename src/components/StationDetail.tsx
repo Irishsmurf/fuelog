@@ -31,10 +31,19 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                 // recent-logs list. Lifetime stats (avg/last price, total log count) come
                 // from the station document's server-maintained aggregates (updated on every
                 // fill via updateStationMetrics), not from this limited log window.
-                const [logs, stationDoc] = await Promise.all([
+                // allSettled so a transient failure fetching the station doc doesn't discard
+                // already-fetched logs (and vice versa) — each result is handled independently.
+                const [logsResult, stationResult] = await Promise.allSettled([
                     fetchFuelLogsByStationId(stationId, RECENT_LOGS_LIMIT),
                     fetchStationById(stationId),
                 ]);
+
+                if (logsResult.status === 'rejected') throw logsResult.reason;
+                const logs = logsResult.value;
+                const stationDoc = stationResult.status === 'fulfilled' ? stationResult.value : null;
+                if (stationResult.status === 'rejected') {
+                    console.error('Failed to load station document:', stationResult.reason);
+                }
                 setFuelLogs(logs);
 
                 if (stationDoc) {
@@ -148,13 +157,13 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                 </div>
             </div>
 
-            <h3 id="price-history-heading" className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('stationDetail.priceHistory')}</h3>
+            <h3 id={`price-history-heading-${stationId}`} className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{t('stationDetail.priceHistory')}</h3>
             {chartData.length > 1 ? (
                 <div
                     className="h-64 w-full mb-6"
                     role="img"
-                    aria-labelledby="price-history-heading"
-                    aria-describedby="price-history-table"
+                    aria-labelledby={`price-history-heading-${stationId}`}
+                    aria-describedby={`price-history-table-${stationId}`}
                 >
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
@@ -179,7 +188,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                         </LineChart>
                     </ResponsiveContainer>
                     {/* Screen-reader-only data table fallback for the chart above */}
-                    <table id="price-history-table" className="sr-only">
+                    <table id={`price-history-table-${stationId}`} className="sr-only">
                         <caption>{t('stationDetail.priceHistory')}</caption>
                         <thead>
                             <tr>

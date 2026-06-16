@@ -171,6 +171,20 @@ describe('StationDetail', () => {
     });
   });
 
+  it('still renders log-derived data when fetching the station document fails', async () => {
+    vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
+    vi.mocked(fetchStationById).mockRejectedValue(new Error('station doc fetch failed'));
+
+    render(<StationDetail stationId={mockStationId} />);
+
+    await waitFor(() => {
+      // Falls back to log-derived stats rather than discarding the successfully-fetched logs
+      expect(screen.getByRole('heading', { name: 'Shell' })).toBeInTheDocument();
+      expect(screen.getByText('€50.00 (40.00L @ 1.250/L)')).toBeInTheDocument();
+      expect(screen.queryByText('Failed to load station details.')).not.toBeInTheDocument();
+    });
+  });
+
   it('renders an accessible screen-reader data table alongside the chart', async () => {
     vi.mocked(fetchFuelLogsByStationId).mockResolvedValue(mockLogs);
     render(<StationDetail stationId={mockStationId} />);

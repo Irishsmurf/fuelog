@@ -191,7 +191,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                             {chartData.map((point, idx) => (
                                 <tr key={idx}>
                                     <td>{point.date}</td>
-                                    <td>{point.pricePerLiter}</td>
+                                    <td>{point.pricePerLiter.toFixed(3)}</td>
                                 </tr>
                             ))}
                         </tbody>

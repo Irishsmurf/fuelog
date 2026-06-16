@@ -12,12 +12,12 @@ import { uploadReceipt } from '../firebase/storageService';
 import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import { calculateDistance } from '../utils/calculations';
-import { findNearestStation } from '../utils/locationService';
+import { findNearestStation, isAccurateEnoughForStationMatch, GPS_ACCURACY_THRESHOLD_METERS } from '../utils/locationService';
 import ReceiptAISection from '../components/ReceiptAISection';
 import { useTranslation } from 'react-i18next';
 
 // Types
-type MessageType = 'success' | 'error' | 'info' | '';
+type MessageType = 'success' | 'error' | 'info' | 'warning' | '';
 interface MessageState {
   type: MessageType;
   text: string;
@@ -46,6 +46,7 @@ function QuickLogPage(): JSX.Element {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [savingStep, setSavingStep] = useState<'locating' | 'saving'>('saving');
   const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
+  const [stationWarning, setStationWarning] = useState<string>('');
   const [knownBrands, setKnownBrands] = useState<string[]>([]);
   const [isLoadingBrands, setIsLoadingBrands] = useState<boolean>(false);
 
@@ -271,28 +272,40 @@ function QuickLogPage(): JSX.Element {
 
     setIsSaving(true);
     setSavingStep('locating');
+    setStationWarning('');
     setMessage({ type: 'info', text: t('quickLog.messages.gettingLocation') });
 
     // --- Get Location ---
     const locationData = await getCurrentLocation();
-    
+
     // --- Find Station ---
     let linkedStationId: string | undefined;
     let stationName: string | undefined;
 
     if (locationData) {
-        try {
-            const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
-            if (nearest) {
-                linkedStationId = await getOrCreateStation(nearest);
-                stationName = nearest.name;
-                // If brand is empty, auto-fill it with station name
-                if (!brand.trim()) {
-                    setBrand(nearest.name);
+        if (!isAccurateEnoughForStationMatch(locationData.locationAccuracy)) {
+            console.warn(
+                `GPS accuracy (${locationData.locationAccuracy.toFixed(0)}m) exceeds threshold ` +
+                `(${GPS_ACCURACY_THRESHOLD_METERS}m); skipping automatic station association.`
+            );
+            setStationWarning(t('quickLog.messages.lowAccuracySkippedStation', {
+                accuracy: locationData.locationAccuracy.toFixed(0),
+                defaultValue: 'GPS accuracy is low ({{accuracy}}m); skipping station detection.',
+            }));
+        } else {
+            try {
+                const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
+                if (nearest) {
+                    linkedStationId = await getOrCreateStation(nearest);
+                    stationName = nearest.name;
+                    // If brand is empty, auto-fill it with station name
+                    if (!brand.trim()) {
+                        setBrand(nearest.name);
+                    }
                 }
+            } catch (err) {
+                console.error("Station lookup failed:", err);
             }
-        } catch (err) {
-            console.error("Station lookup failed:", err);
         }
     }
 
@@ -383,7 +396,9 @@ function QuickLogPage(): JSX.Element {
     ? 'text-red-700 bg-red-100 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800'
     : message.type === 'success'
       ? 'text-green-700 bg-green-100 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800'
-      : 'text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
+      : message.type === 'warning'
+        ? 'text-yellow-700 bg-yellow-100 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800'
+        : 'text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
 
   const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
 
@@ -520,6 +535,13 @@ function QuickLogPage(): JSX.Element {
                     {isSaving && <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
                     {isSaving ? t(`quickLog.submit.${savingStep}`) : t('quickLog.submit.save')}
                 </button>
+
+                {/* Station Detection Warning (persists independently of the transient save status message) */}
+                {stationWarning && (
+                  <div className="mt-4 p-4 rounded-xl border text-sm font-medium text-center shadow-sm text-yellow-700 bg-yellow-100 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800">
+                    {stationWarning}
+                  </div>
+                )}
 
                 {/* Feedback Message */}
                 {message.text && (

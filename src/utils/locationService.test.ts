@@ -1,5 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { findNearestStation } from './locationService';
+import { findNearestStation, isAccurateEnoughForStationMatch, GPS_ACCURACY_THRESHOLD_METERS } from './locationService';
+
+describe('isAccurateEnoughForStationMatch', () => {
+    it('returns true when accuracy is within the threshold', () => {
+        expect(isAccurateEnoughForStationMatch(50)).toBe(true);
+        expect(isAccurateEnoughForStationMatch(GPS_ACCURACY_THRESHOLD_METERS)).toBe(true);
+    });
+
+    it('returns false when accuracy exceeds the threshold', () => {
+        expect(isAccurateEnoughForStationMatch(GPS_ACCURACY_THRESHOLD_METERS + 1)).toBe(false);
+        expect(isAccurateEnoughForStationMatch(500)).toBe(false);
+    });
+});
 
 describe('locationService', () => {
     beforeEach(() => {

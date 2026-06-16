@@ -4,7 +4,8 @@
     "history": "Historia",
     "map": "Kartta",
     "profile": "Profiili",
-    "stations": "[fi] Stations"
+    "stations": "[fi] Stations",
+    "dashboard": "Yleiskatsaus"
   },
   "login": {
     "tagline": "Tarkka polttoaineen seuranta",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Yleiskatsaus",
+    "loading": "Ladataan yleiskatsausta...",
+    "offlineError": "Olet offline-tilassa. Tarkista yhteytesi ja yritä uudelleen.",
+    "loadError": "Tietojen lataaminen epäonnistui. Yritä uudelleen.",
+    "fields": {
+      "vehicle": "Ajoneuvo",
+      "allVehicles": "Kaikki Ajoneuvot"
+    },
+    "emptyState": {
+      "heading": "Ei vielä tankkauksia",
+      "subtext": "Kirjaa ensimmäinen tankkauksesi nähdäksesi kulujen yhteenvedon tässä."
+    },
+    "cards": {
+      "monthSpend": "Tämä Kuukausi",
+      "monthLitres": "Litrat Tässä Kuussa",
+      "avgPrice": "Keskihinta/Litra"
+    },
+    "charts": {
+      "monthlySpend": "Kuukausittaiset Kulut (Viimeiset 6 Kuukautta)",
+      "spend": "Kulut"
+    }
   }
 }

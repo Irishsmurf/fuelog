@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatMPG, formatCostPerMile, formatKmL, formatL100km, getNumericMPG, getNumericFuelPrice, calculateDistance } from './calculations';
+import { formatMPG, formatCostPerMile, formatKmL, formatL100km, getNumericMPG, getNumericFuelPrice, calculateDistance, getMonthlyTotals } from './calculations';
 
 describe('Calculation Utilities', () => {
   describe('formatMPG', () => {
@@ -80,6 +80,62 @@ describe('Calculation Utilities', () => {
     it('returns null for negative values', () => {
       expect(calculateDistance(-1, 100)).toBeNull();
       expect(calculateDistance(100, -1)).toBeNull();
+    });
+  });
+
+  describe('getMonthlyTotals', () => {
+    const log = (year: number, month: number, day: number, cost: number, litres: number) => ({
+      timestamp: { toDate: () => new Date(year, month - 1, day) },
+      cost,
+      fuelAmountLiters: litres,
+    });
+
+    it('zero-fills months with no logs', () => {
+      const referenceDate = new Date(2024, 5, 15); // June 2024
+      const result = getMonthlyTotals([], 6, referenceDate);
+
+      expect(result).toHaveLength(6);
+      expect(result.map(r => r.monthKey)).toEqual([
+        '2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06',
+      ]);
+      result.forEach(bucket => {
+        expect(bucket.totalCost).toBe(0);
+        expect(bucket.totalLitres).toBe(0);
+        expect(bucket.logCount).toBe(0);
+      });
+    });
+
+    it('aggregates cost, litres, and count per month', () => {
+      const referenceDate = new Date(2024, 5, 15); // June 2024
+      const logs = [
+        log(2024, 6, 1, 50, 30),
+        log(2024, 6, 15, 40, 25),
+        log(2024, 5, 1, 60, 35),
+      ];
+
+      const result = getMonthlyTotals(logs, 6, referenceDate);
+
+      const june = result.find(r => r.monthKey === '2024-06');
+      const may = result.find(r => r.monthKey === '2024-05');
+
+      expect(june).toMatchObject({ totalCost: 90, totalLitres: 55, logCount: 2 });
+      expect(may).toMatchObject({ totalCost: 60, totalLitres: 35, logCount: 1 });
+    });
+
+    it('excludes logs outside the requested window', () => {
+      const referenceDate = new Date(2024, 5, 15); // June 2024
+      const logs = [log(2023, 1, 1, 999, 999)]; // Over a year before the window
+
+      const result = getMonthlyTotals(logs, 6, referenceDate);
+
+      expect(result.every(bucket => bucket.logCount === 0)).toBe(true);
+    });
+
+    it('returns months ordered oldest to newest', () => {
+      const referenceDate = new Date(2024, 0, 15); // January 2024, exercises year rollover
+      const result = getMonthlyTotals([], 3, referenceDate);
+
+      expect(result.map(r => r.monthKey)).toEqual(['2023-11', '2023-12', '2024-01']);
     });
   });
 });

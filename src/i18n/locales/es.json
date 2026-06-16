@@ -4,7 +4,8 @@
     "history": "Historial",
     "map": "Mapa",
     "profile": "Perfil",
-    "stations": "[es] Stations"
+    "stations": "[es] Stations",
+    "dashboard": "Panel"
   },
   "login": {
     "tagline": "Seguimiento de Combustible Preciso",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "loading": "Cargando el panel...",
+    "offlineError": "Estás sin conexión. Comprueba tu conexión e inténtalo de nuevo.",
+    "loadError": "No se pudieron cargar los datos del panel. Inténtalo de nuevo.",
+    "fields": {
+      "vehicle": "Vehículo",
+      "allVehicles": "Todos los Vehículos"
+    },
+    "emptyState": {
+      "heading": "Aún no hay registros de combustible",
+      "subtext": "Registra tu primer repostaje para ver aquí el resumen de tus gastos."
+    },
+    "cards": {
+      "monthSpend": "Este Mes",
+      "monthLitres": "Litros Este Mes",
+      "avgPrice": "Precio Medio/Litro"
+    },
+    "charts": {
+      "monthlySpend": "Gasto Mensual (Últimos 6 Meses)",
+      "spend": "Gasto"
+    }
   }
 }

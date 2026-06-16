@@ -4,7 +4,8 @@
     "history": "Historik",
     "map": "Karta",
     "profile": "Profil",
-    "stations": "[sv] Stations"
+    "stations": "[sv] Stations",
+    "dashboard": "Översikt"
   },
   "login": {
     "tagline": "Precision i bränsleuppföljning",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Översikt",
+    "loading": "Laddar översikt...",
+    "offlineError": "Du är offline. Kontrollera din anslutning och försök igen.",
+    "loadError": "Det gick inte att läsa in data. Försök igen.",
+    "fields": {
+      "vehicle": "Fordon",
+      "allVehicles": "Alla Fordon"
+    },
+    "emptyState": {
+      "heading": "Inga tankningar än",
+      "subtext": "Logga din första tankning för att se en sammanfattning av dina utgifter här."
+    },
+    "cards": {
+      "monthSpend": "Denna Månad",
+      "monthLitres": "Liter Denna Månad",
+      "avgPrice": "Snittpris/Liter"
+    },
+    "charts": {
+      "monthlySpend": "Månadsutgifter (Senaste 6 Månaderna)",
+      "spend": "Utgift"
+    }
   }
 }

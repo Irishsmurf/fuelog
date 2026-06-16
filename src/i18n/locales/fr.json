@@ -4,7 +4,8 @@
     "history": "Historique",
     "map": "Carte",
     "profile": "Profil",
-    "stations": "[fr] Stations"
+    "stations": "[fr] Stations",
+    "dashboard": "Tableau de bord"
   },
   "login": {
     "tagline": "Suivi de Carburant Précis",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "loading": "Chargement du tableau de bord...",
+    "offlineError": "Vous êtes hors ligne. Vérifiez votre connexion et réessayez.",
+    "loadError": "Échec du chargement des données. Veuillez réessayer.",
+    "fields": {
+      "vehicle": "Véhicule",
+      "allVehicles": "Tous les Véhicules"
+    },
+    "emptyState": {
+      "heading": "Aucun plein enregistré",
+      "subtext": "Enregistrez votre premier plein pour voir ici le résumé de vos dépenses."
+    },
+    "cards": {
+      "monthSpend": "Ce Mois-ci",
+      "monthLitres": "Litres Ce Mois-ci",
+      "avgPrice": "Prix Moyen/Litre"
+    },
+    "charts": {
+      "monthlySpend": "Dépenses Mensuelles (6 Derniers Mois)",
+      "spend": "Dépense"
+    }
   }
 }

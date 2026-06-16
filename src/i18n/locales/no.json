@@ -4,7 +4,8 @@
     "history": "Historikk",
     "map": "Kart",
     "profile": "Profil",
-    "stations": "[no] Stations"
+    "stations": "[no] Stations",
+    "dashboard": "Oversikt"
   },
   "login": {
     "tagline": "Presisjon i drivstoffsporing",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Oversikt",
+    "loading": "Laster oversikt...",
+    "offlineError": "Du er offline. Kontroller tilkoblingen og prøv igjen.",
+    "loadError": "Kunne ikke laste oversiktsdata. Prøv igjen.",
+    "fields": {
+      "vehicle": "Kjøretøy",
+      "allVehicles": "Alle Kjøretøy"
+    },
+    "emptyState": {
+      "heading": "Ingen drivstofflogger ennå",
+      "subtext": "Logg din første fylling for å se en oppsummering av utgiftene dine her."
+    },
+    "cards": {
+      "monthSpend": "Denne Måneden",
+      "monthLitres": "Liter Denne Måneden",
+      "avgPrice": "Snittpris/Liter"
+    },
+    "charts": {
+      "monthlySpend": "Månedlige Utgifter (Siste 6 Måneder)",
+      "spend": "Utgift"
+    }
   }
 }

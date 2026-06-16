@@ -4,7 +4,8 @@
     "history": "Stair",
     "map": "Léarscáil",
     "profile": "Próifíl",
-    "stations": "[ga] Stations"
+    "stations": "[ga] Stations",
+    "dashboard": "Painéal"
   },
   "login": {
     "tagline": "Rianú Breosla Cruinn",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Painéal",
+    "loading": "Painéal á luchtú...",
+    "offlineError": "Tá tú as líne. Seiceáil do nasc agus bain triail eile as.",
+    "loadError": "Theip ar lódáil sonraí an phainéil. Bain triail eile as.",
+    "fields": {
+      "vehicle": "Feithicil",
+      "allVehicles": "Gach Feithicil"
+    },
+    "emptyState": {
+      "heading": "Níl aon logaí breosla fós ann",
+      "subtext": "Logáil do líonadh tobair tosaigh chun achoimre do chaiteachais a fheiceáil anseo."
+    },
+    "cards": {
+      "monthSpend": "An Mhí Seo",
+      "monthLitres": "Lítir an Mhí Seo",
+      "avgPrice": "Meánphraghas/Lítear"
+    },
+    "charts": {
+      "monthlySpend": "Caiteachas Míosúil (Seacht Mí Anuas)",
+      "spend": "Caiteachas"
+    }
   }
 }

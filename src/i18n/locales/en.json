@@ -4,7 +4,8 @@
     "history": "History",
     "map": "Map",
     "profile": "Profile",
-    "stations": "Stations"
+    "stations": "Stations",
+    "dashboard": "Dashboard"
   },
   "login": {
     "tagline": "Precision Fuel Tracking",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "loading": "Loading dashboard...",
+    "offlineError": "You are offline. Please check your connection and try again.",
+    "loadError": "Failed to load dashboard data. Please try again.",
+    "fields": {
+      "vehicle": "Vehicle",
+      "allVehicles": "All Vehicles"
+    },
+    "emptyState": {
+      "heading": "No fuel logs yet",
+      "subtext": "Log your first fill-up to see your spending summary here."
+    },
+    "cards": {
+      "monthSpend": "This Month",
+      "monthLitres": "Litres This Month",
+      "avgPrice": "Avg Price/Litre"
+    },
+    "charts": {
+      "monthlySpend": "Monthly Spend (Last 6 Months)",
+      "spend": "Spend"
+    }
   }
 }

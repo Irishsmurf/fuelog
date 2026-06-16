@@ -32,6 +32,7 @@ const PrivacyPolicyPage = lazyWithRetry(() => import('../pages/PrivacyPolicyPage
 const AboutPage = lazyWithRetry(() => import('../pages/AboutPage'));
 const FuelMapPage = lazyWithRetry(() => import('./FuelMapPage'));
 const StationsPage = lazyWithRetry(() => import('../pages/StationsPage'));
+const DashboardPage = lazyWithRetry(() => import('../pages/DashboardPage'));
 
 /** Loading fallback for Suspense */
 const PageLoader = () => (
@@ -68,6 +69,7 @@ function AuthenticatedApp(): JSX.Element {
           {/* Desktop Navigation */}
           <div className="hidden sm:flex items-center space-x-2">
             <Link to="/" className={getNavLinkClass("/")}>Log</Link>
+            <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>Dashboard</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>History</Link>
             <Link to="/import" className={getNavLinkClass("/import")}>Import</Link>
             <Link to="/profile" className={getNavLinkClass("/profile")}>Profile</Link>
@@ -102,6 +104,7 @@ function AuthenticatedApp(): JSX.Element {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<QuickLogPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/import" element={<ImportPage />} />
             <Route path="/profile" element={<ProfilePage />} />

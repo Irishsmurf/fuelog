@@ -25,6 +25,16 @@ vi.mock('../context/ThemeContext', () => ({
   useTheme: () => ({ theme: 'light' }),
 }));
 
+const mockGetBoolean = vi.fn<(key: string) => boolean>(() => false);
+vi.mock('../context/RemoteConfigContext', () => ({
+  useRemoteConfig: () => ({ getBoolean: mockGetBoolean }),
+}));
+
+const mockGetLifetimeStats = vi.fn().mockResolvedValue({ totalCost: 0, totalLitres: 0, totalDistanceKm: 0, logCount: 0 });
+vi.mock('../firebase/aggregationService', () => ({
+  getLifetimeStats: (...args: unknown[]) => mockGetLifetimeStats(...args),
+}));
+
 vi.mock('firebase/firestore', async (importOriginal) => {
   const actual = await importOriginal<typeof import('firebase/firestore')>();
   return {
@@ -43,10 +53,13 @@ vi.mock('../firebase/config', () => ({
 vi.mock('recharts', () => ({
   BarChart: ({ children }: { children?: ReactNode }) => <div data-testid="bar-chart">{children}</div>,
   Bar: () => <div />,
+  LineChart: ({ children }: { children?: ReactNode }) => <div data-testid="line-chart">{children}</div>,
+  Line: () => <div />,
   XAxis: () => <div />,
   YAxis: () => <div />,
   CartesianGrid: () => <div />,
   Tooltip: () => <div />,
+  Legend: () => <div />,
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
 }));
 
@@ -61,6 +74,8 @@ function mockSnapshot(docs: { id: string; data: Record<string, unknown> }[]) {
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetBoolean.mockReturnValue(false);
+    mockGetLifetimeStats.mockResolvedValue({ totalCost: 0, totalLitres: 0, totalDistanceKm: 0, logCount: 0 });
   });
 
   it('renders the empty state when the user has no logs', async () => {
@@ -125,5 +140,62 @@ describe('DashboardPage', () => {
     render(<DashboardPage />);
 
     await waitFor(() => expect(screen.getByText('Failed to load dashboard data. Please try again.')).toBeInTheDocument());
+  });
+
+  it('renders lifetime stats and the MPG/price trend chart when enough logs exist', async () => {
+    const now = new Date();
+    mockGetLifetimeStats.mockResolvedValue({ totalCost: 123.45, totalLitres: 67.8, totalDistanceKm: 910, logCount: 12 });
+    vi.mocked(getDocs)
+      .mockResolvedValueOnce(mockSnapshot([]) as never) // vehicles
+      .mockResolvedValueOnce(mockSnapshot([
+        { id: 'log1', data: { userId: 'user-1', timestamp: Timestamp.fromDate(now), cost: 50, distanceKm: 400, fuelAmountLiters: 25 } },
+        { id: 'log2', data: { userId: 'user-1', timestamp: Timestamp.fromDate(now), cost: 30, distanceKm: 200, fuelAmountLiters: 15 } },
+      ]) as never); // logs
+
+    render(<DashboardPage />);
+
+    await waitFor(() => expect(screen.getByText('€123.45')).toBeInTheDocument());
+    expect(screen.getByText('67.8L')).toBeInTheDocument();
+    expect(screen.getByText('910km')).toBeInTheDocument();
+    expect(screen.getByText('12')).toBeInTheDocument();
+    expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+  });
+
+  it('renders the multi-vehicle comparison chart when the feature flag is enabled and stats exist', async () => {
+    mockGetBoolean.mockImplementation((key: string): boolean => key === 'vehicleComparisonEnabled');
+    const now = new Date();
+    const vehicles = [
+      { id: 'v1', name: 'Car 1', make: 'Toyota', userId: 'user-1', isArchived: false },
+      { id: 'v2', name: 'Car 2', make: 'Honda', userId: 'user-1', isArchived: false },
+    ];
+    mockGetLifetimeStats.mockImplementation((_uid: string, vehicleId?: string) => {
+      if (vehicleId === 'v1') return Promise.resolve({ totalCost: 100, totalLitres: 50, totalDistanceKm: 500, logCount: 5 });
+      if (vehicleId === 'v2') return Promise.resolve({ totalCost: 200, totalLitres: 80, totalDistanceKm: 800, logCount: 8 });
+      return Promise.resolve({ totalCost: 0, totalLitres: 0, totalDistanceKm: 0, logCount: 0 });
+    });
+    vi.mocked(getDocs)
+      .mockResolvedValueOnce(mockSnapshot(vehicles.map(v => ({ id: v.id, data: v }))) as never) // vehicles
+      .mockResolvedValueOnce(mockSnapshot([
+        { id: 'log1', data: { userId: 'user-1', timestamp: Timestamp.fromDate(now), cost: 50, distanceKm: 400, fuelAmountLiters: 25 } },
+      ]) as never); // logs
+
+    render(<DashboardPage />);
+
+    await waitFor(() => expect(screen.getAllByTestId('bar-chart').length).toBeGreaterThan(1));
+  });
+
+  it('renders the cost-per-litre chart when its feature flag is enabled', async () => {
+    mockGetBoolean.mockImplementation((key: string): boolean => key === 'costPerLitreGraphEnabled');
+    const now = new Date();
+    vi.mocked(getDocs)
+      .mockResolvedValueOnce(mockSnapshot([]) as never) // vehicles
+      .mockResolvedValueOnce(mockSnapshot([
+        { id: 'log1', data: { userId: 'user-1', timestamp: Timestamp.fromDate(now), cost: 50, distanceKm: 400, fuelAmountLiters: 25 } },
+        { id: 'log2', data: { userId: 'user-1', timestamp: Timestamp.fromDate(now), cost: 30, distanceKm: 200, fuelAmountLiters: 15 } },
+      ]) as never); // logs
+
+    render(<DashboardPage />);
+
+    await waitFor(() => expect(screen.getAllByTestId('line-chart').length).toBe(2));
   });
 });

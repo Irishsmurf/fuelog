@@ -22,6 +22,7 @@
     "selectStationPrompt": "[de] Select a station from the left to view details."
   },
   "stationTable": {
+    "sortBy": "[de] Sort by",
     "name": "[de] Name",
     "brand": "[de] Brand",
     "avgPrice": "[de] Avg. Price",

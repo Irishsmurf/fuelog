@@ -22,6 +22,7 @@
     "selectStationPrompt": "[no] Velg en stasjon fra venstre for å se detaljer."
   },
   "stationTable": {
+    "sortBy": "[no] Sort by",
     "name": "[no] Navn",
     "brand": "[no] Merke",
     "avgPrice": "[no] Gj.snitt. Pris",

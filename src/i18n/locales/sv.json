@@ -440,7 +440,8 @@
     "somethingWentWrong": "Något gick fel",
     "unexpectedError": "Ett oväntat fel inträffade.",
     "tryAgain": "Försök igen",
-    "loadingMapData": "Laddar kartdata..."
+    "loadingMapData": "Laddar kartdata...",
+    "unassignedLocation": "Otilldelad plats"
   },
   "language": {
     "label": "Språk",

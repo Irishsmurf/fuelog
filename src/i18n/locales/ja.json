@@ -440,7 +440,8 @@
     "somethingWentWrong": "問題が発生しました",
     "unexpectedError": "予期しないエラーが発生しました。",
     "tryAgain": "再試行",
-    "loadingMapData": "地図データを読み込み中..."
+    "loadingMapData": "地図データを読み込み中...",
+    "unassignedLocation": "未割り当ての位置"
   },
   "language": {
     "label": "言語",

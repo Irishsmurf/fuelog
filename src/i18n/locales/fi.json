@@ -499,6 +499,7 @@
   },
   "admin": {
     "accessDenied": "You don't have access to this page.",
+    "yourUid": "Your UID: {{uid}}",
     "title": "Admin Console",
     "subtitle": "Send a test push notification via FCM.",
     "fields": {

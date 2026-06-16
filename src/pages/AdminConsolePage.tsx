@@ -82,6 +82,11 @@ function AdminConsolePage(): JSX.Element {
       <div className="flex flex-col items-center justify-center min-h-[40vh] text-center space-y-3">
         <ShieldAlert className="w-10 h-10 text-red-500" />
         <p className="text-gray-600 dark:text-gray-400">{t('admin.accessDenied')}</p>
+        {user && (
+          <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">
+            {t('admin.yourUid', { uid: user.uid })}
+          </p>
+        )}
       </div>
     );
   }

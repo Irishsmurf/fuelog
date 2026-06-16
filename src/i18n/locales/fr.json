@@ -28,7 +28,8 @@
     "avgPrice": "Prix moyen",
     "logCount": "Entrées",
     "unknownBrand": "Marque inconnue",
-    "noData": "N/D"
+    "noData": "N/D",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "Marque inconnue",

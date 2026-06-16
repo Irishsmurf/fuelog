@@ -3,21 +3,25 @@ import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { Station } from '../utils/types';
+import { Coordinates, haversineDistanceKm } from '../utils/locationService';
 
 interface StationTableProps {
   stations: Station[];
   onSelectStation: (stationId: string) => void;
   selectedStationId: string | null;
+  origin?: Coordinates | null;
 }
 
-type SortKey = 'name' | 'avgPrice' | 'logCount';
+type SortKey = 'name' | 'avgPrice' | 'logCount' | 'distance';
 type SortDirection = 'asc' | 'desc';
+type StationWithDistance = Station & { distance?: number };
 
-const SORT_OPTIONS: { key: SortKey; labelKey: string }[] = [
+const BASE_SORT_OPTIONS: { key: SortKey; labelKey: string }[] = [
   { key: 'name', labelKey: 'stationTable.name' },
   { key: 'avgPrice', labelKey: 'stationTable.avgPrice' },
   { key: 'logCount', labelKey: 'stationTable.logCount' },
 ];
+const DISTANCE_SORT_OPTION: { key: SortKey; labelKey: string } = { key: 'distance', labelKey: 'stationTable.distance' };
 
 // A station's price tier (relative to the other visible stations) is the signature
 // of this list: it lets a user spot the cheapest fill-up at a glance instead of
@@ -58,13 +62,28 @@ const usePriceTiers = (stations: Station[]): Map<string, PriceTier> => {
   }, [stations]);
 };
 
-const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, selectedStationId }) => {
+const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, selectedStationId, origin }) => {
   const { t } = useTranslation();
-  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection } | null>(
+    () => (origin ? { key: 'distance', direction: 'asc' } : null)
+  );
   const priceTiers = usePriceTiers(stations);
 
+  const SORT_OPTIONS = useMemo(
+    () => (origin ? [DISTANCE_SORT_OPTION, ...BASE_SORT_OPTIONS] : BASE_SORT_OPTIONS),
+    [origin]
+  );
+
+  const stationsWithDistance = useMemo((): StationWithDistance[] => {
+    if (!origin) return stations;
+    return stations.map((s) => ({
+      ...s,
+      distance: haversineDistanceKm(origin.latitude, origin.longitude, s.latitude, s.longitude),
+    }));
+  }, [stations, origin]);
+
   const sortedStations = useMemo(() => {
-    const sortable = [...stations];
+    const sortable = [...stationsWithDistance];
     if (sortConfig !== null) {
       sortable.sort((a, b) => {
         const aValue = a[sortConfig.key];
@@ -83,7 +102,7 @@ const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, 
       });
     }
     return sortable;
-  }, [stations, sortConfig]);
+  }, [stationsWithDistance, sortConfig]);
 
   const requestSort = (key: SortKey) => {
     let direction: SortDirection = 'asc';
@@ -154,6 +173,7 @@ const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, 
                   </span>
                   <span className="block text-xs text-gray-500 dark:text-gray-400 truncate">
                     {station.brand || t('stationTable.unknownBrand')} · {station.logCount} {t('stationTable.logCount')}
+                    {typeof station.distance === 'number' && ` · ${station.distance.toFixed(1)} km`}
                   </span>
                 </span>
                 <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 shrink-0 whitespace-nowrap">

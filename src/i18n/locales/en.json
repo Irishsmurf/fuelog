@@ -28,7 +28,8 @@
     "avgPrice": "Avg. Price",
     "logCount": "Logs",
     "unknownBrand": "Unknown Brand",
-    "noData": "N/A"
+    "noData": "N/A",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "Unknown Brand",

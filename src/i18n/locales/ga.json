@@ -28,7 +28,8 @@
     "avgPrice": "Meánphraghas",
     "logCount": "Logaí",
     "unknownBrand": "Branda Anaithnid",
-    "noData": "N/B"
+    "noData": "N/B",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "Branda Anaithnid",

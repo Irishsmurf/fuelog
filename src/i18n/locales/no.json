@@ -28,7 +28,8 @@
     "avgPrice": "Gj.snitt. Pris",
     "logCount": "Logger",
     "unknownBrand": "Ukjent merke",
-    "noData": "I/T"
+    "noData": "I/T",
+    "distance": "Distance"
   },
   "stationDetail": {
     "unknownBrand": "Ukjent merke",

@@ -3,7 +3,8 @@
     "log": "Logáil",
     "history": "Stair",
     "map": "Léarscáil",
-    "profile": "Próifíl"
+    "profile": "Próifíl",
+    "stations": "[ga] Stations"
   },
   "login": {
     "tagline": "Rianú Breosla Cruinn",
@@ -11,6 +12,34 @@
     "getStarted": "Tosaigh le Google",
     "initializing": "Ag túsú...",
     "error": "Theip ar an gcomhshuíomh. Déan iarracht arís le do thoil."
+  },
+  "stations": {
+    "title": "[ga] Fuel Stations",
+    "loading": "[ga] Loading fuel stations...",
+    "errorLoading": "[ga] Failed to load fuel stations. Please try again.",
+    "noStationsFound": "[ga] No fuel stations found with logged entries. Log some fuel with location data!",
+    "selectStationPrompt": "[ga] Select a station from the left to view details."
+  },
+  "stationTable": {
+    "name": "[ga] Name",
+    "brand": "[ga] Brand",
+    "avgPrice": "[ga] Avg. Price",
+    "logCount": "[ga] Logs",
+    "unknownBrand": "[ga] Unknown Brand",
+    "noData": "[ga] N/A"
+  },
+  "stationDetail": {
+    "unknownBrand": "[ga] Unknown Brand",
+    "noData": "[ga] N/A",
+    "avgPrice": "[ga] Average Price",
+    "lastPrice": "[ga] Last Price",
+    "logCount": "[ga] Total Logs",
+    "priceHistory": "[ga] Price History (per Litre)",
+    "notEnoughDataForChart": "[ga] Not enough data to display chart (at least 2 logs needed).",
+    "recentLogs": "[ga] Recent Logs",
+    "noLogsFound": "[ga] No fuel logs found for this station.",
+    "loading": "[ga] Loading station details...",
+    "errorLoading": "[ga] Failed to load station details. Please try again."
   },
   "quickLog": {
     "title": "Iontráil Breosla Nua",

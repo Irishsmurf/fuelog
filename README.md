@@ -1,106 +1,228 @@
-# Fuel Logger Web Application
+# fuelog
 
+**Track every fill-up. Understand your vehicle. Reduce your costs.**
+
+[![CI](https://github.com/Irishsmurf/fuelog/actions/workflows/main-ci.yml/badge.svg)](https://github.com/Irishsmurf/fuelog/actions/workflows/main-ci.yml)
 [![codecov](https://codecov.io/gh/Irishsmurf/fuelog/branch/main/graph/badge.svg)](https://codecov.io/gh/Irishsmurf/fuelog)
+[![i18n](https://github.com/Irishsmurf/fuelog/actions/workflows/i18n-check.yml/badge.svg)](https://github.com/Irishsmurf/fuelog/actions/workflows/i18n-check.yml)
 
-## Description
+Fuelog is a mobile-first Progressive Web App for logging fuel fill-ups, tracking efficiency trends, and managing costs across multiple vehicles. Sign in with Google, log a fill in under 30 seconds, and build a picture of your fuel spend over time.
 
-A simple web application designed to track vehicle fuel consumption and costs, replacing manual spreadsheet logging. Initially built to monitor the usage of a 2013 VW Polo TSI, it allows users to quickly log fuel entries, view historical data, analyze trends through visualizations, and import existing data. The application captures location data during logging for potential future analysis like heatmaps.
+Live at **[fuelog.paddez.com](https://fuelog.paddez.com)**
 
-Built with React, Vite, TypeScript, Firebase, and Tailwind CSS.
+---
 
 ## Features
 
-* **Authentication:** Secure sign-in using Google accounts via Firebase Authentication.
-* **Quick Fuel Logging:**
-    * Enter Total Cost (€), Distance Covered (Km), and Fuel Added (Litres).
-    * Auto-suggests previously used Filling Station Brands to minimize typos.
-    * Automatically captures Geolocation (Latitude, Longitude, Accuracy) on log submission (requires user permission).
-* **History View:**
-    * Displays all past fuel logs in a sortable, responsive table.
-    * Calculates and displays efficiency metrics:
-        * km/L (Kilometers per Litre)
-        * L/100km (Litres per 100 Kilometers)
-        * MPG (UK Miles Per Gallon)
-        * Cost per Mile (€)
-    * Includes a chart visualizing MPG (UK) over time.
-    * "Copy Table Data" button to copy history to clipboard in TSV format.
-* **Data Import:**
-    * Import historical fuel data from TSV (Tab-Separated Value) files.
-    * Maps relevant columns (Date, Litres, Total Cost, Garage, Distance since fueled [Km]) to the application's data structure.
-    * Uses Firestore batch writes for efficient importing.
-* **REST API:** Interact with your fuel logs, vehicles, and analytics programmatically. See [REST API Documentation](docs/REST_API.md).
-* **UI:** Clean, mobile-first interface styled with Tailwind CSS.
+### Fuel Logging
+- Log cost, litres, and distance in a single screen
+- **Odometer tracking** with smart distance calculation from the previous fill
+- **AI receipt scanning** — photograph a receipt and Gemini extracts the data automatically
+- **Geolocation** captures the fill-up position for map and station tracking
+- Brand auto-suggest from your own history
+
+### Multi-Vehicle & Multi-Currency
+- Add unlimited vehicles (make, model, year, fuel type); archive old ones
+- Set a home currency and log fills in any of 30+ currencies — exchange rates are fetched automatically via the Frankfurter API
+
+### History & Analytics
+- Filterable, sortable log with card and table views
+- Efficiency metrics per fill: km/L, L/100km, MPG (UK), cost per mile
+- MPG and price-per-litre trend charts (Recharts)
+- Lifetime totals: total spend, total litres, total distance, fill count
+- PDF export and clipboard (TSV) export
+
+### Stations
+- Track every filling station you have visited
+- See average and last price per litre per station
+- Cluster map of all fill-up locations (Leaflet)
+
+### Developer & Power-User Features
+- **REST API** — programmatic access to logs, vehicles, and analytics with scoped bearer tokens ([docs](docs/REST_API.md))
+- **MCP server** — connect Claude or any MCP-compatible LLM directly to your fuel data ([docs](docs/MCP.md))
+- **TSV import** for bulk-loading historical data
+- FCM push notifications (opt-in)
+- Firebase Remote Config feature flags for controlled rollouts
+
+### Internationalisation
+Available in English, Irish (Gaeilge), German, Spanish, French, Finnish, Japanese, Korean, Norwegian, and Swedish.
+
+---
 
 ## Tech Stack
 
-* **Frontend Framework:** React (with TypeScript)
-* **Build Tool:** Vite
-* **Styling:** Tailwind CSS
-* **Backend & Database:** Firebase (Authentication, Firestore)
-* **Charting:** Recharts
-* **Language:** TypeScript
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite |
+| Styling | Tailwind CSS v4 |
+| Backend / DB | Firebase (Auth, Firestore, Storage, Remote Config, FCM) |
+| AI | Google Gemini (receipt extraction) |
+| Maps | Leaflet, react-leaflet |
+| Charts | Recharts |
+| i18n | i18next, react-i18next |
+| Hosting | Firebase Hosting / Vercel (API routes) |
+| Testing | Vitest, Playwright |
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-* Node.js (LTS version recommended)
-* npm (usually comes with Node.js)
-* A Firebase project
+- Node.js (LTS) and npm
+- A Firebase project with Authentication (Google provider), Firestore, and Storage enabled
 
-### Setup
+### 1 — Clone and install
 
-1.  **Clone the repository (replace with your actual repo URL):**
-    ```bash
-    git clone [https://github.com/your-username/fuel-logger.git](https://github.com/your-username/fuel-logger.git)
-    cd fuel-logger
-    ```
+```bash
+git clone https://github.com/Irishsmurf/fuelog.git
+cd fuelog
+npm install
+```
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+### 2 — Configure environment variables
 
-3.  **Set up Firebase:**
-    * Go to the [Firebase Console](https://console.firebase.google.com/).
-    * Create a new project (or use an existing one).
-    * Enable **Authentication**: Add the **Google** sign-in provider. Make sure to add your app's authorized domain (usually `localhost` during development) in the settings.
-    * Enable **Firestore Database**: Create a database (start in test mode for development, but configure security rules for production: `rules_version = '2'; service cloud.firestore { match /databases/{database}/documents { match /fuelLogs/{logId} { allow read, write: if request.auth != null && request.auth.uid == resource.data.userId; } } }`).
-    * In your Firebase project settings, find your **Web app configuration** keys (apiKey, authDomain, projectId, etc.).
+Copy the example below into a `.env` file at the project root. Never commit this file.
 
-4.  **Configure Environment Variables:**
-    * Create a file named `.env` in the root directory of the project.
-    * Add your Firebase configuration keys, prefixed with `VITE_`, as well as your Gemini API key:
-        ```env
-        # .env
-        VITE_FIREBASE_API_KEY=YOUR_API_KEY
-        VITE_FIREBASE_AUTH_DOMAIN=YOUR_AUTH_DOMAIN
-        VITE_FIREBASE_PROJECT_ID=YOUR_PROJECT_ID
-        VITE_FIREBASE_STORAGE_BUCKET=YOUR_STORAGE_BUCKET
-        VITE_FIREBASE_MESSAGING_SENDER_ID=YOUR_MESSAGING_SENDER_ID
-        VITE_FIREBASE_APP_ID=YOUR_APP_ID
+```env
+# Firebase — required
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
 
-        # Optional: For AI Receipt Parsing feature
-        VITE_GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-        ```
-    * **Important:** Add `.env` to your `.gitignore` file to avoid committing your secret keys.
+# Google Gemini — optional, enables AI receipt scanning
+VITE_GEMINI_API_KEY=
 
-5.  **Run the Development Server:**
-    ```bash
-    npm run dev
-    ```
-    Open your browser to the local address provided by Vite (usually `http://localhost:5173` or similar).
+# Gemini model tuning — optional
+VITE_GEMINI_MODEL=gemini-2.5-flash
+VITE_GEMINI_THINKING_BUDGET=512
+```
 
-## Future Improvements
+### 3 — Run
 
-* Implement heatmap visualization using captured location data.
-* Add summary statistics dashboard.
-* Implement editing and deleting of log entries.
-* Add filtering/sorting options to the history table.
-* Support multiple vehicles.
-* Add unit preferences (Metric/Imperial).
-* Convert to a Progressive Web App (PWA).
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173`.
+
+### Available scripts
+
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build |
+| `npm test` | Run unit tests (Vitest) |
+| `npm run test:coverage` | Unit tests with coverage report |
+| `npm run test:e2e` | End-to-end tests (Playwright) |
+| `npm run lint` | ESLint |
+
+### Firestore security rules
+
+Minimum rules for development — tighten before going to production:
+
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /fuelLogs/{logId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == resource.data.userId;
+    }
+  }
+}
+```
+
+Full rules including vehicles and stations are documented in [docs/FIREBASE.md](docs/FIREBASE.md).
+
+---
+
+## Documentation
+
+| Document | Description |
+|---|---|
+| [Architecture](docs/ARCHITECTURE.md) | System design, Firestore schema, service layers |
+| [Features](docs/FEATURES.md) | Full feature reference |
+| [REST API](docs/REST_API.md) | API endpoints, authentication, request/response shapes |
+| [MCP Server](docs/MCP.md) | Connecting LLMs to your fuel data |
+| [Firebase Setup](docs/FIREBASE.md) | Firestore rules, Storage config, FCM setup |
+| [Gemini Integration](docs/GEMINI.md) | AI receipt extraction configuration |
+| [Roadmap](docs/ROADMAP.md) | Planned features and milestones |
+| [User Flows](docs/USER_FLOWS.md) | End-to-end user journey documentation |
+
+---
+
+## Branding Guidelines
+
+Fuelog's visual identity is built around the **petrol forecourt at night** — the amber glow of price boards, the industrial precision of pump readouts, the clarity required at a glance from a car window. Every design decision should serve legibility and functional confidence, not decoration.
+
+### Colour
+
+| Role | Name | Hex | Usage |
+|---|---|---|---|
+| Primary | Amber 600 | `#D97706` | Buttons, active states, links — light mode |
+| Primary hover | Amber 700 | `#B45309` | Button hover in light mode |
+| Primary glow | Amber 400 | `#FBBF24` | Accents and glows in dark mode |
+| Success | Emerald 500 | `#10B981` | Positive feedback, full-tank states |
+| Danger | Red 500 | `#EF4444` | Errors and destructive actions |
+| Surface (dark) | Petroleum | `#0A0F1E` | Dark mode background — slightly blue-tinged black |
+| Surface (light) | Near white | `#F9FAFB` | Light mode background |
+
+**Amber is the brand colour.** It is derived from real-world petrol station LED price displays and grounds the product in its domain. Do not substitute it with indigo, violet, or other generic SaaS primaries.
+
+**Button text is always dark on amber.** Both `#D97706` (light mode) and `#FBBF24` (dark mode) achieve WCAG AA contrast with `#111827` (gray-900). Never use white text on an amber background.
+
+### Typography
+
+| Role | Family | Weights | Usage |
+|---|---|---|---|
+| Display | Space Grotesk | 600, 700 | Wordmark, page headings, hero text |
+| Body | Inter | 400, 500, 600 | Paragraphs, labels, UI copy |
+| Data | Space Mono | 400, 700 | All numeric readouts — cost, litres, km, efficiency |
+
+**Numbers always use Space Mono.** Fuel data is the primary content of this application. Tabular-numeric mono rendering keeps columns aligned and communicates precision — the same reason dashboards use dedicated display typefaces.
+
+**The wordmark is set in Space Grotesk Bold.** `fuel` in Amber 500 (`#F59E0B`), `og` in Gray 700 (`#374151`) on dark backgrounds or Gray 400 (`#9CA3AF`) in the header. Letter-spacing is `-0.03em`. Do not use a heavier weight, do not apply text-transform, do not alter the two-tone split.
+
+### Wordmark
+
+```
+fuelog
+──────
+fuel  → Amber 500  (#F59E0B)
+og    → Gray 400/700 (context-dependent)
+```
+
+The wordmark is always lowercase. Uppercase or title-case variants are not permitted.
+
+### Dark vs light mode
+
+Fuelog supports both light and dark modes. The **sign-in screen is always dark** (`#0A0F1E`) regardless of system preference — it is a deliberate brand moment, not a UI mode.
+
+Within the authenticated app, dark mode uses the petroleum surface (`#0A0F1E`) with amber-400 accents. Light mode uses a near-white surface with amber-600 as the primary.
+
+### Iconography
+
+Icons are sourced from **Lucide** at a stroke width of 1.75 (inactive) or 2.5 (active). Do not mix icon libraries. Icon size in navigation is 22px; in buttons and inline contexts, 16–18px.
+
+### Motion
+
+Interactions use a single easing curve: `cubic-bezier(0.4, 0, 0.2, 1)` (Material ease-in-out). Active press feedback uses `scale(0.96–0.98)`. Page load sequences use staggered fade/translate-up at 150ms intervals. Respect `prefers-reduced-motion` — all animations are suppressed when the user preference is set.
+
+### Voice and copy
+
+Fuelog speaks to drivers, not dashboards. Copy is short, direct, and metric-first. Prefer active verbs: "Log a fill-up", "View your history", "Export to PDF". Use sentence case everywhere. Avoid marketing language — the data is the story.
+
+---
+
+## Contributing
+
+Pull requests are welcome. Please open an issue first to discuss significant changes. All PRs should include tests for new behaviour and pass the existing test suite (`npm test`).
 
 ## License
 
-Whatever.
+MIT

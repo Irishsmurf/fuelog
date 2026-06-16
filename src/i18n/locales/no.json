@@ -3,7 +3,8 @@
     "log": "Logg",
     "history": "Historikk",
     "map": "Kart",
-    "profile": "Profil"
+    "profile": "Profil",
+    "stations": "[no] Stations"
   },
   "login": {
     "tagline": "Presisjon i drivstoffsporing",
@@ -11,6 +12,34 @@
     "getStarted": "Kom i gang med Google",
     "initializing": "Initialiserer...",
     "error": "Kunne ikke logge inn. Prøv igjen."
+  },
+  "stations": {
+    "title": "[no] Fuel Stations",
+    "loading": "[no] Laster drivstoffstasjoner...",
+    "errorLoading": "[no] Kunne ikke laste drivstoffstasjoner. Prøv igjen.",
+    "noStationsFound": "[no] Ingen drivstoffstasjoner funnet med loggede oppføringer. Logg drivstoff med posisjonsdata!",
+    "selectStationPrompt": "[no] Velg en stasjon fra venstre for å se detaljer."
+  },
+  "stationTable": {
+    "name": "[no] Navn",
+    "brand": "[no] Merke",
+    "avgPrice": "[no] Gj.snitt. Pris",
+    "logCount": "[no] Logger",
+    "unknownBrand": "[no] Ukjent merke",
+    "noData": "[no] I/T"
+  },
+  "stationDetail": {
+    "unknownBrand": "[no] Ukjent merke",
+    "noData": "[no] I/T",
+    "avgPrice": "[no] Gjennomsnittlig pris",
+    "lastPrice": "[no] Siste pris",
+    "logCount": "[no] Totalt antall logger",
+    "priceHistory": "[no] Prishistorikk (per liter)",
+    "notEnoughDataForChart": "[no] Ikke nok data for å vise diagram (minst 2 logger nødvendig).",
+    "recentLogs": "[no] Siste logger",
+    "noLogsFound": "[no] Ingen drivstofflogger funnet for denne stasjonen.",
+    "loading": "[no] Laster stasjonsdetaljer...",
+    "errorLoading": "[no] Kunne ikke laste stasjonsdetaljer. Prøv igjen."
   },
   "quickLog": {
     "title": "Logg ny drivstoffoppføring",

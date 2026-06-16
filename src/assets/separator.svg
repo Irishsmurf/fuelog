@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 2" preserveAspectRatio="none" aria-hidden="true">
+  <!--
+    Amber gradient separator line.
+    Usage: <img src="/src/assets/separator.svg" /> or as CSS background-image.
+    Fades from transparent → amber → transparent.
+  -->
+  <defs>
+    <linearGradient id="sg" x1="0" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#F59E0B" stop-opacity="0"/>
+      <stop offset="20%"  stop-color="#F59E0B" stop-opacity="0.4"/>
+      <stop offset="50%"  stop-color="#F59E0B" stop-opacity="0.8"/>
+      <stop offset="80%"  stop-color="#F59E0B" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="480" height="2" fill="url(#sg)"/>
+</svg>

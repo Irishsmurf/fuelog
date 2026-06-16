@@ -8,7 +8,6 @@ import {
   signInWithPopup,
   signOut,
   Auth,
-  UserCredential
 } from "firebase/auth";
 // Import updated Firestore functions and types for persistence
 import {
@@ -102,12 +101,27 @@ const perf: Promise<FirebasePerformance | null> = isSupported().then(supported =
 const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();
 
 
-// --- Authentication Functions (remain the same) ---
-const signInWithGoogle = async (): Promise<UserCredential> => { try { const result: UserCredential = await signInWithPopup(auth, googleProvider); console.log("Google Sign-In Successful:", result.user.displayName); return result; } catch (error) { console.error("Google Sign-In Error:", error); throw error; } };
-const logout = async (): Promise<void> => { try { await signOut(auth); console.log("User signed out successfully."); } catch (error) { console.error("Sign Out Error:", error); throw error; } };
+// --- Authentication Functions ---
+const signInWithGoogle = async (): Promise<void> => {
+  try {
+    await signInWithPopup(auth, googleProvider);
+  } catch (error) {
+    console.error("Google Sign-In Error:", error);
+    throw error;
+  }
+};
 
+const logout = async (): Promise<void> => {
+  try {
+    await signOut(auth);
+    console.log("User signed out successfully.");
+  } catch (error) {
+    console.error("Sign Out Error:", error);
+    throw error;
+  }
+};
 
-// Export the necessary instances and functions (db is now initialized above)
+// Export the necessary instances and functions
 export {
   app,
   auth,
@@ -117,5 +131,5 @@ export {
   perf,
   googleProvider,
   signInWithGoogle,
-  logout
+  logout,
 };

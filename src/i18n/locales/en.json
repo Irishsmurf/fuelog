@@ -3,7 +3,8 @@
     "log": "Log",
     "history": "History",
     "map": "Map",
-    "profile": "Profile"
+    "profile": "Profile",
+    "stations": "Stations"
   },
   "login": {
     "tagline": "Precision Fuel Tracking",
@@ -11,6 +12,34 @@
     "getStarted": "Get Started with Google",
     "initializing": "Initializing...",
     "error": "Failed to sign in. Please try again."
+  },
+  "stations": {
+    "title": "Fuel Stations",
+    "loading": "Loading fuel stations...",
+    "errorLoading": "Failed to load fuel stations. Please try again.",
+    "noStationsFound": "No fuel stations found with logged entries. Log some fuel with location data!",
+    "selectStationPrompt": "Select a station from the left to view details."
+  },
+  "stationTable": {
+    "name": "Name",
+    "brand": "Brand",
+    "avgPrice": "Avg. Price",
+    "logCount": "Logs",
+    "unknownBrand": "Unknown Brand",
+    "noData": "N/A"
+  },
+  "stationDetail": {
+    "unknownBrand": "Unknown Brand",
+    "noData": "N/A",
+    "avgPrice": "Average Price",
+    "lastPrice": "Last Price",
+    "logCount": "Total Logs",
+    "priceHistory": "Price History (per Litre)",
+    "notEnoughDataForChart": "Not enough data to display chart (at least 2 logs needed).",
+    "recentLogs": "Recent Logs",
+    "noLogsFound": "No fuel logs found for this station.",
+    "loading": "Loading station details...",
+    "errorLoading": "Failed to load station details. Please try again."
   },
   "quickLog": {
     "title": "Log New Fuel Entry",

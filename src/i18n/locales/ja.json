@@ -3,7 +3,8 @@
     "log": "記録",
     "history": "履歴",
     "map": "地図",
-    "profile": "プロフィール"
+    "profile": "プロフィール",
+    "stations": "[ja] Stations"
   },
   "login": {
     "tagline": "精確な燃料追跡",
@@ -11,6 +12,34 @@
     "getStarted": "Googleで始める",
     "initializing": "初期化中...",
     "error": "ログインに失敗しました。もう一度お試しください。"
+  },
+  "stations": {
+    "title": "[ja] Fuel Stations",
+    "loading": "[ja] Loading fuel stations...",
+    "errorLoading": "[ja] Failed to load fuel stations. Please try again.",
+    "noStationsFound": "[ja] No fuel stations found with logged entries. Log some fuel with location data!",
+    "selectStationPrompt": "[ja] Select a station from the left to view details."
+  },
+  "stationTable": {
+    "name": "[ja] Name",
+    "brand": "[ja] Brand",
+    "avgPrice": "[ja] Avg. Price",
+    "logCount": "[ja] Logs",
+    "unknownBrand": "[ja] Unknown Brand",
+    "noData": "[ja] N/A"
+  },
+  "stationDetail": {
+    "unknownBrand": "[ja] Unknown Brand",
+    "noData": "[ja] N/A",
+    "avgPrice": "[ja] Average Price",
+    "lastPrice": "[ja] Last Price",
+    "logCount": "[ja] Total Logs",
+    "priceHistory": "[ja] Price History (per Litre)",
+    "notEnoughDataForChart": "[ja] Not enough data to display chart (at least 2 logs needed).",
+    "recentLogs": "[ja] Recent Logs",
+    "noLogsFound": "[ja] No fuel logs found for this station.",
+    "loading": "[ja] Loading station details...",
+    "errorLoading": "[ja] Failed to load station details. Please try again."
   },
   "quickLog": {
     "title": "新しい燃料記録",

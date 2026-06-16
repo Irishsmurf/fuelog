@@ -3,7 +3,8 @@
     "log": "Erfassen",
     "history": "Verlauf",
     "map": "Karte",
-    "profile": "Profil"
+    "profile": "Profil",
+    "stations": "[de] Stations"
   },
   "login": {
     "tagline": "Präzise Kraftstoffverfolgung",
@@ -11,6 +12,34 @@
     "getStarted": "Mit Google starten",
     "initializing": "Initialisierung...",
     "error": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+  },
+  "stations": {
+    "title": "[de] Fuel Stations",
+    "loading": "[de] Loading fuel stations...",
+    "errorLoading": "[de] Failed to load fuel stations. Please try again.",
+    "noStationsFound": "[de] No fuel stations found with logged entries. Log some fuel with location data!",
+    "selectStationPrompt": "[de] Select a station from the left to view details."
+  },
+  "stationTable": {
+    "name": "[de] Name",
+    "brand": "[de] Brand",
+    "avgPrice": "[de] Avg. Price",
+    "logCount": "[de] Logs",
+    "unknownBrand": "[de] Unknown Brand",
+    "noData": "[de] N/A"
+  },
+  "stationDetail": {
+    "unknownBrand": "[de] Unknown Brand",
+    "noData": "[de] N/A",
+    "avgPrice": "[de] Average Price",
+    "lastPrice": "[de] Last Price",
+    "logCount": "[de] Total Logs",
+    "priceHistory": "[de] Price History (per Litre)",
+    "notEnoughDataForChart": "[de] Not enough data to display chart (at least 2 logs needed).",
+    "recentLogs": "[de] Recent Logs",
+    "noLogsFound": "[de] No fuel logs found for this station.",
+    "loading": "[de] Loading station details...",
+    "errorLoading": "[de] Failed to load station details. Please try again."
   },
   "quickLog": {
     "title": "Neuer Kraftstoffeintrag",

@@ -6,15 +6,18 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Colors: Fuelog Electric Palette */
-  --color-brand-primary: #6366f1;
-  --color-brand-primary-hover: #4f46e5;
+  /* Colors: Fuelog Forecourt Palette — amber like a petrol price board */
+  --color-brand-primary: #D97706;          /* amber-600: light-mode buttons & active states */
+  --color-brand-primary-hover: #B45309;    /* amber-700 */
+  --color-brand-primary-glow: #FBBF24;     /* amber-400: dark-mode accents & glows */
   --color-brand-success: #10b981;
-  --color-brand-dark-surface: #020617;
-  
-  /* Typography: The Precision Pair */
-  --font-sans: "Inter", "Geist Sans", system-ui, sans-serif;
-  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  --color-brand-danger: #EF4444;
+  --color-brand-dark-surface: #0A0F1E;     /* petroleum blue-black — richer than pure #000 */
+
+  /* Typography: Forecourt Pair */
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "Space Mono", "JetBrains Mono", ui-monospace, monospace;
 
   /* Custom Transitions */
   --animate-squish: squish 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -56,9 +59,14 @@
     @apply fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-brand-dark-surface/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe;
   }
 
-  /* Define button styles without relying on recursive @apply */
+  /* Buttons: dark text on amber — mirrors LED price board digits */
   .brand-button-primary {
-    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-xl font-bold transition-all bg-brand-primary text-white hover:bg-brand-primary-hover shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/40 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-xl font-bold transition-all bg-brand-primary text-gray-950 hover:bg-brand-primary-hover shadow-md shadow-amber-500/20 hover:shadow-amber-600/30 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Data display: tabular, monospaced, tight tracking */
+  .fuel-numeral {
+    @apply font-mono tabular-nums tracking-tighter;
   }
 }
 

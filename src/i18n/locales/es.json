@@ -3,7 +3,8 @@
     "log": "Registrar",
     "history": "Historial",
     "map": "Mapa",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "stations": "[es] Stations"
   },
   "login": {
     "tagline": "Seguimiento de Combustible Preciso",
@@ -11,6 +12,34 @@
     "getStarted": "Comenzar con Google",
     "initializing": "Iniciando...",
     "error": "Error al iniciar sesión. Por favor, inténtalo de nuevo."
+  },
+  "stations": {
+    "title": "[es] Fuel Stations",
+    "loading": "[es] Loading fuel stations...",
+    "errorLoading": "[es] Failed to load fuel stations. Please try again.",
+    "noStationsFound": "[es] No fuel stations found with logged entries. Log some fuel with location data!",
+    "selectStationPrompt": "[es] Select a station from the left to view details."
+  },
+  "stationTable": {
+    "name": "[es] Name",
+    "brand": "[es] Brand",
+    "avgPrice": "[es] Avg. Price",
+    "logCount": "[es] Logs",
+    "unknownBrand": "[es] Unknown Brand",
+    "noData": "[es] N/A"
+  },
+  "stationDetail": {
+    "unknownBrand": "[es] Unknown Brand",
+    "noData": "[es] N/A",
+    "avgPrice": "[es] Average Price",
+    "lastPrice": "[es] Last Price",
+    "logCount": "[es] Total Logs",
+    "priceHistory": "[es] Price History (per Litre)",
+    "notEnoughDataForChart": "[es] Not enough data to display chart (at least 2 logs needed).",
+    "recentLogs": "[es] Recent Logs",
+    "noLogsFound": "[es] No fuel logs found for this station.",
+    "loading": "[es] Loading station details...",
+    "errorLoading": "[es] Failed to load station details. Please try again."
   },
   "quickLog": {
     "title": "Nuevo Registro de Combustible",

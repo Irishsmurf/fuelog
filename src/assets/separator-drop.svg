@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 24" aria-hidden="true">
+  <!--
+    Section separator with a centred fuel-drop ornament.
+    Lines fade out toward the centre; the drop sits in the gap.
+    Usage: as a decorative <img> between content sections.
+  -->
+  <defs>
+    <!-- Left arm: solid at edge, fades toward centre -->
+    <linearGradient id="left" x1="0" y1="0" x2="215" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#F59E0B" stop-opacity="0"/>
+      <stop offset="30%"  stop-color="#F59E0B" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Right arm: mirror -->
+    <linearGradient id="right" x1="265" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#F59E0B" stop-opacity="0"/>
+      <stop offset="70%"  stop-color="#F59E0B" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Left arm -->
+  <line x1="0" y1="12" x2="215" y2="12" stroke="url(#left)" stroke-width="1"/>
+
+  <!-- Right arm -->
+  <line x1="265" y1="12" x2="480" y2="12" stroke="url(#right)" stroke-width="1"/>
+
+  <!--
+    Fuel drop centred at (240, 11).
+    Teardrop: pointed top, circle bottom, height 18, width 12.
+    M = top point; cubic beziers curve out to the sides; arc closes the bottom.
+  -->
+  <path d="M 240 2
+           C 246 7, 252 12, 252 17
+           A 12 12 0 0 1 228 17
+           C 228 12, 234 7, 240 2 Z"
+        fill="#F59E0B" opacity="0.75"/>
+
+  <!-- Inner specular highlight on drop -->
+  <path d="M 240 5
+           C 243 9, 246 12, 246 16
+           A 7 7 0 0 1 240 22
+           V 5 Z"
+        fill="white" opacity="0.08"/>
+</svg>

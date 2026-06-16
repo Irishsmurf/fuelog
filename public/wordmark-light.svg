@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 72" role="img" aria-label="Fuelog">
+  <!--
+    Wordmark — light-background version.
+    "fuel" in amber-600, "og" in gray-700.
+    Intended for use on light surfaces (#F9FAFB, #FFFFFF, etc.).
+  -->
+
+  <!-- Wordmark text -->
+  <text x="0" y="56"
+        font-family="Space Grotesk, system-ui, sans-serif"
+        font-size="64" font-weight="700"
+        letter-spacing="-2">
+    <tspan fill="#D97706">fuel</tspan><tspan fill="#374151">og</tspan>
+  </text>
+</svg>

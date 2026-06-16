@@ -3,7 +3,8 @@
     "log": "Logga",
     "history": "Historik",
     "map": "Karta",
-    "profile": "Profil"
+    "profile": "Profil",
+    "stations": "[sv] Stations"
   },
   "login": {
     "tagline": "Precision i bränsleuppföljning",
@@ -11,6 +12,34 @@
     "getStarted": "Kom igång med Google",
     "initializing": "Initierar...",
     "error": "Misslyckades med att logga in. Försök igen."
+  },
+  "stations": {
+    "title": "[sv] Fuel Stations",
+    "loading": "[sv] Laddar bränslestationer...",
+    "errorLoading": "[sv] Misslyckades med att ladda bränslestationer. Försök igen.",
+    "noStationsFound": "[sv] Inga bränslestationer hittades med loggade poster. Logga bränsle med platsdata!",
+    "selectStationPrompt": "[sv] Välj en station från vänster för att se detaljer."
+  },
+  "stationTable": {
+    "name": "[sv] Namn",
+    "brand": "[sv] Märke",
+    "avgPrice": "[sv] Genomsnittligt pris",
+    "logCount": "[sv] Loggar",
+    "unknownBrand": "[sv] Okänt märke",
+    "noData": "[sv] Ej tillgänglig"
+  },
+  "stationDetail": {
+    "unknownBrand": "[sv] Okänt märke",
+    "noData": "[sv] Ej tillgänglig",
+    "avgPrice": "[sv] Genomsnittligt pris",
+    "lastPrice": "[sv] Senaste pris",
+    "logCount": "[sv] Totalt antal loggar",
+    "priceHistory": "[sv] Prishistorik (per liter)",
+    "notEnoughDataForChart": "[sv] Inte tillräckligt med data för att visa diagram (minst 2 loggar behövs).",
+    "recentLogs": "[sv] Senaste loggar",
+    "noLogsFound": "[sv] Inga bränsleloggar hittades för denna station.",
+    "loading": "[sv] Laddar stationsdetaljer...",
+    "errorLoading": "[sv] Misslyckades med att ladda stationsdetaljer. Försök igen."
   },
   "quickLog": {
     "title": "Logga ny bränslepost",

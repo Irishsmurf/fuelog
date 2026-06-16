@@ -28,7 +28,7 @@ interface Vehicle {
 interface FuelLogData {
     userId: string;
     timestamp: Timestamp;
-    brand: string;
+    brand?: string; // Made optional
     cost: number; // This will now represent the cost in HOME currency (e.g., EUR)
     distanceKm: number;
     fuelAmountLiters: number;

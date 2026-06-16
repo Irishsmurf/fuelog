@@ -1,22 +1,27 @@
 import { JSX } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { History, Map as MapIcon, User, PlusCircle } from 'lucide-react';
+import { History, Map as MapIcon, User, PlusCircle, Fuel } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 /**
  * Mobile-first bottom navigation component.
  * Positioned fixed at the bottom of the screen.
  */
-const BottomNav = (): JSX.Element => {
+const BottomNav = ({ stationsPageEnabled }: { stationsPageEnabled: boolean }): JSX.Element => {
   const location = useLocation();
   const { t } = useTranslation();
 
-  const navItems = [
+  const baseNavItems = [
     { path: '/', label: t('nav.log'), icon: PlusCircle },
     { path: '/history', label: t('nav.history'), icon: History },
     { path: '/map', label: t('nav.map'), icon: MapIcon },
     { path: '/profile', label: t('nav.profile'), icon: User },
   ];
+
+  const navItems = stationsPageEnabled
+    ? [...baseNavItems.slice(0, 3), { path: '/stations', label: t('nav.stations'), icon: Fuel }, ...baseNavItems.slice(3)]
+    : baseNavItems;
+
 
   return (
     <nav className="sm:hidden glass-nav">

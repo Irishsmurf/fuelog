@@ -3,7 +3,8 @@
     "log": "Saisir",
     "history": "Historique",
     "map": "Carte",
-    "profile": "Profil"
+    "profile": "Profil",
+    "stations": "[fr] Stations"
   },
   "login": {
     "tagline": "Suivi de Carburant Précis",
@@ -11,6 +12,34 @@
     "getStarted": "Commencer avec Google",
     "initializing": "Initialisation...",
     "error": "Échec de la connexion. Veuillez réessayer."
+  },
+  "stations": {
+    "title": "[fr] Fuel Stations",
+    "loading": "[fr] Loading fuel stations...",
+    "errorLoading": "[fr] Failed to load fuel stations. Please try again.",
+    "noStationsFound": "[fr] No fuel stations found with logged entries. Log some fuel with location data!",
+    "selectStationPrompt": "[fr] Select a station from the left to view details."
+  },
+  "stationTable": {
+    "name": "[fr] Name",
+    "brand": "[fr] Brand",
+    "avgPrice": "[fr] Avg. Price",
+    "logCount": "[fr] Logs",
+    "unknownBrand": "[fr] Unknown Brand",
+    "noData": "[fr] N/A"
+  },
+  "stationDetail": {
+    "unknownBrand": "[fr] Unknown Brand",
+    "noData": "[fr] N/A",
+    "avgPrice": "[fr] Average Price",
+    "lastPrice": "[fr] Last Price",
+    "logCount": "[fr] Total Logs",
+    "priceHistory": "[fr] Price History (per Litre)",
+    "notEnoughDataForChart": "[fr] Not enough data to display chart (at least 2 logs needed).",
+    "recentLogs": "[fr] Recent Logs",
+    "noLogsFound": "[fr] No fuel logs found for this station.",
+    "loading": "[fr] Loading station details...",
+    "errorLoading": "[fr] Failed to load station details. Please try again."
   },
   "quickLog": {
     "title": "Nouvelle Saisie de Carburant",

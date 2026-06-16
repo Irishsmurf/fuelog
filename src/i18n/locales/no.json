@@ -36,6 +36,8 @@
     "lastPrice": "[no] Siste pris",
     "logCount": "[no] Totalt antall logger",
     "priceHistory": "[no] Prishistorikk (per liter)",
+    "chartAxisDate": "Fylledato",
+    "chartAxisPrice": "Pris per Liter",
     "notEnoughDataForChart": "[no] Ikke nok data for å vise diagram (minst 2 logger nødvendig).",
     "recentLogs": "[no] Siste logger",
     "noLogsFound": "[no] Ingen drivstofflogger funnet for denne stasjonen.",

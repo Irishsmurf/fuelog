@@ -1,9 +1,9 @@
 // src/firebase/__tests__/firestoreService.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { CollectionReference, Query, QueryConstraint, QuerySnapshot, QueryFieldFilterConstraint, QueryOrderByConstraint } from 'firebase/firestore';
-import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import type { CollectionReference, Query, QueryConstraint, QuerySnapshot, QueryFieldFilterConstraint, QueryOrderByConstraint, QueryLimitConstraint } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../config'; // Mocked config for auth and db
-import { fetchFuelLogsByStationId } from '../firestoreService';
+import { fetchFuelLogsByStationId, fetchStationById } from '../firestoreService';
 import { Log } from '../../utils/types';
 
 // Mock Firebase
@@ -16,6 +16,9 @@ vi.mock('firebase/firestore', async (importOriginal) => {
         where: vi.fn(),
         getDocs: vi.fn(),
         orderBy: vi.fn(),
+        limit: vi.fn(),
+        doc: vi.fn(),
+        getDoc: vi.fn(),
         Timestamp: {
             fromDate: vi.fn((date: Date) => ({
                 toDate: () => date,
@@ -53,6 +56,7 @@ describe('firestoreService', () => {
         vi.mocked(query).mockReturnValue({} as Query);
         vi.mocked(where).mockReturnValue({} as unknown as QueryFieldFilterConstraint);
         vi.mocked(orderBy).mockReturnValue({} as unknown as QueryOrderByConstraint);
+        vi.mocked(limit).mockReturnValue({} as unknown as QueryLimitConstraint);
     });
 
     describe('fetchFuelLogsByStationId', () => {
@@ -92,11 +96,13 @@ describe('firestoreService', () => {
                 {} as CollectionReference,
                 {} as QueryConstraint, // where userId
                 {} as QueryConstraint, // where stationId
-                {} as QueryConstraint  // orderBy timestamp
+                {} as QueryConstraint, // orderBy timestamp
+                {} as QueryConstraint  // limit
             );
             expect(where).toHaveBeenCalledWith('userId', '==', mockUserId);
             expect(where).toHaveBeenCalledWith('stationId', '==', mockStationId);
             expect(orderBy).toHaveBeenCalledWith('timestamp', 'desc');
+            expect(limit).toHaveBeenCalledWith(12);
             expect(getDocs).toHaveBeenCalled();
             expect(result).toEqual(mockLogs);
         });
@@ -135,6 +141,31 @@ describe('firestoreService', () => {
             vi.spyOn(navigator, 'onLine', 'get').mockReturnValueOnce(false);
 
             await expect(fetchFuelLogsByStationId(mockStationId)).rejects.toThrow('You are offline');
+        });
+    });
+
+    describe('fetchStationById', () => {
+        it('returns the station when the document exists', async () => {
+            vi.mocked(doc).mockReturnValue({} as never);
+            vi.mocked(getDoc).mockResolvedValue({
+                exists: () => true,
+                id: mockStationId,
+                data: () => ({ osmId: 'node/1', name: 'Shell', brand: 'Shell', latitude: 1, longitude: 2, logCount: 5, avgPrice: 1.5 }),
+            } as never);
+
+            const result = await fetchStationById(mockStationId);
+
+            expect(doc).toHaveBeenCalledWith(db, 'stations', mockStationId);
+            expect(result).toEqual({ id: mockStationId, osmId: 'node/1', name: 'Shell', brand: 'Shell', latitude: 1, longitude: 2, logCount: 5, avgPrice: 1.5 });
+        });
+
+        it('returns null when the document does not exist', async () => {
+            vi.mocked(doc).mockReturnValue({} as never);
+            vi.mocked(getDoc).mockResolvedValue({ exists: () => false } as never);
+
+            const result = await fetchStationById(mockStationId);
+
+            expect(result).toBeNull();
         });
     });
 });

@@ -5,11 +5,9 @@ import { getPerformance, FirebasePerformance } from "firebase/performance";
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   signOut,
   Auth,
-  UserCredential
 } from "firebase/auth";
 // Import updated Firestore functions and types for persistence
 import {
@@ -103,33 +101,27 @@ const perf: Promise<FirebasePerformance | null> = isSupported().then(supported =
 const googleProvider: GoogleAuthProvider = new GoogleAuthProvider();
 
 
-// --- Authentication Functions (remain the same) ---
-const signInWithGoogle = async (): Promise<void> => { // Changed return type to void
+// --- Authentication Functions ---
+const signInWithGoogle = async (): Promise<void> => {
   try {
-    await signInWithRedirect(auth, googleProvider); // Use signInWithRedirect
-    // After redirect, the result will be handled by getRedirectResult
+    await signInWithPopup(auth, googleProvider);
   } catch (error) {
     console.error("Google Sign-In Error:", error);
     throw error;
   }
 };
 
-const handleRedirectResult = async (): Promise<UserCredential | null> => {
+const logout = async (): Promise<void> => {
   try {
-    const result = await getRedirectResult(auth);
-    if (result) {
-      console.log("Google Sign-In Redirect Successful:", result.user.displayName);
-    }
-    return result;
+    await signOut(auth);
+    console.log("User signed out successfully.");
   } catch (error) {
-    console.error("Google Sign-In Redirect Error:", error);
+    console.error("Sign Out Error:", error);
     throw error;
   }
 };
-const logout = async (): Promise<void> => { try { await signOut(auth); console.log("User signed out successfully."); } catch (error) { console.error("Sign Out Error:", error); throw error; } };
 
-
-// Export the necessary instances and functions (db is now initialized above)
+// Export the necessary instances and functions
 export {
   app,
   auth,
@@ -139,6 +131,5 @@ export {
   perf,
   googleProvider,
   signInWithGoogle,
-  handleRedirectResult, // Export handleRedirectResult
-  logout
+  logout,
 };

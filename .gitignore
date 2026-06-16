@@ -42,5 +42,6 @@ coverage/
 .plans/
 .claude/
 .idx/
+.gemini/
 .vercel
 .env*.local

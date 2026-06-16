@@ -23,7 +23,7 @@ const BottomNav = (): JSX.Element => {
 
   return (
     <nav className="sm:hidden glass-nav">
-      <div className="grid grid-cols-6 items-center h-16">
+      <div className="grid items-center h-16" style={{ gridTemplateColumns: "repeat(" + navItems.length + ", minmax(0, 1fr))" }}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;

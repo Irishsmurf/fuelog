@@ -16,8 +16,7 @@ const HeatmapLayer: React.FC<HeatmapLayerProps> = ({ points, options }) => {
 
     const defaultOptions: L.HeatMapOptions = { radius: 25, blur: 15, maxZoom: 14, ...options };
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const heatLayer = (L as any).heatLayer(points, defaultOptions).addTo(map);
+    const heatLayer = L.heatLayer(points, defaultOptions).addTo(map);
 
     return () => {
       map.removeLayer(heatLayer);

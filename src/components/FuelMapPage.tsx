@@ -118,6 +118,10 @@ const FuelMapPage: React.FC = () => {
       return validLocations.map(log => [log.latitude!, log.longitude!, 1] as [number, number, number]);
   }, [validLocations]);
 
+  const heatmapOptions = useMemo<L.HeatMapOptions>(() => ({
+      radius: 25, blur: 15, maxZoom: 10
+  }), []);
+
   // Group logs by stationId — the canonical grouping key, since a station's
   // stored coordinates and a log's raw GPS reading are independent values
   // that don't reliably round to the same key. Logs with no stationId
@@ -248,7 +252,7 @@ const FuelMapPage: React.FC = () => {
             })}
           </MarkerClusterGroup>
         ) : (
-          <HeatmapLayer points={heatmapPoints} options={{ radius: 25, blur: 15, maxZoom: 10 }} />
+          <HeatmapLayer points={heatmapPoints} options={heatmapOptions} />
         )}
 
         <FitBoundsToMarkers points={validLocations} />

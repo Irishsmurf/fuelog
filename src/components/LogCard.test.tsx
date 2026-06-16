@@ -116,6 +116,30 @@ describe('LogCard', () => {
     expect(onEdit).toHaveBeenCalledWith(mockLog);
   });
 
+  describe('flip-to-map vs. scroll/drag (#162)', () => {
+    const logWithGeo: Log = { ...mockLog, latitude: 51.5, longitude: -0.1 };
+
+    it('flips to the map on a tap (no pointer movement)', () => {
+      const { container } = render(<LogCard log={logWithGeo} onEdit={vi.fn()} onDelete={vi.fn()} />);
+      const card = container.firstChild as HTMLElement;
+
+      fireEvent.pointerDown(card, { clientX: 100, clientY: 100 });
+      fireEvent.click(card, { clientX: 100, clientY: 100 });
+
+      expect(screen.getByTestId('map-container')).toBeInTheDocument();
+    });
+
+    it('does not flip when the pointer moved beyond the drag threshold (scrolling overflowing content)', () => {
+      const { container, queryByTestId } = render(<LogCard log={logWithGeo} onEdit={vi.fn()} onDelete={vi.fn()} />);
+      const card = container.firstChild as HTMLElement;
+
+      fireEvent.pointerDown(card, { clientX: 100, clientY: 100 });
+      fireEvent.click(card, { clientX: 100, clientY: 150 });
+
+      expect(queryByTestId('map-container')).not.toBeInTheDocument();
+    });
+  });
+
   it('calls onDelete when delete button is clicked', () => {
     const onEdit = vi.fn();
     const onDelete = vi.fn();

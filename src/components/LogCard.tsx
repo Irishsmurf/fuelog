@@ -1,5 +1,5 @@
 // src/components/LogCard.tsx
-import { JSX, useState } from 'react';
+import { JSX, useRef, useState } from 'react';
 import { Log } from '../utils/types';
 import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
 import { sanitizeUrl } from '../utils/sanitize';
@@ -48,6 +48,11 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
   const { theme } = useTheme();
   const [isFlipped, setIsFlipped] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
+  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
+  // Threshold (px) beyond which a pointer down→up is treated as a scroll/drag
+  // rather than a tap, so scrolling overflowing card content (#162) doesn't
+  // accidentally trigger the flip-to-map interaction.
+  const DRAG_THRESHOLD_PX = 10;
 
   const odometerInputEnabled = getBoolean('odometerInputEnabled');
 
@@ -69,9 +74,21 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
     ? `${log.originalCost?.toFixed(2)} ${log.currency}`
     : null;
 
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerDownPos.current = { x: e.clientX, y: e.clientY };
+  };
+
   const handleFlip = (e: React.MouseEvent) => {
     // Don't flip if clicking action buttons
     if ((e.target as HTMLElement).closest('button')) return;
+
+    const downPos = pointerDownPos.current;
+    if (downPos) {
+      const dx = e.clientX - downPos.x;
+      const dy = e.clientY - downPos.y;
+      if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD_PX) return;
+    }
+
     if (hasGeo) setIsFlipped(!isFlipped);
   };
 
@@ -80,6 +97,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
   return (
     <div
       className="relative w-full h-[320px] perspective-1000 group"
+      onPointerDown={handlePointerDown}
       onClick={handleFlip}
     >
       <div className={`relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}>

@@ -2,9 +2,9 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { addDoc, getDocs } from 'firebase/firestore';
 import { fetchExchangeRate } from '../utils/currencyApi';
-import { getLastOdometerReading } from '../firebase/firestoreService';
+import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
 import { extractDataFromReceipt } from '../utils/gemini';
-import { isAccurateEnoughForStationMatch } from '../utils/locationService';
+import { findNearestStation, isAccurateEnoughForStationMatch } from '../utils/locationService';
 import QuickLogPage from './QuickLogPage';
 
 const mockT = (key: string, opts?: Record<string, unknown>) => {
@@ -88,6 +88,8 @@ function mockSnapshot(docs: { id: string; data: Record<string, unknown> }[]) {
 }
 
 describe('QuickLogPage', () => {
+  let mockGetCurrentPosition: ReturnType<typeof vi.fn>;
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(getDocs).mockImplementation(async () => {
@@ -95,8 +97,9 @@ describe('QuickLogPage', () => {
     });
     vi.mocked(getLastOdometerReading).mockResolvedValue(null);
 
+    mockGetCurrentPosition = vi.fn((_success, error) => error?.({ code: 1, message: 'denied' }));
     Object.defineProperty(global.navigator, 'geolocation', {
-      value: { getCurrentPosition: vi.fn((_success, error) => error?.({ code: 1, message: 'denied' })) },
+      value: { getCurrentPosition: mockGetCurrentPosition },
       configurable: true,
     });
   });
@@ -209,13 +212,8 @@ describe('QuickLogPage', () => {
 
   describe('low GPS accuracy warning', () => {
     const setGeolocationAccuracy = (accuracy: number) => {
-      Object.defineProperty(global.navigator, 'geolocation', {
-        value: {
-          getCurrentPosition: vi.fn((success) => {
-            success({ coords: { latitude: 53.3, longitude: -6.2, accuracy } });
-          }),
-        },
-        configurable: true,
+      mockGetCurrentPosition.mockImplementation((success) => {
+        success({ coords: { latitude: 53.3, longitude: -6.2, accuracy } });
       });
     };
 
@@ -291,5 +289,52 @@ describe('QuickLogPage', () => {
       await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(2));
       expect(screen.queryByText(/skipping station detection/)).not.toBeInTheDocument();
     });
+  });
+
+  it('successfully captures location, matches nearest station, and updates station metrics', async () => {
+    const mockStation = {
+      id: 'station-123',
+      osmId: 'node/123',
+      name: 'Shell Berlin',
+      brand: 'Shell',
+      latitude: 52.52,
+      longitude: 13.405,
+    };
+
+    vi.mocked(findNearestStation).mockResolvedValue(mockStation);
+    vi.mocked(getOrCreateStation).mockResolvedValue('station-123');
+
+    mockGetCurrentPosition.mockImplementation((success) =>
+      success({
+        coords: {
+          latitude: 52.52,
+          longitude: 13.405,
+          accuracy: 15,
+        },
+      })
+    );
+
+    render(<QuickLogPage />);
+
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+
+    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    expect(payload).toMatchObject({
+      brand: 'Shell Berlin',
+      latitude: 52.52,
+      longitude: 13.405,
+      locationAccuracy: 15,
+      stationId: 'station-123',
+    });
+
+    expect(updateStationMetrics).toHaveBeenCalledWith('station-123', 50 / 30);
   });
 });

@@ -5,8 +5,7 @@
     "map": "Mapa",
     "profile": "Perfil",
     "stations": "Gasolineras",
-    "dashboard": "Panel",
-    "import": "Importar"
+    "dashboard": "Panel"
   },
   "login": {
     "tagline": "Seguimiento de Combustible Preciso",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "Sin presupuesto",
     "measurementUnits": "Unidades de Medida",
     "measurementUnitsSoon": "Próximamente: Cambio entre Métrico (Km/L) e Imperial (MPG).",
+    "dataImport": {
+      "heading": "Importación de Datos",
+      "description": "¿Ya llevas un registro de combustible en otro lugar? Importa tus registros anteriores desde un archivo CSV.",
+      "cta": "Ir a Importar"
+    },
     "vehicleFleet": "Flota de Vehículos",
     "vehicleFleetSubtext": "Administra tus coches y alquileres.",
     "showArchived": "Mostrar Archivados ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Fila {{row}}: Columnas insuficientes.",
       "foundErrors": "Se encontraron {{count}} errores durante el análisis. Primeros errores: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Importa tus registros de combustible existentes",
+    "description": "¿Ya llevas un registro de combustible en otro lugar? Importa tus registros anteriores desde un archivo CSV en pocos clics.",
+    "cta": "Importar ahora",
+    "dismiss": "Cerrar"
   },
   "apiTokens": {
     "title": "Acceso API",

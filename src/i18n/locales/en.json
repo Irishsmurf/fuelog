@@ -5,8 +5,7 @@
     "map": "Map",
     "profile": "Profile",
     "stations": "Stations",
-    "dashboard": "Dashboard",
-    "import": "Import"
+    "dashboard": "Dashboard"
   },
   "login": {
     "tagline": "Precision Fuel Tracking",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "No budget set",
     "measurementUnits": "Measurement Units",
     "measurementUnitsSoon": "Coming soon: Toggle between Metric (Km/L) and Imperial (MPG) defaults.",
+    "dataImport": {
+      "heading": "Data Import",
+      "description": "Already tracking fuel elsewhere? Import your past logs from a CSV file.",
+      "cta": "Go to Import"
+    },
     "maintenance": {
       "heading": "Maintenance",
       "migrateStations": "Link Stations",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Row {{row}}: Insufficient columns.",
       "foundErrors": "Found {{count}} errors during parsing. First few: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Import your existing fuel logs",
+    "description": "Already tracking fuel elsewhere? Import your past logs from a CSV file in a few clicks.",
+    "cta": "Import now",
+    "dismiss": "Dismiss"
   },
   "apiTokens": {
     "title": "API Access",

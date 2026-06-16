@@ -2,6 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getDocs } from 'firebase/firestore';
 import ProfilePage from './ProfilePage';
+import { MemoryRouter } from 'react-router-dom';
 
 const mockT = (key: string, opts?: Record<string, unknown>) => {
   if (opts && 'defaultValue' in opts) return opts.defaultValue as string;
@@ -59,19 +60,19 @@ describe('ProfilePage monthly budget field', () => {
   });
 
   it('renders empty when no budget is set', async () => {
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     await waitFor(() => expect(screen.getByPlaceholderText('profile.monthlyBudgetPlaceholder')).toBeInTheDocument());
     expect((screen.getByPlaceholderText('profile.monthlyBudgetPlaceholder') as HTMLInputElement).value).toBe('');
   });
 
   it('seeds the field from an existing budget', async () => {
     mockProfile = { homeCurrency: 'EUR', monthlyBudget: 150 };
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     await waitFor(() => expect((screen.getByPlaceholderText('profile.monthlyBudgetPlaceholder') as HTMLInputElement).value).toBe('150'));
   });
 
   it('saves a valid budget on blur', async () => {
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     const input = await screen.findByPlaceholderText('profile.monthlyBudgetPlaceholder');
 
     fireEvent.change(input, { target: { value: '200' } });
@@ -82,7 +83,7 @@ describe('ProfilePage monthly budget field', () => {
 
   it('clears the budget (saves 0) when the field is emptied', async () => {
     mockProfile = { homeCurrency: 'EUR', monthlyBudget: 150 };
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     const input = await screen.findByPlaceholderText('profile.monthlyBudgetPlaceholder');
     await waitFor(() => expect((input as HTMLInputElement).value).toBe('150'));
 
@@ -94,7 +95,7 @@ describe('ProfilePage monthly budget field', () => {
 
   it('treats invalid/negative input as no budget', async () => {
     mockProfile = { homeCurrency: 'EUR', monthlyBudget: 150 };
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     const input = await screen.findByPlaceholderText('profile.monthlyBudgetPlaceholder');
     await waitFor(() => expect((input as HTMLInputElement).value).toBe('150'));
 
@@ -106,7 +107,7 @@ describe('ProfilePage monthly budget field', () => {
 
   it('does not call updateProfile if the value is unchanged', async () => {
     mockProfile = { homeCurrency: 'EUR', monthlyBudget: 150 };
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     const input = await screen.findByPlaceholderText('profile.monthlyBudgetPlaceholder');
     await waitFor(() => expect((input as HTMLInputElement).value).toBe('150'));
 
@@ -117,14 +118,14 @@ describe('ProfilePage monthly budget field', () => {
 
   it('shows a browser-permission warning when notifications are denied', async () => {
     mockFCMState = { isEnabled: false, isLoading: false, permissionDenied: true };
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     await waitFor(() => {
       expect(screen.getByText(/Notifications are blocked for this site/)).toBeInTheDocument();
     });
   });
 
   it('does not show the permission warning when notifications are not denied', async () => {
-    render(<ProfilePage />);
+    render(<MemoryRouter><ProfilePage /></MemoryRouter>);
     await waitFor(() => expect(screen.getByText('Weekly fuel digest')).toBeInTheDocument());
     expect(screen.queryByText(/Notifications are blocked for this site/)).not.toBeInTheDocument();
   });

@@ -5,8 +5,7 @@
     "map": "Kart",
     "profile": "Profil",
     "stations": "Stasjoner",
-    "dashboard": "Oversikt",
-    "import": "Importer"
+    "dashboard": "Oversikt"
   },
   "login": {
     "tagline": "Presisjon i drivstoffsporing",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "Ingen budsjett angitt",
     "measurementUnits": "Måleenheter",
     "measurementUnitsSoon": "Kommer snart: Bytt mellom metrisk (Km/L) og imperisk (MPG) standard.",
+    "dataImport": {
+      "heading": "Dataimport",
+      "description": "Sporer du allerede drivstoff et annet sted? Importer dine tidligere logger fra en CSV-fil.",
+      "cta": "Gå til import"
+    },
     "vehicleFleet": "Bilpark",
     "vehicleFleetSubtext": "Administrer bilene dine.",
     "showArchived": "Vis arkiverte ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "Rad {{row}}: Utilstrekkelige kolonner.",
       "foundErrors": "Fant {{count}} feil under analyse. Første få: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "Importer dine eksisterende drivstofflogger",
+    "description": "Sporer du allerede drivstoff et annet sted? Importer dine tidligere logger fra en CSV-fil med noen få klikk.",
+    "cta": "Importer nå",
+    "dismiss": "Lukk"
   },
   "apiTokens": {
     "title": "API-tilgang",

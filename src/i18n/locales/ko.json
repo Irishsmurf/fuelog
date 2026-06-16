@@ -5,8 +5,7 @@
     "map": "지도",
     "profile": "프로필",
     "stations": "주유소",
-    "dashboard": "대시보드",
-    "import": "가져오기"
+    "dashboard": "대시보드"
   },
   "login": {
     "tagline": "정밀한 연료 추적",
@@ -251,6 +250,11 @@
     "monthlyBudgetPlaceholder": "예산 미설정",
     "measurementUnits": "측정 단위",
     "measurementUnitsSoon": "출시 예정: 미터법 (Km/L)과 야드파운드법 (MPG) 간 전환.",
+    "dataImport": {
+      "heading": "데이터 가져오기",
+      "description": "다른 곳에서 이미 주유 기록을 관리하고 있나요? CSV 파일에서 과거 기록을 가져올 수 있습니다.",
+      "cta": "가져오기로 이동"
+    },
     "vehicleFleet": "차량 목록",
     "vehicleFleetSubtext": "내 차와 렌터카를 관리합니다.",
     "showArchived": "보관된 항목 표시 ({{count}})",
@@ -364,6 +368,12 @@
       "insufficientColumns": "{{row}}행: 열이 부족합니다.",
       "foundErrors": "구문 분석 중 {{count}}개의 오류가 발견되었습니다. 처음 몇 개: {{errors}}"
     }
+  },
+  "importOnboarding": {
+    "heading": "기존 주유 기록 가져오기",
+    "description": "다른 곳에서 이미 주유 기록을 관리하고 있나요? CSV 파일에서 몇 번의 클릭으로 과거 기록을 가져올 수 있습니다.",
+    "cta": "지금 가져오기",
+    "dismiss": "닫기"
   },
   "apiTokens": {
     "title": "API 액세스",

@@ -105,7 +105,7 @@ function AuthenticatedApp(): JSX.Element {
       <SyncStatus />
 
       <main className={`flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full min-w-0 ${
-        WIDE_LAYOUT_PATHS.has(location.pathname) ? 'max-w-7xl' : 'max-w-5xl'
+        WIDE_LAYOUT_PATHS.has(location.pathname.replace(/\/$/, '')) ? 'max-w-7xl' : 'max-w-5xl'
       }`}>
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>

@@ -1,5 +1,6 @@
 // src/firebase/__tests__/firestoreService.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { CollectionReference, Query, QueryConstraint, QuerySnapshot } from 'firebase/firestore';
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../config'; // Mocked config for auth and db
 import { fetchFuelLogsByStationId } from '../firestoreService';
@@ -38,7 +39,7 @@ const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 describe('firestoreService', () => {
     const mockUserId = 'testUserId';
     const mockStationId = 'testStationId';
-    let mockCurrentUser: any = null;
+    let mockCurrentUser: { uid: string } | null = null;
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -48,10 +49,10 @@ describe('firestoreService', () => {
         vi.spyOn(auth, 'currentUser', 'get').mockImplementation(() => mockCurrentUser);
         
         // Reset mock implementations for each test
-        vi.mocked(collection).mockReturnValue({} as any);
-        vi.mocked(query).mockReturnValue({} as any);
-        vi.mocked(where).mockReturnValue({} as any);
-        vi.mocked(orderBy).mockReturnValue({} as any);
+        vi.mocked(collection).mockReturnValue({} as CollectionReference);
+        vi.mocked(query).mockReturnValue({} as Query);
+        vi.mocked(where).mockReturnValue({} as QueryConstraint);
+        vi.mocked(orderBy).mockReturnValue({} as QueryConstraint);
     });
 
     describe('fetchFuelLogsByStationId', () => {
@@ -82,16 +83,16 @@ describe('firestoreService', () => {
 
             vi.mocked(getDocs).mockResolvedValueOnce({
                 docs: mockLogs.map(log => ({ id: log.id, data: () => log }))
-            } as any);
+            } as unknown as QuerySnapshot);
 
             const result = await fetchFuelLogsByStationId(mockStationId);
 
             expect(collection).toHaveBeenCalledWith(db, 'fuelLogs');
             expect(query).toHaveBeenCalledWith(
-                {} as any, // Mocked collection ref
-                {} as any, // Mocked where clause for userId
-                {} as any, // Mocked where clause for stationId
-                {} as any  // Mocked orderBy clause
+                {} as CollectionReference,
+                {} as QueryConstraint, // where userId
+                {} as QueryConstraint, // where stationId
+                {} as QueryConstraint  // orderBy timestamp
             );
             expect(where).toHaveBeenCalledWith('userId', '==', mockUserId);
             expect(where).toHaveBeenCalledWith('stationId', '==', mockStationId);
@@ -114,7 +115,7 @@ describe('firestoreService', () => {
         it('should return an empty array if no logs are found for the stationId', async () => {
             vi.mocked(getDocs).mockResolvedValueOnce({
                 docs: []
-            } as any);
+            } as unknown as QuerySnapshot);
 
             const result = await fetchFuelLogsByStationId(mockStationId);
 

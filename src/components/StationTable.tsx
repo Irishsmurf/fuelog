@@ -18,7 +18,7 @@ const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, 
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection } | null>(null);
 
   const sortedStations = useMemo(() => {
-    let sortableStations = [...stations];
+    const sortableStations = [...stations];
     if (sortConfig !== null) {
       sortableStations.sort((a, b) => {
         let aValue: string | number | undefined;

@@ -5,7 +5,8 @@
     "map": "Map",
     "profile": "Profile",
     "stations": "Stations",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "import": "Import"
   },
   "login": {
     "tagline": "Precision Fuel Tracking",
@@ -423,7 +424,15 @@
     "loading": "Loading...",
     "saving": "Saving...",
     "error": "An error occurred.",
-    "optional": "Optional"
+    "optional": "Optional",
+    "user": "User",
+    "signOut": "Sign Out",
+    "offlineMode": "Offline Mode",
+    "syncingData": "Syncing Data...",
+    "somethingWentWrong": "Something went wrong",
+    "unexpectedError": "An unexpected error occurred.",
+    "tryAgain": "Try again",
+    "loadingMapData": "Loading map data..."
   },
   "language": {
     "label": "Language",
@@ -460,5 +469,11 @@
       "monthlySpend": "Monthly Spend (Last 6 Months)",
       "spend": "Spend"
     }
+  },
+  "installPrompt": {
+    "title": "Install Fuelog",
+    "subtitle": "Add to home screen for easy access",
+    "later": "Later",
+    "install": "Install"
   }
 }

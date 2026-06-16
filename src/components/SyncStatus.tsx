@@ -2,11 +2,13 @@ import { useState, useEffect, JSX } from 'react';
 import { onSnapshotsInSync } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { WifiOff, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Component to display the current network and Firestore sync status.
  */
 const SyncStatus = (): JSX.Element => {
+  const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -54,12 +56,12 @@ const SyncStatus = (): JSX.Element => {
         {!isOnline ? (
           <>
             <WifiOff size={12} />
-            <span>Offline Mode</span>
+            <span>{t('common.offlineMode')}</span>
           </>
         ) : (
           <>
             <RefreshCw size={12} className="animate-spin" />
-            <span>Syncing Data...</span>
+            <span>{t('common.syncingData')}</span>
           </>
         )}
       </div>

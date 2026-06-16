@@ -5,7 +5,8 @@
     "map": "地図",
     "profile": "プロフィール",
     "stations": "ガソリンスタンド",
-    "dashboard": "ダッシュボード"
+    "dashboard": "ダッシュボード",
+    "import": "インポート"
   },
   "login": {
     "tagline": "精確な燃料追跡",
@@ -423,7 +424,15 @@
     "loading": "読み込み中...",
     "saving": "保存中...",
     "error": "エラーが発生しました。",
-    "optional": "任意"
+    "optional": "任意",
+    "user": "ユーザー",
+    "signOut": "サインアウト",
+    "offlineMode": "オフラインモード",
+    "syncingData": "データを同期中...",
+    "somethingWentWrong": "問題が発生しました",
+    "unexpectedError": "予期しないエラーが発生しました。",
+    "tryAgain": "再試行",
+    "loadingMapData": "地図データを読み込み中..."
   },
   "language": {
     "label": "言語",
@@ -460,5 +469,11 @@
       "monthlySpend": "月間支出（過去6か月）",
       "spend": "支出"
     }
+  },
+  "installPrompt": {
+    "title": "Fuelogをインストール",
+    "subtitle": "ホーム画面に追加して簡単にアクセス",
+    "later": "後で",
+    "install": "インストール"
   }
 }

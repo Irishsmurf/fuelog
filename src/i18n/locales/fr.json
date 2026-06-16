@@ -5,7 +5,8 @@
     "map": "Carte",
     "profile": "Profil",
     "stations": "Stations",
-    "dashboard": "Tableau de bord"
+    "dashboard": "Tableau de bord",
+    "import": "Importer"
   },
   "login": {
     "tagline": "Suivi de Carburant Précis",
@@ -423,7 +424,15 @@
     "loading": "Chargement...",
     "saving": "Enregistrement...",
     "error": "Une erreur s'est produite.",
-    "optional": "Optionnel"
+    "optional": "Optionnel",
+    "user": "Utilisateur",
+    "signOut": "Se déconnecter",
+    "offlineMode": "Mode hors ligne",
+    "syncingData": "Synchronisation des données...",
+    "somethingWentWrong": "Quelque chose s'est mal passé",
+    "unexpectedError": "Une erreur inattendue s'est produite.",
+    "tryAgain": "Réessayer",
+    "loadingMapData": "Chargement des données de la carte..."
   },
   "language": {
     "label": "Langue",
@@ -460,5 +469,11 @@
       "monthlySpend": "Dépenses Mensuelles (6 Derniers Mois)",
       "spend": "Dépense"
     }
+  },
+  "installPrompt": {
+    "title": "Installer Fuelog",
+    "subtitle": "Ajouter à l'écran d'accueil pour un accès facile",
+    "later": "Plus tard",
+    "install": "Installer"
   }
 }

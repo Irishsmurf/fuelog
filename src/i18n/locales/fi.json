@@ -5,7 +5,8 @@
     "map": "Kartta",
     "profile": "Profiili",
     "stations": "Asemat",
-    "dashboard": "Yleiskatsaus"
+    "dashboard": "Yleiskatsaus",
+    "import": "Tuo"
   },
   "login": {
     "tagline": "Tarkka polttoaineen seuranta",
@@ -423,7 +424,15 @@
     "loading": "Ladataan...",
     "saving": "Tallennetaan...",
     "error": "Tapahtui virhe.",
-    "optional": "Valinnainen"
+    "optional": "Valinnainen",
+    "user": "Käyttäjä",
+    "signOut": "Kirjaudu ulos",
+    "offlineMode": "Offline-tila",
+    "syncingData": "Synkronoidaan tietoja...",
+    "somethingWentWrong": "Jokin menu pieleen",
+    "unexpectedError": "Tapahtui odottamaton virhe.",
+    "tryAgain": "Yritä uudelleen",
+    "loadingMapData": "Ladataan karttatietoja..."
   },
   "language": {
     "label": "Kieli",
@@ -460,5 +469,11 @@
       "monthlySpend": "Kuukausittaiset Kulut (Viimeiset 6 Kuukautta)",
       "spend": "Kulut"
     }
+  },
+  "installPrompt": {
+    "title": "Asenna Fuelog",
+    "subtitle": "Lisää aloitusnäytölle helppoa käyttöä varten",
+    "later": "Myöhemmin",
+    "install": "Asenna"
   }
 }

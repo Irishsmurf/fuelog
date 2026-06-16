@@ -5,7 +5,8 @@
     "map": "Karte",
     "profile": "Profil",
     "stations": "Tankstellen",
-    "dashboard": "Übersicht"
+    "dashboard": "Übersicht",
+    "import": "Import"
   },
   "login": {
     "tagline": "Präzise Kraftstoffverfolgung",
@@ -423,7 +424,15 @@
     "loading": "Wird geladen...",
     "saving": "Wird gespeichert...",
     "error": "Ein Fehler ist aufgetreten.",
-    "optional": "Optional"
+    "optional": "Optional",
+    "user": "Benutzer",
+    "signOut": "Abmelden",
+    "offlineMode": "Offline-Modus",
+    "syncingData": "Daten werden synchronisiert...",
+    "somethingWentWrong": "Etwas ist schiefgelaufen",
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "tryAgain": "Erneut versuchen",
+    "loadingMapData": "Kartendaten werden geladen..."
   },
   "language": {
     "label": "Sprache",
@@ -460,5 +469,11 @@
       "monthlySpend": "Monatliche Ausgaben (Letzte 6 Monate)",
       "spend": "Ausgaben"
     }
+  },
+  "installPrompt": {
+    "title": "Fuelog installieren",
+    "subtitle": "Zum Startbildschirm hinzufügen für einfachen Zugriff",
+    "later": "Später",
+    "install": "Installieren"
   }
 }

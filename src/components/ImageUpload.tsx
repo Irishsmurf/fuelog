@@ -54,7 +54,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onFileSelect, label }) => {
         <div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 group">
           <img 
             src={preview} 
-            alt="Receipt preview" 
+            alt={t('imageUpload.receiptPhoto')}
             className="w-full h-32 object-cover" 
           />
           <button

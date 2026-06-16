@@ -136,16 +136,22 @@ jobs:
           FILES=$(find src/components src/pages -name "*.tsx" -o -name "*.ts" | grep -v ".test.\|.spec.")
 
           for FILE in $FILES; do
-            # Check if file has user-visible JSX content (renders to the DOM)
-            # and does NOT import useTranslation
+            # Check if file has user-visible JSX content (renders to the DOM).
+            # Runs regardless of whether the file already uses useTranslation/
+            # withTranslation, since a file can be partially translated, and
+            # class components can't use the hook at all but can still have
+            # hardcoded text mixed with t() calls passed down as props.
             HAS_JSX_RETURN=$(grep -c "return (" "$FILE" 2>/dev/null || echo 0)
-            HAS_I18N=$(grep -c "useTranslation" "$FILE" 2>/dev/null || echo 0)
 
-            if [ "$HAS_JSX_RETURN" -gt 0 ] && [ "$HAS_I18N" -eq 0 ]; then
-              # Check for long English string literals that look like UI text
-              HARDCODED=$(grep -nE '"[A-Z][a-zA-Z]{4,} [a-zA-Z ]{4,}"' "$FILE" 2>/dev/null | grep -v "//\|console\." || true)
+            if [ "$HAS_JSX_RETURN" -gt 0 ]; then
+              # Hardcoded sentence-case string literal attributes/props (e.g. title="Sign Out")
+              QUOTED=$(grep -nE '"[A-Z][a-zA-Z]{4,} [a-zA-Z ]{4,}"' "$FILE" 2>/dev/null | grep -v "//\|console\.\|t('\|t(\"" || true)
+              # Hardcoded sentence-case JSX text nodes (e.g. >Install Fuelog<)
+              JSX_TEXT=$(grep -nE '>[A-Z][a-zA-Z]{2,}( [a-zA-Z.,!]{2,})+<' "$FILE" 2>/dev/null | grep -v "{t(\|{i18n" || true)
+
+              HARDCODED=$(printf '%s\n%s' "$QUOTED" "$JSX_TEXT" | grep -v '^$' || true)
               if [ -n "$HARDCODED" ]; then
-                echo "WARNING: $FILE appears to render UI but does not use useTranslation:"
+                echo "WARNING: $FILE has hardcoded user-facing strings not wrapped with t():"
                 echo "$HARDCODED"
                 VIOLATIONS=$((VIOLATIONS + 1))
               fi
@@ -155,7 +161,7 @@ jobs:
           if [ $VIOLATIONS -gt 0 ]; then
             echo ""
             echo "$VIOLATIONS file(s) may have hardcoded strings not wrapped with t()."
-            echo "Import useTranslation and use t('key') for all user-visible text."
+            echo "Use t('key') for all user-visible text (via useTranslation, or withTranslation for class components)."
             exit 1
           fi
 

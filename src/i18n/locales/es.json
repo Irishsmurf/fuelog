@@ -5,7 +5,8 @@
     "map": "Mapa",
     "profile": "Perfil",
     "stations": "Gasolineras",
-    "dashboard": "Panel"
+    "dashboard": "Panel",
+    "import": "Importar"
   },
   "login": {
     "tagline": "Seguimiento de Combustible Preciso",
@@ -423,7 +424,15 @@
     "loading": "Cargando...",
     "saving": "Guardando...",
     "error": "Ocurrió un error.",
-    "optional": "Opcional"
+    "optional": "Opcional",
+    "user": "Usuario",
+    "signOut": "Cerrar sesión",
+    "offlineMode": "Modo sin conexión",
+    "syncingData": "Sincronizando datos...",
+    "somethingWentWrong": "Algo salió mal",
+    "unexpectedError": "Se produjo un error inesperado.",
+    "tryAgain": "Intentar de nuevo",
+    "loadingMapData": "Cargando datos del mapa..."
   },
   "language": {
     "label": "Idioma",
@@ -460,5 +469,11 @@
       "monthlySpend": "Gasto Mensual (Últimos 6 Meses)",
       "spend": "Gasto"
     }
+  },
+  "installPrompt": {
+    "title": "Instalar Fuelog",
+    "subtitle": "Añádelo a la pantalla de inicio para un acceso fácil",
+    "later": "Más tarde",
+    "install": "Instalar"
   }
 }

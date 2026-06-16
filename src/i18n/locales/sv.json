@@ -5,7 +5,8 @@
     "map": "Karta",
     "profile": "Profil",
     "stations": "Stationer",
-    "dashboard": "Översikt"
+    "dashboard": "Översikt",
+    "import": "Importera"
   },
   "login": {
     "tagline": "Precision i bränsleuppföljning",
@@ -423,7 +424,15 @@
     "loading": "Laddar...",
     "saving": "Sparar...",
     "error": "Ett fel uppstod.",
-    "optional": "Valfritt"
+    "optional": "Valfritt",
+    "user": "Användare",
+    "signOut": "Logga ut",
+    "offlineMode": "Offlineläge",
+    "syncingData": "Synkroniserar data...",
+    "somethingWentWrong": "Något gick fel",
+    "unexpectedError": "Ett oväntat fel inträffade.",
+    "tryAgain": "Försök igen",
+    "loadingMapData": "Laddar kartdata..."
   },
   "language": {
     "label": "Språk",
@@ -460,5 +469,11 @@
       "monthlySpend": "Månadsutgifter (Senaste 6 Månaderna)",
       "spend": "Utgift"
     }
+  },
+  "installPrompt": {
+    "title": "Installera Fuelog",
+    "subtitle": "Lägg till på hemskärmen för enkel åtkomst",
+    "later": "Senare",
+    "install": "Installera"
   }
 }

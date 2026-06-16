@@ -6,7 +6,7 @@
     "profile": "Próifíl",
     "stations": "Stáisiúin",
     "dashboard": "Painéal",
-    "import": "[ga] Import"
+    "import": "Iompórtáil"
   },
   "login": {
     "tagline": "Rianú Breosla Cruinn",
@@ -425,13 +425,13 @@
     "saving": "Ag sábháil...",
     "error": "Tharla earráid.",
     "optional": "Roghnach",
-    "user": "[ga] User",
-    "signOut": "[ga] Sign Out",
-    "offlineMode": "[ga] Offline Mode",
-    "syncingData": "[ga] Syncing Data...",
-    "somethingWentWrong": "[ga] Something went wrong",
-    "unexpectedError": "[ga] An unexpected error occurred.",
-    "tryAgain": "[ga] Try again"
+    "user": "Úsáideoir",
+    "signOut": "Sínigh Amach",
+    "offlineMode": "Mód As Líne",
+    "syncingData": "Sonraí á sioncronú...",
+    "somethingWentWrong": "Tharla earráid",
+    "unexpectedError": "Tharla earráid gan choinne.",
+    "tryAgain": "Bain triail eile as"
   },
   "language": {
     "label": "Teanga",
@@ -470,9 +470,9 @@
     }
   },
   "installPrompt": {
-    "title": "[ga] Install Fuelog",
-    "subtitle": "[ga] Add to home screen for easy access",
-    "later": "[ga] Later",
-    "install": "[ga] Install"
+    "title": "Suiteáil Fuelog",
+    "subtitle": "Cuir leis an scáileán baile le haghaidh rochtain éasca",
+    "later": "Ar ball",
+    "install": "Suiteáil"
   }
 }

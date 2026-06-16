@@ -6,7 +6,7 @@
     "profile": "Profiili",
     "stations": "Asemat",
     "dashboard": "Yleiskatsaus",
-    "import": "[fi] Import"
+    "import": "Tuo"
   },
   "login": {
     "tagline": "Tarkka polttoaineen seuranta",
@@ -425,13 +425,13 @@
     "saving": "Tallennetaan...",
     "error": "Tapahtui virhe.",
     "optional": "Valinnainen",
-    "user": "[fi] User",
-    "signOut": "[fi] Sign Out",
-    "offlineMode": "[fi] Offline Mode",
-    "syncingData": "[fi] Syncing Data...",
-    "somethingWentWrong": "[fi] Something went wrong",
-    "unexpectedError": "[fi] An unexpected error occurred.",
-    "tryAgain": "[fi] Try again"
+    "user": "Käyttäjä",
+    "signOut": "Kirjaudu ulos",
+    "offlineMode": "Offline-tila",
+    "syncingData": "Synkronoidaan tietoja...",
+    "somethingWentWrong": "Jokin menu pieleen",
+    "unexpectedError": "Tapahtui odottamaton virhe.",
+    "tryAgain": "Yritä uudelleen"
   },
   "language": {
     "label": "Kieli",
@@ -470,9 +470,9 @@
     }
   },
   "installPrompt": {
-    "title": "[fi] Install Fuelog",
-    "subtitle": "[fi] Add to home screen for easy access",
-    "later": "[fi] Later",
-    "install": "[fi] Install"
+    "title": "Asenna Fuelog",
+    "subtitle": "Lisää aloitusnäytölle helppoa käyttöä varten",
+    "later": "Myöhemmin",
+    "install": "Asenna"
   }
 }

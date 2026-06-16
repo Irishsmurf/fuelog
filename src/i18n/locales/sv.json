@@ -6,7 +6,7 @@
     "profile": "Profil",
     "stations": "Stationer",
     "dashboard": "Översikt",
-    "import": "[sv] Import"
+    "import": "Importera"
   },
   "login": {
     "tagline": "Precision i bränsleuppföljning",
@@ -425,13 +425,13 @@
     "saving": "Sparar...",
     "error": "Ett fel uppstod.",
     "optional": "Valfritt",
-    "user": "[sv] User",
-    "signOut": "[sv] Sign Out",
-    "offlineMode": "[sv] Offline Mode",
-    "syncingData": "[sv] Syncing Data...",
-    "somethingWentWrong": "[sv] Something went wrong",
-    "unexpectedError": "[sv] An unexpected error occurred.",
-    "tryAgain": "[sv] Try again"
+    "user": "Användare",
+    "signOut": "Logga ut",
+    "offlineMode": "Offlineläge",
+    "syncingData": "Synkroniserar data...",
+    "somethingWentWrong": "Något gick fel",
+    "unexpectedError": "Ett oväntat fel inträffade.",
+    "tryAgain": "Försök igen"
   },
   "language": {
     "label": "Språk",
@@ -470,9 +470,9 @@
     }
   },
   "installPrompt": {
-    "title": "[sv] Install Fuelog",
-    "subtitle": "[sv] Add to home screen for easy access",
-    "later": "[sv] Later",
-    "install": "[sv] Install"
+    "title": "Installera Fuelog",
+    "subtitle": "Lägg till på hemskärmen för enkel åtkomst",
+    "later": "Senare",
+    "install": "Installera"
   }
 }

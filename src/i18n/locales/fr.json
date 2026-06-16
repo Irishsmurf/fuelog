@@ -6,7 +6,7 @@
     "profile": "Profil",
     "stations": "Stations",
     "dashboard": "Tableau de bord",
-    "import": "[fr] Import"
+    "import": "Importer"
   },
   "login": {
     "tagline": "Suivi de Carburant Précis",
@@ -425,13 +425,13 @@
     "saving": "Enregistrement...",
     "error": "Une erreur s'est produite.",
     "optional": "Optionnel",
-    "user": "[fr] User",
-    "signOut": "[fr] Sign Out",
-    "offlineMode": "[fr] Offline Mode",
-    "syncingData": "[fr] Syncing Data...",
-    "somethingWentWrong": "[fr] Something went wrong",
-    "unexpectedError": "[fr] An unexpected error occurred.",
-    "tryAgain": "[fr] Try again"
+    "user": "Utilisateur",
+    "signOut": "Se déconnecter",
+    "offlineMode": "Mode hors ligne",
+    "syncingData": "Synchronisation des données...",
+    "somethingWentWrong": "Quelque chose s'est mal passé",
+    "unexpectedError": "Une erreur inattendue s'est produite.",
+    "tryAgain": "Réessayer"
   },
   "language": {
     "label": "Langue",
@@ -470,9 +470,9 @@
     }
   },
   "installPrompt": {
-    "title": "[fr] Install Fuelog",
-    "subtitle": "[fr] Add to home screen for easy access",
-    "later": "[fr] Later",
-    "install": "[fr] Install"
+    "title": "Installer Fuelog",
+    "subtitle": "Ajouter à l'écran d'accueil pour un accès facile",
+    "later": "Plus tard",
+    "install": "Installer"
   }
 }

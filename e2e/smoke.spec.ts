@@ -1,10 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Responsive UX Smoke Tests', () => {
-  test.skip('should show correct navigation and header (requires auth/firebase config)', async ({ page }) => {
-    // Tests are failing locally because of missing environment variables for Firebase
-    // causing an infinite loop or render failure in the app.
-    // Instead of failing everything, just verify the index page returns successfully.
+  test('should load the app correctly @smoke', async ({ page }) => {
+    // Tests might fail locally because of missing environment variables for Firebase,
+    // but in production, we expect the app to load and return a 200 status code.
     const response = await page.goto('/');
     expect(response?.status()).toBe(200);
   });

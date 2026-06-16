@@ -4,7 +4,7 @@
     "history": "Verlauf",
     "map": "Karte",
     "profile": "Profil",
-    "stations": "[de] Stations",
+    "stations": "Tankstellen",
     "dashboard": "Übersicht"
   },
   "login": {
@@ -15,35 +15,35 @@
     "error": "Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
   },
   "stations": {
-    "title": "[de] Fuel Stations",
-    "loading": "[de] Loading fuel stations...",
-    "errorLoading": "[de] Failed to load fuel stations. Please try again.",
-    "noStationsFound": "[de] No fuel stations found with logged entries. Log some fuel with location data!",
-    "selectStationPrompt": "[de] Select a station from the left to view details."
+    "title": "Tankstellen",
+    "loading": "Tankstellen werden geladen...",
+    "errorLoading": "Tankstellen konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "noStationsFound": "Keine Tankstellen mit erfassten Einträgen gefunden. Erfassen Sie Tankvorgänge mit Standortdaten!",
+    "selectStationPrompt": "Wählen Sie links eine Tankstelle aus, um Details anzuzeigen."
   },
   "stationTable": {
-    "sortBy": "[de] Sort by",
-    "name": "[de] Name",
-    "brand": "[de] Brand",
-    "avgPrice": "[de] Avg. Price",
-    "logCount": "[de] Logs",
-    "unknownBrand": "[de] Unknown Brand",
-    "noData": "[de] N/A"
+    "sortBy": "Sortieren nach",
+    "name": "Name",
+    "brand": "Marke",
+    "avgPrice": "Ø-Preis",
+    "logCount": "Einträge",
+    "unknownBrand": "Unbekannte Marke",
+    "noData": "k. A."
   },
   "stationDetail": {
-    "unknownBrand": "[de] Unknown Brand",
-    "noData": "[de] N/A",
-    "avgPrice": "[de] Average Price",
-    "lastPrice": "[de] Last Price",
-    "logCount": "[de] Total Logs",
-    "priceHistory": "[de] Price History (per Litre)",
+    "unknownBrand": "Unbekannte Marke",
+    "noData": "k. A.",
+    "avgPrice": "Durchschnittspreis",
+    "lastPrice": "Letzter Preis",
+    "logCount": "Einträge gesamt",
+    "priceHistory": "Preisverlauf (pro Liter)",
     "chartAxisDate": "Tankdatum",
     "chartAxisPrice": "Preis pro Liter",
-    "notEnoughDataForChart": "[de] Not enough data to display chart (at least 2 logs needed).",
-    "recentLogs": "[de] Recent Logs",
-    "noLogsFound": "[de] No fuel logs found for this station.",
-    "loading": "[de] Loading station details...",
-    "errorLoading": "[de] Failed to load station details. Please try again."
+    "notEnoughDataForChart": "Nicht genug Daten, um ein Diagramm anzuzeigen (mindestens 2 Einträge erforderlich).",
+    "recentLogs": "Letzte Einträge",
+    "noLogsFound": "Keine Tankeinträge für diese Tankstelle gefunden.",
+    "loading": "Tankstellendetails werden geladen...",
+    "errorLoading": "Tankstellendetails konnten nicht geladen werden. Bitte versuchen Sie es erneut."
   },
   "quickLog": {
     "title": "Neuer Kraftstoffeintrag",

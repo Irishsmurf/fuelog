@@ -4,7 +4,7 @@
     "history": "Historia",
     "map": "Kartta",
     "profile": "Profiili",
-    "stations": "[fi] Stations",
+    "stations": "Asemat",
     "dashboard": "Yleiskatsaus"
   },
   "login": {
@@ -15,35 +15,35 @@
     "error": "Kirjautuminen epäonnistui. Yritä uudelleen."
   },
   "stations": {
-    "title": "[fi] Fuel Stations",
-    "loading": "[fi] Loading fuel stations...",
-    "errorLoading": "[fi] Failed to load fuel stations. Please try again.",
-    "noStationsFound": "[fi] No fuel stations found with logged entries. Log some fuel with location data!",
-    "selectStationPrompt": "[fi] Select a station from the left to view details."
+    "title": "Huoltoasemat",
+    "loading": "Ladataan huoltoasemia...",
+    "errorLoading": "Huoltoasemien lataaminen epäonnistui. Yritä uudelleen.",
+    "noStationsFound": "Huoltoasemia, joilla on kirjattuja merkintöjä, ei löytynyt. Kirjaa polttoainetta sijaintitiedoilla!",
+    "selectStationPrompt": "Valitse asema vasemmalta nähdäksesi tiedot."
   },
   "stationTable": {
-    "sortBy": "[fi] Sort by",
-    "name": "[fi] Name",
-    "brand": "[fi] Brand",
-    "avgPrice": "[fi] Avg. Price",
-    "logCount": "[fi] Logs",
-    "unknownBrand": "[fi] Unknown Brand",
-    "noData": "[fi] N/A"
+    "sortBy": "Lajittele",
+    "name": "Nimi",
+    "brand": "Merkki",
+    "avgPrice": "Keskihinta",
+    "logCount": "Merkinnät",
+    "unknownBrand": "Tuntematon merkki",
+    "noData": "Ei tietoa"
   },
   "stationDetail": {
-    "unknownBrand": "[fi] Unknown Brand",
-    "noData": "[fi] N/A",
-    "avgPrice": "[fi] Average Price",
-    "lastPrice": "[fi] Last Price",
-    "logCount": "[fi] Total Logs",
-    "priceHistory": "[fi] Price History (per Litre)",
+    "unknownBrand": "Tuntematon merkki",
+    "noData": "Ei tietoa",
+    "avgPrice": "Keskihinta",
+    "lastPrice": "Viimeisin hinta",
+    "logCount": "Merkintöjä yhteensä",
+    "priceHistory": "Hintahistoria (per litra)",
     "chartAxisDate": "Tankkauspäivä",
     "chartAxisPrice": "Hinta per Litra",
-    "notEnoughDataForChart": "[fi] Not enough data to display chart (at least 2 logs needed).",
-    "recentLogs": "[fi] Recent Logs",
-    "noLogsFound": "[fi] No fuel logs found for this station.",
-    "loading": "[fi] Loading station details...",
-    "errorLoading": "[fi] Failed to load station details. Please try again."
+    "notEnoughDataForChart": "Kaavion näyttämiseen ei ole tarpeeksi tietoa (vähintään 2 merkintää tarvitaan).",
+    "recentLogs": "Viimeisimmät merkinnät",
+    "noLogsFound": "Tälle asemalle ei löytynyt polttoainemerkintöjä.",
+    "loading": "Ladataan aseman tietoja...",
+    "errorLoading": "Aseman tietojen lataaminen epäonnistui. Yritä uudelleen."
   },
   "quickLog": {
     "title": "Kirjaa uusi tankkaus",

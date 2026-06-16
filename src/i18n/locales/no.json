@@ -4,7 +4,7 @@
     "history": "Historikk",
     "map": "Kart",
     "profile": "Profil",
-    "stations": "[no] Stations",
+    "stations": "Stasjoner",
     "dashboard": "Oversikt"
   },
   "login": {
@@ -15,35 +15,35 @@
     "error": "Kunne ikke logge inn. Prøv igjen."
   },
   "stations": {
-    "title": "[no] Fuel Stations",
-    "loading": "[no] Laster drivstoffstasjoner...",
-    "errorLoading": "[no] Kunne ikke laste drivstoffstasjoner. Prøv igjen.",
-    "noStationsFound": "[no] Ingen drivstoffstasjoner funnet med loggede oppføringer. Logg drivstoff med posisjonsdata!",
-    "selectStationPrompt": "[no] Velg en stasjon fra venstre for å se detaljer."
+    "title": "Drivstoffstasjoner",
+    "loading": "Laster drivstoffstasjoner...",
+    "errorLoading": "Kunne ikke laste drivstoffstasjoner. Prøv igjen.",
+    "noStationsFound": "Ingen drivstoffstasjoner funnet med loggede oppføringer. Logg drivstoff med posisjonsdata!",
+    "selectStationPrompt": "Velg en stasjon fra venstre for å se detaljer."
   },
   "stationTable": {
-    "sortBy": "[no] Sort by",
-    "name": "[no] Navn",
-    "brand": "[no] Merke",
-    "avgPrice": "[no] Gj.snitt. Pris",
-    "logCount": "[no] Logger",
-    "unknownBrand": "[no] Ukjent merke",
-    "noData": "[no] I/T"
+    "sortBy": "Sorter etter",
+    "name": "Navn",
+    "brand": "Merke",
+    "avgPrice": "Gj.snitt. Pris",
+    "logCount": "Logger",
+    "unknownBrand": "Ukjent merke",
+    "noData": "I/T"
   },
   "stationDetail": {
-    "unknownBrand": "[no] Ukjent merke",
-    "noData": "[no] I/T",
-    "avgPrice": "[no] Gjennomsnittlig pris",
-    "lastPrice": "[no] Siste pris",
-    "logCount": "[no] Totalt antall logger",
-    "priceHistory": "[no] Prishistorikk (per liter)",
+    "unknownBrand": "Ukjent merke",
+    "noData": "I/T",
+    "avgPrice": "Gjennomsnittlig pris",
+    "lastPrice": "Siste pris",
+    "logCount": "Totalt antall logger",
+    "priceHistory": "Prishistorikk (per liter)",
     "chartAxisDate": "Fylledato",
     "chartAxisPrice": "Pris per Liter",
-    "notEnoughDataForChart": "[no] Ikke nok data for å vise diagram (minst 2 logger nødvendig).",
-    "recentLogs": "[no] Siste logger",
-    "noLogsFound": "[no] Ingen drivstofflogger funnet for denne stasjonen.",
-    "loading": "[no] Laster stasjonsdetaljer...",
-    "errorLoading": "[no] Kunne ikke laste stasjonsdetaljer. Prøv igjen."
+    "notEnoughDataForChart": "Ikke nok data for å vise diagram (minst 2 logger nødvendig).",
+    "recentLogs": "Siste logger",
+    "noLogsFound": "Ingen drivstofflogger funnet for denne stasjonen.",
+    "loading": "Laster stasjonsdetaljer...",
+    "errorLoading": "Kunne ikke laste stasjonsdetaljer. Prøv igjen."
   },
   "quickLog": {
     "title": "Logg ny drivstoffoppføring",

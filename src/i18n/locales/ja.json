@@ -4,7 +4,7 @@
     "history": "履歴",
     "map": "地図",
     "profile": "プロフィール",
-    "stations": "[ja] Stations",
+    "stations": "ガソリンスタンド",
     "dashboard": "ダッシュボード"
   },
   "login": {
@@ -15,35 +15,35 @@
     "error": "ログインに失敗しました。もう一度お試しください。"
   },
   "stations": {
-    "title": "[ja] Fuel Stations",
-    "loading": "[ja] Loading fuel stations...",
-    "errorLoading": "[ja] Failed to load fuel stations. Please try again.",
-    "noStationsFound": "[ja] No fuel stations found with logged entries. Log some fuel with location data!",
-    "selectStationPrompt": "[ja] Select a station from the left to view details."
+    "title": "ガソリンスタンド",
+    "loading": "ガソリンスタンドを読み込み中...",
+    "errorLoading": "ガソリンスタンドの読み込みに失敗しました。再試行してください。",
+    "noStationsFound": "記録された給油データがあるガソリンスタンドが見つかりません。位置情報付きで給油を記録してください！",
+    "selectStationPrompt": "左側からスタンドを選択して詳細を表示してください。"
   },
   "stationTable": {
-    "sortBy": "[ja] Sort by",
-    "name": "[ja] Name",
-    "brand": "[ja] Brand",
-    "avgPrice": "[ja] Avg. Price",
-    "logCount": "[ja] Logs",
-    "unknownBrand": "[ja] Unknown Brand",
-    "noData": "[ja] N/A"
+    "sortBy": "並び替え",
+    "name": "名前",
+    "brand": "ブランド",
+    "avgPrice": "平均価格",
+    "logCount": "記録数",
+    "unknownBrand": "不明なブランド",
+    "noData": "なし"
   },
   "stationDetail": {
-    "unknownBrand": "[ja] Unknown Brand",
-    "noData": "[ja] N/A",
-    "avgPrice": "[ja] Average Price",
-    "lastPrice": "[ja] Last Price",
-    "logCount": "[ja] Total Logs",
-    "priceHistory": "[ja] Price History (per Litre)",
+    "unknownBrand": "不明なブランド",
+    "noData": "なし",
+    "avgPrice": "平均価格",
+    "lastPrice": "最新価格",
+    "logCount": "合計記録数",
+    "priceHistory": "価格履歴（リットルあたり）",
     "chartAxisDate": "給油日",
     "chartAxisPrice": "リットルあたりの価格",
-    "notEnoughDataForChart": "[ja] Not enough data to display chart (at least 2 logs needed).",
-    "recentLogs": "[ja] Recent Logs",
-    "noLogsFound": "[ja] No fuel logs found for this station.",
-    "loading": "[ja] Loading station details...",
-    "errorLoading": "[ja] Failed to load station details. Please try again."
+    "notEnoughDataForChart": "グラフを表示するためのデータが不足しています（少なくとも2件の記録が必要です）。",
+    "recentLogs": "最近の記録",
+    "noLogsFound": "このスタンドの給油記録が見つかりません。",
+    "loading": "スタンドの詳細を読み込み中...",
+    "errorLoading": "スタンドの詳細の読み込みに失敗しました。再試行してください。"
   },
   "quickLog": {
     "title": "新しい燃料記録",

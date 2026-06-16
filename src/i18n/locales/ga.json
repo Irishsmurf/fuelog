@@ -4,7 +4,7 @@
     "history": "Stair",
     "map": "Léarscáil",
     "profile": "Próifíl",
-    "stations": "[ga] Stations",
+    "stations": "Stáisiúin",
     "dashboard": "Painéal"
   },
   "login": {
@@ -15,35 +15,35 @@
     "error": "Theip ar an gcomhshuíomh. Déan iarracht arís le do thoil."
   },
   "stations": {
-    "title": "[ga] Fuel Stations",
-    "loading": "[ga] Loading fuel stations...",
-    "errorLoading": "[ga] Failed to load fuel stations. Please try again.",
-    "noStationsFound": "[ga] No fuel stations found with logged entries. Log some fuel with location data!",
-    "selectStationPrompt": "[ga] Select a station from the left to view details."
+    "title": "Stáisiúin Breosla",
+    "loading": "Stáisiúin bhreosla á luchtú...",
+    "errorLoading": "Theip ar luchtú na stáisiúin bhreosla. Bain triail eile as.",
+    "noStationsFound": "Níor aimsíodh aon stáisiún breosla le hiontrálacha logáilte. Logáil breosla le sonraí suímh!",
+    "selectStationPrompt": "Roghnaigh stáisiún ar chlé chun sonraí a fheiceáil."
   },
   "stationTable": {
-    "sortBy": "[ga] Sort by",
-    "name": "[ga] Name",
-    "brand": "[ga] Brand",
-    "avgPrice": "[ga] Avg. Price",
-    "logCount": "[ga] Logs",
-    "unknownBrand": "[ga] Unknown Brand",
-    "noData": "[ga] N/A"
+    "sortBy": "Sórtáil de réir",
+    "name": "Ainm",
+    "brand": "Branda",
+    "avgPrice": "Meánphraghas",
+    "logCount": "Logaí",
+    "unknownBrand": "Branda Anaithnid",
+    "noData": "N/B"
   },
   "stationDetail": {
-    "unknownBrand": "[ga] Unknown Brand",
-    "noData": "[ga] N/A",
-    "avgPrice": "[ga] Average Price",
-    "lastPrice": "[ga] Last Price",
-    "logCount": "[ga] Total Logs",
-    "priceHistory": "[ga] Price History (per Litre)",
+    "unknownBrand": "Branda Anaithnid",
+    "noData": "N/B",
+    "avgPrice": "Meánphraghas",
+    "lastPrice": "An Praghas Deireanach",
+    "logCount": "Iomlán Logaí",
+    "priceHistory": "Stair Praghsanna (in aghaidh an Lítir)",
     "chartAxisDate": "Dáta Líonta",
     "chartAxisPrice": "Praghas in aghaidh an Lítir",
-    "notEnoughDataForChart": "[ga] Not enough data to display chart (at least 2 logs needed).",
-    "recentLogs": "[ga] Recent Logs",
-    "noLogsFound": "[ga] No fuel logs found for this station.",
-    "loading": "[ga] Loading station details...",
-    "errorLoading": "[ga] Failed to load station details. Please try again."
+    "notEnoughDataForChart": "Níl dóthain sonraí ann chun an chairt a thaispeáint (tá gá le 2 logaí ar a laghad).",
+    "recentLogs": "Logaí Le Déanaí",
+    "noLogsFound": "Níor aimsíodh aon logaí breosla don stáisiún seo.",
+    "loading": "Sonraí an stáisiúin á luchtú...",
+    "errorLoading": "Theip ar luchtú sonraí an stáisiúin. Bain triail eile as."
   },
   "quickLog": {
     "title": "Iontráil Breosla Nua",

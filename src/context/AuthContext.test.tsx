@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { onSnapshot } from 'firebase/firestore';
 import { AuthProvider, useAuth } from './AuthContext';
+import { signInWithGoogle as mockSignInWithGoogle, logout as mockLogout } from '../firebase/config';
 
 vi.mock('firebase/auth', async (importOriginal) => {
     const actual = await importOriginal<typeof import('firebase/auth')>();
@@ -38,16 +39,15 @@ vi.mock('../firebase/config', () => ({
     logout: vi.fn(),
 }));
 
-import { signInWithGoogle as mockSignInWithGoogle } from '../firebase/config';
-
 const TestComponent = () => {
-    const { loading, user, profile, login } = useAuth();
+    const { loading, user, profile, login, logout } = useAuth();
     if (loading) return <div data-testid="loading">Loading...</div>;
     return (
         <div data-testid="content">
             <span data-testid="user">{user ? user.uid : 'none'}</span>
             <span data-testid="profile">{profile ? profile.homeCurrency : 'none'}</span>
             <button onClick={() => login()}>Sign in</button>
+            <button onClick={() => logout()}>Sign out</button>
         </div>
     );
 };
@@ -108,13 +108,16 @@ describe('AuthContext', () => {
     });
 
     it('clears loading even if the profile snapshot errors out', async () => {
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
         vi.mocked(onAuthStateChanged).mockImplementation((_auth, callback) => {
             (callback as (user: User | null) => void)({ uid: 'user-1' } as User);
             return vi.fn();
         });
 
         vi.mocked(onSnapshot).mockImplementation((_ref, _onNext, onError) => {
-            (onError as (error: { code: string; message: string }) => void)({
+            (onError as unknown as (error: { code: string; message: string }) => void)({
                 code: 'permission-denied',
                 message: 'Missing permissions',
             });
@@ -132,6 +135,11 @@ describe('AuthContext', () => {
         });
 
         expect(screen.getByTestId('profile').textContent).toBe('none');
+        expect(consoleErrorSpy).toHaveBeenCalled();
+        expect(consoleWarnSpy).toHaveBeenCalled();
+
+        consoleErrorSpy.mockRestore();
+        consoleWarnSpy.mockRestore();
     });
 
     it('login() calls signInWithGoogle', async () => {
@@ -150,9 +158,30 @@ describe('AuthContext', () => {
             expect(screen.getByTestId('content')).toBeInTheDocument();
         });
 
-        screen.getByText('Sign in').click();
+        fireEvent.click(screen.getByText('Sign in'));
 
         expect(mockSignInWithGoogle).toHaveBeenCalledTimes(1);
+    });
+
+    it('logout() calls logout from config', async () => {
+        vi.mocked(onAuthStateChanged).mockImplementation((_auth, callback) => {
+            (callback as (user: User | null) => void)({ uid: 'user-1' } as User);
+            return vi.fn();
+        });
+
+        render(
+            <AuthProvider>
+                <TestComponent />
+            </AuthProvider>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByTestId('content')).toBeInTheDocument();
+        });
+
+        fireEvent.click(screen.getByText('Sign out'));
+
+        expect(mockLogout).toHaveBeenCalledTimes(1);
     });
 
     it('throws when useAuth is used outside of an AuthProvider', () => {

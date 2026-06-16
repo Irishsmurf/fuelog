@@ -3,7 +3,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import StationsPage from '../StationsPage';
 import { Station } from '../../utils/types';
-import { fetchUserStations } from '../../firebase/firestoreService';
+import { fetchFuelLocations, fetchUserStations } from '../../firebase/firestoreService';
 
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
@@ -23,6 +23,7 @@ vi.mock('react-i18next', () => ({
 
 // Mock firebase/firestoreService
 vi.mock('../../firebase/firestoreService', () => ({
+  fetchFuelLocations: vi.fn(),
   fetchUserStations: vi.fn(),
 }));
 
@@ -72,6 +73,7 @@ const mockStations: Station[] = [
 describe('StationsPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fetchFuelLocations).mockResolvedValue([]);
     vi.mocked(fetchUserStations).mockResolvedValue([]); // Default to no stations
   });
 
@@ -96,6 +98,17 @@ describe('StationsPage', () => {
     render(<StationsPage />);
     await waitFor(() => {
       expect(screen.getByText('No fuel stations found.')).toBeInTheDocument();
+    });
+  });
+
+  it('fetches fuel logs and passes them to fetchUserStations', async () => {
+    const mockLogs = [{ id: 'log1', latitude: 10, longitude: 20 }] as never;
+    vi.mocked(fetchFuelLocations).mockResolvedValue(mockLogs);
+    vi.mocked(fetchUserStations).mockResolvedValue(mockStations);
+    render(<StationsPage />);
+    await waitFor(() => {
+      expect(fetchFuelLocations).toHaveBeenCalled();
+      expect(fetchUserStations).toHaveBeenCalledWith(mockLogs);
     });
   });
 

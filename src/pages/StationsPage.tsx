@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader, AlertCircle } from 'lucide-react';
 
-import { fetchUserStations } from '../firebase/firestoreService';
+import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
 import StationTable from '../components/StationTable'; // Will create this component
 import StationDetail from '../components/StationDetail'; // Will create this component
@@ -20,23 +20,8 @@ const StationsPage: React.FC = () => {
             setLoading(true);
             setError(null);
             try {
-                // Fetch all fuel logs to then get all unique stations
-                // Note: fetchUserStations currently expects logs as input.
-                // We might need to adjust firestoreService to fetch all stations directly,
-                // or ensure a mechanism to get all relevant logs.
-                // For now, I'll assume an empty array will result in no stations or we modify fetchUserStations
-                // to fetch all unique stations from fuelLogs without requiring prior logs.
-                // A better approach would be to have a dedicated 'fetchAllStations' if not tied to logs.
-                // For initial implementation, we'll fetch all unique stations based on existing logs.
-                
-                // Temporarily fetch all logs to get associated stations. This is not ideal for a large dataset,
-                // a dedicated 'fetchAllStations' function would be better.
-                // Assuming `fetchUserStations` can handle an empty log array or we need to pass a dummy.
-                // Let's assume fetchUserStations is modified to accept an optional logs array and
-                // if not provided, it fetches all stations the user has ever logged against.
-                // For now, I'll use `[]` and rely on a future refactor or assumption of internal logic.
-
-                const userStations = await fetchUserStations([]); // Assuming modification or smarter internal logic
+                const logs = await fetchFuelLocations();
+                const userStations = await fetchUserStations(logs);
                 setStations(userStations);
             } catch (err) {
                 console.error("Failed to load stations:", err);

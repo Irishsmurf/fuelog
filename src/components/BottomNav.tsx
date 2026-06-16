@@ -1,6 +1,6 @@
 import { JSX } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { History, Map as MapIcon, User, PlusCircle, Fuel } from 'lucide-react';
+import { History, Map as MapIcon, User, PlusCircle, Fuel, LayoutDashboard } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 /**
@@ -13,13 +13,14 @@ const BottomNav = ({ stationsPageEnabled }: { stationsPageEnabled: boolean }): J
 
   const baseNavItems = [
     { path: '/', label: t('nav.log'), icon: PlusCircle },
+    { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
     { path: '/history', label: t('nav.history'), icon: History },
     { path: '/map', label: t('nav.map'), icon: MapIcon },
     { path: '/profile', label: t('nav.profile'), icon: User },
   ];
 
   const navItems = stationsPageEnabled
-    ? [...baseNavItems.slice(0, 3), { path: '/stations', label: t('nav.stations'), icon: Fuel }, ...baseNavItems.slice(3)]
+    ? [...baseNavItems.slice(0, 4), { path: '/stations', label: t('nav.stations'), icon: Fuel }, ...baseNavItems.slice(4)]
     : baseNavItems;
 
 

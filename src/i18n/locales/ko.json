@@ -4,7 +4,8 @@
     "history": "내역",
     "map": "지도",
     "profile": "프로필",
-    "stations": "[ko] Stations"
+    "stations": "[ko] Stations",
+    "dashboard": "대시보드"
   },
   "login": {
     "tagline": "정밀한 연료 추적",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "loading": "대시보드를 불러오는 중...",
+    "offlineError": "오프라인 상태입니다. 연결을 확인하고 다시 시도하세요.",
+    "loadError": "대시보드 데이터를 불러오지 못했습니다. 다시 시도하세요.",
+    "fields": {
+      "vehicle": "차량",
+      "allVehicles": "모든 차량"
+    },
+    "emptyState": {
+      "heading": "아직 주유 기록이 없습니다",
+      "subtext": "첫 주유를 기록하면 여기에 지출 요약이 표시됩니다."
+    },
+    "cards": {
+      "monthSpend": "이번 달",
+      "monthLitres": "이번 달 리터",
+      "avgPrice": "평균 가격/리터"
+    },
+    "charts": {
+      "monthlySpend": "월별 지출 (최근 6개월)",
+      "spend": "지출"
+    }
   }
 }

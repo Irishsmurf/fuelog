@@ -4,7 +4,8 @@
     "history": "Verlauf",
     "map": "Karte",
     "profile": "Profil",
-    "stations": "[de] Stations"
+    "stations": "[de] Stations",
+    "dashboard": "Übersicht"
   },
   "login": {
     "tagline": "Präzise Kraftstoffverfolgung",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "Übersicht",
+    "loading": "Übersicht wird geladen...",
+    "offlineError": "Du bist offline. Bitte überprüfe deine Verbindung und versuche es erneut.",
+    "loadError": "Übersichtsdaten konnten nicht geladen werden. Bitte versuche es erneut.",
+    "fields": {
+      "vehicle": "Fahrzeug",
+      "allVehicles": "Alle Fahrzeuge"
+    },
+    "emptyState": {
+      "heading": "Noch keine Tankprotokolle",
+      "subtext": "Erfasse deine erste Tankfüllung, um hier deine Ausgabenübersicht zu sehen."
+    },
+    "cards": {
+      "monthSpend": "Diesen Monat",
+      "monthLitres": "Liter Diesen Monat",
+      "avgPrice": "Ø Preis/Liter"
+    },
+    "charts": {
+      "monthlySpend": "Monatliche Ausgaben (Letzte 6 Monate)",
+      "spend": "Ausgaben"
+    }
   }
 }

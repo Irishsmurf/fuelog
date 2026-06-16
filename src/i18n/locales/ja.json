@@ -4,7 +4,8 @@
     "history": "履歴",
     "map": "地図",
     "profile": "プロフィール",
-    "stations": "[ja] Stations"
+    "stations": "[ja] Stations",
+    "dashboard": "ダッシュボード"
   },
   "login": {
     "tagline": "精確な燃料追跡",
@@ -430,5 +431,28 @@
     "sv": "Svenska",
     "no": "Norsk",
     "fi": "Suomi"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "loading": "ダッシュボードを読み込み中...",
+    "offlineError": "オフラインです。接続を確認して再試行してください。",
+    "loadError": "ダッシュボードデータの読み込みに失敗しました。再試行してください。",
+    "fields": {
+      "vehicle": "車両",
+      "allVehicles": "すべての車両"
+    },
+    "emptyState": {
+      "heading": "燃料記録はまだありません",
+      "subtext": "最初の給油を記録すると、ここに支出の概要が表示されます。"
+    },
+    "cards": {
+      "monthSpend": "今月",
+      "monthLitres": "今月のリットル数",
+      "avgPrice": "平均価格/リットル"
+    },
+    "charts": {
+      "monthlySpend": "月間支出（過去6か月）",
+      "spend": "支出"
+    }
   }
 }

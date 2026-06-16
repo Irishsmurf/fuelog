@@ -87,6 +87,23 @@ describe('LogCard', () => {
     expect(screen.getByText('28.25')).toBeInTheDocument();
   });
 
+  it('keeps the receipt thumbnail clipped within the card boundary (#162)', () => {
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
+    const logWithReceipt: Log = { ...mockLog, receiptUrl: 'https://example.com/receipt.jpg' };
+
+    render(<LogCard log={logWithReceipt} onEdit={onEdit} onDelete={onDelete} />);
+
+    const receiptImg = screen.getByAltText('Receipt');
+    expect(receiptImg).toBeInTheDocument();
+
+    // The front face must clip any overflowing content (e.g. the receipt
+    // thumbnail) instead of letting it spill outside the card's rounded
+    // boundary, which is what caused #162.
+    const frontFace = receiptImg.closest('.backface-hidden');
+    expect(frontFace).toHaveClass('overflow-y-auto');
+  });
+
   it('calls onEdit when edit button is clicked', () => {
     const onEdit = vi.fn();
     const onDelete = vi.fn();

@@ -85,7 +85,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
       <div className={`relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}>
 
         {/* FRONT: Log Details */}
-        <div className="absolute inset-0 backface-hidden bg-white dark:bg-gray-800 shadow-md rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-gray-700/50 flex flex-col">
+        <div className="absolute inset-0 backface-hidden bg-white dark:bg-gray-800 shadow-md rounded-2xl p-4 sm:p-5 border border-gray-100 dark:border-gray-700/50 flex flex-col overflow-y-auto">
           {/* Header */}
           <div className="flex justify-between items-start mb-3">
             <div className="space-y-0.5 min-w-0 flex-grow">

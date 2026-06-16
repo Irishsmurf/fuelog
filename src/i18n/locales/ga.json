@@ -495,5 +495,21 @@
     "subtitle": "Cuir leis an scáileán baile le haghaidh rochtain éasca",
     "later": "Ar ball",
     "install": "Suiteáil"
+  },
+  "admin": {
+    "accessDenied": "You don't have access to this page.",
+    "title": "Admin Console",
+    "subtitle": "Send a test push notification via FCM.",
+    "fields": {
+      "targetUid": "Target UID",
+      "title": "Title",
+      "body": "Body",
+      "dataJson": "Data (optional JSON)"
+    },
+    "invalidJson": "Data field must be valid JSON (or left blank).",
+    "sendButton": "Send test notification",
+    "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
+    "sendFailedSuffix": ", {{failedCount}} failed",
+    "sendError": "Failed to send notification."
   }
 }

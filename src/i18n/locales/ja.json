@@ -495,5 +495,21 @@
     "subtitle": "ホーム画面に追加して簡単にアクセス",
     "later": "後で",
     "install": "インストール"
+  },
+  "admin": {
+    "accessDenied": "You don't have access to this page.",
+    "title": "Admin Console",
+    "subtitle": "Send a test push notification via FCM.",
+    "fields": {
+      "targetUid": "Target UID",
+      "title": "Title",
+      "body": "Body",
+      "dataJson": "Data (optional JSON)"
+    },
+    "invalidJson": "Data field must be valid JSON (or left blank).",
+    "sendButton": "Send test notification",
+    "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
+    "sendFailedSuffix": ", {{failedCount}} failed",
+    "sendError": "Failed to send notification."
   }
 }

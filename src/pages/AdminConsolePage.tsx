@@ -1,4 +1,5 @@
 import { JSX, useState, useEffect, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +11,7 @@ interface SendTestNotificationResponse {
 }
 
 function AdminConsolePage(): JSX.Element {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [accessState, setAccessState] = useState<'checking' | 'denied' | 'granted'>('checking');
 
@@ -41,7 +43,7 @@ function AdminConsolePage(): JSX.Element {
       try {
         data = JSON.parse(dataJson);
       } catch {
-        setResult({ type: 'error', text: 'Data field must be valid JSON (or left blank).' });
+        setResult({ type: 'error', text: t('admin.invalidJson') });
         return;
       }
     }
@@ -55,10 +57,13 @@ function AdminConsolePage(): JSX.Element {
       const res = await sendTestNotification({ targetUid, title, body, data });
       setResult({
         type: 'success',
-        text: `Sent to ${res.data.sentCount} device(s)${res.data.failedCount > 0 ? `, ${res.data.failedCount} failed` : ''}.`,
+        text: t('admin.sendSuccess', {
+          sentCount: res.data.sentCount,
+          failedSuffix: res.data.failedCount > 0 ? t('admin.sendFailedSuffix', { failedCount: res.data.failedCount }) : '',
+        }),
       });
     } catch (err) {
-      setResult({ type: 'error', text: err instanceof Error ? err.message : 'Failed to send notification.' });
+      setResult({ type: 'error', text: err instanceof Error ? err.message : t('admin.sendError') });
     } finally {
       setIsSending(false);
     }
@@ -76,7 +81,7 @@ function AdminConsolePage(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] text-center space-y-3">
         <ShieldAlert className="w-10 h-10 text-red-500" />
-        <p className="text-gray-600 dark:text-gray-400">You don't have access to this page.</p>
+        <p className="text-gray-600 dark:text-gray-400">{t('admin.accessDenied')}</p>
       </div>
     );
   }
@@ -84,13 +89,13 @@ function AdminConsolePage(): JSX.Element {
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-display font-bold">Admin Console</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Send a test push notification via FCM.</p>
+        <h1 className="text-2xl font-display font-bold">{t('admin.title')}</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{t('admin.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 sm:p-8 border border-gray-100 dark:border-gray-700/50">
         <div>
-          <label className="block text-sm font-bold mb-1" htmlFor="targetUid">Target UID</label>
+          <label className="block text-sm font-bold mb-1" htmlFor="targetUid">{t('admin.fields.targetUid')}</label>
           <input
             id="targetUid"
             type="text"
@@ -102,7 +107,7 @@ function AdminConsolePage(): JSX.Element {
         </div>
 
         <div>
-          <label className="block text-sm font-bold mb-1" htmlFor="title">Title</label>
+          <label className="block text-sm font-bold mb-1" htmlFor="title">{t('admin.fields.title')}</label>
           <input
             id="title"
             type="text"
@@ -114,7 +119,7 @@ function AdminConsolePage(): JSX.Element {
         </div>
 
         <div>
-          <label className="block text-sm font-bold mb-1" htmlFor="body">Body</label>
+          <label className="block text-sm font-bold mb-1" htmlFor="body">{t('admin.fields.body')}</label>
           <textarea
             id="body"
             value={body}
@@ -126,7 +131,7 @@ function AdminConsolePage(): JSX.Element {
         </div>
 
         <div>
-          <label className="block text-sm font-bold mb-1" htmlFor="dataJson">Data (optional JSON)</label>
+          <label className="block text-sm font-bold mb-1" htmlFor="dataJson">{t('admin.fields.dataJson')}</label>
           <textarea
             id="dataJson"
             value={dataJson}
@@ -143,7 +148,7 @@ function AdminConsolePage(): JSX.Element {
           className="brand-button-primary flex items-center justify-center gap-2 w-full"
         >
           {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          Send test notification
+          {t('admin.sendButton')}
         </button>
 
         {result && (

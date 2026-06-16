@@ -25,6 +25,14 @@ vi.mock('../context/ThemeContext', () => ({
   useTheme: () => ({ theme: 'light' }),
 }));
 
+vi.mock('../context/RemoteConfigContext', () => ({
+  useRemoteConfig: () => ({ getBoolean: vi.fn(() => false) }),
+}));
+
+vi.mock('../firebase/aggregationService', () => ({
+  getLifetimeStats: vi.fn().mockResolvedValue({ totalCost: 0, totalLitres: 0, totalDistanceKm: 0, logCount: 0 }),
+}));
+
 vi.mock('firebase/firestore', async (importOriginal) => {
   const actual = await importOriginal<typeof import('firebase/firestore')>();
   return {
@@ -43,10 +51,13 @@ vi.mock('../firebase/config', () => ({
 vi.mock('recharts', () => ({
   BarChart: ({ children }: { children?: ReactNode }) => <div data-testid="bar-chart">{children}</div>,
   Bar: () => <div />,
+  LineChart: ({ children }: { children?: ReactNode }) => <div data-testid="line-chart">{children}</div>,
+  Line: () => <div />,
   XAxis: () => <div />,
   YAxis: () => <div />,
   CartesianGrid: () => <div />,
   Tooltip: () => <div />,
+  Legend: () => <div />,
   ResponsiveContainer: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
 }));
 

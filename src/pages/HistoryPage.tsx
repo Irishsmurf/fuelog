@@ -6,20 +6,15 @@ import {
     collection, query, where, orderBy, onSnapshot, getDocs,
     doc, deleteDoc, updateDoc, DocumentData, QuerySnapshot
 } from "firebase/firestore";
-import { getLifetimeStats, LifetimeStats } from '../firebase/aggregationService';
 // Import Firebase config and Auth hook
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
-// Import Recharts components for charting
-import {
-    LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
-} from 'recharts';
 // Import icons
-import { FileText, Banknote, Droplets, Route, Fuel } from 'lucide-react';
+import { FileText } from 'lucide-react';
 // Import the LogCard component
 import LogCard from '../components/LogCard'; // Adjust path if necessary
-import { ChartDataPoint, FuelLogData, Log, EditFormData, EditingLogState, ViewMode, Vehicle } from '../utils/types';
-import { formatCostPerMile, formatKmL, formatL100km, formatMPG, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
+import { FuelLogData, Log, EditFormData, EditingLogState, ViewMode, Vehicle } from '../utils/types';
+import { formatCostPerMile, formatKmL, formatL100km, formatMPG } from '../utils/calculations';
 import { useTheme } from '../context/ThemeContext';
 import { useRemoteConfig } from '../context/RemoteConfigContext'; // Import the hook
 import { exportLogsToPDF } from '../utils/pdfExport'; // Import PDF Export utility
@@ -30,14 +25,6 @@ import { sanitizeUrl } from '../utils/sanitize';
 import { formatDate } from '../utils/formatDate';
 import { fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
-
-interface VehicleComparisonDatum {
-    vehicleId: string;
-    name: string;
-    avgL100km: number;
-    avgCostPerLitre: number;
-    totalSpend: number;
-}
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -53,11 +40,9 @@ function HistoryPage(): JSX.Element {
     const { theme } = useTheme();
 
     // --- Feature Flags ---
-    const costPerLitreGraphEnabled = getBoolean("costPerLitreGraphEnabled");
     const totalSpentDisplayEnabled = getBoolean("totalSpentDisplayEnabled");
     const receiptDigitizationEnabled = getBoolean("receiptDigitizationEnabled");
     const odometerInputEnabled = getBoolean("odometerInputEnabled");
-    const vehicleComparisonEnabled = getBoolean("vehicleComparisonEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [stations, setStations] = useState<Station[]>([]); // Holds station info
@@ -83,22 +68,6 @@ function HistoryPage(): JSX.Element {
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
     const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
 
-    // --- Lifetime Aggregation Stats ---
-    const [lifetimeStats, setLifetimeStats] = useState<LifetimeStats | null>(null);
-
-    // --- Main Chart Series Visibility (toggled via Legend click) ---
-    const [hiddenChartSeries, setHiddenChartSeries] = useState<Set<string>>(new Set());
-    const toggleChartSeries = (dataKey: string) => {
-        setHiddenChartSeries(prev => {
-            const next = new Set(prev);
-            if (next.has(dataKey)) next.delete(dataKey); else next.add(dataKey);
-            return next;
-        });
-    };
-
-    // --- Multi-Vehicle Comparison Stats ---
-    const [vehicleComparisonStats, setVehicleComparisonStats] = useState<VehicleComparisonDatum[]>([]);
-
     // --- Fetch Vehicles Effect ---
     useEffect(() => {
         if (!user) { setVehicles([]); return; }
@@ -118,44 +87,6 @@ function HistoryPage(): JSX.Element {
         };
         fetchVehicles();
     }, [user]);
-
-    // --- Fetch Lifetime Aggregation Stats ---
-    useEffect(() => {
-        if (!user) { setLifetimeStats(null); return; }
-        getLifetimeStats(user.uid, filterVehicleId || undefined)
-            .then(setLifetimeStats)
-            .catch(err => console.error('Error fetching lifetime stats:', err));
-    }, [user, filterVehicleId]);
-
-    // --- Fetch Per-Vehicle Comparison Stats ---
-    // One getLifetimeStats aggregation call per active vehicle (no raw document reads).
-    useEffect(() => {
-        if (!user || !vehicleComparisonEnabled) { setVehicleComparisonStats([]); return; }
-        const activeVehicles = vehicles.filter(v => !v.isArchived);
-        if (activeVehicles.length < 2) { setVehicleComparisonStats([]); return; }
-
-        let cancelled = false;
-        Promise.all(
-            activeVehicles.map(vehicle =>
-                getLifetimeStats(user.uid, vehicle.id).then(stats => ({ vehicle, stats }))
-            )
-        )
-            .then(results => {
-                if (cancelled) return;
-                const withLogs = results.filter(({ stats }) => stats.logCount > 0);
-                if (withLogs.length < 2) { setVehicleComparisonStats([]); return; }
-                setVehicleComparisonStats(withLogs.map(({ vehicle, stats }) => ({
-                    vehicleId: vehicle.id,
-                    name: vehicle.name,
-                    avgL100km: stats.totalDistanceKm > 0 ? (stats.totalLitres / stats.totalDistanceKm) * 100 : 0,
-                    avgCostPerLitre: stats.totalLitres > 0 ? stats.totalCost / stats.totalLitres : 0,
-                    totalSpend: stats.totalCost,
-                })));
-            })
-            .catch(err => console.error('Error fetching vehicle comparison stats:', err));
-
-        return () => { cancelled = true; };
-    }, [user, vehicles, vehicleComparisonEnabled]);
 
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
@@ -270,21 +201,6 @@ function HistoryPage(): JSX.Element {
         vehicles.forEach(v => map[v.id] = v.name);
         return map;
     }, [vehicles]);
-
-    // --- Prepare Chart Data (Uses filteredLogs) ---
-    // Memoized calculation for chart data based on the *filtered* logs.
-    const chartData = useMemo((): ChartDataPoint[] => {
-        if (!filteredLogs || filteredLogs.length === 0) return [];
-        // Sort ascending by date for time-series charts
-        const sortedLogs = [...filteredLogs].sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
-        return sortedLogs.map(log => ({
-            date: log.timestamp?.toDate() ? formatDate(log.timestamp.toDate()) : 'N/A',
-            timestampValue: log.timestamp?.toMillis(),
-            mpg: getNumericMPG(log.distanceKm, log.fuelAmountLiters),
-            cost: log.cost > 0 ? log.cost : null,
-            fuelPrice: getNumericFuelPrice(log.cost, log.fuelAmountLiters)
-        }));
-    }, [filteredLogs]); // Recalculate only when filteredLogs change
 
     // --- Calculate Summary Metrics (Uses filteredLogs) ---
     // Memoized calculation for the total cost, average MPG, and average cost based on the *filtered* logs.
@@ -521,150 +437,6 @@ function HistoryPage(): JSX.Element {
                         </p>
                     </div>
                 </div>
-            )}
-
-            {/* --- Lifetime Stats (Server-side aggregation, no full data download) --- */}
-            {lifetimeStats && !isLoading && !error && (
-                <div>
-                    <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">
-                        {t('history.lifetimeStats.heading', { defaultValue: 'Lifetime Totals' })}
-                    </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
-                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-                                <Banknote size={18} />
-                            </div>
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.totalSpent', { defaultValue: 'Total Spent' })}</p>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{homeCurrencySymbol}{lifetimeStats.totalCost.toFixed(2)}</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
-                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-                                <Droplets size={18} />
-                            </div>
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.totalLitres', { defaultValue: 'Total Litres' })}</p>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{lifetimeStats.totalLitres.toFixed(1)}L</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
-                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-                                <Route size={18} />
-                            </div>
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.totalDistance', { defaultValue: 'Total Distance' })}</p>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{lifetimeStats.totalDistanceKm.toFixed(0)}km</p>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex flex-col items-center gap-2 hover:shadow-md transition-all duration-200">
-                            <div className="p-2 rounded-lg bg-brand-primary/10 text-brand-primary">
-                                <Fuel size={18} />
-                            </div>
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-center">{t('history.lifetimeStats.logCount', { defaultValue: 'Fill-ups' })}</p>
-                            <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white font-mono tracking-tighter">{lifetimeStats.logCount}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* --- Charts Section (Uses filtered data via chartData) --- */}
-            {/* Render chart only if not loading, no error, and enough filtered data exists */}
-            {filteredLogs.length > 1 && !isLoading && !error ? (
-                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">{t('history.charts.mpgOverTime')}</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
-                            <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
-                            <YAxis yAxisId="left" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} domain={['auto', 'auto']} label={{ value: 'MPG (UK)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }} />
-                            <YAxis
-                                yAxisId="right"
-                                orientation="right"
-                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
-                                domain={['auto', 'auto']}
-                                tickFormatter={(value: number) => value.toFixed(3)}
-                                label={{ value: `${t('history.charts.pricePerLitre')} (${homeCurrencySymbol})`, angle: 90, position: 'insideRight', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }}
-                            />
-                            <Tooltip
-                                contentStyle={{
-                                    fontSize: '12px',
-                                    padding: '5px',
-                                    backgroundColor: theme === 'dark' ? '#2D3748' : 'white',
-                                    color: theme === 'dark' ? 'white' : 'black',
-                                    border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0'
-                                }}
-                                formatter={(value: number, name: string) => name === t('history.charts.pricePerLitre')
-                                    ? `${homeCurrencySymbol}${value.toFixed(3)}`
-                                    : value?.toFixed(2)}
-                            />
-                            <Legend
-                                wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black', cursor: 'pointer' }}
-                                onClick={(e) => toggleChartSeries(e.dataKey as string)}
-                            />
-                            <Line yAxisId="left" type="monotone" dataKey="mpg" name="MPG (UK)" stroke="#8884d8" strokeWidth={2} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('mpg')} />
-                            <Line yAxisId="right" type="monotone" dataKey="fuelPrice" name={t('history.charts.pricePerLitre')} stroke="#F59E0B" strokeWidth={2} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('fuelPrice')} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            ) : null}
-
-            {/* Conditionally render Cost Per Litre Graph if feature flag is enabled and data exists */}
-            {costPerLitreGraphEnabled && filteredLogs.length > 1 && !isLoading && !error && (
-                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 mt-8">
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">{t('history.charts.costPerLitreOverTime')}</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
-                            <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
-                            <YAxis
-                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
-                                domain={['auto', 'auto']}
-                                label={{ value: 'Cost Per Litre (€)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#cbd5e0' : '#6b7280' } }}
-                                tickFormatter={(value) => value.toFixed(3)} // Format Y-axis ticks to 3 decimal places
-                            />
-                            <Tooltip
-                                contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#2D3748' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0' }}
-                                formatter={(value: number) => `€${value.toFixed(3)}`} // Format tooltip value
-                            />
-                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
-                            <Line type="monotone" dataKey="fuelPrice" name="Cost Per Litre" stroke="#82ca9d" strokeWidth={2} activeDot={{ r: 6 }} connectNulls />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            )}
-
-            {/* Multi-vehicle efficiency/cost comparison, behind vehicleComparisonEnabled flag */}
-            {vehicleComparisonEnabled && vehicleComparisonStats.length >= 2 && (
-                <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700 mt-8">
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-4">{t('history.charts.vehicleComparison')}</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={vehicleComparisonStats} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#4A5568' : '#e0e0e0'} />
-                            <XAxis dataKey="name" tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }} />
-                            <YAxis
-                                yAxisId="left"
-                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
-                            />
-                            <YAxis
-                                yAxisId="right"
-                                orientation="right"
-                                tick={{ fill: theme === 'dark' ? '#cbd5e0' : '#6b7280', fontSize: 12 }}
-                            />
-                            <Tooltip
-                                contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#2D3748' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #4A5568' : '1px solid #e0e0e0' }}
-                                formatter={(value: number, name: string) => name === t('history.charts.totalSpend')
-                                    ? `${homeCurrencySymbol}${value.toFixed(2)}`
-                                    : name === t('history.charts.avgCostPerLitre')
-                                        ? `${homeCurrencySymbol}${value.toFixed(3)}`
-                                        : value.toFixed(2)}
-                            />
-                            <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
-                            <Bar yAxisId="left" dataKey="avgL100km" name={t('history.charts.avgL100km')} fill="#8884d8" />
-                            <Bar yAxisId="left" dataKey="avgCostPerLitre" name={t('history.charts.avgCostPerLitre')} fill="#82ca9d" />
-                            <Bar yAxisId="right" dataKey="totalSpend" name={t('history.charts.totalSpend')} fill="#fbbf24" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            )}
-
-            {/* Message for insufficient data for ANY active graph */}
-            {filteredLogs.length <= 1 && !isLoading && !error && logs.length > 0 && (
-                 <div className="text-center text-gray-500 dark:text-gray-400 text-sm p-4">{t('history.charts.needMoreData')}</div>
             )}
 
             {/* --- Table / Cards Section --- */}

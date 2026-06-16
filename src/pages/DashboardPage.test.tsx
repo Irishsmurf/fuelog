@@ -25,7 +25,7 @@ vi.mock('../context/ThemeContext', () => ({
   useTheme: () => ({ theme: 'light' }),
 }));
 
-const mockGetBoolean = vi.fn(() => false);
+const mockGetBoolean = vi.fn((_key: string) => false);
 vi.mock('../context/RemoteConfigContext', () => ({
   useRemoteConfig: () => ({ getBoolean: mockGetBoolean }),
 }));
@@ -162,7 +162,7 @@ describe('DashboardPage', () => {
   });
 
   it('renders the multi-vehicle comparison chart when the feature flag is enabled and stats exist', async () => {
-    mockGetBoolean.mockImplementation((key: string) => key === 'vehicleComparisonEnabled');
+    mockGetBoolean.mockImplementation((key: string): boolean => key === 'vehicleComparisonEnabled');
     const now = new Date();
     const vehicles = [
       { id: 'v1', name: 'Car 1', make: 'Toyota', userId: 'user-1', isArchived: false },
@@ -185,7 +185,7 @@ describe('DashboardPage', () => {
   });
 
   it('renders the cost-per-litre chart when its feature flag is enabled', async () => {
-    mockGetBoolean.mockImplementation((key: string) => key === 'costPerLitreGraphEnabled');
+    mockGetBoolean.mockImplementation((key: string): boolean => key === 'costPerLitreGraphEnabled');
     const now = new Date();
     vi.mocked(getDocs)
       .mockResolvedValueOnce(mockSnapshot([]) as never) // vehicles

@@ -68,5 +68,12 @@ service cloud.firestore {
         && request.resource.data.token is string
         && request.resource.data.platform == 'web';
     }
+
+    // Budget alert idempotency tracking: written only by the checkBudgetAlert
+    // Cloud Function via the Admin SDK (which bypasses these rules). No client
+    // access needed or allowed.
+    match /budgetAlerts/{alertId} {
+      allow read, write: if false;
+    }
   }
 }

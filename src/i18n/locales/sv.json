@@ -22,6 +22,7 @@
     "selectStationPrompt": "[sv] Välj en station från vänster för att se detaljer."
   },
   "stationTable": {
+    "sortBy": "[sv] Sort by",
     "name": "[sv] Namn",
     "brand": "[sv] Märke",
     "avgPrice": "[sv] Genomsnittligt pris",

@@ -22,6 +22,7 @@
     "selectStationPrompt": "[ko] Select a station from the left to view details."
   },
   "stationTable": {
+    "sortBy": "[ko] Sort by",
     "name": "[ko] Name",
     "brand": "[ko] Brand",
     "avgPrice": "[ko] Avg. Price",

@@ -34,6 +34,11 @@ const FuelMapPage = lazyWithRetry(() => import('./FuelMapPage'));
 const StationsPage = lazyWithRetry(() => import('../pages/StationsPage'));
 const DashboardPage = lazyWithRetry(() => import('../pages/DashboardPage'));
 
+// Pages with wide data tables need more horizontal room than the default
+// max-w-5xl content column allows, or their tables overflow into a
+// horizontal scrollbar even on wide monitors.
+const WIDE_LAYOUT_PATHS = new Set(['/history', '/stations']);
+
 /** Loading fallback for Suspense */
 const PageLoader = () => (
   <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
@@ -99,7 +104,9 @@ function AuthenticatedApp(): JSX.Element {
 
       <SyncStatus />
 
-      <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full min-w-0 max-w-5xl">
+      <main className={`flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full min-w-0 ${
+        WIDE_LAYOUT_PATHS.has(location.pathname.replace(/\/$/, '')) ? 'max-w-7xl' : 'max-w-5xl'
+      }`}>
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>

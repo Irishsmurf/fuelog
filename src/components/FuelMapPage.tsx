@@ -1,6 +1,5 @@
 // src/components/FuelMapPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster'; // Import the cluster group
@@ -14,6 +13,8 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'; // Cluster Defaul
 import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreService'; // Adjust path if needed
 import { Log, Station } from '../utils/types';
 import { formatDate } from '../utils/formatDate';
+import { useTheme } from '../context/ThemeContext';
+import { MAP_TILES } from '../utils/mapConstants';
 
 // --- Icon Fix (points to public assets) ---
 const iconRetinaUrl = '/marker-icon-2x.png';
@@ -79,7 +80,7 @@ const LocateControl = () => {
 
 
 const FuelMapPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { theme } = useTheme();
   const [locations, setLocations] = useState<Log[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
@@ -105,33 +106,45 @@ const FuelMapPage: React.FC = () => {
        loadData();
   }, []);
 
-  const validLocations = useMemo(() => locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined), [locations]);
+  const validLocations = useMemo(() => {
+      return locations.filter(loc => loc.latitude !== undefined && loc.longitude !== undefined);
+  }, [locations]);
 
-  // Group logs by station for better display - Memoized for performance
+  // Group logs by latitude & longitude
   const stationGroups = useMemo(() => {
-      return validLocations.reduce((acc, log) => {
-          const key = log.stationId || `raw-${log.latitude}-${log.longitude}`;
-          if (!acc[key]) acc[key] = { logs: [], station: stations.find(s => s.id === log.stationId) };
-          acc[key].logs.push(log);
-          return acc;
-      }, {} as Record<string, { logs: Log[], station?: Station }>);
+     const groups: { [key: string]: { logs: Log[], station?: Station } } = {};
+     validLocations.forEach(log => {
+         const key = `${log.latitude!.toFixed(4)}_${log.longitude!.toFixed(4)}`;
+         if (!groups[key]) {
+             // Find matching station if it exists
+             const matchedStation = stations.find(s => 
+               s.latitude.toFixed(4) === log.latitude!.toFixed(4) && 
+               s.longitude.toFixed(4) === log.longitude!.toFixed(4)
+             );
+             groups[key] = { logs: [], station: matchedStation };
+         }
+         groups[key].logs.push(log);
+     });
+     return groups;
   }, [validLocations, stations]);
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-       <Loader className="w-8 h-8 animate-spin mb-2" />
-       <p>{t('common.loadingMapData')}</p>
-    </div>
-  );
-
-  if (error) return (
-      <div className="flex flex-col items-center justify-center h-64 text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 m-4">
-          <AlertCircle className="w-8 h-8 mb-2" />
-          <p>{error}</p>
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh] min-h-[400px]">
+        <Loader className="w-8 h-8 animate-spin text-amber-500" />
       </div>
-  );
+    );
+  }
 
-  // If no valid locations, we can default to user location or a default.
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center h-[60vh] min-h-[400px] text-red-500 dark:text-red-400">
+        <AlertCircle className="w-12 h-12 mb-2" />
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   const initialCenter: L.LatLngExpression = validLocations.length > 0
       ? [validLocations[0].latitude!, validLocations[0].longitude!]
       : [53.3498, -6.2603]; // Default to Dublin
@@ -147,8 +160,8 @@ const FuelMapPage: React.FC = () => {
 
       <MapContainer center={initialCenter} zoom={validLocations.length > 0 ? 10 : 6} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution={MAP_TILES.attribution}
+          url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
         />
 
         <MarkerClusterGroup chunkedLoading>

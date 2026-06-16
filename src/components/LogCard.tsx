@@ -11,6 +11,8 @@ import { useAuth } from '../context/AuthContext';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../context/ThemeContext';
+import { MAP_TILES } from '../utils/mapConstants';
 
 // CSS for card flip and map container
 import 'leaflet/dist/leaflet.css';
@@ -43,6 +45,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
   const { profile } = useAuth();
   const { getBoolean } = useRemoteConfig();
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const [isFlipped, setIsFlipped] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
 
@@ -181,7 +184,10 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
           <div className="flex-grow relative bg-gray-100 dark:bg-gray-900">
             {isFlipped && hasGeo && (
               <MapContainer center={center} zoom={15} zoomControl={false} dragging={false} touchZoom={false} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <TileLayer
+                  attribution={MAP_TILES.attribution}
+                  url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
+                />
                 <Marker position={center} />
                 <RecenterMap center={center} />
               </MapContainer>

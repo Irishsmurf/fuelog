@@ -28,7 +28,7 @@ function LanguageSelector(): JSX.Element {
         }
         onChange={(e) => handleChange(e.target.value)}
         aria-label={t('language.label')}
-        className="text-xs font-bold bg-transparent border-none focus:ring-0 text-gray-600 dark:text-gray-300 cursor-pointer pr-1"
+        className="text-xs font-bold bg-transparent border-none focus:ring-0 text-gray-600 dark:text-gray-300 cursor-pointer pr-1 max-w-[5.5rem] sm:max-w-none truncate"
       >
         {LANGUAGES.map((lang) => (
           <option 

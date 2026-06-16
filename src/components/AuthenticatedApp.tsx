@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import ErrorBoundary from './ErrorBoundary';
 import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
+import LanguageSelector from './LanguageSelector';
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import InstallPrompt from './InstallPrompt';
 import BottomNav from './BottomNav';
@@ -97,6 +98,7 @@ function AuthenticatedApp(): JSX.Element {
           </div>
 
           <div className="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+            <LanguageSelector />
             <ThemeToggle />
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden lg:inline">
               {user?.displayName?.split(' ')[0] || t('common.user')}

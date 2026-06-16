@@ -27,13 +27,14 @@ import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import ImageUpload from '../components/ImageUpload';
 import { uploadReceipt } from '../firebase/storageService';
 import { sanitizeUrl } from '../utils/sanitize';
+import { formatDate } from '../utils/formatDate';
 import { fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
     const { getBoolean } = useRemoteConfig(); // Use the hook
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     // Get the current authenticated user from context
     const { user, profile } = useAuth();
@@ -225,13 +226,13 @@ function HistoryPage(): JSX.Element {
         // Sort ascending by date for time-series charts
         const sortedLogs = [...filteredLogs].sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
         return sortedLogs.map(log => ({
-            date: log.timestamp?.toDate().toLocaleDateString(i18n.language, { day: '2-digit', month: '2-digit' }) ?? 'N/A',
+            date: log.timestamp?.toDate() ? formatDate(log.timestamp.toDate()) : 'N/A',
             timestampValue: log.timestamp?.toMillis(),
             mpg: getNumericMPG(log.distanceKm, log.fuelAmountLiters),
             cost: log.cost > 0 ? log.cost : null,
             fuelPrice: getNumericFuelPrice(log.cost, log.fuelAmountLiters)
         }));
-    }, [filteredLogs, i18n.language]); // Recalculate only when filteredLogs or language change
+    }, [filteredLogs]); // Recalculate only when filteredLogs change
 
     // --- Calculate Summary Metrics (Uses filteredLogs) ---
     // Memoized calculation for the total cost, average MPG, and average cost based on the *filtered* logs.
@@ -601,7 +602,7 @@ function HistoryPage(): JSX.Element {
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
                                         <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate().toLocaleDateString(i18n.language) ?? 'N/A'}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate() ? formatDate(log.timestamp.toDate()) : 'N/A'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-brand-primary font-mono tracking-tighter">{vehicleMap[log.vehicleId || ''] || '-'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                                                 {stations.find(s => s.id === log.stationId)?.name || log.brand}
@@ -694,7 +695,7 @@ function HistoryPage(): JSX.Element {
             {isModalOpen && editingLog && (
                 <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-600 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
                     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md m-4 space-y-4 transform transition-all">
-                        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300" id="modal-title">{t('history.edit.title')} ({editingLog.timestamp.toDate().toLocaleDateString(i18n.language)})</h3>
+                        <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300" id="modal-title">{t('history.edit.title')} ({formatDate(editingLog.timestamp.toDate())})</h3>
                         {/* Edit Form */}
                         <form onSubmit={handleUpdateLog} className="space-y-4">
                             {/* Vehicle Selection */}

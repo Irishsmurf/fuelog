@@ -4,6 +4,7 @@ import { useApiTokens, type TokenScope } from '../context/ApiTokenContext';
 import type { ApiToken } from '../utils/types';
 import { Timestamp } from 'firebase/firestore';
 import { useTranslation, Trans } from 'react-i18next';
+import { formatDate as formatDateDDMMYYYY } from '../utils/formatDate';
 
 const ALL_SCOPES: TokenScope[] = ['read:logs', 'write:logs', 'read:vehicles', 'write:vehicles'];
 
@@ -117,7 +118,7 @@ function TokenRow({ token, onRevoke }: TokenRowProps): JSX.Element {
     if (!ts) return t('apiTokens.row.never');
     const date = ts.toDate?.();
     if (!date) return t('apiTokens.row.never');
-    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    return formatDateDDMMYYYY(date);
   };
 
   return (

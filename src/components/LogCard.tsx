@@ -3,6 +3,7 @@ import { JSX, useState } from 'react';
 import { Log } from '../utils/types';
 import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
 import { sanitizeUrl } from '../utils/sanitize';
+import { formatDate } from '../utils/formatDate';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { MapPin, Info, Edit3, Trash2, FileText } from 'lucide-react';
@@ -41,7 +42,7 @@ const RecenterMap = ({ center }: { center: L.LatLngExpression }) => {
 function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardProps): JSX.Element {
   const { profile } = useAuth();
   const { getBoolean } = useRemoteConfig();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
 
@@ -87,7 +88,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
             <div className="space-y-0.5 min-w-0 flex-grow">
               <div className="flex items-center space-x-1.5">
                 <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest truncate">
-                    {log.timestamp?.toDate().toLocaleDateString(i18n.language, { day: '2-digit', month: 'short', year: 'numeric' }) ?? 'N/A'}
+                    {log.timestamp?.toDate() ? formatDate(log.timestamp.toDate()) : 'N/A'}
                 </p>
                 {hasGeo && <MapPin size={10} className="text-brand-primary shrink-0 animate-pulse" />}
               </div>

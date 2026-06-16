@@ -8,6 +8,7 @@ import {
 
 import { Log, Station } from '../utils/types';
 import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
+import { formatDate } from '../utils/formatDate';
 
 const RECENT_LOGS_LIMIT = 12;
 
@@ -97,7 +98,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
             .map(log => {
                 const price = log.fuelAmountLiters ? (log.cost / log.fuelAmountLiters) : 0;
                 return {
-                    date: log.timestamp.toDate().toLocaleDateString(),
+                    date: formatDate(log.timestamp.toDate()),
                     pricePerLiter: isFinite(price) ? parseFloat(price.toFixed(3)) : 0, // Ensure it's a finite number
                 };
             })
@@ -218,7 +219,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                     {fuelLogs.map(log => (
                         <div key={log.id} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
                             <p className="text-sm text-gray-900 dark:text-gray-100">
-                                {log.timestamp.toDate().toLocaleDateString()}
+                                {formatDate(log.timestamp.toDate())}
                             </p>
                             <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                                 €{log.cost.toFixed(2)} ({log.fuelAmountLiters.toFixed(2)}L @ {isFinite(log.cost / log.fuelAmountLiters) ? (log.cost / log.fuelAmountLiters).toFixed(3) : t('stationTable.noData')}/L)

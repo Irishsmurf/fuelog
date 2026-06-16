@@ -16,7 +16,9 @@ function ImportOnboardingPrompt(): JSX.Element | null {
   if (!profile || profile.hasSeenImportOnboarding) return null;
 
   const dismiss = () => {
-    updateProfile({ hasSeenImportOnboarding: true });
+    updateProfile({ hasSeenImportOnboarding: true }).catch((error) => {
+      console.error('Failed to persist import onboarding dismissal:', error);
+    });
   };
 
   return (

@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ImportOnboardingPrompt from './ImportOnboardingPrompt';
 
-const mockUpdateProfile = vi.fn();
+const mockUpdateProfile = vi.fn().mockResolvedValue(undefined);
 let mockProfile: { hasSeenImportOnboarding?: boolean } | null = {};
 
 vi.mock('react-i18next', () => ({
@@ -25,6 +25,7 @@ function renderPrompt() {
 describe('ImportOnboardingPrompt (#154)', () => {
   beforeEach(() => {
     mockUpdateProfile.mockClear();
+    mockUpdateProfile.mockResolvedValue(undefined);
     mockProfile = {};
   });
 

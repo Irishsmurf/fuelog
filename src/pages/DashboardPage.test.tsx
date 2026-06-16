@@ -116,4 +116,14 @@ describe('DashboardPage', () => {
 
     await waitFor(() => expect(screen.getByText('Failed to load dashboard data. Please try again.')).toBeInTheDocument());
   });
+
+  it('shows an error banner when fetching vehicles fails', async () => {
+    vi.mocked(getDocs)
+      .mockRejectedValueOnce(new Error('Firestore error')) // vehicles
+      .mockResolvedValueOnce(mockSnapshot([]) as never); // logs
+
+    render(<DashboardPage />);
+
+    await waitFor(() => expect(screen.getByText('Failed to load dashboard data. Please try again.')).toBeInTheDocument());
+  });
 });

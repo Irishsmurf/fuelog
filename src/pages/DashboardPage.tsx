@@ -1,7 +1,7 @@
 // src/pages/DashboardPage.tsx
 import { JSX, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
@@ -31,35 +31,53 @@ function DashboardPage(): JSX.Element {
 
     useEffect(() => {
         if (!user) { setVehicles([]); return; }
+        let cancelled = false;
+
         const fetchVehicles = async () => {
             try {
                 const q = query(collection(db, 'vehicles'), where('userId', '==', user.uid));
                 const snap = await getDocs(q);
+                if (cancelled) return;
                 const list: Vehicle[] = [];
                 snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
                 setVehicles(list.filter(v => !v.isArchived));
             } catch (err) {
+                if (cancelled) return;
                 console.error('Error fetching vehicles:', err);
+                setError(
+                    !navigator.onLine
+                        ? t('dashboard.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
+                        : t('dashboard.loadError', { defaultValue: 'Failed to load dashboard data. Please try again.' })
+                );
             }
         };
         fetchVehicles();
-    }, [user]);
+
+        return () => { cancelled = true; };
+    }, [user, t]);
 
     useEffect(() => {
         if (!user) { setIsLoading(false); setLogs([]); return; }
         setIsLoading(true);
         setError(null);
+        let cancelled = false;
 
         const fetchLogs = async () => {
             try {
-                const constraints = [where('userId', '==', user.uid)];
+                const windowStart = new Date(new Date().getFullYear(), new Date().getMonth() - (MONTHS_BACK - 1), 1);
+                const constraints = [
+                    where('userId', '==', user.uid),
+                    where('timestamp', '>=', Timestamp.fromDate(windowStart)),
+                ];
                 if (selectedVehicleId) constraints.push(where('vehicleId', '==', selectedVehicleId));
                 const q = query(collection(db, 'fuelLogs'), ...constraints);
                 const snap = await getDocs(q);
+                if (cancelled) return;
                 const list: Log[] = [];
                 snap.forEach(doc => list.push({ id: doc.id, ...(doc.data() as FuelLogData) }));
                 setLogs(list);
             } catch (err) {
+                if (cancelled) return;
                 console.error('Error fetching logs for dashboard:', err);
                 setError(
                     !navigator.onLine
@@ -67,10 +85,12 @@ function DashboardPage(): JSX.Element {
                         : t('dashboard.loadError', { defaultValue: 'Failed to load dashboard data. Please try again.' })
                 );
             } finally {
-                setIsLoading(false);
+                if (!cancelled) setIsLoading(false);
             }
         };
         fetchLogs();
+
+        return () => { cancelled = true; };
     }, [user, selectedVehicleId, t]);
 
     const monthlyTotals = useMemo(() => getMonthlyTotals(logs, MONTHS_BACK), [logs]);

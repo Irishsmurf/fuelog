@@ -309,13 +309,13 @@
       "permissionDenied": "Les notifications sont bloquées pour ce site dans les paramètres de votre navigateur. Activez-les dans les autorisations de site de votre navigateur, puis réessayez."
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "Entretien",
+      "migrateStations": "Lier les Stations",
+      "migrateStationsDesc": "Analysez vos journaux pour les lier aux stations-service connues.",
+      "migrateStationsButton": "Identifier les Stations",
+      "migrating": "Analyse en cours...",
+      "migrationSuccess": "{{count}} journaux migrés avec succès !",
+      "migrationError": "Échec de la migration. Veuillez réessayer."
     }
   },
   "receipt": {

@@ -309,13 +309,13 @@
       "permissionDenied": "Ilmoitukset on estetty tälle sivustolle selaimesi asetuksissa. Ota ne käyttöön selaimesi sivustoluvissa ja yritä uudelleen."
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "[fi.json] Maintenance",
+      "migrateStations": "[fi.json] Link Stations",
+      "migrateStationsDesc": "[fi.json] Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "[fi.json] Identify Stations",
+      "migrating": "[fi.json] Analyzing...",
+      "migrationSuccess": "[fi.json] Successfully migrated {{count}} logs!",
+      "migrationError": "[fi.json] Migration failed. Please try again."
     }
   },
   "receipt": {

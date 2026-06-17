@@ -309,13 +309,13 @@
       "permissionDenied": "Tá fógraí coiscthe don suíomh seo i socruithe do bhrabhsálaí. Cumasaigh iad i gceadanna suímh do bhrabhsálaí, ansin bain triail eile as."
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "Cothabháil",
+      "migrateStations": "Nasc Stáisiúin",
+      "migrateStationsDesc": "Déan anailís ar do logaí chun iad a nascadh le stáisiúin pheitril ar eolas.",
+      "migrateStationsButton": "Aithin Stáisiúin",
+      "migrating": "Ag déanamh anailíse...",
+      "migrationSuccess": "D'éirigh leis {{count}} loga a imirce!",
+      "migrationError": "Theip ar an imirce. Déan iarracht arís."
     }
   },
   "receipt": {

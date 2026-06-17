@@ -309,13 +309,13 @@
       "permissionDenied": "このサイトの通知はブラウザの設定でブロックされています。ブラウザのサイト権限で通知を有効にしてから、再度お試しください。"
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "[ja.json] Maintenance",
+      "migrateStations": "[ja.json] Link Stations",
+      "migrateStationsDesc": "[ja.json] Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "[ja.json] Identify Stations",
+      "migrating": "[ja.json] Analyzing...",
+      "migrationSuccess": "[ja.json] Successfully migrated {{count}} logs!",
+      "migrationError": "[ja.json] Migration failed. Please try again."
     }
   },
   "receipt": {

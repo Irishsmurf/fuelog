@@ -309,13 +309,13 @@
       "permissionDenied": "Aviseringar är blockerade för denna webbplats i dina webbläsarinställningar. Aktivera dem i webbläsarens webbplatsbehörigheter och försök igen."
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "[sv.json] Maintenance",
+      "migrateStations": "[sv.json] Link Stations",
+      "migrateStationsDesc": "[sv.json] Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "[sv.json] Identify Stations",
+      "migrating": "[sv.json] Analyzing...",
+      "migrationSuccess": "[sv.json] Successfully migrated {{count}} logs!",
+      "migrationError": "[sv.json] Migration failed. Please try again."
     }
   },
   "receipt": {

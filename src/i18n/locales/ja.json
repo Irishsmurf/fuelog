@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "クラスター",
+    "heatmap": "ヒートマップ",
+    "avgPrice": "平均: €{{price}}/L",
+    "olderFuelings": "+ {{count}} 件の過去の給油",
+    "fuelingsAtStation": "このステーションでの給油 {{count}} 件"
   }
 }

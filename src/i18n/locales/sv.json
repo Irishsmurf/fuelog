@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "Kluster",
+    "heatmap": "Värmekarta",
+    "avgPrice": "Genomsnitt: €{{price}}/L",
+    "olderFuelings": "+ {{count}} äldre tankning",
+    "fuelingsAtStation": "{{count}} tankning på denna station"
   }
 }

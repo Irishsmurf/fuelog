@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "Klusterit",
+    "heatmap": "Lämpökartta",
+    "avgPrice": "Keskim.: €{{price}}/L",
+    "olderFuelings": "+ {{count}} vanhempaa tankkaamista",
+    "fuelingsAtStation": "{{count}} tankkaamista tällä asemalla"
   }
 }

@@ -249,12 +249,12 @@ const FuelMapPage: React.FC = () => {
                       </div>
                       {group.logs.length > 3 && (
                           <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700/60 text-[10px] text-brand-primary dark:text-brand-primary-glow font-bold text-center uppercase tracking-wider">
-                              {t('map.olderFuelings', '+ {{count}} older fuelings', { count: group.logs.length - 3 })}
+                              {t('map.olderFuelings', { count: group.logs.length - 3 })}
                           </div>
                       )}
                       {group.logs.length <= 3 && group.logs.length > 1 && (
                           <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700/60 text-[10px] text-gray-400 text-center font-bold uppercase tracking-wider">
-                              {t('map.fuelingsAtStation', '{{count}} Fuelings at this station', { count: group.logs.length })}
+                              {t('map.fuelingsAtStation', { count: group.logs.length })}
                           </div>
                       )}
                     </div>

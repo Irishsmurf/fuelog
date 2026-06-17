@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "Braistí",
+    "heatmap": "Léarscáil Teochtasach",
+    "avgPrice": "Meán: €{{price}}/L",
+    "olderFuelings": "+ {{count}} seanbhealaí",
+    "fuelingsAtStation": "{{count}} bhealaí ag an stáisiún seo"
   }
 }

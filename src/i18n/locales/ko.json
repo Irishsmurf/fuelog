@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "클러스터",
+    "heatmap": "히트맵",
+    "avgPrice": "평균: €{{price}}/L",
+    "olderFuelings": "+ {{count}} 건의 이전 주유",
+    "fuelingsAtStation": "이 주유소에서의 주유 {{count}} 건"
   }
 }

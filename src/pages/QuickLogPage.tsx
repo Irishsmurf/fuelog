@@ -476,12 +476,12 @@ function QuickLogPage(): JSX.Element {
                   {currency !== homeCurrency && (
                     <div className="bg-brand-primary/10 dark:bg-brand-primary/20 p-3 rounded-lg border border-brand-primary/20 dark:border-brand-primary/30 space-y-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-brand-primary-hover dark:text-indigo-300 uppercase tracking-tighter">
+                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-brand-primary-hover dark:text-brand-primary-glow uppercase tracking-tighter">
                           {t('quickLog.fields.exchangeRate', { currency, homeCurrency })}
                         </label>
                         {isFetchingRate && <span className="text-[10px] text-brand-primary dark:text-brand-primary-glow animate-pulse">{t('quickLog.fields.fetching')}</span>}
                       </div>
-                      <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-3 py-2 border border-brand-primary/30 dark:border-brand-primary-hover rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm fuel-numeral" disabled={isSaving} />
+                      <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-3 py-2 border border-brand-primary/30 dark:border-brand-primary-hover rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm fuel-numeral" disabled={isSaving} />
                       <p className="text-[10px] text-brand-primary-hover dark:text-brand-primary-glow font-medium">
                         {t('quickLog.fields.converted', { symbol: homeCurrencySymbol, amount: (parseFloat(cost || '0') * exchangeRate).toFixed(2) })}
                       </p>

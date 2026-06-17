@@ -409,8 +409,8 @@ function QuickLogPage(): JSX.Element {
   return (
     <div className="min-h-screen pb-24 pt-6 px-4 bg-gray-50 dark:bg-brand-dark-surface relative overflow-hidden transition-colors duration-500">
       {/* Decorative ambient background glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-primary/20 dark:bg-brand-primary-glow/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] animate-pulse pointer-events-none" style={{ animationDuration: '8s' }}></div>
-      <div className="absolute bottom-[20%] right-[-10%] w-80 h-80 bg-amber-400/20 dark:bg-amber-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-pulse pointer-events-none" style={{ animationDuration: '10s' }}></div>
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-primary/20 dark:bg-brand-primary-glow/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] animate-pulse transform-gpu pointer-events-none" style={{ animationDuration: '8s' }}></div>
+      <div className="absolute bottom-[20%] right-[-10%] w-80 h-80 bg-amber-400/20 dark:bg-amber-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-pulse transform-gpu pointer-events-none" style={{ animationDuration: '10s' }}></div>
       
       <div className="container mx-auto max-w-lg relative z-10">
         <div className="bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl p-6 sm:p-8 border border-white/60 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/10 transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)]">

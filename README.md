@@ -1,228 +1,157 @@
-# fuelog
+<div align="center">
+  <img src="docs/assets/header.jpg" alt="Fuelog Header" width="100%" />
 
-**Track every fill-up. Understand your vehicle. Reduce your costs.**
+  <br />
+  <br />
 
-[![CI](https://github.com/Irishsmurf/fuelog/actions/workflows/main-ci.yml/badge.svg)](https://github.com/Irishsmurf/fuelog/actions/workflows/main-ci.yml)
-[![codecov](https://codecov.io/gh/Irishsmurf/fuelog/branch/main/graph/badge.svg)](https://codecov.io/gh/Irishsmurf/fuelog)
-[![i18n](https://github.com/Irishsmurf/fuelog/actions/workflows/i18n-check.yml/badge.svg)](https://github.com/Irishsmurf/fuelog/actions/workflows/i18n-check.yml)
+  <h1>fuelog</h1>
 
-Fuelog is a mobile-first Progressive Web App for logging fuel fill-ups, tracking efficiency trends, and managing costs across multiple vehicles. Sign in with Google, log a fill in under 30 seconds, and build a picture of your fuel spend over time.
+  <p>
+    <strong>Track every fill-up. Understand your vehicle. Reduce your costs.</strong>
+  </p>
 
-Live at **[fuelog.paddez.com](https://fuelog.paddez.com)**
+  <p>
+    <a href="https://github.com/Irishsmurf/fuelog/actions/workflows/main-ci.yml"><img src="https://github.com/Irishsmurf/fuelog/actions/workflows/main-ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://codecov.io/gh/Irishsmurf/fuelog"><img src="https://codecov.io/gh/Irishsmurf/fuelog/branch/main/graph/badge.svg" alt="codecov"></a>
+    <a href="https://github.com/Irishsmurf/fuelog/actions/workflows/i18n-check.yml"><img src="https://github.com/Irishsmurf/fuelog/actions/workflows/i18n-check.yml/badge.svg" alt="i18n"></a>
+  </p>
 
----
-
-## Features
-
-### Fuel Logging
-- Log cost, litres, and distance in a single screen
-- **Odometer tracking** with smart distance calculation from the previous fill
-- **AI receipt scanning** — photograph a receipt and Gemini extracts the data automatically
-- **Geolocation** captures the fill-up position for map and station tracking
-- Brand auto-suggest from your own history
-
-### Multi-Vehicle & Multi-Currency
-- Add unlimited vehicles (make, model, year, fuel type); archive old ones
-- Set a home currency and log fills in any of 30+ currencies — exchange rates are fetched automatically via the Frankfurter API
-
-### History & Analytics
-- Filterable, sortable log with card and table views
-- Efficiency metrics per fill: km/L, L/100km, MPG (UK), cost per mile
-- MPG and price-per-litre trend charts (Recharts)
-- Lifetime totals: total spend, total litres, total distance, fill count
-- PDF export and clipboard (TSV) export
-
-### Stations
-- Track every filling station you have visited
-- See average and last price per litre per station
-- Cluster map of all fill-up locations (Leaflet)
-
-### Developer & Power-User Features
-- **REST API** — programmatic access to logs, vehicles, and analytics with scoped bearer tokens ([docs](docs/REST_API.md))
-- **MCP server** — connect Claude or any MCP-compatible LLM directly to your fuel data ([docs](docs/MCP.md))
-- **TSV import** for bulk-loading historical data
-- FCM push notifications (opt-in)
-- Firebase Remote Config feature flags for controlled rollouts
-
-### Internationalisation
-Available in English, Irish (Gaeilge), German, Spanish, French, Finnish, Japanese, Korean, Norwegian, and Swedish.
+  <p>
+    <a href="https://fuelog.paddez.com">View Demo</a>
+    ·
+    <a href="https://github.com/Irishsmurf/fuelog/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/Irishsmurf/fuelog/issues">Request Feature</a>
+  </p>
+</div>
 
 ---
 
-## Tech Stack
+## 📖 About The Project
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 19, TypeScript, Vite |
-| Styling | Tailwind CSS v4 |
-| Backend / DB | Firebase (Auth, Firestore, Storage, Remote Config, FCM) |
-| AI | Google Gemini (receipt extraction) |
-| Maps | Leaflet, react-leaflet |
-| Charts | Recharts |
-| i18n | i18next, react-i18next |
-| Hosting | Firebase Hosting / Vercel (API routes) |
-| Testing | Vitest, Playwright |
+Fuelog is a mobile-first Progressive Web App designed for logging fuel fill-ups, tracking efficiency trends, and managing costs across multiple vehicles. With features like AI receipt scanning via Gemini, real-time geolocation, and multi-currency support, it transforms the chore of tracking fuel into a seamless, automated experience.
+
+Whether you're managing a single daily driver or a small fleet, Fuelog provides the analytics you need to build a comprehensive picture of your fuel spend over time.
 
 ---
 
-## Getting Started
+## ✨ Features
+
+- **⚡ Frictionless Logging:** Log cost, litres, and distance in a single screen.
+- **🧠 AI Receipt Scanning:** Snap a photo of your receipt and Gemini extracts the data automatically.
+- **📍 Geolocation:** Captures the fill-up position for map and station tracking.
+- **🚗 Multi-Vehicle Support:** Manage unlimited vehicles (make, model, year, fuel type).
+- **💱 Multi-Currency:** Log fills in 30+ currencies with automatic exchange rates via Frankfurter API.
+- **📊 Rich Analytics:** Efficiency metrics (km/L, L/100km, MPG), trend charts with Recharts, and lifetime totals.
+- **🗺️ Station Tracking:** Track every filling station, view average prices, and see a cluster map of all locations.
+- **🌍 Internationalisation:** Available in English, Irish (Gaeilge), German, Spanish, French, Finnish, Japanese, Korean, Norwegian, and Swedish.
+
+---
+
+## 🛠 Tech Stack
+
+Built with modern web technologies:
+
+- **Frontend:** React 19, TypeScript, Vite
+- **Styling:** Tailwind CSS v4
+- **Backend / DB:** Firebase (Auth, Firestore, Storage, Remote Config, FCM)
+- **AI Integration:** Google Gemini
+- **Maps:** Leaflet, react-leaflet
+- **Charts:** Recharts
+- **Testing:** Vitest, Playwright
+
+---
+
+## 🚀 Getting Started
+
+Follow these instructions to get a copy of the project up and running on your local machine.
 
 ### Prerequisites
 
-- Node.js (LTS) and npm
-- A Firebase project with Authentication (Google provider), Firestore, and Storage enabled
+- Node.js (LTS)
+- npm
+- A Firebase project with Authentication (Google provider), Firestore, and Storage enabled.
 
-### 1 — Clone and install
+### Installation
 
-```bash
-git clone https://github.com/Irishsmurf/fuelog.git
-cd fuelog
-npm install
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Irishsmurf/fuelog.git
+   cd fuelog
+   ```
 
-### 2 — Configure environment variables
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-Copy the example below into a `.env` file at the project root. Never commit this file.
+3. **Configure environment variables:**
+   Copy the example below into a `.env` file at the project root. Never commit this file to version control.
+   ```env
+   # Firebase — required
+   VITE_FIREBASE_API_KEY=
+   VITE_FIREBASE_AUTH_DOMAIN=
+   VITE_FIREBASE_PROJECT_ID=
+   VITE_FIREBASE_STORAGE_BUCKET=
+   VITE_FIREBASE_MESSAGING_SENDER_ID=
+   VITE_FIREBASE_APP_ID=
 
-```env
-# Firebase — required
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
+   # Google Gemini — optional, enables AI receipt scanning
+   VITE_GEMINI_API_KEY=
+   VITE_GEMINI_MODEL=gemini-2.5-flash
+   VITE_GEMINI_THINKING_BUDGET=512
+   ```
 
-# Google Gemini — optional, enables AI receipt scanning
-VITE_GEMINI_API_KEY=
+4. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
 
-# Gemini model tuning — optional
-VITE_GEMINI_MODEL=gemini-2.5-flash
-VITE_GEMINI_THINKING_BUDGET=512
-```
-
-### 3 — Run
-
-```bash
-npm run dev
-```
-
-Open `http://localhost:5173`.
-
-### Available scripts
-
-| Script | Description |
-|---|---|
-| `npm run dev` | Start the Vite dev server |
-| `npm run build` | Type-check and build for production |
-| `npm run preview` | Preview the production build |
-| `npm test` | Run unit tests (Vitest) |
-| `npm run test:coverage` | Unit tests with coverage report |
-| `npm run test:e2e` | End-to-end tests (Playwright) |
-| `npm run lint` | ESLint |
-
-### Firestore security rules
-
-Minimum rules for development — tighten before going to production:
-
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /fuelLogs/{logId} {
-      allow read, write: if request.auth != null
-                         && request.auth.uid == resource.data.userId;
-    }
-  }
-}
-```
-
-Full rules including vehicles and stations are documented in [docs/FIREBASE.md](docs/FIREBASE.md).
+Open `http://localhost:5173` to view it in your browser.
 
 ---
 
-## Documentation
+## 📚 Documentation
 
-| Document | Description |
-|---|---|
-| [Architecture](docs/ARCHITECTURE.md) | System design, Firestore schema, service layers |
-| [Features](docs/FEATURES.md) | Full feature reference |
-| [REST API](docs/REST_API.md) | API endpoints, authentication, request/response shapes |
-| [MCP Server](docs/MCP.md) | Connecting LLMs to your fuel data |
-| [Firebase Setup](docs/FIREBASE.md) | Firestore rules, Storage config, FCM setup |
-| [Gemini Integration](docs/GEMINI.md) | AI receipt extraction configuration |
-| [Roadmap](docs/ROADMAP.md) | Planned features and milestones |
-| [User Flows](docs/USER_FLOWS.md) | End-to-end user journey documentation |
+For deep-dives into the architecture, APIs, and integrations, explore our documentation:
 
----
-
-## Branding Guidelines
-
-Fuelog's visual identity is built around the **petrol forecourt at night** — the amber glow of price boards, the industrial precision of pump readouts, the clarity required at a glance from a car window. Every design decision should serve legibility and functional confidence, not decoration.
-
-### Colour
-
-| Role | Name | Hex | Usage |
-|---|---|---|---|
-| Primary | Amber 600 | `#D97706` | Buttons, active states, links — light mode |
-| Primary hover | Amber 700 | `#B45309` | Button hover in light mode |
-| Primary glow | Amber 400 | `#FBBF24` | Accents and glows in dark mode |
-| Success | Emerald 500 | `#10B981` | Positive feedback, full-tank states |
-| Danger | Red 500 | `#EF4444` | Errors and destructive actions |
-| Surface (dark) | Petroleum | `#0A0F1E` | Dark mode background — slightly blue-tinged black |
-| Surface (light) | Near white | `#F9FAFB` | Light mode background |
-
-**Amber is the brand colour.** It is derived from real-world petrol station LED price displays and grounds the product in its domain. Do not substitute it with indigo, violet, or other generic SaaS primaries.
-
-**Button text is always dark on amber.** Both `#D97706` (light mode) and `#FBBF24` (dark mode) achieve WCAG AA contrast with `#111827` (gray-900). Never use white text on an amber background.
-
-### Typography
-
-| Role | Family | Weights | Usage |
-|---|---|---|---|
-| Display | Space Grotesk | 600, 700 | Wordmark, page headings, hero text |
-| Body | Inter | 400, 500, 600 | Paragraphs, labels, UI copy |
-| Data | Space Mono | 400, 700 | All numeric readouts — cost, litres, km, efficiency |
-
-**Numbers always use Space Mono.** Fuel data is the primary content of this application. Tabular-numeric mono rendering keeps columns aligned and communicates precision — the same reason dashboards use dedicated display typefaces.
-
-**The wordmark is set in Space Grotesk Bold.** `fuel` in Amber 500 (`#F59E0B`), `og` in Gray 700 (`#374151`) on dark backgrounds or Gray 400 (`#9CA3AF`) in the header. Letter-spacing is `-0.03em`. Do not use a heavier weight, do not apply text-transform, do not alter the two-tone split.
-
-### Wordmark
-
-```
-fuelog
-──────
-fuel  → Amber 500  (#F59E0B)
-og    → Gray 400/700 (context-dependent)
-```
-
-The wordmark is always lowercase. Uppercase or title-case variants are not permitted.
-
-### Dark vs light mode
-
-Fuelog supports both light and dark modes. The **sign-in screen is always dark** (`#0A0F1E`) regardless of system preference — it is a deliberate brand moment, not a UI mode.
-
-Within the authenticated app, dark mode uses the petroleum surface (`#0A0F1E`) with amber-400 accents. Light mode uses a near-white surface with amber-600 as the primary.
-
-### Iconography
-
-Icons are sourced from **Lucide** at a stroke width of 1.75 (inactive) or 2.5 (active). Do not mix icon libraries. Icon size in navigation is 22px; in buttons and inline contexts, 16–18px.
-
-### Motion
-
-Interactions use a single easing curve: `cubic-bezier(0.4, 0, 0.2, 1)` (Material ease-in-out). Active press feedback uses `scale(0.96–0.98)`. Page load sequences use staggered fade/translate-up at 150ms intervals. Respect `prefers-reduced-motion` — all animations are suppressed when the user preference is set.
-
-### Voice and copy
-
-Fuelog speaks to drivers, not dashboards. Copy is short, direct, and metric-first. Prefer active verbs: "Log a fill-up", "View your history", "Export to PDF". Use sentence case everywhere. Avoid marketing language — the data is the story.
+- [Architecture](docs/ARCHITECTURE.md) - System design, Firestore schema, service layers
+- [REST API](docs/REST_API.md) - API endpoints & authentication
+- [MCP Server](docs/MCP.md) - Connect LLMs to your fuel data
+- [Firebase Setup](docs/FIREBASE.md) - Firestore rules, Storage config, FCM setup
+- [Gemini Integration](docs/GEMINI.md) - AI receipt extraction configuration
+- [Features & Roadmap](docs/FEATURES.md) - Full reference and planned milestones
+- [User Flows](docs/USER_FLOWS.md) - End-to-end user journey documentation
 
 ---
 
-## Contributing
+## 🎨 Branding & Design Guidelines
 
-Pull requests are welcome. Please open an issue first to discuss significant changes. All PRs should include tests for new behaviour and pass the existing test suite (`npm test`).
+Fuelog's visual identity is built around the **petrol forecourt at night** — the amber glow of price boards and the industrial precision of pump readouts. 
 
-## License
+- **Primary Colour:** Amber 600 (`#D97706`) / Amber 400 (`#FBBF24`)
+- **Surface:** Petroleum (`#0A0F1E`) for dark mode, Near white (`#F9FAFB`) for light mode.
+- **Typography:** Space Grotesk (Display), Inter (Body), Space Mono (Data).
+- **Wordmark:** Lowercase `fuelog` set in Space Grotesk Bold, with a split tone (`#F59E0B` / `#374151`).
 
-MIT
+*Every design decision should serve legibility and functional confidence, not decoration. Numbers always use tabular-numeric mono rendering for clean, dashboard-like alignment.*
+
+---
+
+## 🤝 Contributing
+
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+*Please ensure all PRs include tests, follow the commitlint conventional format, and pass the existing suite (`npm test`).*
+
+---
+
+## 📝 License
+
+Distributed under the MIT License. See `LICENSE` for more information.

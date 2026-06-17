@@ -309,13 +309,13 @@
       "permissionDenied": "Varsler er blokkert for dette nettstedet i nettleserinnstillingene dine. Aktiver dem i nettleserens nettstedstillatelser, og prøv igjen."
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "[no.json] Maintenance",
+      "migrateStations": "[no.json] Link Stations",
+      "migrateStationsDesc": "[no.json] Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "[no.json] Identify Stations",
+      "migrating": "[no.json] Analyzing...",
+      "migrationSuccess": "[no.json] Successfully migrated {{count}} logs!",
+      "migrationError": "[no.json] Migration failed. Please try again."
     }
   },
   "receipt": {

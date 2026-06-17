@@ -309,13 +309,13 @@
       "permissionDenied": "이 사이트의 알림이 브라우저 설정에서 차단되어 있습니다. 브라우저의 사이트 권한에서 알림을 활성화한 후 다시 시도하세요."
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "[ko.json] Maintenance",
+      "migrateStations": "[ko.json] Link Stations",
+      "migrateStationsDesc": "[ko.json] Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
+      "migrateStationsButton": "[ko.json] Identify Stations",
+      "migrating": "[ko.json] Analyzing...",
+      "migrationSuccess": "[ko.json] Successfully migrated {{count}} logs!",
+      "migrationError": "[ko.json] Migration failed. Please try again."
     }
   },
   "receipt": {

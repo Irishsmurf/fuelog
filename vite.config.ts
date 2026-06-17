@@ -169,8 +169,10 @@ export default defineConfig({
             if (id.includes('jspdf') || id.includes('jspdf-autotable')) return 'vendor-pdf';
             if (id.includes('html2canvas')) return 'vendor-canvas';
             if (id.includes('dompurify')) return 'vendor-sanitize';
-            if (id.includes('leaflet')) return 'vendor-map';
             if (id.includes('@google/generative-ai')) return 'vendor-ai';
+            if (id.includes('leaflet.markercluster') || id.includes('react-leaflet-markercluster') || id.includes('leaflet.heat')) {
+              return null;
+            }
             return 'vendor-libs';
           }
         }

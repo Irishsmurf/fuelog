@@ -309,13 +309,13 @@
       "permissionDenied": "Benachrichtigungen sind für diese Website in Ihren Browsereinstellungen blockiert. Aktivieren Sie sie in den Website-Berechtigungen Ihres Browsers und versuchen Sie es erneut."
     },
     "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
+      "heading": "Wartung",
+      "migrateStations": "Stationen verknüpfen",
+      "migrateStationsDesc": "Analysieren Sie Ihre Protokolle, um sie mit bekannten Tankstellen zu verknüpfen.",
+      "migrateStationsButton": "Stationen identifizieren",
+      "migrating": "Analysiere...",
+      "migrationSuccess": "{{count}} Protokolle erfolgreich migriert!",
+      "migrationError": "Migration fehlgeschlagen. Bitte erneut versuchen."
     }
   },
   "receipt": {

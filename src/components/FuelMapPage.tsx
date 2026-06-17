@@ -223,7 +223,9 @@ const FuelMapPage: React.FC = () => {
                           )}
                           {group.station?.avgPrice && (
                               <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded bg-green-50 dark:bg-green-500/10 text-[11px] text-brand-success font-bold uppercase border border-green-200 dark:border-green-500/20 w-fit">
-                                  <span className="fuel-numeral">Avg: €{group.station.avgPrice.toFixed(3)}/L</span>
+                                  <span className="fuel-numeral">
+                                      {t('map.avgPrice', 'Avg: €{{price}}/L', { price: group.station.avgPrice.toFixed(3) })}
+                                  </span>
                               </div>
                           )}
                       </div>
@@ -236,19 +238,23 @@ const FuelMapPage: React.FC = () => {
                                   </p>
                                   <p className="text-[11px] text-gray-500 dark:text-gray-400 flex justify-between">
                                       <span className="fuel-numeral">{log.fuelAmountLiters.toFixed(2)}L</span>
-                                      <span className="fuel-numeral">{(log.cost / log.fuelAmountLiters).toFixed(3)}/L</span>
+                                      <span className="fuel-numeral">
+                                          {log.fuelAmountLiters > 0
+                                              ? (log.cost / log.fuelAmountLiters).toFixed(3)
+                                              : (0).toFixed(3)}/L
+                                      </span>
                                   </p>
                               </div>
                           ))}
                       </div>
                       {group.logs.length > 3 && (
                           <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700/60 text-[10px] text-brand-primary dark:text-brand-primary-glow font-bold text-center uppercase tracking-wider">
-                              + {group.logs.length - 3} older fuelings
+                              {t('map.olderFuelings', '+ {{count}} older fuelings', { count: group.logs.length - 3 })}
                           </div>
                       )}
                       {group.logs.length <= 3 && group.logs.length > 1 && (
                           <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700/60 text-[10px] text-gray-400 text-center font-bold uppercase tracking-wider">
-                              {group.logs.length} Fuelings at this station
+                              {t('map.fuelingsAtStation', '{{count}} Fuelings at this station', { count: group.logs.length })}
                           </div>
                       )}
                     </div>

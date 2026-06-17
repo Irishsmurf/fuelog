@@ -415,7 +415,7 @@ function QuickLogPage(): JSX.Element {
 
             {isLoadingVehicles ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-primary mx-auto"></div>
                 <p className="mt-2 text-sm text-gray-500 animate-pulse">{t('quickLog.loadingVehicles')}</p>
               </div>
             ) : vehicles.length === 0 ? (
@@ -441,7 +441,7 @@ function QuickLogPage(): JSX.Element {
                   <div>
                       <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.vehicle')}</label>
                       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
+                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
                         {vehicles.map((v) => ( <option key={v.id} value={v.id}>{v.name} ({v.make})</option> ))}
                       </select>
                   </div>
@@ -450,7 +450,7 @@ function QuickLogPage(): JSX.Element {
                       <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         {t('quickLog.fields.fillingStation')} <span className="text-gray-400 font-normal text-xs">({t('quickLog.fields.fillingStationOptional')})</span>
                       </label>
-                      <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder={t('quickLog.fields.fillingStationPlaceholder')} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off" />
+                      <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder={t('quickLog.fields.fillingStationPlaceholder')} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off" />
                       <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
                   </div>
                 </div>
@@ -462,27 +462,27 @@ function QuickLogPage(): JSX.Element {
                   <div className="grid grid-cols-3 gap-3">
                       <div className="col-span-2">
                           <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.totalCost')}</label>
-                          <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving} />
+                          <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150 fuel-numeral" disabled={isSaving} />
                       </div>
                       <div>
                           <label htmlFor="currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.currency')}</label>
                           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                          <select id="currency" value={currency} onChange={handleInputChange(setCurrency as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
+                          <select id="currency" value={currency} onChange={handleInputChange(setCurrency as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
                             {COMMON_CURRENCIES.map((curr) => ( <option key={curr.code} value={curr.code}>{curr.code}</option> ))}
                           </select>
                       </div>
                   </div>
 
                   {currency !== homeCurrency && (
-                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 space-y-2">
+                    <div className="bg-brand-primary/10 dark:bg-brand-primary/20 p-3 rounded-lg border border-brand-primary/20 dark:border-brand-primary/30 space-y-2">
                       <div className="flex justify-between items-center">
-                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-tighter">
+                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-brand-primary-hover dark:text-brand-primary-glow uppercase tracking-tighter">
                           {t('quickLog.fields.exchangeRate', { currency, homeCurrency })}
                         </label>
-                        {isFetchingRate && <span className="text-[10px] text-indigo-600 dark:text-indigo-400 animate-pulse">{t('quickLog.fields.fetching')}</span>}
+                        {isFetchingRate && <span className="text-[10px] text-brand-primary dark:text-brand-primary-glow animate-pulse">{t('quickLog.fields.fetching')}</span>}
                       </div>
-                      <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-3 py-2 border border-indigo-200 dark:border-indigo-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm" disabled={isSaving} />
-                      <p className="text-[10px] text-indigo-700 dark:text-indigo-400 font-medium">
+                      <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-3 py-2 border border-brand-primary/30 dark:border-brand-primary-hover rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm fuel-numeral" disabled={isSaving} />
+                      <p className="text-[10px] text-brand-primary-hover dark:text-brand-primary-glow font-medium">
                         {t('quickLog.fields.converted', { symbol: homeCurrencySymbol, amount: (parseFloat(cost || '0') * exchangeRate).toFixed(2) })}
                       </p>
                     </div>
@@ -492,16 +492,16 @@ function QuickLogPage(): JSX.Element {
                     {odometerInputEnabled && (
                       <div>
                           <label htmlFor="odometer" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.odometer')}</label>
-                          <input type="number" inputMode="decimal" id="odometer" value={odometerKmInput} onChange={handleOdometerChange} placeholder="0" step="1" min="0" className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150" disabled={isSaving} />
+                          <input type="number" inputMode="decimal" id="odometer" value={odometerKmInput} onChange={handleOdometerChange} placeholder="0" step="1" min="0" className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150 fuel-numeral" disabled={isSaving} />
                       </div>
                     )}
                     <div className={odometerInputEnabled ? "" : "col-span-2"}>
                         <label htmlFor="distance" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.distance')}</label>
-                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150" disabled={isSaving} />
+                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150 fuel-numeral" disabled={isSaving} />
                     </div>
                     <div>
                         <label htmlFor="fuelAmount" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.fuel')}</label>
-                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150" disabled={isSaving} />
+                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150 fuel-numeral" disabled={isSaving} />
                     </div>
                   </div>
 
@@ -512,7 +512,7 @@ function QuickLogPage(): JSX.Element {
                           {t('quickLog.fields.odometerHintBaseline')}
                         </p>
                       ) : (
-                        <p className={`text-[10px] font-medium italic ${parseFloat(odometerKmInput) < lastOdometerReading ? 'text-red-500' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                        <p className={`text-[10px] font-medium italic ${parseFloat(odometerKmInput) < lastOdometerReading ? 'text-red-500' : 'text-brand-primary dark:text-brand-primary-glow'}`}>
                           {parseFloat(odometerKmInput) < lastOdometerReading 
                             ? t('quickLog.fields.odometerErrorLower', { last: lastOdometerReading })
                             : t('quickLog.fields.odometerHintCalculating', { last: lastOdometerReading })}
@@ -537,8 +537,8 @@ function QuickLogPage(): JSX.Element {
                 />
 
                 {/* Submit Button */}
-                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full inline-flex justify-center items-center py-3.5 px-4 border border-transparent shadow-lg text-base font-bold rounded-xl text-white bg-brand-primary hover:bg-brand-primary-hover focus:ring-brand-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out">
-                    {isSaving && <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
+                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full brand-button-primary py-3.5">
+                    {isSaving && <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
                     {isSaving ? t(`quickLog.submit.${savingStep}`) : t('quickLog.submit.save')}
                 </button>
 

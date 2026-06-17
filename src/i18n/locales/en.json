@@ -491,6 +491,13 @@
       "spend": "Spend"
     }
   },
+  "map": {
+    "clusters": "Clusters",
+    "heatmap": "Heatmap",
+    "avgPrice": "Avg: €{{price}}/L",
+    "olderFuelings": "+ {{count}} older fuelings",
+    "fuelingsAtStation": "{{count}} Fuelings at this station"
+  },
   "installPrompt": {
     "title": "Install Fuelog",
     "subtitle": "Add to home screen for easy access",

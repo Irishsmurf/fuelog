@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "Cluster",
+    "heatmap": "Heatmap",
+    "avgPrice": "Durchschn.: €{{price}}/L",
+    "olderFuelings": "+ {{count}} weitere Tankungen",
+    "fuelingsAtStation": "{{count}} Tankungen an dieser Station"
   }
 }

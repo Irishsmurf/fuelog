@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "Grappes",
+    "heatmap": "Carte de Chaleur",
+    "avgPrice": "Moy. : €{{price}}/L",
+    "olderFuelings": "+ {{count}} anciens ravitaillements",
+    "fuelingsAtStation": "{{count}} ravitaillements à cette station"
   }
 }

@@ -209,40 +209,52 @@ const FuelMapPage: React.FC = () => {
                 <Marker key={key} position={pos} icon={createStationIcon(!group.station)}>
                   <Popup>
                     <div className="p-1 min-w-[180px]">
-                      <div className="flex flex-col mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
-                          <div className="flex items-center">
-                              <MapPin className="w-4 h-4 mr-1 text-indigo-600 dark:text-indigo-400" />
-                              <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+                      <div className="flex flex-col mb-3 pb-2 border-b border-gray-200 dark:border-gray-700/60">
+                          <div className="flex items-start">
+                              <MapPin className="w-5 h-5 mr-1.5 text-brand-primary dark:text-brand-primary-glow flex-shrink-0 mt-0.5" />
+                              <span className="font-display font-bold text-gray-900 dark:text-gray-100 text-base leading-tight">
                                   {group.station?.name || firstLog.brand || 'N/A'}
                               </span>
                           </div>
                           {!group.station && (
-                              <div className="mt-1 text-[10px] text-gray-400 font-bold uppercase">
+                              <div className="mt-1.5 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
                                   {t('common.unassignedLocation')}
                               </div>
                           )}
                           {group.station?.avgPrice && (
-                              <div className="mt-1 flex items-center text-[10px] text-green-600 dark:text-green-400 font-bold uppercase">
-                                  <span>Avg Price: €{group.station.avgPrice.toFixed(3)}/L</span>
+                              <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded bg-green-50 dark:bg-green-500/10 text-[11px] text-brand-success font-bold uppercase border border-green-200 dark:border-green-500/20 w-fit">
+                                  <span className="fuel-numeral">
+                                      {t('map.avgPrice', 'Avg: €{{price}}/L', { price: group.station.avgPrice.toFixed(3) })}
+                                  </span>
                               </div>
                           )}
                       </div>
-                      <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                          {group.logs.map(log => (
-                              <div key={log.id} className="text-xs border-b border-gray-50 dark:border-gray-800 pb-1 last:border-0">
-                                  <p className="flex justify-between font-medium">
-                                      <span>{formatDate(log.timestamp.toDate())}</span>
-                                      <span className="text-green-600 dark:text-green-400">€{log.cost.toFixed(2)}</span>
+                      <div className="space-y-2.5">
+                          {group.logs.slice(0, 3).map(log => (
+                              <div key={log.id} className="text-xs border-b border-gray-100 dark:border-gray-800/60 pb-2 last:border-0 last:pb-0">
+                                  <p className="flex justify-between items-center font-medium mb-0.5">
+                                      <span className="text-gray-600 dark:text-gray-300">{formatDate(log.timestamp.toDate())}</span>
+                                      <span className="text-brand-success font-bold fuel-numeral">€{log.cost.toFixed(2)}</span>
                                   </p>
-                                  <p className="text-[10px] text-gray-500">
-                                      {log.fuelAmountLiters.toFixed(2)}L @ {(log.cost / log.fuelAmountLiters).toFixed(3)}/L
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400 flex justify-between">
+                                      <span className="fuel-numeral">{log.fuelAmountLiters.toFixed(2)}L</span>
+                                      <span className="fuel-numeral">
+                                          {log.fuelAmountLiters > 0
+                                              ? (log.cost / log.fuelAmountLiters).toFixed(3)
+                                              : (0).toFixed(3)}/L
+                                      </span>
                                   </p>
                               </div>
                           ))}
                       </div>
-                      {group.logs.length > 1 && (
-                          <div className="mt-2 pt-1 border-t border-gray-200 dark:border-gray-700 text-[9px] text-gray-400 text-center font-bold uppercase tracking-wider">
-                              {group.logs.length} Fuelings at this station
+                      {group.logs.length > 3 && (
+                          <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700/60 text-[10px] text-brand-primary dark:text-brand-primary-glow font-bold text-center uppercase tracking-wider">
+                              {t('map.olderFuelings', { count: group.logs.length - 3 })}
+                          </div>
+                      )}
+                      {group.logs.length <= 3 && group.logs.length > 1 && (
+                          <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700/60 text-[10px] text-gray-400 text-center font-bold uppercase tracking-wider">
+                              {t('map.fuelingsAtStation', { count: group.logs.length })}
                           </div>
                       )}
                     </div>

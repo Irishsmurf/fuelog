@@ -513,5 +513,12 @@
     "sendSuccess": "Sent to {{sentCount}} device(s){{failedSuffix}}.",
     "sendFailedSuffix": ", {{failedCount}} failed",
     "sendError": "Failed to send notification."
+  },
+  "map": {
+    "clusters": "Klynger",
+    "heatmap": "Varmekart",
+    "avgPrice": "Gjennomsnitt: €{{price}}/L",
+    "olderFuelings": "+ {{count}} eldre tanking",
+    "fuelingsAtStation": "{{count}} tanking på denne stasjonen"
   }
 }

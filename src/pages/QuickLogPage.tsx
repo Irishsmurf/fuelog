@@ -407,112 +407,182 @@ function QuickLogPage(): JSX.Element {
   const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
 
   return (
-    <div className="container mx-auto max-w-lg px-4">
-        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white text-center">{t('quickLog.title')}</h2>
+    <div className="min-h-screen pb-24 pt-6 px-4 bg-gray-50 dark:bg-brand-dark-surface relative overflow-hidden transition-colors duration-500">
+      {/* Decorative ambient background glows */}
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-primary/20 dark:bg-brand-primary-glow/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] animate-pulse transform-gpu pointer-events-none" style={{ animationDuration: '8s' }}></div>
+      <div className="absolute bottom-[20%] right-[-10%] w-80 h-80 bg-amber-400/20 dark:bg-amber-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[80px] animate-pulse transform-gpu pointer-events-none" style={{ animationDuration: '10s' }}></div>
+      
+      <div className="container mx-auto max-w-lg relative z-10">
+        <div className="bg-white/80 dark:bg-white/[0.02] backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] rounded-3xl p-6 sm:p-8 border border-white/60 dark:border-white/10 ring-1 ring-black/5 dark:ring-white/10 transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)]">
+          
+          <div className="flex flex-col items-center justify-center gap-2 mb-8">
+            <div className="w-12 h-12 bg-gradient-to-br from-brand-primary to-amber-400 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-primary/30 rotate-3 transform transition-transform hover:rotate-6 hover:scale-110 duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white transform -rotate-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
             </div>
+            <h2 className="text-3xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight text-center">
+              {t('quickLog.title')}
+            </h2>
+          </div>
 
-            {isLoadingVehicles ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-primary mx-auto"></div>
-                <p className="mt-2 text-sm text-gray-500 animate-pulse">{t('quickLog.loadingVehicles')}</p>
+          {isLoadingVehicles ? (
+            <div className="text-center py-12 flex flex-col items-center">
+              <div className="relative w-16 h-16">
+                <div className="absolute inset-0 rounded-full border-4 border-brand-primary/20 dark:border-brand-primary-glow/20"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-brand-primary dark:border-brand-primary-glow border-t-transparent animate-spin"></div>
               </div>
-            ) : vehicles.length === 0 ? (
-              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 text-center space-y-4 mb-6">
-                <div className="bg-amber-100 dark:bg-amber-800/40 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-amber-600 dark:text-amber-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.091-1.124l-.303-4.919a1.125 1.125 0 0 0-1.121-1.056H11.25m9 4.5H16.5m-9-4.5V3.375c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125V9.75M8.25 14.25h11.25M8.25 14.25 5.25 9.75" />
-                  </svg>
+              <p className="mt-4 text-sm font-medium text-gray-500 dark:text-gray-400 animate-pulse">{t('quickLog.loadingVehicles')}</p>
+            </div>
+          ) : vehicles.length === 0 ? (
+            <div className="bg-amber-50/80 dark:bg-amber-900/10 backdrop-blur-sm border border-amber-200/50 dark:border-amber-500/20 rounded-2xl p-8 text-center space-y-5 mb-6 transition-transform hover:scale-[1.02] duration-300">
+              <div className="bg-white dark:bg-gray-800 shadow-md w-16 h-16 rounded-full flex items-center justify-center mx-auto text-amber-500 dark:text-amber-400 ring-4 ring-amber-50 dark:ring-amber-900/30">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8 animate-bounce" style={{ animationDuration: '2s' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.091-1.124l-.303-4.919a1.125 1.125 0 0 0-1.121-1.056H11.25m9 4.5H16.5m-9-4.5V3.375c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125V9.75M8.25 14.25h11.25M8.25 14.25 5.25 9.75" />
+                </svg>
+              </div>
+              <div className="space-y-1">
+                <p className="text-amber-900 dark:text-amber-300 font-bold text-lg tracking-tight">{t('quickLog.noVehicles.heading')}</p>
+                <p className="text-amber-700/80 dark:text-amber-400/80 text-sm">{t('quickLog.noVehicles.subtext')}</p>
+              </div>
+              <Link to="/profile" className="block w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:-translate-y-0.5 active:translate-y-0">
+                {t('quickLog.noVehicles.cta')}
+              </Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} noValidate className="space-y-6">
+
+              {/* Section 1: Vehicle & Station */}
+              <div className="group bg-white/40 dark:bg-white/[0.02] p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1.5 h-4 bg-brand-primary rounded-full"></div>
+                  <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{t('quickLog.sections.vehicleStation')}</h3>
                 </div>
-                <p className="text-amber-800 dark:text-amber-300 font-medium">{t('quickLog.noVehicles.heading')}</p>
-                <p className="text-amber-700/70 dark:text-amber-400/70 text-xs">{t('quickLog.noVehicles.subtext')}</p>
-                <Link to="/profile" className="block w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-150 shadow-md">
-                  {t('quickLog.noVehicles.cta')}
-                </Link>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} noValidate className="space-y-6">
 
-                {/* Section 1: Vehicle & Station */}
-                <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-4">
-                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('quickLog.sections.vehicleStation')}</h3>
-
+                <div className="space-y-4">
                   <div>
-                      <label htmlFor="vehicle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.vehicle')}</label>
+                    <label htmlFor="vehicle" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t('quickLog.fields.vehicle')}</label>
+                    <div className="relative">
                       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
+                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as any)} className="w-full px-4 py-3.5 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-primary/50 dark:focus:ring-brand-primary-glow/50 focus:border-brand-primary text-gray-900 dark:text-gray-100 transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 appearance-none font-medium cursor-pointer" disabled={isSaving}>
                         {vehicles.map((v) => ( <option key={v.id} value={v.id}>{v.name} ({v.make})</option> ))}
                       </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 dark:text-gray-400">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                      </div>
+                    </div>
                   </div>
 
                   <div>
-                      <label htmlFor="brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                        {t('quickLog.fields.fillingStation')} <span className="text-gray-400 font-normal text-xs">({t('quickLog.fields.fillingStationOptional')})</span>
-                      </label>
-                      <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder={t('quickLog.fields.fillingStationPlaceholder')} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off" />
-                      <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
+                    <label htmlFor="brand" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 flex items-center justify-between">
+                      <span>{t('quickLog.fields.fillingStation')}</span>
+                      <span className="text-gray-400 font-normal text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">{t('quickLog.fields.fillingStationOptional')}</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                      </div>
+                      <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder={t('quickLog.fields.fillingStationPlaceholder')} className="w-full pl-10 pr-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-primary/50 dark:focus:ring-brand-primary-glow/50 focus:border-brand-primary text-gray-900 dark:text-gray-100 transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 placeholder-gray-400 font-medium" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off" />
+                    </div>
+                    <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
                   </div>
                 </div>
+              </div>
 
-                {/* Section 2: Transaction Details */}
-                <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-4">
-                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('quickLog.sections.fuelCost')}</h3>
+              {/* Section 2: Transaction Details */}
+              <div className="group bg-white/40 dark:bg-white/[0.02] p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1.5 h-4 bg-amber-400 rounded-full"></div>
+                  <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{t('quickLog.sections.fuelCost')}</h3>
+                </div>
 
-                  <div className="grid grid-cols-3 gap-3">
-                      <div className="col-span-2">
-                          <label htmlFor="cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.totalCost')}</label>
-                          <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150 fuel-numeral" disabled={isSaving} />
+                <div className="space-y-5">
+                  <div className="grid grid-cols-5 gap-3">
+                    <div className="col-span-3">
+                      <label htmlFor="cost" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t('quickLog.fields.totalCost')}</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                          <span className="text-gray-500 dark:text-gray-400 font-medium">{homeCurrencySymbol}</span>
+                        </div>
+                        <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className="w-full pl-8 pr-4 py-3 text-lg bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 text-gray-900 dark:text-gray-100 transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 fuel-numeral font-bold placeholder-gray-300 dark:placeholder-gray-600" disabled={isSaving} />
                       </div>
-                      <div>
-                          <label htmlFor="currency" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('quickLog.fields.currency')}</label>
-                          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                          <select id="currency" value={currency} onChange={handleInputChange(setCurrency as any)} className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition duration-150" disabled={isSaving}>
-                            {COMMON_CURRENCIES.map((curr) => ( <option key={curr.code} value={curr.code}>{curr.code}</option> ))}
-                          </select>
+                    </div>
+                    <div className="col-span-2">
+                      <label htmlFor="currency" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t('quickLog.fields.currency')}</label>
+                      <div className="relative">
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                        <select id="currency" value={currency} onChange={handleInputChange(setCurrency as any)} className="w-full px-3 py-3.5 text-sm bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary text-gray-900 dark:text-gray-100 transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 appearance-none font-semibold cursor-pointer" disabled={isSaving}>
+                          {COMMON_CURRENCIES.map((curr) => ( <option key={curr.code} value={curr.code}>{curr.code}</option> ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
                       </div>
+                    </div>
                   </div>
 
                   {currency !== homeCurrency && (
-                    <div className="bg-brand-primary/10 dark:bg-brand-primary/20 p-3 rounded-lg border border-brand-primary/20 dark:border-brand-primary/30 space-y-2">
-                      <div className="flex justify-between items-center">
-                        <label htmlFor="exchangeRate" className="block text-[10px] font-bold text-brand-primary-hover dark:text-brand-primary-glow uppercase tracking-tighter">
+                    <div className="bg-gradient-to-r from-brand-primary/5 to-amber-400/5 dark:from-brand-primary/10 dark:to-amber-500/10 p-4 rounded-xl border border-brand-primary/20 dark:border-brand-primary/30 space-y-3 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-brand-primary/10 rounded-full filter blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
+                      <div className="flex justify-between items-center relative z-10">
+                        <label htmlFor="exchangeRate" className="block text-xs font-bold text-brand-primary-hover dark:text-brand-primary-glow uppercase tracking-wider">
                           {t('quickLog.fields.exchangeRate', { currency, homeCurrency })}
                         </label>
-                        {isFetchingRate && <span className="text-[10px] text-brand-primary dark:text-brand-primary-glow animate-pulse">{t('quickLog.fields.fetching')}</span>}
+                        {isFetchingRate && <span className="text-[10px] bg-brand-primary/10 text-brand-primary dark:text-brand-primary-glow px-2 py-0.5 rounded-full animate-pulse">{t('quickLog.fields.fetching')}</span>}
                       </div>
-                      <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-3 py-2 border border-brand-primary/30 dark:border-brand-primary-hover rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm fuel-numeral" disabled={isSaving} />
-                      <p className="text-[10px] text-brand-primary-hover dark:text-brand-primary-glow font-medium">
+                      <div className="relative z-10">
+                        <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="w-full px-4 py-2.5 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-brand-primary/30 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary text-gray-900 dark:text-gray-100 text-sm fuel-numeral font-medium transition-all duration-300" disabled={isSaving} />
+                      </div>
+                      <p className="text-xs text-brand-primary-hover dark:text-brand-primary-glow font-bold relative z-10 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                         {t('quickLog.fields.converted', { symbol: homeCurrencySymbol, amount: (parseFloat(cost || '0') * exchangeRate).toFixed(2) })}
                       </p>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-3 gap-3 pt-2">
                     {odometerInputEnabled && (
-                      <div>
-                          <label htmlFor="odometer" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.odometer')}</label>
-                          <input type="number" inputMode="decimal" id="odometer" value={odometerKmInput} onChange={handleOdometerChange} placeholder="0" step="1" min="0" className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150 fuel-numeral" disabled={isSaving} />
+                      <div className="group/input">
+                        <label htmlFor="odometer" className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-widest">{t('quickLog.fields.odometer')}</label>
+                        <div className="relative">
+                          <input type="number" inputMode="decimal" id="odometer" value={odometerKmInput} onChange={handleOdometerChange} placeholder="0" step="1" min="0" className="w-full px-3 py-3 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary text-gray-900 dark:text-gray-100 text-sm transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 fuel-numeral font-bold group-hover/input:border-gray-300 dark:group-hover/input:border-gray-600" disabled={isSaving} />
+                        </div>
                       </div>
                     )}
-                    <div className={odometerInputEnabled ? "" : "col-span-2"}>
-                        <label htmlFor="distance" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.distance')}</label>
-                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150 fuel-numeral" disabled={isSaving} />
+                    <div className={odometerInputEnabled ? "group/input" : "col-span-2 group/input"}>
+                      <label htmlFor="distance" className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-widest">{t('quickLog.fields.distance')}</label>
+                      <div className="relative">
+                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="w-full px-3 py-3 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary text-gray-900 dark:text-gray-100 text-sm transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 fuel-numeral font-bold group-hover/input:border-gray-300 dark:group-hover/input:border-gray-600" disabled={isSaving} />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase">km</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                        <label htmlFor="fuelAmount" className="block text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1 uppercase tracking-tight">{t('quickLog.fields.fuel')}</label>
-                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-2 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary dark:focus:ring-brand-primary-glow bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm transition duration-150 fuel-numeral" disabled={isSaving} />
+                    <div className="group/input">
+                      <label htmlFor="fuelAmount" className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-widest">{t('quickLog.fields.fuel')}</label>
+                      <div className="relative">
+                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="w-full px-3 py-3 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary text-gray-900 dark:text-gray-100 text-sm transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 fuel-numeral font-bold group-hover/input:border-gray-300 dark:group-hover/input:border-gray-600" disabled={isSaving} />
+                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase">L</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   {odometerInputEnabled && odometerKmInput && (
-                    <div className="mt-1">
+                    <div className="mt-2 bg-gray-50/50 dark:bg-gray-800/30 rounded-lg p-2.5 border border-gray-100 dark:border-gray-700/50">
                       {lastOdometerReading === null ? (
-                        <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium italic">
+                        <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1.5">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                           {t('quickLog.fields.odometerHintBaseline')}
                         </p>
                       ) : (
-                        <p className={`text-[10px] font-medium italic ${parseFloat(odometerKmInput) < lastOdometerReading ? 'text-red-500' : 'text-brand-primary dark:text-brand-primary-glow'}`}>
+                        <p className={`text-[11px] font-medium flex items-center gap-1.5 ${parseFloat(odometerKmInput) < lastOdometerReading ? 'text-red-500' : 'text-brand-primary dark:text-brand-primary-glow'}`}>
+                          {parseFloat(odometerKmInput) < lastOdometerReading ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
+                          )}
                           {parseFloat(odometerKmInput) < lastOdometerReading 
                             ? t('quickLog.fields.odometerErrorLower', { last: lastOdometerReading })
                             : t('quickLog.fields.odometerHintCalculating', { last: lastOdometerReading })}
@@ -521,8 +591,10 @@ function QuickLogPage(): JSX.Element {
                     </div>
                   )}
                 </div>
+              </div>
 
-                {/* Section 3: Receipt Digitization */}
+              {/* Section 3: Receipt Digitization */}
+              <div className="transform transition-all duration-300 hover:-translate-y-0.5">
                 <ReceiptAISection
                   receiptDigitizationEnabled={receiptDigitizationEnabled}
                   receiptAutoFillEnabled={receiptAutoFillEnabled}
@@ -535,31 +607,49 @@ function QuickLogPage(): JSX.Element {
                   handleConfirmExtraction={handleConfirmExtraction}
                   handleCancelExtraction={handleCancelExtraction}
                 />
+              </div>
 
-                {/* Submit Button */}
-                <button type="submit" disabled={isSaving || isLoadingBrands} className="w-full brand-button-primary py-3.5">
-                    {isSaving && <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
-                    {isSaving ? t(`quickLog.submit.${savingStep}`) : t('quickLog.submit.save')}
+              {/* Submit Button */}
+              <div className="pt-2 relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary to-amber-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-300"></div>
+                <button type="submit" disabled={isSaving || isLoadingBrands} className="relative w-full brand-button-primary py-4 text-lg font-bold rounded-2xl overflow-hidden shadow-xl shadow-brand-primary/20 hover:shadow-brand-primary/40 transform transition-all active:scale-[0.98]">
+                    <span className={`flex items-center justify-center gap-2 ${isSaving ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                      {t('quickLog.submit.save')}
+                    </span>
+                    {isSaving && (
+                      <span className="absolute inset-0 flex items-center justify-center gap-2 text-white">
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        {t(`quickLog.submit.${savingStep}`)}
+                      </span>
+                    )}
                 </button>
+              </div>
 
-                {/* Station Detection Warning (persists independently of the transient save status message) */}
+              {/* Messages */}
+              <div className="space-y-3">
                 {stationWarning && (
-                  <div className="mt-4 p-4 rounded-xl border text-sm font-medium text-center shadow-sm text-yellow-700 bg-yellow-100 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800">
-                    {stationWarning}
+                  <div className="p-4 rounded-2xl border text-sm font-medium flex items-start gap-3 shadow-sm text-yellow-800 bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-800/50 animate-[squish_0.3s_ease-out]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0 mt-0.5 text-yellow-600 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
+                    <span>{stationWarning}</span>
                   </div>
                 )}
 
-                {/* Feedback Message */}
                 {message.text && (
-                  <div className={`mt-4 p-4 rounded-xl border text-sm font-medium text-center shadow-sm ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>
-                    {message.text}
+                  <div className={`p-4 rounded-2xl border text-sm font-medium flex items-center justify-center gap-2 shadow-sm animate-[squish_0.3s_ease-out] ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>
+                    {message.type === 'success' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>}
+                    {message.type === 'error' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>}
+                    <span>{message.text}</span>
                   </div>
                 )}
+              </div>
             </form>
-            )}
+          )}
         </div>
+      </div>
     </div>
   );
 }
 
 export default QuickLogPage;
+

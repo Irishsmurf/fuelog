@@ -75,7 +75,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onFileSelect, label }) => {
         ref={fileInputRef}
         onChange={handleFileChange}
         accept="image/*"
-        capture="environment"
         className="hidden"
       />
     </div>

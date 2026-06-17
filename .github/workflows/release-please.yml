@@ -14,5 +14,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v4
+        id: release
         with:
           release-type: node
+
+      # The steps below will only run if a new release was actually published
+      - name: Checkout code
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          
+      - name: Generate SBOM
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          npm ci
+          # npm >= 10.3 supports `npm sbom`
+          npx @cyclonedx/cyclonedx-npm --output-format JSON --output-file sbom.json
+
+      - name: Upload SBOM to GitHub Release
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.release.outputs.tag_name }} sbom.json

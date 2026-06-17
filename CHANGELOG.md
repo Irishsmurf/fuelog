@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.3.0](https://github.com/Irishsmurf/fuelog/compare/v2.2.0...v2.3.0) (2026-06-17)
+
+
+### Features
+
+* add Admin Console page for sending test notifications ([#169](https://github.com/Irishsmurf/fuelog/issues/169)) ([e0accea](https://github.com/Irishsmurf/fuelog/commit/e0acceaf05db78c2f07b18f3c53906703f20d79e))
+* add sendTestNotification callable for developer test notifications ([#167](https://github.com/Irishsmurf/fuelog/issues/167)) ([d0cc135](https://github.com/Irishsmurf/fuelog/commit/d0cc13515cf274da35ffa0264818124df5645559)), closes [#166](https://github.com/Irishsmurf/fuelog/issues/166)
+* add vercel deployment and playwright smoke test pipeline ([#179](https://github.com/Irishsmurf/fuelog/issues/179)) ([e6b4cd6](https://github.com/Irishsmurf/fuelog/commit/e6b4cd67c963a23b45e10e064425d47829661b9f))
+* Client-side Heatmap Implementation ([#182](https://github.com/Irishsmurf/fuelog/issues/182)) ([c06db11](https://github.com/Irishsmurf/fuelog/commit/c06db11143902e6c25bb3defdb5217a82b1df0ee))
+* default-sort Stations page by proximity to current location ([#178](https://github.com/Irishsmurf/fuelog/issues/178)) ([c4e4a24](https://github.com/Irishsmurf/fuelog/commit/c4e4a247ecd85fda766544274e24cb941eef8cbd))
+* implement advanced supply chain security (SAST) ([#188](https://github.com/Irishsmurf/fuelog/issues/188)) ([979690e](https://github.com/Irishsmurf/fuelog/commit/979690e8455cbb70f26f470ac955f5180f2604e3)), closes [#177](https://github.com/Irishsmurf/fuelog/issues/177)
+* **ui:** premium glassmorphic redesign of Quick Log page ([#195](https://github.com/Irishsmurf/fuelog/issues/195)) ([d185d97](https://github.com/Irishsmurf/fuelog/commit/d185d979e2da6c5d2f23610ed318226c4ce97e1a))
+
+
+### Bug Fixes
+
+* resolve 'L is not defined' in production ([#189](https://github.com/Irishsmurf/fuelog/issues/189)) ([9545a61](https://github.com/Irishsmurf/fuelog/commit/9545a6137e42526f255dddc4de55c0e8081af92f))
+* resolve production crash and translate maintenance section ([#190](https://github.com/Irishsmurf/fuelog/issues/190)) ([6a756d4](https://github.com/Irishsmurf/fuelog/commit/6a756d442a7538944c35d90edb3c233f04bfd998))
+* show the user's UID on the Admin Console access-denied screen ([#180](https://github.com/Irishsmurf/fuelog/issues/180)) ([c6e5ce0](https://github.com/Irishsmurf/fuelog/commit/c6e5ce0927c13b8751f077fadbba9e3675668014))
+
 ## [2.2.0](https://github.com/Irishsmurf/fuelog/compare/v2.1.0...v2.2.0) (2026-06-16)
 
 

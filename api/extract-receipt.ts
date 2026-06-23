@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { getAdminApp } from '../src/mcp/firebase-admin.js';
 import { getAuth } from 'firebase-admin/auth';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { log } from './_logger.js';
 
 function handleCors(req: IncomingMessage, res: ServerResponse): boolean {
@@ -79,12 +79,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const thinkingBudget = parseInt(process.env.GEMINI_THINKING_BUDGET ?? '512', 10);
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: geminiModel,
-      // thinkingConfig is not yet in SDK types (v0.24.1) but is supported at runtime
-      ...({ generationConfig: { thinkingConfig: { thinkingBudget } } } as object),
-    });
+    const client = new GoogleGenAI({ apiKey });
 
     const prompt = `
       Analyze this receipt image and extract the following information for a fuel purchase:
@@ -97,12 +92,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       Do not use markdown formatting like \`\`\`json.
     `;
 
-    const result = await model.generateContent([
-      prompt,
-      { inlineData: { data: base64Data, mimeType } },
-    ]);
+    const interaction = await client.interactions.create({
+      model: geminiModel,
+      config: {
+        thinkingConfig: { thinkingBudget },
+      },
+      input: [
+        { type: 'text', text: prompt },
+        { type: 'image', data: base64Data, mime_type: mimeType },
+      ],
+    });
 
-    const text = result.response.text();
+    const text = interaction.output_text ?? '';
     let jsonText = text.trim();
     const jsonMatch = jsonText.match(/```(?:json)?\n([\s\S]*?)\n```/s);
     if (jsonMatch?.[1]) jsonText = jsonMatch[1];

@@ -99,7 +99,7 @@ Follow these instructions to get a copy of the project up and running on your lo
    # Google Gemini — optional, enables AI receipt scanning
    VITE_GEMINI_API_KEY=
    VITE_GEMINI_MODEL=gemini-2.5-flash
-   VITE_GEMINI_THINKING_BUDGET=512
+   VITE_GEMINI_THINKING_LEVEL=low
    ```
 
 4. **Start the development server:**

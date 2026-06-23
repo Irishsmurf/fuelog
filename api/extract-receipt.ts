@@ -75,7 +75,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   }
 
   const geminiModel = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash';
-  const thinkingBudget = parseInt(process.env.GEMINI_THINKING_BUDGET ?? '512', 10);
+  const thinkingLevel = process.env.GEMINI_THINKING_LEVEL ?? 'low';
 
   try {
     const { GoogleGenAI } = await import('@google/genai');
@@ -94,8 +94,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     const interaction = await client.interactions.create({
       model: geminiModel,
-      config: {
-        thinkingConfig: { thinkingBudget },
+      generation_config: {
+        thinking_level: thinkingLevel,
       },
       input: [
         { type: 'text', text: prompt },

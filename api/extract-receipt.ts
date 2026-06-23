@@ -1,7 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { getAdminApp } from '../src/mcp/firebase-admin.js';
 import { getAuth } from 'firebase-admin/auth';
-import { GoogleGenAI } from '@google/genai';
 import { log } from './_logger.js';
 
 function handleCors(req: IncomingMessage, res: ServerResponse): boolean {
@@ -79,6 +78,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   const thinkingBudget = parseInt(process.env.GEMINI_THINKING_BUDGET ?? '512', 10);
 
   try {
+    const { GoogleGenAI } = await import('@google/genai');
     const client = new GoogleGenAI({ apiKey });
 
     const prompt = `

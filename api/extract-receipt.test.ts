@@ -1,6 +1,7 @@
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { IncomingMessage, ServerResponse } from 'http';
-import { EventEmitter } from 'events';
+import { Readable } from 'stream';
+import handler from './extract-receipt.js';
 
 vi.mock('../src/mcp/firebase-admin.js', () => ({
   getAdminApp: vi.fn().mockReturnValue({}),
@@ -26,21 +27,12 @@ vi.mock('@google/genai', () => ({
 
 function createMockReq(overrides: Partial<IncomingMessage> & { bodyData?: string } = {}): IncomingMessage {
   const { bodyData, ...rest } = overrides;
-  const req = Object.assign(new EventEmitter(), {
+  const stream = Readable.from(bodyData !== undefined ? [bodyData] : []);
+  return Object.assign(stream, {
     method: 'POST',
     headers: { authorization: 'Bearer valid-token' },
     ...rest,
-  }) as IncomingMessage;
-
-  if (bodyData !== undefined) {
-    process.nextTick(() => {
-      req.emit('data', bodyData);
-      req.emit('end');
-    });
-  } else {
-    process.nextTick(() => req.emit('end'));
-  }
-  return req;
+  }) as unknown as IncomingMessage;
 }
 
 function createMockRes(): ServerResponse & { _statusCode: number; _body: string } {
@@ -57,11 +49,14 @@ function createMockRes(): ServerResponse & { _statusCode: number; _body: string 
 describe('api/extract-receipt handler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.GEMINI_API_KEY = 'test-key';
+    vi.stubEnv('GEMINI_API_KEY', 'test-key');
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   it('returns 405 for non-POST requests', async () => {
-    const handler = (await import('./extract-receipt.js')).default;
     const req = createMockReq({ method: 'GET' });
     const res = createMockRes();
     await handler(req, res);
@@ -69,7 +64,6 @@ describe('api/extract-receipt handler', () => {
   });
 
   it('returns 401 without authorization header', async () => {
-    const handler = (await import('./extract-receipt.js')).default;
     const req = createMockReq({ headers: {} });
     const res = createMockRes();
     await handler(req, res);
@@ -77,7 +71,6 @@ describe('api/extract-receipt handler', () => {
   });
 
   it('returns 400 without required body fields', async () => {
-    const handler = (await import('./extract-receipt.js')).default;
     const req = createMockReq({ bodyData: JSON.stringify({}) });
     const res = createMockRes();
     await handler(req, res);
@@ -86,7 +79,6 @@ describe('api/extract-receipt handler', () => {
   });
 
   it('dynamically imports @google/genai without ESM errors', async () => {
-    const handler = (await import('./extract-receipt.js')).default;
     const req = createMockReq({
       bodyData: JSON.stringify({ base64Data: 'abc123', mimeType: 'image/jpeg' }),
     });

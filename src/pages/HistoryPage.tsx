@@ -228,15 +228,26 @@ function HistoryPage(): JSX.Element {
         if (!filteredLogs || filteredLogs.length === 0) { setCopyStatus('noData'); setTimeout(() => setCopyStatus('idle'), 2000); return; }
         if (!navigator.clipboard || !navigator.clipboard.writeText) { setCopyStatus('unavailable'); setTimeout(() => setCopyStatus('idle'), 3000); console.error('Clipboard API not available.'); return; }
         setCopyStatus('copying');
-        const headers = ["Date", "Brand", "Cost (€)", "Distance (Km)", "Fuel (L)", "km/L", "L/100km", "MPG (UK)", "Cost/Mile"].join('\t');
-        const dataRows = filteredLogs.map(log => { // Use filteredLogs here
+        const headers = [
+            "Date", "Vehicle", "Brand",
+            `Cost (${homeCurrency})`, "Odometer (Km)", "Distance (Km)", "Fuel (L)",
+            "km/L", "L/100km", "MPG (UK)", `Cost/Mile (${homeCurrency})`
+        ].join('\t');
+        const dataRows = filteredLogs.map(log => {
             const date = log.timestamp?.toDate();
-            const dateStr = date ? `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}` : '';
+            const dateStr = date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : '';
+            const vehicleStr = (vehicleMap[log.vehicleId || ''] || '').replace(/\t|\n|\r/g, ' ');
             const brandStr = log.brand?.replace(/\t|\n|\r/g, ' ') ?? '';
-            const costStr = log.cost?.toFixed(2) ?? ''; const distanceKmStr = log.distanceKm?.toFixed(1) ?? ''; const fuelLitersStr = log.fuelAmountLiters?.toFixed(2) ?? '';
-            const kmLStr = formatKmL(log.distanceKm, log.fuelAmountLiters); const l100kmStr = formatL100km(log.distanceKm, log.fuelAmountLiters);
-            const mpgStr = formatMPG(log.distanceKm, log.fuelAmountLiters); const costPerMileStr = formatCostPerMile(log.cost, log.distanceKm).replace('€', '');
-            return [dateStr, brandStr, costStr, distanceKmStr, fuelLitersStr, kmLStr, l100kmStr, mpgStr, costPerMileStr].join('\t');
+            const costStr = log.cost?.toFixed(2) ?? '';
+            const odometerStr = log.odometerKm?.toFixed(0) ?? '';
+            const distanceKmStr = log.distanceKm?.toFixed(1) ?? '';
+            const fuelLitersStr = log.fuelAmountLiters?.toFixed(2) ?? '';
+            const kmLStr = formatKmL(log.distanceKm, log.fuelAmountLiters);
+            const l100kmStr = formatL100km(log.distanceKm, log.fuelAmountLiters);
+            const mpgStr = formatMPG(log.distanceKm, log.fuelAmountLiters);
+            const costPerMileRaw = formatCostPerMile(log.cost, log.distanceKm);
+            const costPerMileStr = ['N/A', 'Error'].includes(costPerMileRaw) ? costPerMileRaw : costPerMileRaw.replace(/^[^\d]+/, '');
+            return [dateStr, vehicleStr, brandStr, costStr, odometerStr, distanceKmStr, fuelLitersStr, kmLStr, l100kmStr, mpgStr, costPerMileStr].join('\t');
         });
         const tsvString = [headers, ...dataRows].join('\n');
         try { await navigator.clipboard.writeText(tsvString); setCopyStatus('copied'); } catch (err) { console.error('Failed to copy data to clipboard:', err); setCopyStatus('failed'); } finally { setTimeout(() => setCopyStatus('idle'), 2000); }

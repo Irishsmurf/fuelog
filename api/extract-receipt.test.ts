@@ -1,5 +1,6 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import type { IncomingMessage, ServerResponse } from 'http';
+import { EventEmitter } from 'events';
 
 vi.mock('../src/mcp/firebase-admin.js', () => ({
   getAdminApp: vi.fn().mockReturnValue({}),
@@ -25,7 +26,7 @@ vi.mock('@google/genai', () => ({
 
 function createMockReq(overrides: Partial<IncomingMessage> & { bodyData?: string } = {}): IncomingMessage {
   const { bodyData, ...rest } = overrides;
-  const req = Object.assign(new (require('events').EventEmitter)(), {
+  const req = Object.assign(new EventEmitter(), {
     method: 'POST',
     headers: { authorization: 'Bearer valid-token' },
     ...rest,

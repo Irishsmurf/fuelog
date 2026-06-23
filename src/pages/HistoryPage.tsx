@@ -245,7 +245,8 @@ function HistoryPage(): JSX.Element {
             const kmLStr = formatKmL(log.distanceKm, log.fuelAmountLiters);
             const l100kmStr = formatL100km(log.distanceKm, log.fuelAmountLiters);
             const mpgStr = formatMPG(log.distanceKm, log.fuelAmountLiters);
-            const costPerMileStr = formatCostPerMile(log.cost, log.distanceKm).replace(homeCurrencySymbol, '');
+            const costPerMileRaw = formatCostPerMile(log.cost, log.distanceKm);
+            const costPerMileStr = ['N/A', 'Error'].includes(costPerMileRaw) ? costPerMileRaw : costPerMileRaw.replace(/^[^\d]+/, '');
             return [dateStr, vehicleStr, brandStr, costStr, odometerStr, distanceKmStr, fuelLitersStr, kmLStr, l100kmStr, mpgStr, costPerMileStr].join('\t');
         });
         const tsvString = [headers, ...dataRows].join('\n');

@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.1](https://github.com/Irishsmurf/fuelog/compare/v2.3.0...v2.3.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* resolve ERR_REQUIRE_ESM from jose/jwks-rsa ([#207](https://github.com/Irishsmurf/fuelog/issues/207)) ([48b2627](https://github.com/Irishsmurf/fuelog/commit/48b262770c810d5f7b735fdce886b629e2d7e3bd))
+* use correct Interactions API parameters for Gemini thinking config ([#209](https://github.com/Irishsmurf/fuelog/issues/209)) ([293465a](https://github.com/Irishsmurf/fuelog/commit/293465af674483d68cc5f85b42dc228b981a51df))
+
+
+### Performance Improvements
+
+* compress receipt images before uploading to storage ([#211](https://github.com/Irishsmurf/fuelog/issues/211)) ([51b9552](https://github.com/Irishsmurf/fuelog/commit/51b955206cb1be9096b4a78b0555ea6a738b7f7c))
+
 ## [2.3.0](https://github.com/Irishsmurf/fuelog/compare/v2.2.0...v2.3.0) (2026-06-17)
 
 

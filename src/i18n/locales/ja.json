@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "合計支出（フィルター済み）",
       "avgMpg": "平均MPG (UK)（フィルター済み）",
-      "avgCostPerLitre": "平均コスト／リットル（フィルター済み）"
+      "avgCostPerLitre": "平均コスト／リットル（フィルター済み）",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) の推移（フィルター済み）",
@@ -143,7 +144,8 @@
     "logDetails": {
       "heading": "記録詳細",
       "filteredCount": "({{total}}件中{{filtered}}件表示)",
-      "totalCount": "(合計{{count}}件)"
+      "totalCount": "(合計{{count}}件)",
+      "loadedCount": "({{count}} loaded)"
     },
     "copyStatus": {
       "idle": "テーブルデータをコピー",
@@ -222,6 +224,10 @@
       "totalLitres": "合計リットル",
       "totalDistance": "合計走行距離",
       "logCount": "給油回数"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     }
   },
   "imageUpload": {

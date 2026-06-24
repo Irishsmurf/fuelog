@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "Caiteachas Iomlán (Scagtha)",
       "avgMpg": "Meán MPG (UK) (Scagtha)",
-      "avgCostPerLitre": "Meán Costas / Lítear (Scagtha)"
+      "avgCostPerLitre": "Meán Costas / Lítear (Scagtha)",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) Thar Am (Scagtha)",
@@ -143,7 +144,8 @@
     "logDetails": {
       "heading": "Sonraí Iontrálacha",
       "filteredCount": "({{filtered}} as {{total}} á thaispeáint)",
-      "totalCount": "({{count}} iomlán)"
+      "totalCount": "({{count}} iomlán)",
+      "loadedCount": "({{count}} loaded)"
     },
     "copyStatus": {
       "idle": "Cóipeáil Sonraí Tábla",
@@ -222,6 +224,10 @@
       "totalLitres": "Líotair Iomlán",
       "totalDistance": "Fad Iomlán",
       "logCount": "Líonadh"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     }
   },
   "imageUpload": {

@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "Total Gastado (Filtrado)",
       "avgMpg": "MPG Promedio (UK) (Filtrado)",
-      "avgCostPerLitre": "Coste Promedio / Litro (Filtrado)"
+      "avgCostPerLitre": "Coste Promedio / Litro (Filtrado)",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) a lo Largo del Tiempo (Filtrado)",
@@ -143,7 +144,8 @@
     "logDetails": {
       "heading": "Detalles del Registro",
       "filteredCount": "({{filtered}} de {{total}} mostrados)",
-      "totalCount": "({{count}} total)"
+      "totalCount": "({{count}} total)",
+      "loadedCount": "({{count}} loaded)"
     },
     "copyStatus": {
       "idle": "Copiar Datos de Tabla",
@@ -222,6 +224,10 @@
       "totalLitres": "Total de litros",
       "totalDistance": "Distancia total",
       "logCount": "Repostajes"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     }
   },
   "imageUpload": {

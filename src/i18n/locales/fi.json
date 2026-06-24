@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "Yhteensä käytetty (suodatettu)",
       "avgMpg": "Keskimääräinen MPG (UK) (suodatettu)",
-      "avgCostPerLitre": "Keskimääräinen hinta / litra (suodatettu)"
+      "avgCostPerLitre": "Keskimääräinen hinta / litra (suodatettu)",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) ajan myötä (suodatettu)",
@@ -143,7 +144,8 @@
     "logDetails": {
       "heading": "Login tiedot",
       "filteredCount": "({{filtered}} / {{total}} näytetään)",
-      "totalCount": "({{count}} yhteensä)"
+      "totalCount": "({{count}} yhteensä)",
+      "loadedCount": "({{count}} loaded)"
     },
     "copyStatus": {
       "idle": "Kopioi taulukon tiedot",
@@ -222,6 +224,10 @@
       "totalLitres": "Litroja yhteensä",
       "totalDistance": "Kokonaismatka",
       "logCount": "Tankkaukset"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     }
   },
   "imageUpload": {

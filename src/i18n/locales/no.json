@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "Totalt brukt (filtrert)",
       "avgMpg": "Gjennomsnittlig MPG (UK) (filtrert)",
-      "avgCostPerLitre": "Gjennomsnittlig kostnad / liter (filtrert)"
+      "avgCostPerLitre": "Gjennomsnittlig kostnad / liter (filtrert)",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) over tid (filtrert)",
@@ -143,7 +144,8 @@
     "logDetails": {
       "heading": "Loggdetaljer",
       "filteredCount": "({{filtered}} av {{total}} vises)",
-      "totalCount": "({{count}} totalt)"
+      "totalCount": "({{count}} totalt)",
+      "loadedCount": "({{count}} loaded)"
     },
     "copyStatus": {
       "idle": "Kopier tabelldata",
@@ -222,6 +224,10 @@
       "totalLitres": "Totalt liter",
       "totalDistance": "Total distanse",
       "logCount": "Tankstopp"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     }
   },
   "imageUpload": {

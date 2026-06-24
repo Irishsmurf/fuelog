@@ -112,7 +112,7 @@ function HistoryPage(): JSX.Element {
     // --- Paginated Fetch Function ---
     const fetchLogs = useCallback(async (loadMore = false) => {
         if (!user) return;
-        loadMore ? setIsLoadingMore(true) : setIsLoading(true);
+        if (loadMore) { setIsLoadingMore(true); } else { setIsLoading(true); }
         setError(null);
 
         try {

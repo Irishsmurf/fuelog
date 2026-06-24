@@ -34,9 +34,10 @@ vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue({
   close: vi.fn(),
 }));
 
+const originalCreateElement = document.createElement.bind(document);
 vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
   if (tag === 'canvas') return mockCanvas as unknown as HTMLCanvasElement;
-  return document.createElement(tag);
+  return originalCreateElement(tag);
 });
 
 describe('storageService', () => {

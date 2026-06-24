@@ -13,7 +13,11 @@ async function compressImage(file: File): Promise<Blob> {
   canvas.width = Math.round(width * scale);
   canvas.height = Math.round(height * scale);
 
-  const ctx = canvas.getContext('2d')!;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    bitmap.close();
+    throw new Error('Failed to get 2D canvas context');
+  }
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   bitmap.close();
 
@@ -33,13 +37,26 @@ async function compressImage(file: File): Promise<Blob> {
  * @returns Promise resolving to the download URL string.
  */
 export const uploadReceipt = async (file: File, userId: string): Promise<string> => {
-  const baseName = file.name.replace(/\.[^.]+$/, '');
-  const fileName = `${Date.now()}_${baseName}.jpg`;
+  const isImage = file.type.startsWith('image/');
+  let uploadData: Blob | File = file;
+  let contentType = file.type;
+  let fileName = `${Date.now()}_${file.name}`;
+
+  if (isImage) {
+    try {
+      uploadData = await compressImage(file);
+      contentType = 'image/jpeg';
+      const baseName = file.name.replace(/\.[^.]+$/, '');
+      fileName = `${Date.now()}_${baseName}.jpg`;
+    } catch (error) {
+      console.warn('Image compression failed, falling back to original file:', error);
+    }
+  }
+
   const storageRef = ref(storage, `receipts/${userId}/${fileName}`);
 
   try {
-    const compressed = await compressImage(file);
-    const snapshot = await uploadBytes(storageRef, compressed, { contentType: 'image/jpeg' });
+    const snapshot = await uploadBytes(storageRef, uploadData, { contentType });
     const downloadURL = await getDownloadURL(snapshot.ref);
     return downloadURL;
   } catch (error) {

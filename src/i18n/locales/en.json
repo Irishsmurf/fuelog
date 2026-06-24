@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "Total Spent (Filtered)",
       "avgMpg": "Average MPG (UK) (Filtered)",
-      "avgCostPerLitre": "Average Cost / Litre (Filtered)"
+      "avgCostPerLitre": "Average Cost / Litre (Filtered)",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) Over Time (Filtered)",
@@ -143,7 +144,12 @@
     "logDetails": {
       "heading": "Log Details",
       "filteredCount": "({{filtered}} of {{total}} shown)",
-      "totalCount": "({{count}} total)"
+      "totalCount": "({{count}} total)",
+      "loadedCount": "({{count}} loaded)"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     },
     "copyStatus": {
       "idle": "Copy Table Data",

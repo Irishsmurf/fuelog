@@ -1,10 +1,11 @@
 // src/pages/HistoryPage.tsx
-import { JSX, useState, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
+import { JSX, useState, useEffect, useMemo, useCallback, ChangeEvent, FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 // Import Firestore functions for reading, updating, and deleting documents
 import {
-    collection, query, where, orderBy, onSnapshot, getDocs,
-    doc, deleteDoc, updateDoc, DocumentData, QuerySnapshot
+    collection, query, where, orderBy, getDocs, limit, startAfter,
+    doc, deleteDoc, updateDoc, DocumentData, QueryDocumentSnapshot,
+    QueryConstraint, Timestamp
 } from "firebase/firestore";
 // Import Firebase config and Auth hook
 import { db } from '../firebase/config';
@@ -68,6 +69,12 @@ function HistoryPage(): JSX.Element {
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
     const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
 
+    // --- Pagination State ---
+    const PAGE_SIZE = 25;
+    const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+    const [hasMore, setHasMore] = useState<boolean>(true);
+    const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+
     // --- Fetch Vehicles Effect ---
     useEffect(() => {
         if (!user) { setVehicles([]); return; }
@@ -102,46 +109,89 @@ function HistoryPage(): JSX.Element {
         // but initial load should be correct.
     }, []);
 
-    // --- Firestore Listener Effect ---
-    // Fetches all logs for the user and listens for real-time updates.
-    // Also extracts unique brands for the filter dropdown.
-    useEffect(() => {
-        if (!user) { setIsLoading(false); setLogs([]); setUniqueBrands([]); return; }; // Reset if user logs out
-        setIsLoading(true); setError(null);
+    // --- Paginated Fetch Function ---
+    const fetchLogs = useCallback(async (loadMore = false) => {
+        if (!user) return;
+        loadMore ? setIsLoadingMore(true) : setIsLoading(true);
+        setError(null);
 
-        const q = query(collection(db, "fuelLogs"), where("userId", "==", user.uid), orderBy("timestamp", "desc"));
+        try {
+            const constraints: QueryConstraint[] = [
+                where("userId", "==", user.uid),
+                orderBy("timestamp", "desc"),
+            ];
 
-        const unsubscribe = onSnapshot(q, (querySnapshot: QuerySnapshot<DocumentData>) => {
-            const logsData: Log[] = [];
-            const brands = new Set<string>(); // Use Set for efficient uniqueness check
+            if (filterVehicleId) {
+                constraints.push(where("vehicleId", "==", filterVehicleId));
+            }
+            if (filterStartDate) {
+                const start = new Date(filterStartDate);
+                start.setHours(0, 0, 0, 0);
+                constraints.push(where("timestamp", ">=", Timestamp.fromDate(start)));
+            }
+            if (filterEndDate) {
+                const end = new Date(filterEndDate);
+                end.setHours(23, 59, 59, 999);
+                constraints.push(where("timestamp", "<=", Timestamp.fromDate(end)));
+            }
 
-            querySnapshot.forEach((doc) => {
-                const data = doc.data() as FuelLogData;
-                logsData.push({ id: doc.id, ...data });
-                // Add brand to set if it exists and is not 'Unknown'
+            if (loadMore && lastDoc) {
+                constraints.push(startAfter(lastDoc));
+            }
+            constraints.push(limit(PAGE_SIZE));
+
+            const q = query(collection(db, "fuelLogs"), ...constraints);
+            const snapshot = await getDocs(q);
+
+            const newLogs: Log[] = [];
+            const brands = new Set<string>();
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data() as FuelLogData;
+                newLogs.push({ id: docSnap.id, ...data });
                 if (data.brand && data.brand.toLowerCase() !== 'unknown') {
                     brands.add(data.brand.trim());
                 }
             });
 
-            setLogs(logsData); // Update the main logs state
-            // Update the unique brands list for the filter dropdown
-            setUniqueBrands(Array.from(brands).sort((a, b) => a.localeCompare(b)));
-            setIsLoading(false); // Loading complete
-        }, (err) => {
-            // Handle Firestore errors
+            if (loadMore) {
+                setLogs(prev => [...prev, ...newLogs]);
+            } else {
+                setLogs(newLogs);
+            }
+
+            setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+            setHasMore(snapshot.docs.length === PAGE_SIZE);
+            setUniqueBrands(prev => {
+                const merged = new Set([...prev, ...brands]);
+                return Array.from(merged).sort((a, b) => a.localeCompare(b));
+            });
+        } catch (err) {
             console.error("Error fetching fuel logs:", err);
             setError(
                 !navigator.onLine
                     ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
                     : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' })
             );
+        } finally {
             setIsLoading(false);
-        });
+            setIsLoadingMore(false);
+        }
+    }, [user, filterVehicleId, filterStartDate, filterEndDate, lastDoc, t]);
 
-        // Cleanup listener on unmount or user change
-        return () => unsubscribe();
-    }, [user, t]); // Dependency array ensures effect runs when user changes
+    // Reset and re-fetch when user or filters change
+    const [fetchKey, setFetchKey] = useState(0);
+    useEffect(() => {
+        setLastDoc(null);
+        setHasMore(true);
+        setLogs([]);
+        setUniqueBrands([]);
+        setFetchKey(k => k + 1);
+    }, [user, filterVehicleId, filterStartDate, filterEndDate]);
+
+    useEffect(() => {
+        if (user) fetchLogs(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fetchKey]);
 
     // --- Fetch Stations Effect ---
     useEffect(() => {
@@ -163,38 +213,9 @@ function HistoryPage(): JSX.Element {
     // Creates a memoized array of logs based on the current filter state.
     // This avoids re-filtering on every render unless logs or filters change.
     const filteredLogs = useMemo(() => {
-        let tempLogs = [...logs]; // Start with a copy of all fetched logs
-
-        // Filter by Vehicle
-        if (filterVehicleId) {
-            tempLogs = tempLogs.filter(log => log.vehicleId === filterVehicleId);
-        }
-
-        // Filter by Start Date
-        if (filterStartDate) {
-            try {
-                const startDate = new Date(filterStartDate);
-                startDate.setHours(0, 0, 0, 0); // Compare from the beginning of the day
-                tempLogs = tempLogs.filter(log => log.timestamp.toDate() >= startDate);
-            } catch (e) { console.error("Error parsing start date for filtering:", e); }
-        }
-
-        // Filter by End Date
-        if (filterEndDate) {
-            try {
-                const endDate = new Date(filterEndDate);
-                endDate.setHours(23, 59, 59, 999); // Compare until the end of the day
-                tempLogs = tempLogs.filter(log => log.timestamp.toDate() <= endDate);
-            } catch (e) { console.error("Error parsing end date for filtering:", e); }
-        }
-
-        // Filter by Brand
-        if (filterBrand) { // Only filter if a brand is selected (not '')
-            tempLogs = tempLogs.filter(log => log.brand === filterBrand);
-        }
-
-        return tempLogs; // Return the filtered array
-    }, [logs, filterStartDate, filterEndDate, filterBrand, filterVehicleId]); // Dependencies for recalculation
+        if (!filterBrand) return logs;
+        return logs.filter(log => log.brand === filterBrand);
+    }, [logs, filterBrand]);
 
     const vehicleMap = useMemo(() => {
         const map: Record<string, string> = {};
@@ -271,8 +292,7 @@ function HistoryPage(): JSX.Element {
             try {
                 const logRef = doc(db, "fuelLogs", logId);
                 await deleteDoc(logRef);
-                console.log(`Log ${logId} deleted successfully.`);
-                // UI updates via onSnapshot listener
+                setLogs(prev => prev.filter(l => l.id !== logId));
             } catch (error) {
                 console.error("Error deleting document: ", error);
                 alert(t('history.deleteError', { defaultValue: 'Failed to delete log entry.' }));
@@ -353,8 +373,8 @@ function HistoryPage(): JSX.Element {
                 updatedData.longitude = parsedLon;
             }
             await updateDoc(logRef, updatedData);
-            console.log(`Log ${editingLog.id} updated successfully.`);
-            handleCloseModal(); // Close modal on success
+            setLogs(prev => prev.map(l => l.id === editingLog.id ? { ...l, ...updatedData } : l));
+            handleCloseModal();
         } catch (error) { console.error("Error updating document: ", error); setModalError(t('history.updateError', { defaultValue: 'Failed to update log. Please try again.' })); }
         finally { setIsUpdating(false); }
     };
@@ -449,13 +469,18 @@ function HistoryPage(): JSX.Element {
                     </div>
                 </div>
             )}
+            {filteredLogs.length > 0 && hasMore && !isLoading && !error && (
+                <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-1">
+                    {t('history.metrics.partialDisclaimer', { defaultValue: 'Based on loaded entries only' })}
+                </p>
+            )}
 
             {/* --- Table / Cards Section --- */}
             <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
                 {/* Section Header with Title (showing filtered count) and Copy Button */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
-                        {t('history.logDetails.heading')} {filteredLogs.length !== logs.length ? t('history.logDetails.filteredCount', { filtered: filteredLogs.length, total: logs.length }) : t('history.logDetails.totalCount', { count: logs.length })}
+                        {t('history.logDetails.heading')} {filteredLogs.length !== logs.length ? t('history.logDetails.filteredCount', { filtered: filteredLogs.length, total: logs.length }) : hasMore ? t('history.logDetails.loadedCount', { count: logs.length, defaultValue: '({{count}} loaded)' }) : t('history.logDetails.totalCount', { count: logs.length })}
                     </h3>
                     <div className="flex space-x-2">
                         <button 
@@ -570,6 +595,21 @@ function HistoryPage(): JSX.Element {
                             ))}
                         </div>
                     )
+                )}
+
+                {/* Load More Button */}
+                {!isLoading && !error && hasMore && filteredLogs.length > 0 && (
+                    <div className="text-center mt-6">
+                        <button
+                            onClick={() => fetchLogs(true)}
+                            disabled={isLoadingMore}
+                            className="px-6 py-2 text-sm font-medium rounded-md shadow-sm bg-indigo-100 dark:bg-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-600 disabled:opacity-50 transition duration-150"
+                        >
+                            {isLoadingMore
+                                ? t('history.pagination.loading', { defaultValue: 'Loading...' })
+                                : t('history.pagination.loadMore', { defaultValue: 'Load More' })}
+                        </button>
+                    </div>
                 )}
             </div>
 

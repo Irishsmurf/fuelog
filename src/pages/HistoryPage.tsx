@@ -1,5 +1,5 @@
 // src/pages/HistoryPage.tsx
-import { JSX, useState, useEffect, useMemo, useCallback, ChangeEvent, FormEvent } from 'react';
+import { JSX, useState, useEffect, useMemo, useCallback, useRef, ChangeEvent, FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 // Import Firestore functions for reading, updating, and deleting documents
 import {
@@ -74,6 +74,7 @@ function HistoryPage(): JSX.Element {
     const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+    const requestSeq = useRef(0);
 
     // --- Fetch Vehicles Effect ---
     useEffect(() => {
@@ -112,6 +113,7 @@ function HistoryPage(): JSX.Element {
     // --- Paginated Fetch Function ---
     const fetchLogs = useCallback(async (loadMore = false) => {
         if (!user) return;
+        const currentSeq = ++requestSeq.current;
         if (loadMore) { setIsLoadingMore(true); } else { setIsLoading(true); }
         setError(null);
 
@@ -125,13 +127,13 @@ function HistoryPage(): JSX.Element {
                 constraints.push(where("vehicleId", "==", filterVehicleId));
             }
             if (filterStartDate) {
-                const start = new Date(filterStartDate);
-                start.setHours(0, 0, 0, 0);
+                const [y, m, d] = filterStartDate.split('-').map(Number);
+                const start = new Date(y, m - 1, d, 0, 0, 0, 0);
                 constraints.push(where("timestamp", ">=", Timestamp.fromDate(start)));
             }
             if (filterEndDate) {
-                const end = new Date(filterEndDate);
-                end.setHours(23, 59, 59, 999);
+                const [y, m, d] = filterEndDate.split('-').map(Number);
+                const end = new Date(y, m - 1, d, 23, 59, 59, 999);
                 constraints.push(where("timestamp", "<=", Timestamp.fromDate(end)));
             }
 
@@ -142,6 +144,8 @@ function HistoryPage(): JSX.Element {
 
             const q = query(collection(db, "fuelLogs"), ...constraints);
             const snapshot = await getDocs(q);
+
+            if (currentSeq !== requestSeq.current) return;
 
             const newLogs: Log[] = [];
             const brands = new Set<string>();
@@ -166,6 +170,7 @@ function HistoryPage(): JSX.Element {
                 return Array.from(merged).sort((a, b) => a.localeCompare(b));
             });
         } catch (err) {
+            if (currentSeq !== requestSeq.current) return;
             console.error("Error fetching fuel logs:", err);
             setError(
                 !navigator.onLine
@@ -173,8 +178,10 @@ function HistoryPage(): JSX.Element {
                     : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' })
             );
         } finally {
-            setIsLoading(false);
-            setIsLoadingMore(false);
+            if (currentSeq === requestSeq.current) {
+                setIsLoading(false);
+                setIsLoadingMore(false);
+            }
         }
     }, [user, filterVehicleId, filterStartDate, filterEndDate, lastDoc, t]);
 
@@ -373,7 +380,9 @@ function HistoryPage(): JSX.Element {
                 updatedData.longitude = parsedLon;
             }
             await updateDoc(logRef, updatedData);
-            setLogs(prev => prev.map(l => l.id === editingLog.id ? { ...l, ...updatedData } : l));
+            setLogs(prev => prev.map(l => l.id === editingLog.id ? { ...l, ...updatedData } : l)
+                .filter(l => !filterVehicleId || l.vehicleId === filterVehicleId)
+            );
             handleCloseModal();
         } catch (error) { console.error("Error updating document: ", error); setModalError(t('history.updateError', { defaultValue: 'Failed to update log. Please try again.' })); }
         finally { setIsUpdating(false); }

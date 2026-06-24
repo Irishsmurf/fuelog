@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "Gesamtausgaben (Gefiltert)",
       "avgMpg": "Ø MPG (UK) (Gefiltert)",
-      "avgCostPerLitre": "Ø Kosten / Liter (Gefiltert)"
+      "avgCostPerLitre": "Ø Kosten / Liter (Gefiltert)",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) im Zeitverlauf (Gefiltert)",
@@ -143,7 +144,8 @@
     "logDetails": {
       "heading": "Eintragsdetails",
       "filteredCount": "({{filtered}} von {{total}} angezeigt)",
-      "totalCount": "({{count}} gesamt)"
+      "totalCount": "({{count}} gesamt)",
+      "loadedCount": "({{count}} loaded)"
     },
     "copyStatus": {
       "idle": "Tabellendaten kopieren",
@@ -222,6 +224,10 @@
       "totalLitres": "Gesamtliter",
       "totalDistance": "Gesamtstrecke",
       "logCount": "Tankstopps"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     }
   },
   "imageUpload": {

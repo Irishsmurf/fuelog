@@ -128,7 +128,8 @@
     "metrics": {
       "totalSpent": "총 지출 (필터됨)",
       "avgMpg": "평균 MPG (UK) (필터됨)",
-      "avgCostPerLitre": "평균 비용 / 리터 (필터됨)"
+      "avgCostPerLitre": "평균 비용 / 리터 (필터됨)",
+      "partialDisclaimer": "Based on loaded entries only"
     },
     "charts": {
       "mpgOverTime": "MPG (UK) 시간 추이 (필터됨)",
@@ -143,7 +144,8 @@
     "logDetails": {
       "heading": "기록 세부정보",
       "filteredCount": "({{total}}개 중 {{filtered}}개 표시)",
-      "totalCount": "(총 {{count}}개)"
+      "totalCount": "(총 {{count}}개)",
+      "loadedCount": "({{count}} loaded)"
     },
     "copyStatus": {
       "idle": "테이블 데이터 복사",
@@ -222,6 +224,10 @@
       "totalLitres": "총 리터",
       "totalDistance": "총 거리",
       "logCount": "주유 횟수"
+    },
+    "pagination": {
+      "loadMore": "Load More",
+      "loading": "Loading..."
     }
   },
   "imageUpload": {

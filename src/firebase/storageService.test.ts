@@ -15,13 +15,37 @@ vi.mock('firebase/storage', () => ({
   deleteObject: vi.fn(),
 }));
 
+const mockBlob = new Blob(['compressed'], { type: 'image/jpeg' });
+
+const mockCtx = {
+  drawImage: vi.fn(),
+};
+
+const mockCanvas = {
+  width: 0,
+  height: 0,
+  getContext: vi.fn(() => mockCtx),
+  toBlob: vi.fn((cb: BlobCallback) => cb(mockBlob)),
+};
+
+vi.stubGlobal('createImageBitmap', vi.fn().mockResolvedValue({
+  width: 4000,
+  height: 3000,
+  close: vi.fn(),
+}));
+
+vi.spyOn(document, 'createElement').mockImplementation((tag: string) => {
+  if (tag === 'canvas') return mockCanvas as unknown as HTMLCanvasElement;
+  return document.createElement(tag);
+});
+
 describe('storageService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('uploadReceipt', () => {
-    it('successfully uploads a file and returns the download URL', async () => {
+    it('successfully uploads a compressed file and returns the download URL', async () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
       const mockUserId = 'user123';
       const mockDownloadUrl = 'https://firebase-storage.com/receipt.jpg';
@@ -36,7 +60,11 @@ describe('storageService', () => {
 
       expect(url).toBe(mockDownloadUrl);
       expect(storage.ref).toHaveBeenCalled();
-      expect(storage.uploadBytes).toHaveBeenCalled();
+      expect(storage.uploadBytes).toHaveBeenCalledWith(
+        expect.anything(),
+        mockBlob,
+        { contentType: 'image/jpeg' },
+      );
       expect(storage.getDownloadURL).toHaveBeenCalled();
     });
 

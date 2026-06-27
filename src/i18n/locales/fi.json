@@ -97,9 +97,12 @@
       "uploadingReceipt": "Ladataan kuittikuvaa...",
       "savedSuccess": "Loki tallennettu onnistuneesti!",
       "savedNoLocation": "Loki tallennettu onnistuneesti! (Sijaintia ei saatu)",
-      "saveError": "Virhe tallennettaessa lokia. Yritä uudelleen.",
+      "saveError": "Lokin tallentaminen epäonnistui: {{detail}}. Yritä uudelleen.",
       "fetchRateError": "Valuuttakurssin {{currency}} haku epäonnistui. Aseta manuaalisesti.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "Kuittikuvaa ei voitu ladata, joten loki tallennettiin ilman sitä.",
+      "stationLookupWarning": "Lähistöltä ei löytynyt asemaa, joten tätä lokia ei yhdistetty mihinkään.",
+      "stationMetricsWarning": "Lokisi tallennettiin, mutta aseman hintatietoja ei voitu päivittää."
     }
   },
   "history": {

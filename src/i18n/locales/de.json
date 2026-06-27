@@ -97,9 +97,12 @@
       "uploadingReceipt": "Quittungsfoto wird hochgeladen...",
       "savedSuccess": "Eintrag erfolgreich gespeichert!",
       "savedNoLocation": "Eintrag erfolgreich gespeichert! (Standort nicht erfasst)",
-      "saveError": "Fehler beim Speichern. Bitte versuchen Sie es erneut.",
+      "saveError": "Dein Eintrag konnte nicht gespeichert werden: {{detail}}. Bitte versuche es erneut.",
       "fetchRateError": "Fehler beim Abrufen des {{currency}}-Kurses. Bitte manuell einstellen.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "Dein Belegfoto konnte nicht hochgeladen werden, daher wurde der Eintrag ohne es gespeichert.",
+      "stationLookupWarning": "In der Nähe konnte keine Tankstelle gefunden werden, daher wurde dieser Eintrag keiner zugeordnet.",
+      "stationMetricsWarning": "Dein Eintrag wurde gespeichert, aber die Preisstatistik der Tankstelle konnte nicht aktualisiert werden."
     }
   },
   "history": {

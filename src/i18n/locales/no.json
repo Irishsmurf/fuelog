@@ -97,9 +97,12 @@
       "uploadingReceipt": "Laster opp kvitteringsbilde...",
       "savedSuccess": "Loggen ble lagret!",
       "savedNoLocation": "Loggen ble lagret! (Posisjon ikke hentet)",
-      "saveError": "Feil ved lagring av logg. Prøv igjen.",
+      "saveError": "Kunne ikke lagre loggen din: {{detail}}. Prøv igjen.",
       "fetchRateError": "Kunne ikke hente kurs for {{currency}}. Vennligst sett manuelt.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "Kvitteringsbildet kunne ikke lastes opp, så loggen ble lagret uten det.",
+      "stationLookupWarning": "Kunne ikke finne en stasjon i nærheten, så denne loggen ble ikke koblet til noen.",
+      "stationMetricsWarning": "Loggen din ble lagret, men stasjonens prisstatistikk kunne ikke oppdateres."
     }
   },
   "history": {

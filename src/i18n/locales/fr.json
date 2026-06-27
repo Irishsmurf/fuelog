@@ -97,9 +97,12 @@
       "uploadingReceipt": "Téléversement de la photo du reçu...",
       "savedSuccess": "Saisie enregistrée avec succès !",
       "savedNoLocation": "Saisie enregistrée avec succès ! (Localisation non capturée)",
-      "saveError": "Erreur lors de l'enregistrement. Veuillez réessayer.",
+      "saveError": "Impossible d'enregistrer votre entrée : {{detail}}. Veuillez réessayer.",
       "fetchRateError": "Échec de la récupération du taux {{currency}}. Veuillez le définir manuellement.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "La photo de votre reçu n'a pas pu être téléchargée, l'entrée a donc été enregistrée sans elle.",
+      "stationLookupWarning": "Impossible de trouver une station à proximité, cette entrée n'a donc été liée à aucune.",
+      "stationMetricsWarning": "Votre entrée a été enregistrée, mais les statistiques de prix de la station n'ont pas pu être mises à jour."
     }
   },
   "history": {

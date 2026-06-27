@@ -119,27 +119,25 @@ export const getOrCreateStation = async (osmStation: OSMStation): Promise<string
 export const updateStationMetrics = async (stationId: string, pricePerLitre: number) => {
     const stationRef = doc(db, 'stations', stationId);
 
-    try {
-        await runTransaction(db, async (transaction) => {
-            const stationSnap = await transaction.get(stationRef);
-            if (!stationSnap.exists()) return;
+    // Let transaction failures propagate so callers can surface a warning to the
+    // user; callers (QuickLogPage, migrationService) handle this non-fatally.
+    await runTransaction(db, async (transaction) => {
+        const stationSnap = await transaction.get(stationRef);
+        if (!stationSnap.exists()) return;
 
-            const data = stationSnap.data() as Station;
-            const currentCount = data.logCount || 0;
-            const currentAvg = data.avgPrice || 0;
+        const data = stationSnap.data() as Station;
+        const currentCount = data.logCount || 0;
+        const currentAvg = data.avgPrice || 0;
 
-            // Calculate new average
-            const newAvg = ((currentAvg * currentCount) + pricePerLitre) / (currentCount + 1);
+        // Calculate new average
+        const newAvg = ((currentAvg * currentCount) + pricePerLitre) / (currentCount + 1);
 
-            transaction.update(stationRef, {
-                logCount: increment(1),
-                avgPrice: newAvg,
-                lastPrice: pricePerLitre
-            });
+        transaction.update(stationRef, {
+            logCount: increment(1),
+            avgPrice: newAvg,
+            lastPrice: pricePerLitre
         });
-    } catch (error) {
-        console.error("Transaction failed: ", error);
-    }
+    });
 };
 
 /**

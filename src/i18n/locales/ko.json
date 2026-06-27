@@ -97,9 +97,12 @@
       "uploadingReceipt": "영수증 사진 업로드 중...",
       "savedSuccess": "기록이 성공적으로 저장되었습니다!",
       "savedNoLocation": "기록이 성공적으로 저장되었습니다! (위치 정보 없음)",
-      "saveError": "기록 저장 중 오류가 발생했습니다. 다시 시도해 주세요.",
+      "saveError": "기록을 저장할 수 없습니다: {{detail}}. 다시 시도해 주세요.",
       "fetchRateError": "{{currency}} 환율을 가져오는 데 실패했습니다. 수동으로 설정해 주세요.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "영수증 사진을 업로드할 수 없어 기록이 사진 없이 저장되었습니다.",
+      "stationLookupWarning": "근처 주유소를 찾을 수 없어 이 기록이 주유소와 연결되지 않았습니다.",
+      "stationMetricsWarning": "기록은 저장되었지만 주유소의 가격 통계를 업데이트할 수 없습니다."
     }
   },
   "history": {

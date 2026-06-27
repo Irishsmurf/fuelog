@@ -338,4 +338,111 @@ describe('QuickLogPage', () => {
 
     expect(updateStationMetrics).toHaveBeenCalledWith('station-123', 50 / 30);
   });
+
+  it('omits stationId from the payload when no station is linked (no undefined fields)', async () => {
+    // Geolocation is denied in the default beforeEach, so no station is linked.
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText(/quickLog\.fields\.fillingStation/), { target: { value: 'Shell' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+
+    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    // Firestore's addDoc() rejects fields whose value is undefined, so optional
+    // fields must be absent rather than set to undefined.
+    expect(payload).not.toHaveProperty('stationId');
+    expect(payload).not.toHaveProperty('receiptUrl');
+    expect(Object.values(payload as Record<string, unknown>)).not.toContain(undefined);
+  });
+
+  it('still saves the log and warns the user when updating station metrics fails', async () => {
+    const mockStation = {
+      id: 'station-123',
+      osmId: 'node/123',
+      name: 'Shell Berlin',
+      brand: 'Shell',
+      latitude: 52.52,
+      longitude: 13.405,
+    };
+
+    vi.mocked(findNearestStation).mockResolvedValue(mockStation);
+    vi.mocked(getOrCreateStation).mockResolvedValue('station-123');
+    vi.mocked(updateStationMetrics).mockRejectedValue(new Error('permission-denied'));
+
+    mockGetCurrentPosition.mockImplementation((success) =>
+      success({ coords: { latitude: 52.52, longitude: 13.405, accuracy: 15 } })
+    );
+
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    // The log itself is still persisted...
+    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    // ...and the user is warned about the metrics update without checking the console.
+    await waitFor(() =>
+      expect(screen.getByText(/quickLog\.messages\.stationMetricsWarning/)).toBeInTheDocument()
+    );
+  });
+
+  it('shows a clear error with the failure detail when the Firestore write fails', async () => {
+    vi.mocked(addDoc).mockRejectedValue(new Error('permission-denied'));
+
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    // The save error is surfaced to the user instead of only being logged.
+    // (The mock t() returns the key; the real en.json string interpolates the
+    // {{detail}} placeholder with the underlying error message.)
+    await waitFor(() =>
+      expect(screen.getByText(/quickLog\.messages\.saveError/)).toBeInTheDocument()
+    );
+  });
+
+  it('still saves the log and warns the user when station lookup fails', async () => {
+    vi.mocked(findNearestStation).mockRejectedValue(new Error('network'));
+
+    mockGetCurrentPosition.mockImplementation((success) =>
+      success({ coords: { latitude: 52.52, longitude: 13.405, accuracy: 15 } })
+    );
+
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(screen.getByText(/quickLog\.messages\.stationLookupWarning/)).toBeInTheDocument()
+    );
+
+    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    expect(payload).not.toHaveProperty('stationId');
+  });
 });

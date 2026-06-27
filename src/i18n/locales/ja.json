@@ -97,9 +97,12 @@
       "uploadingReceipt": "レシート写真をアップロード中...",
       "savedSuccess": "記録が正常に保存されました！",
       "savedNoLocation": "記録が正常に保存されました！（位置情報なし）",
-      "saveError": "記録の保存中にエラーが発生しました。もう一度お試しください。",
+      "saveError": "記録を保存できませんでした: {{detail}}。もう一度お試しください。",
       "fetchRateError": "{{currency}}のレートの取得に失敗しました。手動で設定してください。",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "レシート写真をアップロードできなかったため、記録はそれなしで保存されました。",
+      "stationLookupWarning": "近くのガソリンスタンドを検索できなかったため、この記録はどのスタンドにも関連付けられませんでした。",
+      "stationMetricsWarning": "記録は保存されましたが、スタンドの価格統計を更新できませんでした。"
     }
   },
   "history": {

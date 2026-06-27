@@ -98,7 +98,10 @@
       "uploadingReceipt": "Uploading receipt photo...",
       "savedSuccess": "Log saved successfully!",
       "savedNoLocation": "Log saved successfully! (Location not captured)",
-      "saveError": "Error saving log. Please try again.",
+      "saveError": "Couldn't save your log: {{detail}}. Please try again.",
+      "receiptUploadWarning": "Your receipt photo couldn't be uploaded, so the log was saved without it.",
+      "stationLookupWarning": "Couldn't look up a nearby station, so this log wasn't linked to one.",
+      "stationMetricsWarning": "Your log was saved, but the station's price stats couldn't be updated.",
       "fetchRateError": "Failed to fetch {{currency}} rate. Please set manually."
     }
   },

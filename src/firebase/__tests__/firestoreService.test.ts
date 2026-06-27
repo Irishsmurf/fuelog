@@ -1,9 +1,9 @@
 // src/firebase/__tests__/firestoreService.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { CollectionReference, Query, QueryConstraint, QuerySnapshot, QueryFieldFilterConstraint, QueryOrderByConstraint, QueryLimitConstraint } from 'firebase/firestore';
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, Timestamp, runTransaction, increment } from 'firebase/firestore';
 import { auth, db } from '../config'; // Mocked config for auth and db
-import { fetchFuelLogsByStationId, fetchStationById } from '../firestoreService';
+import { fetchFuelLogsByStationId, fetchStationById, updateStationMetrics } from '../firestoreService';
 import { Log } from '../../utils/types';
 
 // Mock Firebase
@@ -19,6 +19,8 @@ vi.mock('firebase/firestore', async (importOriginal) => {
         limit: vi.fn(),
         doc: vi.fn(),
         getDoc: vi.fn(),
+        runTransaction: vi.fn(),
+        increment: vi.fn((n: number) => ({ __increment: n })),
         Timestamp: {
             fromDate: vi.fn((date: Date) => ({
                 toDate: () => date,
@@ -166,6 +168,57 @@ describe('firestoreService', () => {
             const result = await fetchStationById(mockStationId);
 
             expect(result).toBeNull();
+        });
+    });
+
+    describe('updateStationMetrics', () => {
+        it('updates the running average, count and last price for an existing station', async () => {
+            vi.mocked(doc).mockReturnValue({} as never);
+            const update = vi.fn();
+            const transaction = {
+                get: vi.fn().mockResolvedValue({
+                    exists: () => true,
+                    data: () => ({ logCount: 1, avgPrice: 2 }),
+                }),
+                update,
+            };
+            vi.mocked(runTransaction).mockImplementation(
+                async (_db, cb) => cb(transaction as never)
+            );
+
+            await updateStationMetrics(mockStationId, 4);
+
+            expect(doc).toHaveBeenCalledWith(db, 'stations', mockStationId);
+            // New average for [2, 4] is 3; count increments by 1; last price is 4.
+            expect(update).toHaveBeenCalledWith({}, {
+                logCount: { __increment: 1 },
+                avgPrice: 3,
+                lastPrice: 4,
+            });
+            expect(increment).toHaveBeenCalledWith(1);
+        });
+
+        it('does not update when the station document does not exist', async () => {
+            vi.mocked(doc).mockReturnValue({} as never);
+            const update = vi.fn();
+            const transaction = {
+                get: vi.fn().mockResolvedValue({ exists: () => false }),
+                update,
+            };
+            vi.mocked(runTransaction).mockImplementation(
+                async (_db, cb) => cb(transaction as never)
+            );
+
+            await updateStationMetrics(mockStationId, 4);
+
+            expect(update).not.toHaveBeenCalled();
+        });
+
+        it('propagates transaction failures to the caller', async () => {
+            vi.mocked(doc).mockReturnValue({} as never);
+            vi.mocked(runTransaction).mockRejectedValue(new Error('permission-denied'));
+
+            await expect(updateStationMetrics(mockStationId, 4)).rejects.toThrow('permission-denied');
         });
     });
 });

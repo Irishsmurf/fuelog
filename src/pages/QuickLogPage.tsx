@@ -309,6 +309,7 @@ function QuickLogPage(): JSX.Element {
                 }
             } catch (err) {
                 console.error("Station lookup failed:", err);
+                setStationWarning(t('quickLog.messages.stationLookupWarning'));
             }
         }
     }
@@ -328,12 +329,23 @@ function QuickLogPage(): JSX.Element {
 
     setMessage({ type: 'info', text: t('quickLog.messages.savingLog', { locationMsg: locationMessage }) });
 
+    // Non-fatal problems collected during save (e.g. receipt upload or station
+    // linking failed). These don't block saving the log itself; we surface them
+    // to the user so they know something needs attention without the console.
+    const saveWarnings: string[] = [];
+
     try {
-      // --- Handle Receipt Upload ---
+      // --- Handle Receipt Upload (non-fatal) ---
       let receiptUrl = "";
       if (receiptFile && user) {
         setMessage({ type: 'info', text: t('quickLog.messages.uploadingReceipt') });
-        receiptUrl = await uploadReceipt(receiptFile, user.uid);
+        try {
+          receiptUrl = await uploadReceipt(receiptFile, user.uid);
+        } catch (uploadError) {
+          console.error("Receipt upload failed: ", uploadError);
+          analytics.then(a => { if (a) logEvent(a, 'fuel_log_failed', { error_type: 'receipt_upload' }); });
+          saveWarnings.push(t('quickLog.messages.receiptUploadWarning'));
+        }
       }
 
       // Calculate cost in home currency
@@ -352,9 +364,13 @@ function QuickLogPage(): JSX.Element {
         currency: currency,
         originalCost: parsedCost,
         exchangeRate: exchangeRate,
-        receiptUrl: receiptUrl || undefined,
-        stationId: linkedStationId
       };
+      if (receiptUrl) {
+        logData.receiptUrl = receiptUrl;
+      }
+      if (linkedStationId) {
+        logData.stationId = linkedStationId;
+      }
       if (!isNaN(parsedOdometer)) {
         logData.odometerKm = parsedOdometer;
       }
@@ -364,12 +380,18 @@ function QuickLogPage(): JSX.Element {
         logData.locationAccuracy = locationData.locationAccuracy;
       }
 
-      // Save to Firestore
+      // Save to Firestore — this is the only fatal step; if it throws the log
+      // wasn't recorded and we report a clear error below.
       await addDoc(collection(db, "fuelLogs"), logData);
-      
-      // Update station metrics if linked
+
+      // Update station metrics if linked (non-fatal — the log is already saved)
       if (linkedStationId) {
-        await updateStationMetrics(linkedStationId, pricePerLitre);
+        try {
+          await updateStationMetrics(linkedStationId, pricePerLitre);
+        } catch (metricsError) {
+          console.error("Updating station metrics failed: ", metricsError);
+          saveWarnings.push(t('quickLog.messages.stationMetricsWarning'));
+        }
       }
 
       analytics.then(a => { if (a) logEvent(a, 'fuel_log_submitted', { vehicle_id: selectedVehicleId, has_receipt: !!receiptFile, currency, used_ai_autofill: extractedData !== null, has_station: !!linkedStationId }); });
@@ -378,7 +400,13 @@ function QuickLogPage(): JSX.Element {
       setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
       setOdometerKmInput('');
       setReceiptFile(null);
-      setMessage({ type: 'success', text: locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation') });
+      if (saveWarnings.length > 0) {
+        // Saved, but something non-critical needs the user's attention.
+        const base = locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation');
+        setMessage({ type: 'warning', text: `${base} ${saveWarnings.join(' ')}` });
+      } else {
+        setMessage({ type: 'success', text: locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation') });
+      }
 
       // Haptic feedback for mobile
       if ('vibrate' in navigator) {
@@ -388,10 +416,18 @@ function QuickLogPage(): JSX.Element {
     } catch (error) {
       console.error("Error adding document: ", error);
       analytics.then(a => { if (a) logEvent(a, 'fuel_log_failed', { error_type: 'firestore_write' }); });
-      setMessage({ type: 'error', text: t('quickLog.messages.saveError') });
+      setMessage({
+        type: 'error',
+        text: t('quickLog.messages.saveError', {
+          detail: error instanceof Error ? error.message : String(error),
+        }),
+      });
     } finally {
       setIsSaving(false);
-      setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+      setTimeout(() => {
+        setMessage({ type: '', text: '' });
+        setStationWarning('');
+      }, 5000);
     }
   };
 

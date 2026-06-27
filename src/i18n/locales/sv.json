@@ -97,9 +97,12 @@
       "uploadingReceipt": "Laddar upp kvittofoto...",
       "savedSuccess": "Loggen sparades framgångsrikt!",
       "savedNoLocation": "Loggen sparades framgångsrikt! (Plats hämtades inte)",
-      "saveError": "Fel vid sparande av logg. Försök igen.",
+      "saveError": "Det gick inte att spara din logg: {{detail}}. Försök igen.",
       "fetchRateError": "Misslyckades med att hämta kurs för {{currency}}. Ställ in manuellt.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "Kvittofotot kunde inte laddas upp, så loggen sparades utan det.",
+      "stationLookupWarning": "Det gick inte att hitta en station i närheten, så den här loggen kopplades inte till någon.",
+      "stationMetricsWarning": "Din logg sparades, men stationens prisstatistik kunde inte uppdateras."
     }
   },
   "history": {

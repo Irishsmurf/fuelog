@@ -97,9 +97,12 @@
       "uploadingReceipt": "Subiendo foto del recibo...",
       "savedSuccess": "¡Registro guardado exitosamente!",
       "savedNoLocation": "¡Registro guardado exitosamente! (Ubicación no capturada)",
-      "saveError": "Error al guardar el registro. Por favor, inténtalo de nuevo.",
+      "saveError": "No se pudo guardar tu registro: {{detail}}. Inténtalo de nuevo.",
       "fetchRateError": "Error al obtener la tasa de {{currency}}. Por favor, configúrala manualmente.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "No se pudo subir la foto del recibo, así que el registro se guardó sin ella.",
+      "stationLookupWarning": "No se pudo buscar una gasolinera cercana, así que este registro no se vinculó a ninguna.",
+      "stationMetricsWarning": "Tu registro se guardó, pero no se pudieron actualizar las estadísticas de precios de la gasolinera."
     }
   },
   "history": {

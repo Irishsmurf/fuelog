@@ -97,9 +97,12 @@
       "uploadingReceipt": "Ag uaslódáil grianghraf admhála...",
       "savedSuccess": "Iontráil sábháilte go rathúil!",
       "savedNoLocation": "Iontráil sábháilte go rathúil! (Suíomh gan gabhail)",
-      "saveError": "Earráid agus iontráil á sábháil. Déan iarracht arís le do thoil.",
+      "saveError": "Níorbh fhéidir do logáil a shábháil: {{detail}}. Bain triail eile as le do thoil.",
       "fetchRateError": "Theip ar an ráta {{currency}} a fháil. Socraigh de láimh le do thoil.",
-      "locationCapturedAt": "Located at {{station}}."
+      "locationCapturedAt": "Located at {{station}}.",
+      "receiptUploadWarning": "Níorbh fhéidir grianghraf an admhála a uaslódáil, mar sin sábháladh an logáil gan é.",
+      "stationLookupWarning": "Níorbh fhéidir stáisiún in aice láimhe a aimsiú, mar sin níor nascadh an logáil seo le ceann ar bith.",
+      "stationMetricsWarning": "Sábháladh do logáil, ach níorbh fhéidir staitisticí praghais an stáisiúin a nuashonrú."
     }
   },
   "history": {

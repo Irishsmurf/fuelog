@@ -105,14 +105,15 @@ describe('locationService', () => {
         expect(result?.osmId).toBe('way/999');
     });
 
-    it('returns null on API error', async () => {
+    it('throws on API error so callers can surface a warning', async () => {
         vi.mocked(global.fetch).mockResolvedValue({
             ok: false,
             status: 500
         } as Response);
 
-        const result = await findNearestStation(53.3, -6.2);
-        expect(result).toBeNull();
+        await expect(findNearestStation(53.3, -6.2)).rejects.toThrow(
+            'Overpass API responded with status 500'
+        );
     });
 
     it('retries on 429 error and eventually succeeds', async () => {

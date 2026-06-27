@@ -182,11 +182,14 @@ export async function findNearestStation(lat: number, lon: number, radiusMeters:
                 address: best.tags?.['addr:street'] ? `${best.tags['addr:street']} ${best.tags['addr:housenumber'] || ''}`.trim() : undefined
             };
         } catch (error) {
+            // Propagate genuine lookup failures so callers can distinguish them
+            // from the "no station nearby" case (which returns null above) and
+            // surface a warning to the user.
             console.error('Error querying Overpass API:', error);
-            return null;
+            throw error;
         }
     }
 
     console.error('Max retries reached for Overpass API.');
-    return null;
+    throw new Error('Overpass API unavailable after maximum retries.');
 }

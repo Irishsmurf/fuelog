@@ -398,6 +398,28 @@ describe('QuickLogPage', () => {
     );
   });
 
+  it('shows a clear error with the failure detail when the Firestore write fails', async () => {
+    vi.mocked(addDoc).mockRejectedValue(new Error('permission-denied'));
+
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    // The save error is surfaced to the user instead of only being logged.
+    // (The mock t() returns the key; the real en.json string interpolates the
+    // {{detail}} placeholder with the underlying error message.)
+    await waitFor(() =>
+      expect(screen.getByText(/quickLog\.messages\.saveError/)).toBeInTheDocument()
+    );
+  });
+
   it('still saves the log and warns the user when station lookup fails', async () => {
     vi.mocked(findNearestStation).mockRejectedValue(new Error('network'));
 

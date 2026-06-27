@@ -424,7 +424,10 @@ function QuickLogPage(): JSX.Element {
       });
     } finally {
       setIsSaving(false);
-      setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+      setTimeout(() => {
+        setMessage({ type: '', text: '' });
+        setStationWarning('');
+      }, 5000);
     }
   };
 

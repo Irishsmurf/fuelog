@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { planOdometerBackfill, BackfillLog } from '../scripts/backfillOdometer';
+import { planOdometerBackfill, summarizeGroups, BackfillLog } from '../scripts/backfillOdometer';
 
 // Build a log with a fake Timestamp ordered by `day`.
 const makeLog = (
@@ -168,5 +168,59 @@ describe('planOdometerBackfill', () => {
 
     expect(odoOf(plan, 'b')).toBe(100); // 200 - 100
     expect(odoOf(plan, 'a')).toBeUndefined(); // 100 - 5000 < 0, rejected
+  });
+});
+
+describe('summarizeGroups', () => {
+  const groupFor = (summaries: ReturnType<typeof summarizeGroups>, vehicleId: string | null) =>
+    summaries.find((s) => s.vehicleId === vehicleId);
+
+  it('reports counts, anchor status, and date range per vehicle', () => {
+    const logs = [
+      makeLog('a', 10, 100, 500, 'car1'),
+      makeLog('b', 20, 100, undefined, 'car1'),
+      makeLog('c', 30, 100, undefined, 'car2'), // car2 has no reading anywhere
+    ];
+
+    const summaries = summarizeGroups(logs);
+
+    const car1 = groupFor(summaries, 'car1')!;
+    expect(car1.total).toBe(2);
+    expect(car1.withOdometer).toBe(1);
+    expect(car1.hasAnchor).toBe(true);
+    expect(car1.earliestMillis).toBe(10);
+    expect(car1.latestMillis).toBe(20);
+
+    const car2 = groupFor(summaries, 'car2')!;
+    expect(car2.total).toBe(1);
+    expect(car2.withOdometer).toBe(0);
+    expect(car2.hasAnchor).toBe(false);
+  });
+
+  it('buckets logs with no vehicleId into a null group', () => {
+    // Built directly so vehicleId is genuinely absent (makeLog's default would
+    // otherwise replace an explicit undefined with 'car1').
+    const logs: BackfillLog[] = [
+      { id: 'a', userId: 'user1', timestamp: { toMillis: () => 1 }, distanceKm: 100 },
+    ];
+
+    const summaries = summarizeGroups(logs);
+
+    const noVehicle = groupFor(summaries, null)!;
+    expect(noVehicle).toBeDefined();
+    expect(noVehicle.hasAnchor).toBe(false);
+    expect(noVehicle.total).toBe(1);
+  });
+
+  it('lists anchorless groups before anchored ones for the same user', () => {
+    const logs = [
+      makeLog('a', 1, 100, 500, 'anchored'),
+      makeLog('b', 2, 100, undefined, 'orphan'),
+    ];
+
+    const summaries = summarizeGroups(logs);
+
+    expect(summaries[0].vehicleId).toBe('orphan'); // no anchor first
+    expect(summaries[1].vehicleId).toBe('anchored');
   });
 });

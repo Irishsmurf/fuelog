@@ -56,6 +56,12 @@ const AdminConsolePage = lazyWithRetry(() => import('../pages/AdminConsolePage')
 // horizontal scrollbar even on wide monitors.
 const WIDE_LAYOUT_PATHS = new Set(['/history', '/stations']);
 
+// The map renders as a full-bleed, fixed full-viewport layer that sits
+// *behind* the chrome (the translucent header and the footer/bottom-nav
+// float over it). On this route the normal centered content column would
+// just be an empty padded box, so drop the container constraints.
+const FULL_BLEED_PATHS = new Set(['/map']);
+
 /** Loading fallback for Suspense */
 const PageLoader = () => {
   const { t } = useTranslation();
@@ -71,6 +77,9 @@ function AuthenticatedApp(): JSX.Element {
   const { user, logout } = useAuth();
   const location = useLocation();
   const { t } = useTranslation();
+
+  const currentPath = location.pathname.replace(/\/$/, '');
+  const isFullBleed = FULL_BLEED_PATHS.has(currentPath);
 
   const getNavLinkClass = (path: string): string => {
     const baseClass = "px-3 py-1.5 text-sm font-bold rounded-xl transition-all duration-200";
@@ -119,10 +128,14 @@ function AuthenticatedApp(): JSX.Element {
 
       <SyncStatus />
 
-      <main className={`flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full min-w-0 ${
-        WIDE_LAYOUT_PATHS.has(location.pathname.replace(/\/$/, '')) ? 'max-w-7xl' : 'max-w-5xl'
+      <main className={`flex-grow w-full min-w-0 ${
+        isFullBleed
+          ? ''
+          : `container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 ${
+              WIDE_LAYOUT_PATHS.has(currentPath) ? 'max-w-7xl' : 'max-w-5xl'
+            }`
       }`}>
-        <ImportOnboardingPrompt />
+        {!isFullBleed && <ImportOnboardingPrompt />}
         <ErrorBoundary>
         <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -142,7 +155,7 @@ function AuthenticatedApp(): JSX.Element {
         </ErrorBoundary>
       </main>
 
-      <footer className="hidden sm:block bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 mb-0">
+      <footer className="hidden sm:block relative z-30 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 mb-0">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
                {t('footer.copyright', { year: new Date().getFullYear() })} | {' '}
                <Link to="/about" className="hover:text-amber-600 dark:hover:text-amber-400 underline underline-offset-2">

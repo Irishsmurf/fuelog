@@ -146,7 +146,7 @@ const FuelMapPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[60vh] min-h-[400px]">
+      <div className="fixed inset-0 z-0 flex justify-center items-center bg-gray-50 dark:bg-gray-900">
         <Loader className="w-8 h-8 animate-spin text-amber-500" />
       </div>
     );
@@ -154,7 +154,7 @@ const FuelMapPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col justify-center items-center h-[60vh] min-h-[400px] text-red-500 dark:text-red-400">
+      <div className="fixed inset-0 z-0 flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-900 text-red-500 dark:text-red-400">
         <AlertCircle className="w-12 h-12 mb-2" />
         <p>{error}</p>
       </div>
@@ -166,15 +166,15 @@ const FuelMapPage: React.FC = () => {
       : [53.3498, -6.2603]; // Default to Dublin
 
   return (
-    <div className="w-full h-[60vh] min-h-[400px] rounded-lg overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700 relative">
+    <div className="fixed inset-0 z-0 overflow-hidden">
        {validLocations.length === 0 && (
-           <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-white/90 dark:bg-gray-800/90 backdrop-blur px-4 py-2 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center">
+           <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-[1000] bg-white/90 dark:bg-gray-800/90 backdrop-blur px-4 py-2 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center">
                <AlertCircle className="w-4 h-4 mr-2 text-yellow-500" />
                <span className="text-sm text-gray-700 dark:text-gray-300">No fuel logs with location data found.</span>
            </div>
        )}
 
-       <div className="absolute top-4 right-4 z-[1000] bg-white dark:bg-gray-800 rounded-md shadow-md border border-gray-200 dark:border-gray-700 flex overflow-hidden">
+       <div className="absolute top-20 right-4 z-[1000] bg-white dark:bg-gray-800 rounded-md shadow-md border border-gray-200 dark:border-gray-700 flex overflow-hidden">
          <button 
            onClick={() => setViewMode('cluster')}
            className={`px-3 py-1.5 text-sm font-medium flex items-center ${viewMode === 'cluster' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}

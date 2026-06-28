@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "Feithicil & Stáisiún",
       "fuelCost": "Breosla & Costas",
-      "receipt": "Admháil"
+      "receipt": "Admháil",
+      "location": "Suíomh"
     },
     "fields": {
       "vehicle": "Feithicil",
@@ -77,7 +78,8 @@
       "converted": "Tiontaithe: {{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "Dáta & am an bhreoslaithe"
     },
     "submit": {
       "save": "Sábháil Iontráil Breosla",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "Níorbh fhéidir grianghraf an admhála a uaslódáil, mar sin sábháladh an logáil gan é.",
       "stationLookupWarning": "Níorbh fhéidir stáisiún in aice láimhe a aimsiú, mar sin níor nascadh an logáil seo le ceann ar bith.",
-      "stationMetricsWarning": "Sábháladh do logáil, ach níorbh fhéidir staitisticí praghais an stáisiúin a nuashonrú."
+      "stationMetricsWarning": "Sábháladh do logáil, ach níorbh fhéidir staitisticí praghais an stáisiúin a nuashonrú.",
+      "invalidDate": "Cuir isteach dáta agus am bailí.",
+      "futureDate": "Ní féidir le dáta/am an bhreoslaithe a bheith sa todhchaí.",
+      "locationSet": "Suíomh socraithe."
+    },
+    "location": {
+      "adjustOnMap": "Coigeartaigh ar an léarscáil",
+      "hideMap": "Folaigh an léarscáil",
+      "resolving": "Ag aimsiú an stáisiúin is gaire…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "Greamaithe",
+      "gpsBadge": "GPS",
+      "none": "Gan suíomh fós – socraigh ar an léarscáil é."
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "Cealaigh",
       "receipt": "Grianghraf Admhála",
       "updateReceipt": "Nuashonraigh Grianghraf Admhála",
-      "receiptKept": "Coimeádfar an admháil reatha mura gcuirtear ceann eile ina áit."
+      "receiptKept": "Coimeádfar an admháil reatha mura gcuirtear ceann eile ina áit.",
+      "dateTime": "Dáta & am",
+      "location": "Suíomh",
+      "invalidDate": "Cuir isteach dáta agus am bailí.",
+      "futureDate": "Ní féidir leis an dáta/am a bheith sa todhchaí."
     },
     "delete": {
       "confirm": "An iontráil logála seo a scriosadh? Ní féidir an gníomh seo a chealú."
@@ -338,7 +356,9 @@
     "useValues": "Úsáid Luachanna",
     "discard": "Caith Uait",
     "extractionFailed": "Theip ar shonraí a eastóscadh ón admháil.",
-    "autoFilled": "Réimsí uathlíonta ón admháil!"
+    "autoFilled": "Réimsí uathlíonta ón admháil!",
+    "date": "Dáta",
+    "location": "Suíomh"
   },
   "import": {
     "title": "Iompórtáil Logaí Breosla",
@@ -529,5 +549,10 @@
     "avgPrice": "Meán: €{{price}}/L",
     "olderFuelings": "+ {{count}} seanbhealaí",
     "fuelingsAtStation": "{{count}} bhealaí ag an stáisiún seo"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "Úsáid mo shuíomh",
+    "coords": "{{lat}}, {{lng}} – tapáil nó tarraing an biorán chun é a choigeartú",
+    "tapToPlace": "Tapáil an léarscáil chun biorán a chur san áit ar bhreoslaigh tú."
   }
 }

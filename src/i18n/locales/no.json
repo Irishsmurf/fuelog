@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "Kjøretøy og stasjon",
       "fuelCost": "Drivstoff og kostnad",
-      "receipt": "Kvittering"
+      "receipt": "Kvittering",
+      "location": "Sted"
     },
     "fields": {
       "vehicle": "Kjøretøy",
@@ -77,7 +78,8 @@
       "converted": "Konvertert: {{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "Dato og tid for fylling"
     },
     "submit": {
       "save": "Lagre drivstofflogg",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "Kvitteringsbildet kunne ikke lastes opp, så loggen ble lagret uten det.",
       "stationLookupWarning": "Kunne ikke finne en stasjon i nærheten, så denne loggen ble ikke koblet til noen.",
-      "stationMetricsWarning": "Loggen din ble lagret, men stasjonens prisstatistikk kunne ikke oppdateres."
+      "stationMetricsWarning": "Loggen din ble lagret, men stasjonens prisstatistikk kunne ikke oppdateres.",
+      "invalidDate": "Skriv inn en gyldig dato og tid.",
+      "futureDate": "Dato/tid for fylling kan ikke være i fremtiden.",
+      "locationSet": "Plassering angitt."
+    },
+    "location": {
+      "adjustOnMap": "Juster på kartet",
+      "hideMap": "Skjul kart",
+      "resolving": "Finner nærmeste stasjon…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "Festet",
+      "gpsBadge": "GPS",
+      "none": "Ingen plassering ennå – angi den på kartet."
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "Avbryt",
       "receipt": "Kvitteringsbilde",
       "updateReceipt": "Oppdater kvitteringsbilde",
-      "receiptKept": "Gjeldende kvittering beholdes med mindre den erstattes."
+      "receiptKept": "Gjeldende kvittering beholdes med mindre den erstattes.",
+      "dateTime": "Dato og tid",
+      "location": "Sted",
+      "invalidDate": "Skriv inn en gyldig dato og tid.",
+      "futureDate": "Dato/tid kan ikke være i fremtiden."
     },
     "delete": {
       "confirm": "Slett denne loggoppføringen? Denne handlingen kan ikke angres."
@@ -338,7 +356,9 @@
     "useValues": "Bruk verdier",
     "discard": "Forkast",
     "extractionFailed": "Kunne ikke hente data fra kvittering.",
-    "autoFilled": "Felt fylt ut automatisk fra kvittering!"
+    "autoFilled": "Felt fylt ut automatisk fra kvittering!",
+    "date": "Dato",
+    "location": "Sted"
   },
   "import": {
     "title": "Importer drivstofflogger",
@@ -529,5 +549,10 @@
     "avgPrice": "Gjennomsnitt: €{{price}}/L",
     "olderFuelings": "+ {{count}} eldre tanking",
     "fuelingsAtStation": "{{count}} tanking på denne stasjonen"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "Bruk min posisjon",
+    "coords": "{{lat}}, {{lng}} – trykk eller dra nålen for å justere",
+    "tapToPlace": "Trykk på kartet for å plassere en nål der du fylte."
   }
 }

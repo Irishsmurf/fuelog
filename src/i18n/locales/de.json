@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "Fahrzeug & Tankstelle",
       "fuelCost": "Kraftstoff & Kosten",
-      "receipt": "Quittung"
+      "receipt": "Quittung",
+      "location": "Standort"
     },
     "fields": {
       "vehicle": "Fahrzeug",
@@ -77,7 +78,8 @@
       "converted": "Umgerechnet: {{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "Datum & Uhrzeit des Tankens"
     },
     "submit": {
       "save": "Eintrag speichern",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "Dein Belegfoto konnte nicht hochgeladen werden, daher wurde der Eintrag ohne es gespeichert.",
       "stationLookupWarning": "In der Nähe konnte keine Tankstelle gefunden werden, daher wurde dieser Eintrag keiner zugeordnet.",
-      "stationMetricsWarning": "Dein Eintrag wurde gespeichert, aber die Preisstatistik der Tankstelle konnte nicht aktualisiert werden."
+      "stationMetricsWarning": "Dein Eintrag wurde gespeichert, aber die Preisstatistik der Tankstelle konnte nicht aktualisiert werden.",
+      "invalidDate": "Bitte ein gültiges Datum und eine gültige Uhrzeit eingeben.",
+      "futureDate": "Datum/Uhrzeit des Tankens darf nicht in der Zukunft liegen.",
+      "locationSet": "Standort festgelegt."
+    },
+    "location": {
+      "adjustOnMap": "Auf Karte anpassen",
+      "hideMap": "Karte ausblenden",
+      "resolving": "Nächste Tankstelle wird gesucht…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "Markiert",
+      "gpsBadge": "GPS",
+      "none": "Noch kein Standort – auf der Karte festlegen."
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "Abbrechen",
       "receipt": "Quittungsfoto",
       "updateReceipt": "Quittungsfoto aktualisieren",
-      "receiptKept": "Die aktuelle Quittung wird beibehalten, sofern sie nicht ersetzt wird."
+      "receiptKept": "Die aktuelle Quittung wird beibehalten, sofern sie nicht ersetzt wird.",
+      "dateTime": "Datum & Uhrzeit",
+      "location": "Standort",
+      "invalidDate": "Bitte ein gültiges Datum und eine gültige Uhrzeit eingeben.",
+      "futureDate": "Datum/Uhrzeit darf nicht in der Zukunft liegen."
     },
     "delete": {
       "confirm": "Diesen Eintrag löschen? Diese Aktion kann nicht rückgängig gemacht werden."
@@ -338,7 +356,9 @@
     "useValues": "Werte übernehmen",
     "discard": "Verwerfen",
     "extractionFailed": "Fehler beim Extrahieren der Daten aus der Quittung.",
-    "autoFilled": "Felder automatisch aus der Quittung ausgefüllt!"
+    "autoFilled": "Felder automatisch aus der Quittung ausgefüllt!",
+    "date": "Datum",
+    "location": "Standort"
   },
   "import": {
     "title": "Kraftstoffeinträge importieren",
@@ -529,5 +549,10 @@
     "avgPrice": "Durchschn.: €{{price}}/L",
     "olderFuelings": "+ {{count}} weitere Tankungen",
     "fuelingsAtStation": "{{count}} Tankungen an dieser Station"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "Meinen Standort verwenden",
+    "coords": "{{lat}}, {{lng}} – tippen oder Pin ziehen zum Anpassen",
+    "tapToPlace": "Tippe auf die Karte, um einen Pin zu setzen, wo du getankt hast."
   }
 }

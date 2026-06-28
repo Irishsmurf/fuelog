@@ -12,8 +12,10 @@ import { uploadReceipt } from '../firebase/storageService';
 import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import { calculateDistance } from '../utils/calculations';
-import { findNearestStation, isAccurateEnoughForStationMatch, GPS_ACCURACY_THRESHOLD_METERS } from '../utils/locationService';
+import { toDatetimeLocal } from '../utils/formatDate';
+import { findNearestStation, geocodeAddress, isAccurateEnoughForStationMatch, OSMStation } from '../utils/locationService';
 import ReceiptAISection from '../components/ReceiptAISection';
+import LocationPicker, { PickerCoords } from '../components/LocationPicker';
 import { useTranslation } from 'react-i18next';
 
 // Types
@@ -22,12 +24,15 @@ interface MessageState {
   type: MessageType;
   text: string;
 }
-// Type for location data we want to store
+// Type for location data we want to store. `locationAccuracy` is only present
+// for GPS-derived fixes; a manually pinned location has no accuracy figure.
 interface LocationData {
     latitude: number;
     longitude: number;
-    locationAccuracy: number;
+    locationAccuracy?: number;
 }
+
+type LocationMode = 'gps' | 'manual';
 
 
 function QuickLogPage(): JSX.Element {
@@ -68,6 +73,22 @@ function QuickLogPage(): JSX.Element {
   const [isExtracting, setIsExtracting] = useState<boolean>(false);
   const [extractedData, setExtractedData] = useState<ReceiptData | null>(null);
 
+  // --- Date/Time of fuelling ---
+  // Defaults to "now" but is fully editable so a delayed entry keeps the real
+  // fuelling time rather than the submission time.
+  const [loggedAt, setLoggedAt] = useState<string>(() => toDatetimeLocal(new Date()));
+
+  // --- Location State ---
+  // Location is resolved into state (rather than grabbed inline at submit) so
+  // the user can review it and override it on a map before saving. This fixes
+  // late entries getting the submission-time location instead of the fuelling
+  // location.
+  const [location, setLocation] = useState<LocationData | null>(null);
+  const [locationMode, setLocationMode] = useState<LocationMode>('gps');
+  const [showMap, setShowMap] = useState<boolean>(false);
+  const [matchedStation, setMatchedStation] = useState<OSMStation | null>(null);
+  const [isResolvingStation, setIsResolvingStation] = useState<boolean>(false);
+
   // --- Handle AI Extraction ---
   const handleExtractData = async () => {
     if (!receiptFile) return;
@@ -93,6 +114,30 @@ function QuickLogPage(): JSX.Element {
       if (extractedData.cost != null) setCost(extractedData.cost.toString());
       if (extractedData.fuelAmountLiters != null) setFuelAmountLiters(extractedData.fuelAmountLiters.toString());
       if (extractedData.brand != null) setBrand(extractedData.brand);
+
+      // Apply the receipt's printed date/time so a late entry is dated to the
+      // actual fuelling, not when it was logged.
+      if (extractedData.purchaseDate) {
+        const dateTime = extractedData.purchaseTime
+          ? `${extractedData.purchaseDate}T${extractedData.purchaseTime}`
+          : `${extractedData.purchaseDate}T12:00`;
+        const parsed = new Date(dateTime);
+        if (!isNaN(parsed.getTime())) setLoggedAt(toDatetimeLocal(parsed));
+      }
+
+      // Best-effort: geocode the receipt's address (or brand) to default the
+      // map pin near the station. Falls back silently to the existing pin.
+      const geoQuery = extractedData.address || extractedData.brand;
+      if (geoQuery) {
+        geocodeAddress(geoQuery).then(coords => {
+          if (coords) {
+            setLocation({ latitude: coords.latitude, longitude: coords.longitude });
+            setLocationMode('manual');
+            setShowMap(true);
+          }
+        });
+      }
+
       setExtractedData(null);
       setMessage({ type: 'success', text: t('receipt.autoFilled') });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
@@ -165,7 +210,10 @@ function QuickLogPage(): JSX.Element {
     const getRate = async () => {
       setIsFetchingRate(true);
       try {
-        const rate = await fetchExchangeRate(new Date(), currency, homeCurrency);
+        // Use the fuelling date (not today) so a back-dated entry gets that
+        // day's exchange rate. Fall back to now if the input isn't parseable yet.
+        const rateDate = loggedAt ? new Date(loggedAt) : new Date();
+        const rate = await fetchExchangeRate(isNaN(rateDate.getTime()) ? new Date() : rateDate, currency, homeCurrency);
         setExchangeRate(rate);
       } catch (error) {
         console.error("Failed to fetch rate:", error);
@@ -176,7 +224,7 @@ function QuickLogPage(): JSX.Element {
     };
 
     getRate();
-  }, [currency, homeCurrency, t]);
+  }, [currency, homeCurrency, loggedAt, t]);
 
   // --- Fetch known brands effect ---
   useEffect(() => {
@@ -254,6 +302,45 @@ function QuickLogPage(): JSX.Element {
     });
   };
 
+  // --- Resolve a station preview whenever a MANUAL pin is set/moved ---
+  // A manually placed pin is authoritative (no GPS accuracy gate). This is
+  // read-only (Overpass); the station document is only created/metered at
+  // submit time. GPS-mode location is resolved at submit (see handleSubmit),
+  // keeping the fast at-pump path unchanged.
+  useEffect(() => {
+    if (locationMode !== 'manual' || !location) return;
+
+    let cancelled = false;
+    setIsResolvingStation(true);
+    setStationWarning('');
+    (async () => {
+      try {
+        const nearest = await findNearestStation(location.latitude, location.longitude);
+        if (cancelled) return;
+        setMatchedStation(nearest);
+        if (nearest) {
+          // Only auto-fill an empty brand; never clobber what the user typed.
+          setBrand(prev => prev.trim() ? prev : nearest.name);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        console.error('Station lookup failed:', err);
+        setMatchedStation(null);
+        setStationWarning(t('quickLog.messages.stationLookupWarning'));
+      } finally {
+        if (!cancelled) setIsResolvingStation(false);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location, locationMode]);
+
+  // --- Map pin change handler ---
+  const handlePinChange = (coords: PickerCoords) => {
+    setLocation({ latitude: coords.latitude, longitude: coords.longitude });
+    setLocationMode('manual');
+  };
+
 
   // --- Form Submit Handler ---
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -274,65 +361,82 @@ function QuickLogPage(): JSX.Element {
       return;
     }
 
+    // --- Validate the fuelling date/time ---
+    const loggedDate = new Date(loggedAt);
+    if (isNaN(loggedDate.getTime())) {
+      setMessage({ type: 'error', text: t('quickLog.messages.invalidDate', { defaultValue: 'Please enter a valid date and time.' }) });
+      return;
+    }
+    if (loggedDate.getTime() > Date.now() + 60_000) {
+      setMessage({ type: 'error', text: t('quickLog.messages.futureDate', { defaultValue: 'The fuelling date/time cannot be in the future.' }) });
+      return;
+    }
+
     setIsSaving(true);
-    setSavingStep('locating');
     setStationWarning('');
-    setMessage({ type: 'info', text: t('quickLog.messages.gettingLocation') });
-
-    // --- Get Location ---
-    const locationData = await getCurrentLocation();
-
-    // --- Find Station ---
-    let linkedStationId: string | undefined;
-    let stationName: string | undefined;
-
-    if (locationData) {
-        if (!isAccurateEnoughForStationMatch(locationData.locationAccuracy)) {
-            console.warn(
-                `GPS accuracy (${locationData.locationAccuracy.toFixed(0)}m) exceeds threshold ` +
-                `(${GPS_ACCURACY_THRESHOLD_METERS}m); skipping automatic station association.`
-            );
-            setStationWarning(t('quickLog.messages.lowAccuracySkippedStation', {
-                accuracy: locationData.locationAccuracy.toFixed(0),
-                defaultValue: 'GPS accuracy is low ({{accuracy}}m); skipping station detection.',
-            }));
-        } else {
-            try {
-                const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
-                if (nearest) {
-                    linkedStationId = await getOrCreateStation(nearest);
-                    stationName = nearest.name;
-                    // If brand is empty, auto-fill it with station name
-                    if (!brand.trim()) {
-                        setBrand(nearest.name);
-                    }
-                }
-            } catch (err) {
-                console.error("Station lookup failed:", err);
-                setStationWarning(t('quickLog.messages.stationLookupWarning'));
-            }
-        }
-    }
-
-    setSavingStep('saving');
-    let locationMessage: string;
-    if (locationData) {
-        locationMessage = stationName 
-            ? t('quickLog.messages.locationCapturedAt', { station: stationName })
-            : t('quickLog.messages.locationCaptured', { accuracy: locationData.locationAccuracy.toFixed(0) });
-    } else if (!navigator.geolocation) {
-        locationMessage = t('quickLog.messages.locationNotSupported');
-    } else {
-        locationMessage = t('quickLog.messages.locationNotSupported');
-    }
-    // --- End Get Location & Station ---
-
-    setMessage({ type: 'info', text: t('quickLog.messages.savingLog', { locationMsg: locationMessage }) });
 
     // Non-fatal problems collected during save (e.g. receipt upload or station
     // linking failed). These don't block saving the log itself; we surface them
     // to the user so they know something needs attention without the console.
     const saveWarnings: string[] = [];
+
+    // --- Resolve location & station ---
+    // Manual pin: the user explicitly chose where they fuelled — use it as-is
+    // (no GPS accuracy gate). GPS mode: acquire a fresh fix at submit time, the
+    // same fast at-pump path as before. Either way the user could have overridden
+    // it on the map, which is what fixes late entries getting the wrong place.
+    let locationData: LocationData | null = null;
+    let linkedStationId: string | undefined;
+    let stationName: string | undefined;
+
+    if (locationMode === 'manual' && location) {
+      locationData = location;
+      try {
+        const nearest = matchedStation ?? await findNearestStation(location.latitude, location.longitude);
+        if (nearest) {
+          linkedStationId = await getOrCreateStation(nearest);
+          stationName = nearest.name;
+          if (!brand.trim()) setBrand(nearest.name);
+        }
+      } catch (err) {
+        console.error("Station lookup failed:", err);
+        saveWarnings.push(t('quickLog.messages.stationLookupWarning'));
+      }
+    } else {
+      setSavingStep('locating');
+      setMessage({ type: 'info', text: t('quickLog.messages.gettingLocation') });
+      locationData = await getCurrentLocation();
+      if (locationData) {
+        const accuracy = locationData.locationAccuracy ?? Infinity;
+        if (!isAccurateEnoughForStationMatch(accuracy)) {
+          setStationWarning(t('quickLog.messages.lowAccuracySkippedStation', {
+            accuracy: accuracy.toFixed(0),
+            defaultValue: 'GPS accuracy is low ({{accuracy}}m); skipping station detection.',
+          }));
+        } else {
+          try {
+            const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
+            if (nearest) {
+              linkedStationId = await getOrCreateStation(nearest);
+              stationName = nearest.name;
+              if (!brand.trim()) setBrand(nearest.name);
+            }
+          } catch (err) {
+            console.error("Station lookup failed:", err);
+            setStationWarning(t('quickLog.messages.stationLookupWarning'));
+          }
+        }
+      }
+    }
+
+    setSavingStep('saving');
+    const locationMessage = locationData
+        ? (stationName
+            ? t('quickLog.messages.locationCapturedAt', { station: stationName })
+            : t('quickLog.messages.locationSet', { defaultValue: 'Location set.' }))
+        : t('quickLog.messages.locationNotSupported');
+
+    setMessage({ type: 'info', text: t('quickLog.messages.savingLog', { locationMsg: locationMessage }) });
 
     try {
       // --- Handle Receipt Upload (non-fatal) ---
@@ -356,7 +460,7 @@ function QuickLogPage(): JSX.Element {
       const logData: Omit<FuelLogData, 'timestamp'> & { timestamp: Timestamp; userId: string } = {
         userId: user.uid,
         vehicleId: selectedVehicleId,
-        timestamp: Timestamp.now(),
+        timestamp: Timestamp.fromDate(loggedDate),
         brand: brand.trim() || stationName || 'Unknown',
         cost: costHomeCurrency,
         distanceKm: parsedDistanceKm,
@@ -377,7 +481,10 @@ function QuickLogPage(): JSX.Element {
       if (locationData) {
         logData.latitude = locationData.latitude;
         logData.longitude = locationData.longitude;
-        logData.locationAccuracy = locationData.locationAccuracy;
+        // Manual pins have no accuracy figure — only store it for GPS fixes.
+        if (locationData.locationAccuracy !== undefined) {
+          logData.locationAccuracy = locationData.locationAccuracy;
+        }
       }
 
       // Save to Firestore — this is the only fatal step; if it throws the log
@@ -400,6 +507,11 @@ function QuickLogPage(): JSX.Element {
       setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
       setOdometerKmInput('');
       setReceiptFile(null);
+      setLoggedAt(toDatetimeLocal(new Date()));
+      setLocation(null);
+      setLocationMode('gps');
+      setMatchedStation(null);
+      setShowMap(false);
       if (saveWarnings.length > 0) {
         // Saved, but something non-critical needs the user's attention.
         const base = locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation');
@@ -525,6 +637,62 @@ function QuickLogPage(): JSX.Element {
                 </div>
               </div>
 
+              {/* Section: Where (location) */}
+              <div className="group bg-white/40 dark:bg-white/[0.02] p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md">
+                <div className="flex items-center justify-between gap-2 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-4 bg-brand-primary rounded-full"></div>
+                    <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{t('quickLog.sections.location', { defaultValue: 'Location' })}</h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowMap(s => !s)}
+                    disabled={isSaving}
+                    className="text-xs font-semibold text-brand-primary dark:text-brand-primary-glow hover:underline disabled:opacity-50"
+                  >
+                    {showMap
+                      ? t('quickLog.location.hideMap', { defaultValue: 'Hide map' })
+                      : t('quickLog.location.adjustOnMap', { defaultValue: 'Adjust on map' })}
+                  </button>
+                </div>
+
+                <div className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2 flex-wrap">
+                  {isResolvingStation ? (
+                    <span className="flex items-center gap-1.5 text-gray-500">
+                      <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                      {t('quickLog.location.resolving', { defaultValue: 'Finding nearest station…' })}
+                    </span>
+                  ) : location ? (
+                    <>
+                      <span className="font-medium text-gray-800 dark:text-gray-200">
+                        {matchedStation
+                          ? matchedStation.name
+                          : t('quickLog.location.coords', {
+                              lat: location.latitude.toFixed(4),
+                              lng: location.longitude.toFixed(4),
+                              defaultValue: '{{lat}}, {{lng}}',
+                            })}
+                      </span>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${locationMode === 'manual' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-brand-primary/10 text-brand-primary dark:text-brand-primary-glow'}`}>
+                        {locationMode === 'manual'
+                          ? t('quickLog.location.manualBadge', { defaultValue: 'Pinned' })
+                          : t('quickLog.location.gpsBadge', { defaultValue: 'GPS' })}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-gray-500">{t('quickLog.location.none', { defaultValue: 'No location yet — adjust on map to set one.' })}</span>
+                  )}
+                </div>
+
+                {showMap && (
+                  <LocationPicker
+                    value={location ? { latitude: location.latitude, longitude: location.longitude } : null}
+                    onChange={handlePinChange}
+                    defaultCenter={location ? { latitude: location.latitude, longitude: location.longitude } : undefined}
+                  />
+                )}
+              </div>
+
               {/* Section 2: Transaction Details */}
               <div className="group bg-white/40 dark:bg-white/[0.02] p-5 rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-md">
                 <div className="flex items-center gap-2 mb-4">
@@ -533,6 +701,19 @@ function QuickLogPage(): JSX.Element {
                 </div>
 
                 <div className="space-y-5">
+                  <div>
+                    <label htmlFor="loggedAt" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t('quickLog.fields.dateTime', { defaultValue: 'Date & time of fuelling' })}</label>
+                    <input
+                      type="datetime-local"
+                      id="loggedAt"
+                      value={loggedAt}
+                      max={toDatetimeLocal(new Date())}
+                      onChange={(e) => setLoggedAt(e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400 text-gray-900 dark:text-gray-100 transition-all duration-300 hover:bg-white dark:hover:bg-gray-800 font-medium"
+                      disabled={isSaving}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-5 gap-3">
                     <div className="col-span-3">
                       <label htmlFor="cost" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">{t('quickLog.fields.totalCost')}</label>

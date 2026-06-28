@@ -5,6 +5,9 @@ export interface ReceiptData {
   cost: number | null;
   fuelAmountLiters: number | null;
   brand: string | null;
+  purchaseDate: string | null; // ISO date "YYYY-MM-DD" as printed on the receipt
+  purchaseTime: string | null; // 24-hour time "HH:MM" as printed on the receipt
+  address: string | null;      // Station address/location, used to geocode a default map pin
 }
 
 // Local `vercel dev` uses Express with a ~100KB body limit.

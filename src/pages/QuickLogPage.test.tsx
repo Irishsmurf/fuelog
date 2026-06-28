@@ -74,6 +74,8 @@ vi.mock('../utils/gemini', () => ({
 
 vi.mock('../utils/locationService', () => ({
   findNearestStation: vi.fn().mockResolvedValue(null),
+  geocodeAddress: vi.fn().mockResolvedValue(null),
+  getCurrentPosition: vi.fn().mockResolvedValue(null),
   isAccurateEnoughForStationMatch: vi.fn(() => true),
   GPS_ACCURACY_THRESHOLD_METERS: 100,
 }));
@@ -188,7 +190,7 @@ describe('QuickLogPage', () => {
   });
 
   it('extracts and pre-fills form fields from a receipt image', async () => {
-    vi.mocked(extractDataFromReceipt).mockResolvedValue({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso' });
+    vi.mocked(extractDataFromReceipt).mockResolvedValue({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso', purchaseDate: null, purchaseTime: null, address: null });
 
     render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 

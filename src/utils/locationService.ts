@@ -32,6 +32,7 @@ interface OverpassElement {
 }
 
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
 
 /**
  * GPS accuracy (in metres) beyond which we no longer trust a position
@@ -90,6 +91,48 @@ export function getCurrentPosition(): Promise<Coordinates | null> {
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
         );
     });
+}
+
+/**
+ * Forward-geocode a free-text address (or station name) into coordinates using
+ * OpenStreetMap's Nominatim service. Best-effort: resolves null when nothing
+ * matches or the request fails, so callers can fall back to GPS/defaults.
+ *
+ * Used to guess a sensible default map pin from a receipt's printed address
+ * when logging a fuelling after the fact.
+ */
+export async function geocodeAddress(query: string): Promise<Coordinates | null> {
+    const trimmed = query.trim();
+    if (!trimmed) return null;
+
+    const url = `${NOMINATIM_URL}?format=json&limit=1&q=${encodeURIComponent(trimmed)}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                // Nominatim's usage policy asks for an identifying request; the
+                // browser sets User-Agent automatically, so we send Accept only.
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            console.warn(`Nominatim responded with status ${response.status}`);
+            return null;
+        }
+
+        const results = await response.json();
+        if (!Array.isArray(results) || results.length === 0) return null;
+
+        const lat = parseFloat(results[0].lat);
+        const lon = parseFloat(results[0].lon);
+        if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
+
+        return { latitude: lat, longitude: lon };
+    } catch (error) {
+        console.warn('Nominatim geocoding failed:', error);
+        return null;
+    }
 }
 
 /**

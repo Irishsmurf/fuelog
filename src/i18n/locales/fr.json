@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "Véhicule et Station",
       "fuelCost": "Carburant et Coût",
-      "receipt": "Reçu"
+      "receipt": "Reçu",
+      "location": "Emplacement"
     },
     "fields": {
       "vehicle": "Véhicule",
@@ -77,7 +78,8 @@
       "converted": "Converti : {{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "Date et heure du plein"
     },
     "submit": {
       "save": "Enregistrer la Saisie",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "La photo de votre reçu n'a pas pu être téléchargée, l'entrée a donc été enregistrée sans elle.",
       "stationLookupWarning": "Impossible de trouver une station à proximité, cette entrée n'a donc été liée à aucune.",
-      "stationMetricsWarning": "Votre entrée a été enregistrée, mais les statistiques de prix de la station n'ont pas pu être mises à jour."
+      "stationMetricsWarning": "Votre entrée a été enregistrée, mais les statistiques de prix de la station n'ont pas pu être mises à jour.",
+      "invalidDate": "Veuillez saisir une date et une heure valides.",
+      "futureDate": "La date/heure du plein ne peut pas être dans le futur.",
+      "locationSet": "Emplacement défini."
+    },
+    "location": {
+      "adjustOnMap": "Ajuster sur la carte",
+      "hideMap": "Masquer la carte",
+      "resolving": "Recherche de la station la plus proche…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "Épinglé",
+      "gpsBadge": "GPS",
+      "none": "Aucun emplacement pour l’instant — définissez-le sur la carte."
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "Annuler",
       "receipt": "Photo du Reçu",
       "updateReceipt": "Mettre à Jour la Photo du Reçu",
-      "receiptKept": "Le reçu actuel sera conservé sauf remplacement."
+      "receiptKept": "Le reçu actuel sera conservé sauf remplacement.",
+      "dateTime": "Date et heure",
+      "location": "Emplacement",
+      "invalidDate": "Veuillez saisir une date et une heure valides.",
+      "futureDate": "La date/heure ne peut pas être dans le futur."
     },
     "delete": {
       "confirm": "Supprimer cette saisie ? Cette action est irréversible."
@@ -338,7 +356,9 @@
     "useValues": "Utiliser les Valeurs",
     "discard": "Ignorer",
     "extractionFailed": "Échec de l'extraction des données du reçu.",
-    "autoFilled": "Champs remplis automatiquement depuis le reçu !"
+    "autoFilled": "Champs remplis automatiquement depuis le reçu !",
+    "date": "Date",
+    "location": "Emplacement"
   },
   "import": {
     "title": "Importer des Saisies de Carburant",
@@ -529,5 +549,10 @@
     "avgPrice": "Moy. : €{{price}}/L",
     "olderFuelings": "+ {{count}} anciens ravitaillements",
     "fuelingsAtStation": "{{count}} ravitaillements à cette station"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "Utiliser ma position",
+    "coords": "{{lat}}, {{lng}} — touchez ou faites glisser le repère pour ajuster",
+    "tapToPlace": "Touchez la carte pour placer un repère là où vous avez fait le plein."
   }
 }

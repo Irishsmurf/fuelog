@@ -4,9 +4,19 @@ import { addDoc, getDocs } from 'firebase/firestore';
 import { fetchExchangeRate } from '../utils/currencyApi';
 import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
 import { extractDataFromReceipt } from '../utils/gemini';
-import { findNearestStation, isAccurateEnoughForStationMatch } from '../utils/locationService';
+import { findNearestStation, geocodeAddress, isAccurateEnoughForStationMatch } from '../utils/locationService';
 import QuickLogPage from './QuickLogPage';
 import { MemoryRouter } from 'react-router-dom';
+
+// Stub the Leaflet-based picker so these tests don't mount a real map; the
+// picker has its own unit tests. Exposes a button that reports a fixed pin.
+vi.mock('../components/LocationPicker', () => ({
+  default: ({ onChange }: { onChange: (c: { latitude: number; longitude: number }) => void }) => (
+    <button type="button" data-testid="pick-location" onClick={() => onChange({ latitude: 1.5, longitude: 2.5 })}>
+      pick
+    </button>
+  ),
+}));
 
 const mockT = (key: string, opts?: Record<string, unknown>) => {
   const template = opts && 'defaultValue' in opts ? (opts.defaultValue as string) : key;
@@ -74,6 +84,8 @@ vi.mock('../utils/gemini', () => ({
 
 vi.mock('../utils/locationService', () => ({
   findNearestStation: vi.fn().mockResolvedValue(null),
+  geocodeAddress: vi.fn().mockResolvedValue(null),
+  getCurrentPosition: vi.fn().mockResolvedValue(null),
   isAccurateEnoughForStationMatch: vi.fn(() => true),
   GPS_ACCURACY_THRESHOLD_METERS: 100,
 }));
@@ -188,7 +200,7 @@ describe('QuickLogPage', () => {
   });
 
   it('extracts and pre-fills form fields from a receipt image', async () => {
-    vi.mocked(extractDataFromReceipt).mockResolvedValue({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso' });
+    vi.mocked(extractDataFromReceipt).mockResolvedValue({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso', purchaseDate: null, purchaseTime: null, address: null });
 
     render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
 
@@ -209,6 +221,72 @@ describe('QuickLogPage', () => {
     expect((screen.getByLabelText('quickLog.fields.totalCost') as HTMLInputElement).value).toBe('42.5');
     expect((screen.getByLabelText('quickLog.fields.fuel') as HTMLInputElement).value).toBe('28');
     expect((screen.getByLabelText(/quickLog\.fields\.fillingStation/) as HTMLInputElement).value).toBe('Esso');
+  });
+
+  it('pre-fills the date/time field from the receipt', async () => {
+    vi.mocked(extractDataFromReceipt).mockResolvedValue({
+      cost: null, fuelAmountLiters: null, brand: null,
+      purchaseDate: '2026-06-20', purchaseTime: '14:30', address: null,
+    });
+
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    const file = new File(['mock'], 'receipt.jpg', { type: 'image/jpeg' });
+    fireEvent.change(document.querySelector('input[type="file"]') as HTMLInputElement, { target: { files: [file] } });
+    fireEvent.click(await screen.findByRole('button', { name: 'receipt.autoFillWithAI' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'receipt.useValues' }));
+
+    expect((screen.getByLabelText('Date & time of fuelling') as HTMLInputElement).value).toBe('2026-06-20T14:30');
+  });
+
+  it('geocodes the receipt address to default the map pin', async () => {
+    vi.mocked(extractDataFromReceipt).mockResolvedValue({
+      cost: 10, fuelAmountLiters: 5, brand: 'Esso',
+      purchaseDate: null, purchaseTime: null, address: '1 Main St, Dublin',
+    });
+    vi.mocked(geocodeAddress).mockResolvedValue({ latitude: 10, longitude: 20 });
+    vi.mocked(findNearestStation).mockResolvedValue(null);
+
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    const file = new File(['mock'], 'receipt.jpg', { type: 'image/jpeg' });
+    fireEvent.change(document.querySelector('input[type="file"]') as HTMLInputElement, { target: { files: [file] } });
+    fireEvent.click(await screen.findByRole('button', { name: 'receipt.autoFillWithAI' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'receipt.useValues' }));
+
+    await waitFor(() => expect(geocodeAddress).toHaveBeenCalledWith('1 Main St, Dublin'));
+    // The pin becomes a manual location once geocoded.
+    await waitFor(() => expect(screen.getByText('Pinned')).toBeInTheDocument());
+  });
+
+  it('saves a manually pinned location (no accuracy) and links its station', async () => {
+    const mockStation = {
+      id: 'station-9', osmId: 'node/9', name: 'Pinned Station', brand: 'Shell',
+      latitude: 1.5, longitude: 2.5,
+    };
+    vi.mocked(findNearestStation).mockResolvedValue(mockStation);
+    vi.mocked(getOrCreateStation).mockResolvedValue('station-9');
+
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    // Open the map and drop a pin via the stubbed picker.
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust on map' }));
+    fireEvent.click(screen.getByTestId('pick-location'));
+    await waitFor(() => expect(findNearestStation).toHaveBeenCalledWith(1.5, 2.5));
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    expect(payload).toMatchObject({ latitude: 1.5, longitude: 2.5, stationId: 'station-9' });
+    // Manual pins carry no GPS accuracy figure.
+    expect(payload).not.toHaveProperty('locationAccuracy');
   });
 
   describe('low GPS accuracy warning', () => {

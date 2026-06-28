@@ -86,8 +86,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       1. Total Cost (as a number)
       2. Fuel Amount in Liters (as a number)
       3. Filling Station Brand Name (as a string)
+      4. Purchase Date (as a string in ISO format "YYYY-MM-DD")
+      5. Purchase Time (as a string in 24-hour format "HH:MM")
+      6. Station Address (the full street address or location of the station, as a string)
 
-      Return ONLY a raw JSON object with exactly these keys: "cost", "fuelAmountLiters", "brand".
+      Return ONLY a raw JSON object with exactly these keys: "cost", "fuelAmountLiters", "brand", "purchaseDate", "purchaseTime", "address".
       If a value cannot be found, use null.
       Do not use markdown formatting like \`\`\`json.
     `;
@@ -114,6 +117,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       cost: typeof parsed.cost === 'number' ? parsed.cost : null,
       fuelAmountLiters: typeof parsed.fuelAmountLiters === 'number' ? parsed.fuelAmountLiters : null,
       brand: typeof parsed.brand === 'string' ? parsed.brand : null,
+      purchaseDate: typeof parsed.purchaseDate === 'string' ? parsed.purchaseDate : null,
+      purchaseTime: typeof parsed.purchaseTime === 'string' ? parsed.purchaseTime : null,
+      address: typeof parsed.address === 'string' ? parsed.address : null,
     });
   } catch (err) {
     log('error', 'extract-receipt', 'Gemini extraction failed', { message: (err as Error).message, durationMs: Date.now() - startMs });

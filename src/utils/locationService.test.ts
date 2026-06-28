@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { findNearestStation, isAccurateEnoughForStationMatch, GPS_ACCURACY_THRESHOLD_METERS } from './locationService';
+import { findNearestStation, geocodeAddress, isAccurateEnoughForStationMatch, GPS_ACCURACY_THRESHOLD_METERS } from './locationService';
 
 describe('isAccurateEnoughForStationMatch', () => {
     it('returns true when accuracy is within the threshold', () => {
@@ -135,5 +135,42 @@ describe('locationService', () => {
         
         expect(mockFetch).toHaveBeenCalledTimes(2);
         expect(result?.name).toBe('Retry Station');
+    });
+});
+
+describe('geocodeAddress', () => {
+    beforeEach(() => {
+        vi.resetAllMocks();
+        global.fetch = vi.fn();
+    });
+
+    it('returns coordinates for the first Nominatim match', async () => {
+        vi.mocked(global.fetch).mockResolvedValue({
+            ok: true,
+            json: async () => ([{ lat: '53.3498', lon: '-6.2603' }]),
+        } as Response);
+
+        const result = await geocodeAddress('Shell, O Connell Street, Dublin');
+        expect(result).toEqual({ latitude: 53.3498, longitude: -6.2603 });
+    });
+
+    it('returns null for an empty query without calling the API', async () => {
+        const result = await geocodeAddress('   ');
+        expect(result).toBeNull();
+        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('returns null when no results are found', async () => {
+        vi.mocked(global.fetch).mockResolvedValue({
+            ok: true,
+            json: async () => ([]),
+        } as Response);
+
+        expect(await geocodeAddress('nowhere at all')).toBeNull();
+    });
+
+    it('returns null on a network/API error', async () => {
+        vi.mocked(global.fetch).mockRejectedValue(new Error('network down'));
+        expect(await geocodeAddress('anywhere')).toBeNull();
     });
 });

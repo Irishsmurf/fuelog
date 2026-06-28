@@ -85,6 +85,7 @@ interface EditFormData {
     vehicleId?: string; // Multi-vehicle support
     latitude?: string;
     longitude?: string;
+    loggedAt?: string;  // datetime-local string for editing the fuelling date/time
 }
 // Type for view mode state
 type ViewMode = 'table' | 'cards';

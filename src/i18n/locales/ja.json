@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "車両・ガソリンスタンド",
       "fuelCost": "燃料・費用",
-      "receipt": "レシート"
+      "receipt": "レシート",
+      "location": "場所"
     },
     "fields": {
       "vehicle": "車両",
@@ -77,7 +78,8 @@
       "converted": "換算後：{{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "給油の日時"
     },
     "submit": {
       "save": "記録を保存",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "レシート写真をアップロードできなかったため、記録はそれなしで保存されました。",
       "stationLookupWarning": "近くのガソリンスタンドを検索できなかったため、この記録はどのスタンドにも関連付けられませんでした。",
-      "stationMetricsWarning": "記録は保存されましたが、スタンドの価格統計を更新できませんでした。"
+      "stationMetricsWarning": "記録は保存されましたが、スタンドの価格統計を更新できませんでした。",
+      "invalidDate": "有効な日付と時刻を入力してください。",
+      "futureDate": "給油の日時を未来に設定することはできません。",
+      "locationSet": "場所を設定しました。"
+    },
+    "location": {
+      "adjustOnMap": "地図で調整",
+      "hideMap": "地図を隠す",
+      "resolving": "最寄りのスタンドを検索中…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "ピン留め",
+      "gpsBadge": "GPS",
+      "none": "場所が未設定です。地図で設定してください。"
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "キャンセル",
       "receipt": "レシート写真",
       "updateReceipt": "レシート写真を更新",
-      "receiptKept": "現在のレシートは置き換えない限り保持されます。"
+      "receiptKept": "現在のレシートは置き換えない限り保持されます。",
+      "dateTime": "日時",
+      "location": "場所",
+      "invalidDate": "有効な日付と時刻を入力してください。",
+      "futureDate": "日時を未来に設定することはできません。"
     },
     "delete": {
       "confirm": "この記録を削除しますか？この操作は元に戻せません。"
@@ -338,7 +356,9 @@
     "useValues": "値を使用",
     "discard": "破棄",
     "extractionFailed": "レシートからのデータ抽出に失敗しました。",
-    "autoFilled": "レシートからフィールドが自動入力されました！"
+    "autoFilled": "レシートからフィールドが自動入力されました！",
+    "date": "日付",
+    "location": "場所"
   },
   "import": {
     "title": "燃料記録をインポート",
@@ -529,5 +549,10 @@
     "avgPrice": "平均: €{{price}}/L",
     "olderFuelings": "+ {{count}} 件の過去の給油",
     "fuelingsAtStation": "このステーションでの給油 {{count}} 件"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "現在地を使用",
+    "coords": "{{lat}}, {{lng}} — タップまたはピンをドラッグして調整",
+    "tapToPlace": "給油した場所を地図をタップしてピンを置いてください。"
   }
 }

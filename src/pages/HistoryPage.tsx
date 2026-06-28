@@ -23,7 +23,8 @@ import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import ImageUpload from '../components/ImageUpload';
 import { uploadReceipt } from '../firebase/storageService';
 import { sanitizeUrl } from '../utils/sanitize';
-import { formatDate } from '../utils/formatDate';
+import { formatDate, toDatetimeLocal } from '../utils/formatDate';
+import LocationPicker, { PickerCoords } from '../components/LocationPicker';
 import { fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
 
@@ -320,7 +321,8 @@ function HistoryPage(): JSX.Element {
             odometerKm: log.odometerKm?.toString() || '',
             vehicleId: log.vehicleId || '',
             latitude: log.latitude?.toString() || '',
-            longitude: log.longitude?.toString() || ''
+            longitude: log.longitude?.toString() || '',
+            loggedAt: log.timestamp ? toDatetimeLocal(log.timestamp.toDate()) : ''
         });
         setEditReceiptFile(null);
         setModalError(null); setIsModalOpen(true);
@@ -329,7 +331,7 @@ function HistoryPage(): JSX.Element {
     /** Closes the edit modal and resets state. */
     const handleCloseModal = () => {
         setIsModalOpen(false); setEditingLog(null);
-        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', odometerKm: '', latitude: '', longitude: '' });
+        setEditFormData({ brand: '', cost: '', distanceKm: '', fuelAmountLiters: '', odometerKm: '', latitude: '', longitude: '', loggedAt: '' });
         setEditReceiptFile(null);
         setModalError(null); setIsUpdating(false);
     };
@@ -340,10 +342,19 @@ function HistoryPage(): JSX.Element {
         setEditFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    /** Updates the edited log's coordinates when the map pin moves. */
+    const handleEditPinChange = (coords: PickerCoords) => {
+        setEditFormData(prev => ({
+            ...prev,
+            latitude: coords.latitude.toFixed(6),
+            longitude: coords.longitude.toFixed(6),
+        }));
+    };
+
     /** Handles submission of the edit form, validates, and updates Firestore. */
     const handleUpdateLog = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault(); if (!editingLog) return;
-        const { brand, cost, distanceKm, fuelAmountLiters, odometerKm, latitude, longitude } = editFormData;
+        const { brand, cost, distanceKm, fuelAmountLiters, odometerKm, latitude, longitude, loggedAt } = editFormData;
         if (!cost || !distanceKm || !fuelAmountLiters) { setModalError('Cost, Distance, and Fuel Amount cannot be empty.'); return; }
         const parsedCost = parseFloat(cost); const parsedDistanceKm = parseFloat(distanceKm); const parsedFuel = parseFloat(fuelAmountLiters);
         const parsedOdometer = parseFloat(odometerKm);
@@ -353,6 +364,14 @@ function HistoryPage(): JSX.Element {
         if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) { setModalError('Cost, Distance (Km), and Fuel Amount must be valid positive numbers.'); return; }
         if (latitude && (isNaN(parsedLat!) || parsedLat! < -90 || parsedLat! > 90)) { setModalError('Latitude must be a number between -90 and 90.'); return; }
         if (longitude && (isNaN(parsedLon!) || parsedLon! < -180 || parsedLon! > 180)) { setModalError('Longitude must be a number between -180 and 180.'); return; }
+
+        // Validate the edited fuelling date/time (required — every log must keep
+        // a timestamp; an empty field would otherwise silently leave the old one).
+        if (!loggedAt) { setModalError(t('history.edit.invalidDate', { defaultValue: 'Please enter a valid date and time.' })); return; }
+        const editedDate = new Date(loggedAt);
+        if (isNaN(editedDate.getTime())) { setModalError(t('history.edit.invalidDate', { defaultValue: 'Please enter a valid date and time.' })); return; }
+        if (editedDate.getTime() > Date.now() + 60_000) { setModalError(t('history.edit.futureDate', { defaultValue: 'The date/time cannot be in the future.' })); return; }
+        const editedTimestamp: Timestamp = Timestamp.fromDate(editedDate);
 
         setIsUpdating(true); setModalError(null);
         try {
@@ -379,6 +398,7 @@ function HistoryPage(): JSX.Element {
                 updatedData.latitude = parsedLat;
                 updatedData.longitude = parsedLon;
             }
+            updatedData.timestamp = editedTimestamp;
             await updateDoc(logRef, updatedData);
             setLogs(prev => prev.map(l => l.id === editingLog.id ? { ...l, ...updatedData } : l)
                 .filter(l => !filterVehicleId || l.vehicleId === filterVehicleId)
@@ -643,6 +663,11 @@ function HistoryPage(): JSX.Element {
                                     {vehicles.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
                                 </select>
                             </div>
+                            {/* Date & time of fuelling */}
+                            <div>
+                                <label htmlFor="edit-loggedAt" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.dateTime', { defaultValue: 'Date & time' })}</label>
+                                <input type="datetime-local" name="loggedAt" id="edit-loggedAt" value={editFormData.loggedAt || ''} max={toDatetimeLocal(new Date())} onChange={handleEditFormChange} required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                            </div>
                             {/* Form Inputs (Brand, Cost, Distance, Fuel) */}
                             <div><label htmlFor="edit-brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.brand')}</label><input type="text" name="brand" id="edit-brand" value={editFormData.brand} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             <div><label htmlFor="edit-cost" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.cost', { currency: homeCurrency })}</label><input type="number" inputMode="decimal" name="cost" id="edit-cost" value={editFormData.cost} onChange={handleEditFormChange} step="0.01" min="0.01" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
@@ -653,6 +678,17 @@ function HistoryPage(): JSX.Element {
                                <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.distance')}</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             </div>                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.fuel')}</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>                            
                             {/* Location Editing */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('history.edit.location', { defaultValue: 'Location' })}</label>
+                                <LocationPicker
+                                    value={(() => {
+                                        const lat = parseFloat(editFormData.latitude || '');
+                                        const lng = parseFloat(editFormData.longitude || '');
+                                        return !isNaN(lat) && !isNaN(lng) ? { latitude: lat, longitude: lng } : null;
+                                    })()}
+                                    onChange={handleEditPinChange}
+                                />
+                            </div>
                             <div className="grid grid-cols-2 gap-3">
                                 <div><label htmlFor="edit-latitude" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Latitude</label><input type="number" inputMode="decimal" name="latitude" id="edit-latitude" value={editFormData.latitude} onChange={handleEditFormChange} step="0.000001" min="-90" max="90" className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g. 51.5074" /></div>
                                 <div><label htmlFor="edit-longitude" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Longitude</label><input type="number" inputMode="decimal" name="longitude" id="edit-longitude" value={editFormData.longitude} onChange={handleEditFormChange} step="0.000001" min="-180" max="180" className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="e.g. -0.1278" /></div>

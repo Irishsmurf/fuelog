@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "Ajoneuvo & Asema",
       "fuelCost": "Polttoaine & Kustannus",
-      "receipt": "Kuitti"
+      "receipt": "Kuitti",
+      "location": "Sijainti"
     },
     "fields": {
       "vehicle": "Ajoneuvo",
@@ -77,7 +78,8 @@
       "converted": "Muunnettu: {{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "Tankkauksen päivä ja aika"
     },
     "submit": {
       "save": "Tallenna loki",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "Kuittikuvaa ei voitu ladata, joten loki tallennettiin ilman sitä.",
       "stationLookupWarning": "Lähistöltä ei löytynyt asemaa, joten tätä lokia ei yhdistetty mihinkään.",
-      "stationMetricsWarning": "Lokisi tallennettiin, mutta aseman hintatietoja ei voitu päivittää."
+      "stationMetricsWarning": "Lokisi tallennettiin, mutta aseman hintatietoja ei voitu päivittää.",
+      "invalidDate": "Anna kelvollinen päivämäärä ja aika.",
+      "futureDate": "Tankkauksen aika ei voi olla tulevaisuudessa.",
+      "locationSet": "Sijainti asetettu."
+    },
+    "location": {
+      "adjustOnMap": "Säädä kartalla",
+      "hideMap": "Piilota kartta",
+      "resolving": "Etsitään lähintä asemaa…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "Merkitty",
+      "gpsBadge": "GPS",
+      "none": "Ei sijaintia vielä – aseta se kartalla."
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "Peruuta",
       "receipt": "Kuittikuva",
       "updateReceipt": "Päivitä kuittikuva",
-      "receiptKept": "Nykyinen kuitti säilytetään, ellei sitä korvata."
+      "receiptKept": "Nykyinen kuitti säilytetään, ellei sitä korvata.",
+      "dateTime": "Päivä ja aika",
+      "location": "Sijainti",
+      "invalidDate": "Anna kelvollinen päivämäärä ja aika.",
+      "futureDate": "Päivä/aika ei voi olla tulevaisuudessa."
     },
     "delete": {
       "confirm": "Poistetaanko tämä merkintä? Toimintoa ei voi peruuttaa."
@@ -338,7 +356,9 @@
     "useValues": "Käytä arvoja",
     "discard": "Hylkää",
     "extractionFailed": "Tietojen haku kuitista epäonnistui.",
-    "autoFilled": "Kentät täytetty kuitista!"
+    "autoFilled": "Kentät täytetty kuitista!",
+    "date": "Päivämäärä",
+    "location": "Sijainti"
   },
   "import": {
     "title": "Tuo tankkauslokeja",
@@ -529,5 +549,10 @@
     "avgPrice": "Keskim.: €{{price}}/L",
     "olderFuelings": "+ {{count}} vanhempaa tankkaamista",
     "fuelingsAtStation": "{{count}} tankkaamista tällä asemalla"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "Käytä sijaintiani",
+    "coords": "{{lat}}, {{lng}} – napauta tai vedä nastaa säätääksesi",
+    "tapToPlace": "Napauta karttaa asettaaksesi nastan tankkauspaikkaan."
   }
 }

@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "Fordon & Station",
       "fuelCost": "Bränsle & Kostnad",
-      "receipt": "Kvitto"
+      "receipt": "Kvitto",
+      "location": "Plats"
     },
     "fields": {
       "vehicle": "Fordon",
@@ -77,7 +78,8 @@
       "converted": "Konverterat: {{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "Datum och tid för tankning"
     },
     "submit": {
       "save": "Spara bränslelogg",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "Kvittofotot kunde inte laddas upp, så loggen sparades utan det.",
       "stationLookupWarning": "Det gick inte att hitta en station i närheten, så den här loggen kopplades inte till någon.",
-      "stationMetricsWarning": "Din logg sparades, men stationens prisstatistik kunde inte uppdateras."
+      "stationMetricsWarning": "Din logg sparades, men stationens prisstatistik kunde inte uppdateras.",
+      "invalidDate": "Ange ett giltigt datum och tid.",
+      "futureDate": "Tankningens datum/tid kan inte vara i framtiden.",
+      "locationSet": "Plats angiven."
+    },
+    "location": {
+      "adjustOnMap": "Justera på kartan",
+      "hideMap": "Dölj karta",
+      "resolving": "Söker närmaste station…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "Fäst",
+      "gpsBadge": "GPS",
+      "none": "Ingen plats ännu – ange den på kartan."
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "Avbryt",
       "receipt": "Kvittofoto",
       "updateReceipt": "Uppdatera kvittofoto",
-      "receiptKept": "Nuvarande kvitto behålls om det inte ersätts."
+      "receiptKept": "Nuvarande kvitto behålls om det inte ersätts.",
+      "dateTime": "Datum och tid",
+      "location": "Plats",
+      "invalidDate": "Ange ett giltigt datum och tid.",
+      "futureDate": "Datum/tid kan inte vara i framtiden."
     },
     "delete": {
       "confirm": "Radera detta logginlägg? Denna åtgärd kan inte ångras."
@@ -338,7 +356,9 @@
     "useValues": "Använd värden",
     "discard": "Släng",
     "extractionFailed": "Misslyckades med att extrahera data från kvitto.",
-    "autoFilled": "Fält fylldes i automatiskt från kvitto!"
+    "autoFilled": "Fält fylldes i automatiskt från kvitto!",
+    "date": "Datum",
+    "location": "Plats"
   },
   "import": {
     "title": "Importera bränsleloggar",
@@ -529,5 +549,10 @@
     "avgPrice": "Genomsnitt: €{{price}}/L",
     "olderFuelings": "+ {{count}} äldre tankning",
     "fuelingsAtStation": "{{count}} tankning på denna station"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "Använd min plats",
+    "coords": "{{lat}}, {{lng}} – tryck eller dra nålen för att justera",
+    "tapToPlace": "Tryck på kartan för att placera en nål där du tankade."
   }
 }

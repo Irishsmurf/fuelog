@@ -60,7 +60,8 @@
     "sections": {
       "vehicleStation": "Vehículo y Estación",
       "fuelCost": "Combustible y Coste",
-      "receipt": "Recibo"
+      "receipt": "Recibo",
+      "location": "Ubicación"
     },
     "fields": {
       "vehicle": "Vehículo",
@@ -77,7 +78,8 @@
       "converted": "Convertido: {{symbol}}{{amount}}",
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
-      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km)."
+      "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
+      "dateTime": "Fecha y hora del repostaje"
     },
     "submit": {
       "save": "Guardar Registro",
@@ -102,7 +104,19 @@
       "locationCapturedAt": "Located at {{station}}.",
       "receiptUploadWarning": "No se pudo subir la foto del recibo, así que el registro se guardó sin ella.",
       "stationLookupWarning": "No se pudo buscar una gasolinera cercana, así que este registro no se vinculó a ninguna.",
-      "stationMetricsWarning": "Tu registro se guardó, pero no se pudieron actualizar las estadísticas de precios de la gasolinera."
+      "stationMetricsWarning": "Tu registro se guardó, pero no se pudieron actualizar las estadísticas de precios de la gasolinera.",
+      "invalidDate": "Introduce una fecha y hora válidas.",
+      "futureDate": "La fecha/hora del repostaje no puede estar en el futuro.",
+      "locationSet": "Ubicación establecida."
+    },
+    "location": {
+      "adjustOnMap": "Ajustar en el mapa",
+      "hideMap": "Ocultar mapa",
+      "resolving": "Buscando la estación más cercana…",
+      "coords": "{{lat}}, {{lng}}",
+      "manualBadge": "Fijado",
+      "gpsBadge": "GPS",
+      "none": "Aún sin ubicación: ajústala en el mapa."
     }
   },
   "history": {
@@ -213,7 +227,11 @@
       "cancel": "Cancelar",
       "receipt": "Foto del Recibo",
       "updateReceipt": "Actualizar Foto del Recibo",
-      "receiptKept": "El recibo actual se conservará a menos que se reemplace."
+      "receiptKept": "El recibo actual se conservará a menos que se reemplace.",
+      "dateTime": "Fecha y hora",
+      "location": "Ubicación",
+      "invalidDate": "Introduce una fecha y hora válidas.",
+      "futureDate": "La fecha/hora no puede estar en el futuro."
     },
     "delete": {
       "confirm": "¿Eliminar esta entrada? Esta acción no se puede deshacer."
@@ -338,7 +356,9 @@
     "useValues": "Usar Valores",
     "discard": "Descartar",
     "extractionFailed": "Error al extraer datos del recibo.",
-    "autoFilled": "¡Campos autocompletados desde el recibo!"
+    "autoFilled": "¡Campos autocompletados desde el recibo!",
+    "date": "Fecha",
+    "location": "Ubicación"
   },
   "import": {
     "title": "Importar Registros de Combustible",
@@ -529,5 +549,10 @@
     "avgPrice": "Promedio: €{{price}}/L",
     "olderFuelings": "+ {{count}} repostajes anteriores",
     "fuelingsAtStation": "{{count}} repostajes en esta estación"
+  },
+  "locationPicker": {
+    "useCurrentLocation": "Usar mi ubicación",
+    "coords": "{{lat}}, {{lng}}: toca o arrastra el pin para ajustar",
+    "tapToPlace": "Toca el mapa para colocar un pin donde repostaste."
   }
 }

@@ -74,6 +74,8 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
                 <li><span className="font-medium">{t('receipt.cost')}:</span> {extractedData.cost !== null ? extractedData.cost : t('receipt.notFound')}</li>
                 <li><span className="font-medium">{t('receipt.litres')}:</span> {extractedData.fuelAmountLiters !== null ? extractedData.fuelAmountLiters : t('receipt.notFound')}</li>
                 <li><span className="font-medium">{t('receipt.brand')}:</span> {extractedData.brand !== null ? extractedData.brand : t('receipt.notFound')}</li>
+                <li><span className="font-medium">{t('receipt.date', { defaultValue: 'Date' })}:</span> {extractedData.purchaseDate !== null ? `${extractedData.purchaseDate}${extractedData.purchaseTime ? ` ${extractedData.purchaseTime}` : ''}` : t('receipt.notFound')}</li>
+                <li><span className="font-medium">{t('receipt.location', { defaultValue: 'Location' })}:</span> {extractedData.address !== null ? extractedData.address : t('receipt.notFound')}</li>
               </ul>
               <div className="flex gap-2">
                 <button

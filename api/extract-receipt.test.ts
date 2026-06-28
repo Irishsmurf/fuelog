@@ -16,7 +16,7 @@ vi.mock('firebase-admin/auth', () => ({
 class MockGoogleGenAI {
   interactions = {
     create: vi.fn().mockResolvedValue({
-      output_text: '{"cost": 42.5, "fuelAmountLiters": 28, "brand": "Esso"}',
+      output_text: '{"cost": 42.5, "fuelAmountLiters": 28, "brand": "Esso", "purchaseDate": "2026-06-20", "purchaseTime": "14:30", "address": "Main St, Dublin"}',
     }),
   };
 }
@@ -86,6 +86,13 @@ describe('api/extract-receipt handler', () => {
     await handler(req, res);
     expect(res._statusCode).toBe(200);
     const body = JSON.parse(res._body);
-    expect(body).toEqual({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso' });
+    expect(body).toEqual({
+      cost: 42.5,
+      fuelAmountLiters: 28,
+      brand: 'Esso',
+      purchaseDate: '2026-06-20',
+      purchaseTime: '14:30',
+      address: 'Main St, Dublin',
+    });
   });
 });

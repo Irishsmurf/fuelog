@@ -23,11 +23,17 @@
 //   npm run assign-stations -- --project=<id>     # target a specific project
 //   npm run assign-stations -- --radius=250       # search radius in metres (default 150)
 //   npm run assign-stations -- --delay=1500       # ms between Overpass calls (default 1100)
+//   npm run assign-stations -- --overpass-url=<u> # use a different Overpass mirror
 //   npm run assign-stations -- --verbose          # print each log as it is resolved
 //
 // Overpass enforces fair-use rate limits, so calls are spaced out (--delay) and
 // retried with exponential backoff on HTTP 429. A large backlog therefore takes
 // a while; the radius and delay let you trade speed against accuracy and load.
+//
+// The default instance (overpass-api.de) increasingly rejects programmatic
+// requests with HTTP 406 when overloaded. If that happens, point at a mirror:
+//   npm run assign-stations -- --overpass-url=https://overpass.kumi.systems/api/interpreter
+// (or set the OVERPASS_URL env var).
 //
 // The Firestore project defaults to fuelog-paddez and can be overridden with
 // --project=<id> or GOOGLE_CLOUD_PROJECT. Credentials are read via application
@@ -59,7 +65,27 @@ const PROJECT_ID =
   process.env.GCLOUD_PROJECT ??
   'fuelog-paddez';
 
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+// The main Overpass instance increasingly bounces requests that look
+// programmatic (missing/odd User-Agent, no Accept-Language) with HTTP 406, and
+// is often overloaded. Allow pointing at a mirror (e.g. Kumi Systems) via
+// --overpass-url=<url> or the OVERPASS_URL env var when that happens.
+const DEFAULT_OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+const OVERPASS_URL_ARG = process.argv.find((a) => a.startsWith('--overpass-url='));
+const OVERPASS_URL =
+  (OVERPASS_URL_ARG ? OVERPASS_URL_ARG.slice('--overpass-url='.length) : undefined) ??
+  process.env.OVERPASS_URL ??
+  DEFAULT_OVERPASS_URL;
+
+// Identify the client per the OSM usage policy. Node's fetch sends no
+// meaningful User-Agent, and Overpass now rejects such requests with HTTP 406
+// (works in a browser, fails from a script) — these headers are what make the
+// difference. The contact URL lets the operator reach us if the job misbehaves.
+const OVERPASS_HEADERS = {
+  'Content-Type': 'application/x-www-form-urlencoded',
+  Accept: 'application/json',
+  'Accept-Language': 'en',
+  'User-Agent': 'fuelog-assign-stations/1.0 (+https://fuelog.paddez.com)',
+};
 
 // Cap a single Overpass request so a hung connection can't stall the batch
 // indefinitely. The query itself also self-limits server-side ([timeout:25]).
@@ -202,11 +228,16 @@ export function pricePerLitre(cost: number | undefined, liters: number | undefin
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/** A failure that won't be fixed by retrying the same host (e.g. HTTP 406, a
+ *  host-policy rejection) — propagated immediately instead of being retried. */
+export class NonRetryableOverpassError extends Error {}
+
 /**
  * Queries Overpass for fuel stations within `radiusMeters` of (lat, lon) and
  * returns the nearest as an OSMStation, or null when none are nearby. Retries
- * with exponential backoff on HTTP 429; other failures propagate so the caller
- * can count them as errors rather than silently skipping a log.
+ * with exponential backoff on HTTP 429/5xx and network/timeout errors; a 406
+ * host-policy rejection is non-retryable and throws immediately. Other failures
+ * propagate so the caller can count them rather than silently skipping a log.
  */
 export async function findNearestStation(
   lat: number,
@@ -233,9 +264,19 @@ export async function findNearestStation(
       const response = await fetch(OVERPASS_URL, {
         method: 'POST',
         body: `data=${encodeURIComponent(query)}`,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: OVERPASS_HEADERS,
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
+
+      // 406 is a host-policy rejection (the instance is bouncing the request,
+      // often due to load), not a transient error — retrying the same host is
+      // pointless, so fail fast with a hint to switch to a mirror.
+      if (response.status === 406) {
+        throw new NonRetryableOverpassError(
+          `Overpass returned 406 (request rejected by ${OVERPASS_URL}). ` +
+            'Try a mirror, e.g. --overpass-url=https://overpass.kumi.systems/api/interpreter',
+        );
+      }
 
       // 429 (rate limited) and 5xx (server) are transient — back off and retry.
       if (response.status === 429 || response.status >= 500) {
@@ -258,8 +299,9 @@ export async function findNearestStation(
       return pickNearestStation(data.elements ?? [], lat, lon);
     } catch (err) {
       // Network failures and the AbortSignal timeout land here; retry them too,
-      // but let the final failure propagate so the caller counts it as an error.
-      if (isLastAttempt) throw err;
+      // but let the final failure — and any non-retryable rejection (406) —
+      // propagate so the caller counts it as an error.
+      if (isLastAttempt || err instanceof NonRetryableOverpassError) throw err;
       console.warn(
         `  Overpass request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries}):`,
         err,
@@ -375,6 +417,12 @@ async function main(): Promise<void> {
 
       result.assigned++;
     } catch (error) {
+      // A host-policy rejection (406) dooms every remaining lookup against the
+      // same endpoint, so abort the whole run rather than hammer a dead host.
+      if (error instanceof NonRetryableOverpassError) {
+        console.error(`\n${error.message}`);
+        break;
+      }
       console.error(`  Failed to assign station for log ${log.id}:`, error);
       result.failed++;
     }

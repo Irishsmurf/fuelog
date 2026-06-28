@@ -41,9 +41,21 @@ GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run assign-stations  
 
 Flags: `--dry-run` (report only), `--user=<uid>` (one user), `--project=<id>`
 (target project, defaults to `fuelog-paddez`), `--radius=<m>` (search radius,
-default 150), `--delay=<ms>` (spacing between Overpass calls, default 1100), and
-`--verbose` (print each log as it resolves). Overpass enforces fair-use limits,
-so a large backlog is processed slowly and retried with backoff on rate limits.
+default 150), `--delay=<ms>` (spacing between Overpass calls, default 1100),
+`--overpass-url=<url>` (use a different Overpass instance, or set `OVERPASS_URL`),
+and `--verbose` (print each log as it resolves). Overpass enforces fair-use
+limits, so a large backlog is processed slowly and retried with backoff on rate
+limits.
+
+The default instance (`overpass-api.de`) increasingly rejects programmatic
+requests with **HTTP 406** when it is overloaded. The script identifies itself
+with a `User-Agent` to avoid this where possible, but if you still hit 406, point
+it at a mirror:
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=../service-account.json \
+  npm run assign-stations -- --overpass-url=https://overpass.kumi.systems/api/interpreter
+```
 
 ## Re-compressing legacy receipt images
 

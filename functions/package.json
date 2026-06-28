@@ -9,6 +9,7 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "recompress-receipts": "npm run build && node lib/scripts/recompressReceipts.js",
+    "backfill-odometer": "npm run build && node lib/scripts/backfillOdometer.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },

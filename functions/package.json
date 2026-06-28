@@ -10,6 +10,7 @@
     "logs": "firebase functions:log",
     "recompress-receipts": "npm run build && node lib/scripts/recompressReceipts.js",
     "backfill-odometer": "npm run build && node lib/scripts/backfillOdometer.js",
+    "assign-stations": "npm run build && node lib/scripts/assignStationsToLogs.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },

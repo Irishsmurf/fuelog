@@ -15,6 +15,36 @@ Then, you can open `mock_logs.tsv` in a text editor, copy its content, and paste
 ### Configuration
 You can edit the `numEntries`, `brands`, and date range variables directly at the top of the script to customize the generated data.
 
+## Assigning stations to coordinate-only logs
+
+Logs that have coordinates but no `stationId` — including fuel station locations
+pinned retroactively by hand — have nothing to group on, so the map renders them
+as loose "unassigned" clusters. The one-off job at
+[`functions/src/scripts/assignStationsToLogs.ts`](../functions/src/scripts/assignStationsToLogs.ts)
+resolves each of these to a station the same way live logging does: it looks up
+the nearest `amenity=fuel` via the OpenStreetMap Overpass API, gets-or-creates
+the matching `stations` document, writes its id back onto the log, and folds the
+log's price into the station's running average. It is the batch, server-side
+equivalent of the in-app **Profile → Maintenance → Identify Stations** action.
+
+Existing stations are never overwritten and logs that already have a `stationId`
+are skipped, so the job is safe to re-run.
+
+### Usage
+Run from the `functions/` directory with application default credentials:
+
+```bash
+cd functions
+GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run assign-stations -- --dry-run   # preview
+GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run assign-stations                # apply
+```
+
+Flags: `--dry-run` (report only), `--user=<uid>` (one user), `--project=<id>`
+(target project, defaults to `fuelog-paddez`), `--radius=<m>` (search radius,
+default 150), `--delay=<ms>` (spacing between Overpass calls, default 1100), and
+`--verbose` (print each log as it resolves). Overpass enforces fair-use limits,
+so a large backlog is processed slowly and retried with backoff on rate limits.
+
 ## Re-compressing legacy receipt images
 
 PR #211 added client-side compression so newly uploaded receipts are resized to a

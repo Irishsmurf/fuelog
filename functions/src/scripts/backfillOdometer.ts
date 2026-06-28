@@ -224,14 +224,18 @@ export function summarizeGroups(logs: BackfillLog[]): GroupSummary[] {
     }
     if (log.timestamp && typeof log.timestamp.toMillis === 'function') {
       const ms = log.timestamp.toMillis();
-      if (summary.earliestMillis === null || ms < summary.earliestMillis) summary.earliestMillis = ms;
-      if (summary.latestMillis === null || ms > summary.latestMillis) summary.latestMillis = ms;
+      // Only record finite values so earliestMillis/latestMillis stay safe to
+      // format later (a malformed timestamp returning NaN would break Date).
+      if (Number.isFinite(ms)) {
+        if (summary.earliestMillis === null || ms < summary.earliestMillis) summary.earliestMillis = ms;
+        if (summary.latestMillis === null || ms > summary.latestMillis) summary.latestMillis = ms;
+      }
     }
   }
 
   return Array.from(groups.values()).sort(
     (a, b) =>
-      a.userId.localeCompare(b.userId) ||
+      (a.userId ?? '').localeCompare(b.userId ?? '') ||
       Number(a.hasAnchor) - Number(b.hasAnchor) || // anchorless groups first
       (a.vehicleId ?? '').localeCompare(b.vehicleId ?? ''),
   );
@@ -283,7 +287,8 @@ async function main(): Promise<void> {
   }
 
   if (VERBOSE) {
-    const fmt = (ms: number | null) => (ms === null ? '—' : new Date(ms).toISOString().slice(0, 10));
+    const fmt = (ms: number | null) =>
+      ms === null || !Number.isFinite(ms) ? '—' : new Date(ms).toISOString().slice(0, 10);
     console.log('\nPer-vehicle breakdown:');
     for (const g of summarizeGroups(logs)) {
       const vehicle = g.vehicleId ?? '<no vehicle>';

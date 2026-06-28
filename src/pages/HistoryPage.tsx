@@ -383,8 +383,12 @@ function HistoryPage(): JSX.Element {
                 cost: parsedCost,
                 distanceKm: parsedDistanceKm,
                 fuelAmountLiters: parsedFuel,
-                vehicleId: editFormData.vehicleId,
             };
+            // vehicleId is optional on the form type; only write it when set so we
+            // never pass `undefined` (which updateDoc rejects) or an empty string.
+            if (editFormData.vehicleId) {
+                updatedData.vehicleId = editFormData.vehicleId;
+            }
             if (editReceiptFile && user) {
                 // Only write receiptUrl when a new receipt was uploaded. Firestore's
                 // updateDoc() rejects `undefined`, so we must never include optional

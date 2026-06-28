@@ -24,6 +24,12 @@
 //   npm run backfill-odometer -- --dry-run        # report what would change
 //   npm run backfill-odometer -- --user=<uid>     # limit to a single user
 //   npm run backfill-odometer -- --project=<id>   # target a specific project
+//   npm run backfill-odometer -- --verbose        # print a per-vehicle breakdown
+//
+// The per-vehicle breakdown (--verbose) shows each (user, vehicle) group, how
+// many logs it has, how many already have an odometer reading, whether it has
+// an anchor to reconstruct from, and its date range. Use it to diagnose why
+// logs are skipped: a group with NO ANCHOR has no reading to count from.
 //
 // The Firestore project defaults to fuelog-paddez and can be overridden with
 // --project=<id> or GOOGLE_CLOUD_PROJECT. Credentials are read via application
@@ -34,6 +40,7 @@ import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 const DRY_RUN = process.argv.includes('--dry-run');
+const VERBOSE = process.argv.includes('--verbose');
 const USER_ARG = process.argv.find((a) => a.startsWith('--user='));
 const ONLY_USER = USER_ARG ? USER_ARG.slice('--user='.length) : undefined;
 
@@ -174,6 +181,62 @@ export function planOdometerBackfill(logs: BackfillLog[]): OdometerBackfillPlan 
   return { updates, alreadySet, skipped, vehiclesAnchored, vehiclesWithoutAnchor };
 }
 
+/** A per-(user, vehicle) breakdown, for diagnosing why logs were skipped. */
+export interface GroupSummary {
+  userId: string;
+  /** null for logs that predate multi-vehicle support (no vehicleId). */
+  vehicleId: string | null;
+  total: number;
+  withOdometer: number;
+  /** True if the group has at least one reading to anchor reconstruction. */
+  hasAnchor: boolean;
+  earliestMillis: number | null;
+  latestMillis: number | null;
+}
+
+/**
+ * Pure diagnostic: summarises each (user, vehicle) group so it's clear which
+ * groups can be reconstructed (hasAnchor) and which can't, and over what date
+ * range. Sorted by user, then anchorless groups first, then by vehicle id.
+ */
+export function summarizeGroups(logs: BackfillLog[]): GroupSummary[] {
+  const groups = new Map<string, GroupSummary>();
+  for (const log of logs) {
+    const vehicleId = log.vehicleId ?? null;
+    const key = `${log.userId}::${vehicleId ?? NO_VEHICLE}`;
+    let summary = groups.get(key);
+    if (!summary) {
+      summary = {
+        userId: log.userId,
+        vehicleId,
+        total: 0,
+        withOdometer: 0,
+        hasAnchor: false,
+        earliestMillis: null,
+        latestMillis: null,
+      };
+      groups.set(key, summary);
+    }
+    summary.total++;
+    if (isValidReading(log.odometerKm)) {
+      summary.withOdometer++;
+      summary.hasAnchor = true;
+    }
+    if (log.timestamp && typeof log.timestamp.toMillis === 'function') {
+      const ms = log.timestamp.toMillis();
+      if (summary.earliestMillis === null || ms < summary.earliestMillis) summary.earliestMillis = ms;
+      if (summary.latestMillis === null || ms > summary.latestMillis) summary.latestMillis = ms;
+    }
+  }
+
+  return Array.from(groups.values()).sort(
+    (a, b) =>
+      a.userId.localeCompare(b.userId) ||
+      Number(a.hasAnchor) - Number(b.hasAnchor) || // anchorless groups first
+      (a.vehicleId ?? '').localeCompare(b.vehicleId ?? ''),
+  );
+}
+
 async function main(): Promise<void> {
   if (getApps().length === 0) {
     initializeApp({ credential: applicationDefault(), projectId: PROJECT_ID });
@@ -217,6 +280,20 @@ async function main(): Promise<void> {
         (ONLY_USER ? `\n  - Confirm --user=${ONLY_USER} is the correct UID.` : ''),
     );
     return;
+  }
+
+  if (VERBOSE) {
+    const fmt = (ms: number | null) => (ms === null ? '—' : new Date(ms).toISOString().slice(0, 10));
+    console.log('\nPer-vehicle breakdown:');
+    for (const g of summarizeGroups(logs)) {
+      const vehicle = g.vehicleId ?? '<no vehicle>';
+      const anchor = g.hasAnchor ? 'anchor ✓' : 'NO ANCHOR';
+      console.log(
+        `  user ${g.userId}  vehicle ${vehicle}  ` +
+          `${g.total} logs, ${g.withOdometer} with odometer  [${anchor}]  ` +
+          `${fmt(g.earliestMillis)} → ${fmt(g.latestMillis)}`,
+      );
+    }
   }
 
   const plan = planOdometerBackfill(logs);

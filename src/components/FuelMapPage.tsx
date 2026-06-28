@@ -1,6 +1,6 @@
 // src/components/FuelMapPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster'; // Import the cluster group
 import { MapPin, Navigation, AlertCircle, Loader, Layers, Activity } from 'lucide-react'; // Icons
@@ -146,7 +146,7 @@ const FuelMapPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 z-0 flex justify-center items-center bg-gray-50 dark:bg-gray-900">
+      <div className="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 z-0 flex justify-center items-center bg-gray-50 dark:bg-gray-900">
         <Loader className="w-8 h-8 animate-spin text-amber-500" />
       </div>
     );
@@ -154,7 +154,7 @@ const FuelMapPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="fixed inset-0 z-0 flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-900 text-red-500 dark:text-red-400">
+      <div className="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 z-0 flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-900 text-red-500 dark:text-red-400">
         <AlertCircle className="w-12 h-12 mb-2" />
         <p>{error}</p>
       </div>
@@ -166,7 +166,7 @@ const FuelMapPage: React.FC = () => {
       : [53.3498, -6.2603]; // Default to Dublin
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden">
+    <div className="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 z-0 overflow-hidden">
        {validLocations.length === 0 && (
            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-[1000] bg-white/90 dark:bg-gray-800/90 backdrop-blur px-4 py-2 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center">
                <AlertCircle className="w-4 h-4 mr-2 text-yellow-500" />
@@ -191,7 +191,11 @@ const FuelMapPage: React.FC = () => {
          </button>
        </div>
 
-      <MapContainer center={initialCenter} zoom={validLocations.length > 0 ? 10 : 6} scrollWheelZoom={true} style={{ height: '100%', width: '100%' }}>
+      <MapContainer center={initialCenter} zoom={validLocations.length > 0 ? 10 : 6} scrollWheelZoom={true} zoomControl={false} style={{ height: '100%', width: '100%' }}>
+        {/* Default zoom control lives top-left, where the full-bleed map now
+            tucks under the sticky header. Move it bottom-left so it stays
+            tappable. */}
+        <ZoomControl position="bottomleft" />
         <TileLayer
           attribution={MAP_TILES.attribution}
           url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}

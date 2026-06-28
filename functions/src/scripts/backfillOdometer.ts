@@ -20,11 +20,14 @@
 // rounding drift can't accumulate across the whole history.
 //
 // Usage (from the functions/ directory):
-//   npm run backfill-odometer                   # write reconstructed readings
-//   npm run backfill-odometer -- --dry-run      # report what would change
-//   npm run backfill-odometer -- --user=<uid>   # limit to a single user
+//   npm run backfill-odometer                     # write reconstructed readings
+//   npm run backfill-odometer -- --dry-run        # report what would change
+//   npm run backfill-odometer -- --user=<uid>     # limit to a single user
+//   npm run backfill-odometer -- --project=<id>   # target a specific project
 //
-// Credentials are read via application default credentials, e.g.:
+// The Firestore project defaults to fuelog-paddez and can be overridden with
+// --project=<id> or GOOGLE_CLOUD_PROJECT. Credentials are read via application
+// default credentials, e.g.:
 //   GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run backfill-odometer
 
 import { initializeApp, getApps, applicationDefault } from 'firebase-admin/app';
@@ -33,6 +36,17 @@ import { getFirestore } from 'firebase-admin/firestore';
 const DRY_RUN = process.argv.includes('--dry-run');
 const USER_ARG = process.argv.find((a) => a.startsWith('--user='));
 const ONLY_USER = USER_ARG ? USER_ARG.slice('--user='.length) : undefined;
+
+// Pin the Firestore project explicitly. Without this, applicationDefault()
+// resolves to whatever project the ambient credentials default to, which can
+// silently be the wrong (empty) project — the symptom is "Fetched 0 logs".
+// Override with --project=<id> or the standard GOOGLE_CLOUD_PROJECT env var.
+const PROJECT_ARG = process.argv.find((a) => a.startsWith('--project='));
+const PROJECT_ID =
+  (PROJECT_ARG ? PROJECT_ARG.slice('--project='.length) : undefined) ??
+  process.env.GOOGLE_CLOUD_PROJECT ??
+  process.env.GCLOUD_PROJECT ??
+  'fuelog-paddez';
 
 const NO_VEHICLE = '__no_vehicle__';
 
@@ -162,7 +176,7 @@ export function planOdometerBackfill(logs: BackfillLog[]): OdometerBackfillPlan 
 
 async function main(): Promise<void> {
   if (getApps().length === 0) {
-    initializeApp({ credential: applicationDefault() });
+    initializeApp({ credential: applicationDefault(), projectId: PROJECT_ID });
   }
   const db = getFirestore();
 
@@ -171,6 +185,7 @@ async function main(): Promise<void> {
       (ONLY_USER ? ` for user ${ONLY_USER}` : ' for all users') +
       (DRY_RUN ? '  (dry run — nothing will be written)' : ''),
   );
+  console.log(`Project: ${PROJECT_ID}`);
 
   // Select only the fields the backfill needs — fuelLogs can carry large fields
   // (receipt URLs, etc.) we never read, so this keeps memory and bandwidth down.
@@ -193,6 +208,16 @@ async function main(): Promise<void> {
   });
 
   console.log(`Fetched ${logs.length} logs.`);
+
+  if (logs.length === 0) {
+    console.warn(
+      `\nNo logs found in project "${PROJECT_ID}".\n` +
+        '  - Confirm the credentials target this project (GOOGLE_APPLICATION_CREDENTIALS).\n' +
+        '  - Override the project with --project=<id> or GOOGLE_CLOUD_PROJECT=<id>.' +
+        (ONLY_USER ? `\n  - Confirm --user=${ONLY_USER} is the correct UID.` : ''),
+    );
+    return;
+  }
 
   const plan = planOdometerBackfill(logs);
 

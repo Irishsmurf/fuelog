@@ -375,24 +375,24 @@ function HistoryPage(): JSX.Element {
 
         setIsUpdating(true); setModalError(null);
         try {
-            let receiptUrl = editingLog.receiptUrl || "";
-            if (editReceiptFile && user) {
-                receiptUrl = await uploadReceipt(editReceiptFile, user.uid);
-            }
-
+            // A receipt is optional — only upload/replace it when the user picked a
+            // new file. Otherwise keep whatever the log already had (which may be none).
             const logRef = doc(db, "fuelLogs", editingLog.id);
-            const updatedData: Partial<FuelLogData> = { 
-                brand: brand.trim() || 'Unknown', 
-                cost: parsedCost, 
-                distanceKm: parsedDistanceKm, 
+            const updatedData: Partial<FuelLogData> = {
+                brand: brand.trim() || 'Unknown',
+                cost: parsedCost,
+                distanceKm: parsedDistanceKm,
                 fuelAmountLiters: parsedFuel,
                 vehicleId: editFormData.vehicleId,
-                receiptUrl: receiptUrl || undefined
             };
+            if (editReceiptFile && user) {
+                // Only write receiptUrl when a new receipt was uploaded. Firestore's
+                // updateDoc() rejects `undefined`, so we must never include optional
+                // fields that don't have a concrete value.
+                updatedData.receiptUrl = await uploadReceipt(editReceiptFile, user.uid);
+            }
             if (!isNaN(parsedOdometer)) {
                 updatedData.odometerKm = parsedOdometer;
-            } else {
-                updatedData.odometerKm = undefined;
             }
             if (parsedLat !== undefined && parsedLon !== undefined) {
                 updatedData.latitude = parsedLat;
@@ -645,8 +645,12 @@ function HistoryPage(): JSX.Element {
             {/* --- Edit Modal --- */}
             {/* Conditionally render the modal based on isModalOpen state */}
             {isModalOpen && editingLog && (
-                <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-600 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity flex items-center justify-center" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md m-4 space-y-4 transform transition-all">
+                <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-600 dark:bg-gray-900 bg-opacity-75 dark:bg-opacity-80 transition-opacity" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    {/* min-h-full + flex centering on an inner wrapper (rather than on the
+                        scroll container itself) keeps tall modals fully scrollable so the
+                        top is never clipped on short screens. */}
+                    <div className="flex min-h-full items-center justify-center p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md space-y-4 transform transition-all">
                         <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-300" id="modal-title">{t('history.edit.title')} ({formatDate(editingLog.timestamp.toDate())})</h3>
                         {/* Edit Form */}
                         <form onSubmit={handleUpdateLog} className="space-y-4">
@@ -711,6 +715,7 @@ function HistoryPage(): JSX.Element {
                                 <button type="button" onClick={handleCloseModal} disabled={isUpdating} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-700 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm disabled:opacity-50">{t('history.edit.cancel')}</button>
                             </div>
                         </form>
+                    </div>
                     </div>
                 </div>
             )}

@@ -14,3 +14,27 @@ Then, you can open `mock_logs.tsv` in a text editor, copy its content, and paste
 
 ### Configuration
 You can edit the `numEntries`, `brands`, and date range variables directly at the top of the script to customize the generated data.
+
+## Re-compressing legacy receipt images
+
+PR #211 added client-side compression so newly uploaded receipts are resized to a
+max of 1600px and re-encoded as JPEG at 80% quality. Receipts uploaded before that
+change are still stored at full size. The one-off backfill job at
+[`functions/src/scripts/recompressReceipts.ts`](../functions/src/scripts/recompressReceipts.ts)
+applies the same optimisation to existing files in Cloud Storage.
+
+Each original is re-encoded **in place**, preserving its storage path and Firebase
+download token, so `fuelLogs.receiptUrl` values keep resolving and thumbnails are
+regenerated automatically. Files that would not get smaller are skipped, so the job
+is safe to re-run.
+
+### Usage
+Run from the `functions/` directory with application default credentials:
+
+```bash
+cd functions
+GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run recompress-receipts -- --dry-run  # preview savings
+GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run recompress-receipts               # apply
+```
+
+Override the target bucket with the `STORAGE_BUCKET` environment variable if needed.

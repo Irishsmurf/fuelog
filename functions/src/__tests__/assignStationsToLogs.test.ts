@@ -1,10 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   selectUnassignedLogs,
   pickNearestStation,
   stationDocId,
   pricePerLitre,
   haversineDistanceKm,
+  findNearestStation,
+  NonRetryableOverpassError,
   AssignLog,
   OverpassElement,
 } from '../scripts/assignStationsToLogs';
@@ -142,5 +144,50 @@ describe('haversineDistanceKm', () => {
   it('approximates a known short distance', () => {
     // ~111 m north (0.001 deg latitude).
     expect(haversineDistanceKm(53.34, -6.26, 53.341, -6.26)).toBeCloseTo(0.111, 2);
+  });
+});
+
+describe('findNearestStation', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const jsonResponse = (body: unknown): Response =>
+    ({ status: 200, ok: true, json: async () => body }) as Response;
+
+  it('parses the response and returns the nearest station', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        elements: [
+          { type: 'node', id: 5, lat: 53.34, lon: -6.26, tags: { amenity: 'fuel', name: 'Texaco' } },
+        ],
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await findNearestStation(53.34, -6.26);
+    expect(result?.name).toBe('Texaco');
+    expect(result?.id).toBe('node/5');
+  });
+
+  it('sends an identifying User-Agent so the request is not bounced with 406', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ elements: [] }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await findNearestStation(53.34, -6.26);
+
+    const headers = fetchMock.mock.calls[0][1].headers as Record<string, string>;
+    expect(headers['User-Agent']).toMatch(/fuelog/);
+    expect(headers['Accept-Language']).toBeTruthy();
+  });
+
+  it('throws a non-retryable error on 406 without retrying the same host', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ status: 406, ok: false } as Response);
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(findNearestStation(53.34, -6.26)).rejects.toBeInstanceOf(
+      NonRetryableOverpassError,
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

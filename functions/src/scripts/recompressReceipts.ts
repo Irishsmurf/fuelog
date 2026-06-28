@@ -53,7 +53,9 @@ async function main(): Promise<void> {
         (DRY_RUN ? '  (dry run — nothing will be written)' : ''),
     );
 
-    const [files] = await bucket.getFiles({ prefix: RECEIPTS_PREFIX });
+    // Stream the listing rather than buffering every File object in memory, so the
+    // job scales to buckets with a large number of receipts without risking OOM.
+    const filesStream = bucket.getFilesStream({ prefix: RECEIPTS_PREFIX });
 
     let processed = 0;
     let skipped = 0;
@@ -61,7 +63,7 @@ async function main(): Promise<void> {
     let bytesBefore = 0;
     let bytesAfter = 0;
 
-    for (const file of files) {
+    for await (const file of filesStream) {
         const name = file.name;
         const base = name.substring(name.lastIndexOf('/') + 1);
 
@@ -71,7 +73,9 @@ async function main(): Promise<void> {
         if (base.startsWith(THUMB_PREFIX)) { skipped++; continue; }
 
         try {
-            const [meta] = await file.getMetadata();
+            // The listing already populated file.metadata, so reuse it instead of
+            // issuing a redundant getMetadata() request per file.
+            const meta = file.metadata;
             const contentType = meta.contentType ?? '';
             if (!contentType.startsWith('image/')) { skipped++; continue; }
 

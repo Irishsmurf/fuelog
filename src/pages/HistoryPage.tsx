@@ -365,14 +365,13 @@ function HistoryPage(): JSX.Element {
         if (latitude && (isNaN(parsedLat!) || parsedLat! < -90 || parsedLat! > 90)) { setModalError('Latitude must be a number between -90 and 90.'); return; }
         if (longitude && (isNaN(parsedLon!) || parsedLon! < -180 || parsedLon! > 180)) { setModalError('Longitude must be a number between -180 and 180.'); return; }
 
-        // Validate the (optional) edited fuelling date/time.
-        let editedTimestamp: Timestamp | undefined;
-        if (loggedAt) {
-            const d = new Date(loggedAt);
-            if (isNaN(d.getTime())) { setModalError(t('history.edit.invalidDate', { defaultValue: 'Please enter a valid date and time.' })); return; }
-            if (d.getTime() > Date.now() + 60_000) { setModalError(t('history.edit.futureDate', { defaultValue: 'The date/time cannot be in the future.' })); return; }
-            editedTimestamp = Timestamp.fromDate(d);
-        }
+        // Validate the edited fuelling date/time (required — every log must keep
+        // a timestamp; an empty field would otherwise silently leave the old one).
+        if (!loggedAt) { setModalError(t('history.edit.invalidDate', { defaultValue: 'Please enter a valid date and time.' })); return; }
+        const editedDate = new Date(loggedAt);
+        if (isNaN(editedDate.getTime())) { setModalError(t('history.edit.invalidDate', { defaultValue: 'Please enter a valid date and time.' })); return; }
+        if (editedDate.getTime() > Date.now() + 60_000) { setModalError(t('history.edit.futureDate', { defaultValue: 'The date/time cannot be in the future.' })); return; }
+        const editedTimestamp: Timestamp = Timestamp.fromDate(editedDate);
 
         setIsUpdating(true); setModalError(null);
         try {
@@ -399,9 +398,7 @@ function HistoryPage(): JSX.Element {
                 updatedData.latitude = parsedLat;
                 updatedData.longitude = parsedLon;
             }
-            if (editedTimestamp) {
-                updatedData.timestamp = editedTimestamp;
-            }
+            updatedData.timestamp = editedTimestamp;
             await updateDoc(logRef, updatedData);
             setLogs(prev => prev.map(l => l.id === editingLog.id ? { ...l, ...updatedData } : l)
                 .filter(l => !filterVehicleId || l.vehicleId === filterVehicleId)
@@ -669,7 +666,7 @@ function HistoryPage(): JSX.Element {
                             {/* Date & time of fuelling */}
                             <div>
                                 <label htmlFor="edit-loggedAt" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.dateTime', { defaultValue: 'Date & time' })}</label>
-                                <input type="datetime-local" name="loggedAt" id="edit-loggedAt" value={editFormData.loggedAt || ''} max={toDatetimeLocal(new Date())} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+                                <input type="datetime-local" name="loggedAt" id="edit-loggedAt" value={editFormData.loggedAt || ''} max={toDatetimeLocal(new Date())} onChange={handleEditFormChange} required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
                             </div>
                             {/* Form Inputs (Brand, Cost, Distance, Fuel) */}
                             <div><label htmlFor="edit-brand" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.brand')}</label><input type="text" name="brand" id="edit-brand" value={editFormData.brand} onChange={handleEditFormChange} className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>

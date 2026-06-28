@@ -44,7 +44,11 @@ const RecenterOnChange: React.FC<{ coords: PickerCoords | null }> = ({ coords })
     if (coords) {
       map.setView([coords.latitude, coords.longitude], Math.max(map.getZoom(), 15));
     }
-  }, [coords, map]);
+    // Depend on primitive lat/lng, not the object reference: parents recreate the
+    // coords object on every render, which would otherwise re-centre (snap back)
+    // the map whenever any other form field changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coords?.latitude, coords?.longitude, map]);
   return null;
 };
 

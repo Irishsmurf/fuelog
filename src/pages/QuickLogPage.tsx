@@ -125,9 +125,10 @@ function QuickLogPage(): JSX.Element {
         if (!isNaN(parsed.getTime())) setLoggedAt(toDatetimeLocal(parsed));
       }
 
-      // Best-effort: geocode the receipt's address (or brand) to default the
-      // map pin near the station. Falls back silently to the existing pin.
-      const geoQuery = extractedData.address || extractedData.brand;
+      // Best-effort: geocode the receipt's printed address to default the map
+      // pin near the station. Only a specific address — geocoding a bare brand
+      // ("Shell") would resolve to a random matching location worldwide.
+      const geoQuery = extractedData.address;
       if (geoQuery) {
         geocodeAddress(geoQuery).then(coords => {
           if (coords) {

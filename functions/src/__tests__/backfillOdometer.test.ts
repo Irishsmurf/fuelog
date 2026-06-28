@@ -133,6 +133,30 @@ describe('planOdometerBackfill', () => {
     expect(plan.skipped).toBe(1);
   });
 
+  it('allows a reconstructed reading of exactly zero (brand-new vehicle)', () => {
+    const logs = [
+      makeLog('a', 1, 100), // earliest fill of a brand-new car
+      makeLog('b', 2, 100, 100), // anchor: 100 km on the clock
+    ];
+
+    const plan = planOdometerBackfill(logs);
+
+    // a = 100 - 100 = 0, which is a valid reading and must not be skipped.
+    expect(odoOf(plan, 'a')).toBe(0);
+    expect(plan.skipped).toBe(0);
+  });
+
+  it('skips records with a missing or malformed timestamp instead of crashing', () => {
+    const good = makeLog('good', 2, 100, 500);
+    const broken = { id: 'broken', userId: 'user1', vehicleId: 'car1', distanceKm: 50 } as unknown as BackfillLog;
+
+    const plan = planOdometerBackfill([good, broken]);
+
+    // The broken record is dropped; the good anchor still processes cleanly.
+    expect(odoOf(plan, 'broken')).toBeUndefined();
+    expect(plan.alreadySet).toBe(1);
+  });
+
   it('does not produce negative odometer readings', () => {
     const logs = [
       makeLog('a', 1, 100),

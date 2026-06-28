@@ -111,7 +111,8 @@ function planVehicleGroup(sorted: BackfillLog[], updates: OdometerBackfillUpdate
     // distanceKm on `current` is the distance travelled to reach it from `previous`.
     if (running !== null && isValidDistance(current.distanceKm)) {
       const previousOdometer: number = running - current.distanceKm;
-      if (previousOdometer > 0) {
+      // >= 0: a brand-new vehicle can legitimately read 0, matching isValidReading.
+      if (previousOdometer >= 0) {
         updates.push({ id: previous.id, odometerKm: previousOdometer });
         running = previousOdometer;
         continue;
@@ -144,7 +145,11 @@ export function planOdometerBackfill(logs: BackfillLog[]): OdometerBackfillPlan 
   let vehiclesWithoutAnchor = 0;
 
   for (const group of groups.values()) {
-    const sorted = [...group].sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
+    // Drop records with a missing/malformed timestamp — they can't be ordered,
+    // and calling toMillis() on them would crash the whole job.
+    const sorted = [...group]
+      .filter((log) => log.timestamp && typeof log.timestamp.toMillis === 'function')
+      .sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
     if (planVehicleGroup(sorted, updates)) vehiclesAnchored++;
     else vehiclesWithoutAnchor++;
   }
@@ -167,7 +172,11 @@ async function main(): Promise<void> {
       (DRY_RUN ? '  (dry run — nothing will be written)' : ''),
   );
 
-  let queryRef = db.collection('fuelLogs') as FirebaseFirestore.Query;
+  // Select only the fields the backfill needs — fuelLogs can carry large fields
+  // (receipt URLs, etc.) we never read, so this keeps memory and bandwidth down.
+  let queryRef: FirebaseFirestore.Query = db
+    .collection('fuelLogs')
+    .select('userId', 'vehicleId', 'timestamp', 'distanceKm', 'odometerKm');
   if (ONLY_USER) queryRef = queryRef.where('userId', '==', ONLY_USER);
 
   const snapshot = await queryRef.get();

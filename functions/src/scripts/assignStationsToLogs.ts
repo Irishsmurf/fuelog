@@ -61,6 +61,10 @@ const PROJECT_ID =
 
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 
+// Cap a single Overpass request so a hung connection can't stall the batch
+// indefinitely. The query itself also self-limits server-side ([timeout:25]).
+const REQUEST_TIMEOUT_MS = 30000;
+
 /** A petrol station resolved from OpenStreetMap. Mirrors OSMStation in
  *  src/utils/locationService.ts so the data written here matches live logging. */
 export interface OSMStation {
@@ -224,27 +228,45 @@ export async function findNearestStation(
   const maxRetries = 3;
   let delay = 2000;
   for (let attempt = 0; attempt < maxRetries; attempt++) {
-    const response = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      body: `data=${encodeURIComponent(query)}`,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    });
+    const isLastAttempt = attempt === maxRetries - 1;
+    try {
+      const response = await fetch(OVERPASS_URL, {
+        method: 'POST',
+        body: `data=${encodeURIComponent(query)}`,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
 
-    if (response.status === 429) {
+      // 429 (rate limited) and 5xx (server) are transient — back off and retry.
+      if (response.status === 429 || response.status >= 500) {
+        if (isLastAttempt) {
+          throw new Error(`Overpass API responded with status ${response.status}`);
+        }
+        console.warn(
+          `  Overpass returned ${response.status}, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`,
+        );
+        await sleep(delay);
+        delay *= 2;
+        continue;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Overpass API responded with status ${response.status}`);
+      }
+
+      const data = (await response.json()) as { elements?: OverpassElement[] };
+      return pickNearestStation(data.elements ?? [], lat, lon);
+    } catch (err) {
+      // Network failures and the AbortSignal timeout land here; retry them too,
+      // but let the final failure propagate so the caller counts it as an error.
+      if (isLastAttempt) throw err;
       console.warn(
-        `  Overpass rate limit hit, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`,
+        `  Overpass request failed, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries}):`,
+        err,
       );
       await sleep(delay);
       delay *= 2;
-      continue;
     }
-
-    if (!response.ok) {
-      throw new Error(`Overpass API responded with status ${response.status}`);
-    }
-
-    const data = (await response.json()) as { elements?: OverpassElement[] };
-    return pickNearestStation(data.elements ?? [], lat, lon);
   }
 
   throw new Error('Overpass API unavailable after maximum retries.');
@@ -349,8 +371,7 @@ async function main(): Promise<void> {
       }
 
       await getOrCreateStation(db, nearest);
-      await db.collection('fuelLogs').doc(log.id).update({ stationId: docId });
-      if (price !== null) await updateStationMetrics(db, docId, price);
+      await assignLogToStation(db, log.id, docId, price);
 
       result.assigned++;
     } catch (error) {
@@ -394,28 +415,40 @@ async function getOrCreateStation(
 }
 
 /**
- * Folds one log's price per litre into a station's running average, in a
- * transaction. Mirrors updateStationMetrics in firestoreService.ts so the
- * figures stay consistent with averages produced during live logging.
+ * Atomically stamps a log with its stationId and folds its price per litre into
+ * the station's running average, in a single transaction. Doing both together
+ * means a metrics failure can never leave the log marked as assigned (and thus
+ * skipped on re-run) with its price silently dropped from the station average.
+ * When the price is unusable, only the stationId is written. The averaging
+ * mirrors updateStationMetrics in firestoreService.ts so figures stay
+ * consistent with those produced during live logging.
  */
-async function updateStationMetrics(
+async function assignLogToStation(
   db: FirebaseFirestore.Firestore,
+  logId: string,
   stationId: string,
-  pricePerLitreValue: number,
+  pricePerLitreValue: number | null,
 ): Promise<void> {
-  const ref = db.collection('stations').doc(stationId);
+  const stationRef = db.collection('stations').doc(stationId);
+  const logRef = db.collection('fuelLogs').doc(logId);
+
   await db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
-    if (!snap.exists) return;
-    const data = snap.data() as { logCount?: number; avgPrice?: number };
-    const currentCount = data.logCount || 0;
-    const currentAvg = data.avgPrice || 0;
-    const newAvg = (currentAvg * currentCount + pricePerLitreValue) / (currentCount + 1);
-    tx.update(ref, {
-      logCount: FieldValue.increment(1),
-      avgPrice: newAvg,
-      lastPrice: pricePerLitreValue,
-    });
+    // Read before any write (Firestore requires reads first).
+    if (pricePerLitreValue !== null) {
+      const snap = await tx.get(stationRef);
+      if (snap.exists) {
+        const data = snap.data() as { logCount?: number; avgPrice?: number };
+        const currentCount = data.logCount || 0;
+        const currentAvg = data.avgPrice || 0;
+        const newAvg = (currentAvg * currentCount + pricePerLitreValue) / (currentCount + 1);
+        tx.update(stationRef, {
+          logCount: FieldValue.increment(1),
+          avgPrice: newAvg,
+          lastPrice: pricePerLitreValue,
+        });
+      }
+    }
+    tx.update(logRef, { stationId });
   });
 }
 

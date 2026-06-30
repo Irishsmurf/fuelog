@@ -267,7 +267,8 @@
     "noLocation": "Gan suíomh",
     "unknownStation": "Stáisiún Anaithnid",
     "editEntry": "Cuir Iontráil in Eagar",
-    "deleteEntry": "Scrios Iontráil"
+    "deleteEntry": "Scrios Iontráil",
+    "closeReceipt": "Dún"
   },
   "profile": {
     "appPreferences": "Roghanna an Aip",

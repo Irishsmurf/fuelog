@@ -267,7 +267,8 @@
     "noLocation": "Ingen plats",
     "unknownStation": "Okänd station",
     "editEntry": "Redigera inlägg",
-    "deleteEntry": "Radera inlägg"
+    "deleteEntry": "Radera inlägg",
+    "closeReceipt": "Stäng"
   },
   "profile": {
     "appPreferences": "Appinställningar",

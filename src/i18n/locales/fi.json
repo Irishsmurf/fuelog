@@ -267,7 +267,8 @@
     "noLocation": "Ei sijaintia",
     "unknownStation": "Tuntematon asema",
     "editEntry": "Muokkaa",
-    "deleteEntry": "Poista"
+    "deleteEntry": "Poista",
+    "closeReceipt": "Sulje"
   },
   "profile": {
     "appPreferences": "Sovelluksen asetukset",

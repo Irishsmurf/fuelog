@@ -267,7 +267,8 @@
     "noLocation": "위치 정보 없음",
     "unknownStation": "알 수 없는 주유소",
     "editEntry": "기록 수정",
-    "deleteEntry": "기록 삭제"
+    "deleteEntry": "기록 삭제",
+    "closeReceipt": "닫기"
   },
   "profile": {
     "appPreferences": "앱 설정",

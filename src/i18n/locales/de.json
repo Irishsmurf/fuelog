@@ -267,7 +267,8 @@
     "noLocation": "Kein Standort",
     "unknownStation": "Unbekannte Tankstelle",
     "editEntry": "Eintrag bearbeiten",
-    "deleteEntry": "Eintrag löschen"
+    "deleteEntry": "Eintrag löschen",
+    "closeReceipt": "Schließen"
   },
   "profile": {
     "appPreferences": "App-Einstellungen",

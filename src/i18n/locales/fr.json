@@ -267,7 +267,8 @@
     "noLocation": "Pas de localisation",
     "unknownStation": "Station Inconnue",
     "editEntry": "Modifier la Saisie",
-    "deleteEntry": "Supprimer la Saisie"
+    "deleteEntry": "Supprimer la Saisie",
+    "closeReceipt": "Fermer"
   },
   "profile": {
     "appPreferences": "Préférences de l'App",

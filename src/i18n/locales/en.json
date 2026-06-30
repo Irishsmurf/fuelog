@@ -267,7 +267,8 @@
     "noLocation": "No location",
     "unknownStation": "Unknown Station",
     "editEntry": "Edit Entry",
-    "deleteEntry": "Delete Entry"
+    "deleteEntry": "Delete Entry",
+    "closeReceipt": "Close"
   },
   "profile": {
     "appPreferences": "App Preferences",

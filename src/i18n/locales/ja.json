@@ -267,7 +267,8 @@
     "noLocation": "位置情報なし",
     "unknownStation": "不明なスタンド",
     "editEntry": "記録を編集",
-    "deleteEntry": "記録を削除"
+    "deleteEntry": "記録を削除",
+    "closeReceipt": "閉じる"
   },
   "profile": {
     "appPreferences": "アプリ設定",

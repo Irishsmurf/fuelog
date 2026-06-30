@@ -27,6 +27,7 @@ import { formatDate, toDatetimeLocal } from '../utils/formatDate';
 import LocationPicker, { PickerCoords } from '../components/LocationPicker';
 import { fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
+import ReceiptModal from '../components/ReceiptModal';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -63,6 +64,9 @@ function HistoryPage(): JSX.Element {
     const [editReceiptFile, setEditReceiptFile] = useState<File | null>(null); // New receipt file
     const [isUpdating, setIsUpdating] = useState<boolean>(false); // Tracks if an update operation is in progress
     const [modalError, setModalError] = useState<string | null>(null); // Stores error messages specific to the edit modal form
+
+    // --- State for Receipt Image Modal ---
+    const [receiptModalUrl, setReceiptModalUrl] = useState<string | null>(null); // Receipt URL currently shown enlarged, or null when closed
 
     // --- State for Filtering ---
     const [filterStartDate, setFilterStartDate] = useState<string>(''); // Format: YYYY-MM-DD
@@ -570,12 +574,12 @@ function HistoryPage(): JSX.Element {
                                             {receiptDigitizationEnabled && (
                                               <td className="px-3 py-3 whitespace-nowrap text-center">
                                                 {log.receiptUrl ? (
-                                                  <a href={sanitizeUrl(log.receiptUrl)} target="_blank" rel="noopener noreferrer" className="inline-block relative rounded overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity">
+                                                  <button type="button" onClick={() => setReceiptModalUrl(log.receiptUrl!)} className="inline-block relative rounded overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity">
                                                     <img src={sanitizeUrl(log.receiptUrl)} alt="Receipt" className="h-6 w-10 object-cover" />
                                                     <div className="absolute inset-0 flex items-center justify-center bg-black/10">
                                                       <FileText size={10} className="text-white" />
                                                     </div>
-                                                  </a>
+                                                  </button>
                                                 ) : (
                                                   <span className="text-[10px] text-gray-300 dark:text-gray-600">-</span>
                                                 )}
@@ -724,6 +728,10 @@ function HistoryPage(): JSX.Element {
                 </div>
             )}
             {/* --- End Edit Modal --- */}
+
+            {receiptModalUrl && (
+                <ReceiptModal url={receiptModalUrl} onClose={() => setReceiptModalUrl(null)} />
+            )}
 
         </div> // End main page container
     );

@@ -13,6 +13,7 @@ import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { MAP_TILES } from '../utils/mapConstants';
+import ReceiptModal from './ReceiptModal';
 
 // CSS for card flip and map container
 import 'leaflet/dist/leaflet.css';
@@ -47,6 +48,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
   const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
   // Threshold (px) beyond which a pointer down→up is treated as a scroll/drag
@@ -95,6 +97,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
   const center: L.LatLngExpression = [log.latitude || 0, log.longitude || 0];
 
   return (
+    <>
     <div
       className="relative w-full h-[320px] perspective-1000 group"
       onPointerDown={handlePointerDown}
@@ -158,18 +161,16 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
           {log.receiptUrl && (
             <div className="mb-3">
               <span className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-bold tracking-tight block mb-1">{t('logCard.receipt')}</span>
-              <a
-                href={sanitizeUrl(log.receiptUrl!)}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setIsReceiptOpen(true); }}
                 className="inline-block relative rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:opacity-80 transition-opacity"
               >
                 <img src={sanitizeUrl(log.receiptUrl!)} alt="Receipt" className="h-10 w-16 object-cover" />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                   <FileText size={12} className="text-white" />
                 </div>
-              </a>
+              </button>
             </div>
           )}
 
@@ -224,6 +225,10 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
 
       </div>
     </div>
+    {isReceiptOpen && log.receiptUrl && (
+      <ReceiptModal url={log.receiptUrl} onClose={() => setIsReceiptOpen(false)} />
+    )}
+    </>
   );
 }
 

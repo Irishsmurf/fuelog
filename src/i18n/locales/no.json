@@ -267,7 +267,8 @@
     "noLocation": "Ingen posisjon",
     "unknownStation": "Ukjent stasjon",
     "editEntry": "Rediger oppføring",
-    "deleteEntry": "Slett oppføring"
+    "deleteEntry": "Slett oppføring",
+    "closeReceipt": "Lukk"
   },
   "profile": {
     "appPreferences": "App-innstillinger",

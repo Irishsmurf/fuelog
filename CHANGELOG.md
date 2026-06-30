@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.4.0](https://github.com/Irishsmurf/fuelog/compare/v2.3.0...v2.4.0) (2026-06-30)
+
+
+### Features
+
+* **functions:** add --verbose per-vehicle breakdown to odometer backfill ([#218](https://github.com/Irishsmurf/fuelog/issues/218)) ([f207832](https://github.com/Irishsmurf/fuelog/commit/f20783276a566cfee709c798206396e7395a0192))
+* **functions:** add script to assign stations to coordinate-only logs ([#219](https://github.com/Irishsmurf/fuelog/issues/219)) ([dec135b](https://github.com/Irishsmurf/fuelog/commit/dec135b768081bd7787e2e86e2ed5ee86a661b5a))
+* **functions:** backfill odometer readings from distance history ([#216](https://github.com/Irishsmurf/fuelog/issues/216)) ([d2cb326](https://github.com/Irishsmurf/fuelog/commit/d2cb3269e578b35582df87b06cf40028a90dec3e))
+* log fuel-ups at a later time and location ([#213](https://github.com/Irishsmurf/fuelog/issues/213)) ([c80f11f](https://github.com/Irishsmurf/fuelog/commit/c80f11f9ec53dc5d3a1ed4d9a814d4f6abf68831))
+* **map:** make Map page full-bleed across the viewport ([#220](https://github.com/Irishsmurf/fuelog/issues/220)) ([9825f38](https://github.com/Irishsmurf/fuelog/commit/9825f3871790dc7068fde23d58d9ecf4f371f40b))
+
+
+### Bug Fixes
+
+* allow log updates without a receipt and stop modal viewport clipping ([#215](https://github.com/Irishsmurf/fuelog/issues/215)) ([f6a9a81](https://github.com/Irishsmurf/fuelog/commit/f6a9a8142016b03d941b2e3ef0e2ecda58049c77))
+* **functions:** avoid Overpass 406 in assign-stations script ([#221](https://github.com/Irishsmurf/fuelog/issues/221)) ([db98827](https://github.com/Irishsmurf/fuelog/commit/db98827db50411735747562d1bb0f57084f36f8d))
+* **functions:** pin Firestore project in odometer backfill script ([#217](https://github.com/Irishsmurf/fuelog/issues/217)) ([21839d6](https://github.com/Irishsmurf/fuelog/commit/21839d6592fbfd2bde69b81b9e2ec51c8e91cef1))
+* prevent undefined Firestore fields and clarify save errors ([#212](https://github.com/Irishsmurf/fuelog/issues/212)) ([62b0855](https://github.com/Irishsmurf/fuelog/commit/62b08551e5337760da2c7c0f9a88c7ae3a4bfd66))
+* resolve ERR_REQUIRE_ESM from jose/jwks-rsa ([#207](https://github.com/Irishsmurf/fuelog/issues/207)) ([48b2627](https://github.com/Irishsmurf/fuelog/commit/48b262770c810d5f7b735fdce886b629e2d7e3bd))
+* use correct Interactions API parameters for Gemini thinking config ([#209](https://github.com/Irishsmurf/fuelog/issues/209)) ([293465a](https://github.com/Irishsmurf/fuelog/commit/293465af674483d68cc5f85b42dc228b981a51df))
+
+
+### Performance Improvements
+
+* compress receipt images before uploading to storage ([#211](https://github.com/Irishsmurf/fuelog/issues/211)) ([51b9552](https://github.com/Irishsmurf/fuelog/commit/51b955206cb1be9096b4a78b0555ea6a738b7f7c))
+
 ## [2.3.0](https://github.com/Irishsmurf/fuelog/compare/v2.2.0...v2.3.0) (2026-06-17)
 
 

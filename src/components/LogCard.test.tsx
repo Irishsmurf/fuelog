@@ -23,6 +23,7 @@ vi.mock('react-i18next', () => ({
         'logCard.unknownStation': 'Unknown Station',
         'logCard.editEntry': 'Edit Entry',
         'logCard.deleteEntry': 'Delete Entry',
+        'logCard.closeReceipt': 'Close',
       };
       return strings[key] ?? key;
     },
@@ -150,6 +151,27 @@ describe('LogCard', () => {
 
     expect(onDelete).toHaveBeenCalledTimes(1);
     expect(onDelete).toHaveBeenCalledWith(mockLog.id);
+  });
+
+  it('opens the receipt in a modal instead of navigating away when the thumbnail is clicked', () => {
+    const onEdit = vi.fn();
+    const onDelete = vi.fn();
+    const logWithReceipt: Log = { ...mockLog, receiptUrl: 'https://example.com/receipt.jpg' };
+
+    render(<LogCard log={logWithReceipt} onEdit={onEdit} onDelete={onDelete} />);
+
+    // The thumbnail should not be a link that navigates away from the app.
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByAltText('Receipt'));
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getAllByAltText('Receipt')).toHaveLength(2); // thumbnail + enlarged image
+
+    fireEvent.click(screen.getByLabelText('Close'));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
 

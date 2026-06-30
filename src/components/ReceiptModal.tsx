@@ -20,6 +20,13 @@ function ReceiptModal({ url, onClose }: ReceiptModalProps): JSX.Element {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   return (
     <div
       className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
@@ -30,8 +37,9 @@ function ReceiptModal({ url, onClose }: ReceiptModalProps): JSX.Element {
     >
       <button
         type="button"
-        onClick={onClose}
+        onClick={(e) => { e.stopPropagation(); onClose(); }}
         title={t('logCard.closeReceipt', { defaultValue: 'Close' })}
+        aria-label={t('logCard.closeReceipt', { defaultValue: 'Close' })}
         className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
       >
         <X size={24} />

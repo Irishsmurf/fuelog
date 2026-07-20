@@ -21,8 +21,8 @@ export default defineConfig({
         name: 'Fuelog',
         short_name: 'Fuelog',
         description: 'Track vehicle fuel consumption and costs.',
-        theme_color: '#D97706',
-        background_color: '#ffffff',
+        theme_color: '#161826',
+        background_color: '#161826',
         display: 'standalone',
         orientation: 'portrait-primary',
         icons: [

@@ -34,8 +34,8 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
   if (!receiptDigitizationEnabled) return null;
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-4">
-      <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{t('quickLog.sections.receipt')}</h3>
+    <div className="border-[1.5px] border-dashed border-gray-300 dark:border-gray-700 bg-brand-primary/[0.04] p-4 rounded-xl space-y-4">
+      <h3 className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0">{t('quickLog.sections.receipt')}</h3>
       <ImageUpload
         onFileSelect={(file) => {
           setReceiptFile(file);
@@ -50,11 +50,11 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
               type="button"
               onClick={handleExtractData}
               disabled={isExtracting}
-              className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-indigo-200 dark:border-indigo-800 rounded-lg text-sm font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:hover:bg-indigo-900/50 transition-colors disabled:opacity-50"
+              className="brand-button-primary w-full text-sm"
             >
               {isExtracting ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-indigo-600 dark:text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -68,8 +68,8 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
               )}
             </button>
           ) : (
-            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800 shadow-sm text-sm">
-              <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">{t('receipt.extractionResults')}</p>
+            <div className="nocturne-card p-3 text-sm">
+              <div className="mb-2"><span className="nocturne-tag">{t('receipt.extractionResults')}</span></div>
               <ul className="space-y-1 mb-3 text-gray-600 dark:text-gray-400">
                 <li><span className="font-medium">{t('receipt.cost')}:</span> {extractedData.cost !== null ? extractedData.cost : t('receipt.notFound')}</li>
                 <li><span className="font-medium">{t('receipt.litres')}:</span> {extractedData.fuelAmountLiters !== null ? extractedData.fuelAmountLiters : t('receipt.notFound')}</li>
@@ -81,14 +81,14 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
                 <button
                   type="button"
                   onClick={handleConfirmExtraction}
-                  className="flex-1 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-medium transition-colors"
+                  className="brand-button-primary flex-1 py-1.5 text-sm"
                 >
                   {t('receipt.useValues')}
                 </button>
                 <button
                   type="button"
                   onClick={handleCancelExtraction}
-                  className="flex-1 py-1.5 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md font-medium transition-colors"
+                  className="brand-button-secondary flex-1 py-1.5 text-sm"
                 >
                   {t('receipt.discard')}
                 </button>

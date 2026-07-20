@@ -420,10 +420,10 @@ function HistoryPage(): JSX.Element {
     // --- Render Logic ---
     return (
         <div className={`space-y-8 ${theme === 'dark' ? 'dark' : ''}`}> {/* Vertical spacing between sections */}
-            <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-white">{t('history.pageTitle')}</h2>
+            <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-gray-900 dark:text-gray-100">{t('history.pageTitle')}</h2>
 
             {/* --- Filter Controls Section --- */}
-            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="nocturne-card p-4">
                 <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-3">{t('history.filters.heading')}</h3>
                 {/* Grid layout for filter controls */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end ">
@@ -434,7 +434,7 @@ function HistoryPage(): JSX.Element {
                             id="filterVehicle" 
                             value={filterVehicleId} 
                             onChange={(e) => setFilterVehicleId(e.target.value)} 
-                            className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300"
+                            className="nocturne-input cursor-pointer"
                         >
                             <option value="">{t('history.filters.allVehicles')}</option>
                             {vehicles.map(v => (
@@ -447,17 +447,17 @@ function HistoryPage(): JSX.Element {
                     {/* Start Date Input */}
                     <div>
                         <label htmlFor="filterStartDate" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{t('history.filters.startDate')}</label>
-                        <input type="date" id="filterStartDate" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:[color-scheme:dark]" />
+                        <input type="date" id="filterStartDate" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="nocturne-input dark:[color-scheme:dark]" />
                     </div>
                     {/* End Date Input */}
                     <div>
                         <label htmlFor="filterEndDate" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">{t('history.filters.endDate')}</label>
-                        <input type="date" id="filterEndDate" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className="w-full px-3 py-1.5 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:[color-scheme:dark]" />
+                        <input type="date" id="filterEndDate" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className="nocturne-input dark:[color-scheme:dark]" />
                     </div>
                     {/* Brand Select Dropdown */}
                     <div>
                         <label htmlFor="filterBrand" className="block text-sm font-medium text-gray-700 mb-1">{t('history.filters.brand')}</label>
-                        <select id="filterBrand" value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-white dark:bg-gray-700 dark:text-gray-300 appearance-none"> {/* Added appearance-none */}
+                        <select id="filterBrand" value={filterBrand} onChange={(e) => setFilterBrand(e.target.value)} className="nocturne-input cursor-pointer appearance-none"> {/* Added appearance-none */}
                             <option value="">{t('history.filters.allBrands')}</option>
                             {/* Populate options from uniqueBrands state */}
                             {uniqueBrands.map(brand => <option key={brand} value={brand}>{brand}</option>)}
@@ -467,7 +467,7 @@ function HistoryPage(): JSX.Element {
                     <div className="flex justify-end">
                         <button
                             onClick={() => setViewMode(prev => prev === 'table' ? 'cards' : 'table')}
-                            className="px-3 py-1.5 text-sm font-medium rounded-md shadow-sm transition duration-150 ease-in-out bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500"
+                            className="brand-button-secondary px-3 py-1.5 text-sm"
                             title={viewMode === 'table' ? t('history.viewToggle.switchToCards') : t('history.viewToggle.switchToTable')}
                         >
                             {viewMode === 'table' ? t('history.viewToggle.viewCards') : t('history.viewToggle.viewTable')}
@@ -481,26 +481,26 @@ function HistoryPage(): JSX.Element {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Total Spent */}
                     {totalSpentDisplayEnabled && (
-                        <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                        <div className="nocturne-card p-4 sm:p-6">
                             <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">{t('history.metrics.totalSpent')}</h3>
-                            <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
+                            <p className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 font-mono tracking-tighter text-center">
                                 {homeCurrencySymbol}{summaryMetrics.totalCost.toFixed(2)}
                             </p>
                         </div>
                     )}
 
                     {/* Average MPG (UK) */}
-                    <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                    <div className="nocturne-card p-4 sm:p-6">
                         <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">{t('history.metrics.avgMpg')}</h3>
-                        <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
+                        <p className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 font-mono tracking-tighter text-center">
                             {summaryMetrics.averageMPG}
                         </p>
                     </div>
 
                     {/* Average Cost */}
-                    <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+                    <div className="nocturne-card p-4 sm:p-6">
                         <h3 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-1 text-center">{t('history.metrics.avgCostPerLitre')}</h3>
-                        <p className="text-2xl sm:text-3xl font-bold text-brand-primary font-mono tracking-tighter text-center">
+                        <p className="text-2xl sm:text-3xl font-semibold text-gray-900 dark:text-gray-100 font-mono tracking-tighter text-center">
                             {homeCurrencySymbol}{summaryMetrics.averageCost.toFixed(3)}
                         </p>
                     </div>
@@ -513,7 +513,7 @@ function HistoryPage(): JSX.Element {
             )}
 
             {/* --- Table / Cards Section --- */}
-            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+            <div className="nocturne-card p-4 sm:p-6">
                 {/* Section Header with Title (showing filtered count) and Copy Button */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
                     <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2 sm:mb-0">
@@ -540,15 +540,15 @@ function HistoryPage(): JSX.Element {
                 {!isLoading && !error && filteredLogs.length > 0 && (
                     viewMode === 'table' ? (
                         <div className="w-full overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700/60">
 
-                                <thead className="bg-gray-50 dark:bg-gray-700"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.date')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.vehicle')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.brand')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.cost', { currency: homeCurrency })}</th>{odometerInputEnabled && <th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.odometer')}</th>}<th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.distance')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.fuel')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.costPerMile')}</th>{receiptDigitizationEnabled && <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.receipt')}</th>}<th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.actions')}</th></tr></thead>
-                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead className="bg-gray-50 dark:bg-gray-900/40"><tr><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.date')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.vehicle')}</th><th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.brand')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.cost', { currency: homeCurrency })}</th>{odometerInputEnabled && <th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.odometer')}</th>}<th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.distance')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.fuel')}</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">km/L</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">L/100km</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">MPG (UK)</th><th scope="col" className="px-3 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.costPerMile')}</th>{receiptDigitizationEnabled && <th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.receipt')}</th>}<th scope="col" className="px-3 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('history.table.actions')}</th></tr></thead>
+                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700/60">
                                     {/* Map over filteredLogs for table rows */}
                                     {filteredLogs.map((log) => (
-                                        <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out">
+                                        <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-100/[0.04] transition duration-150 ease-in-out">
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.timestamp?.toDate() ? formatDate(log.timestamp.toDate()) : 'N/A'}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-brand-primary font-mono tracking-tighter">{vehicleMap[log.vehicleId || ''] || '-'}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-200 font-mono tracking-tighter">{vehicleMap[log.vehicleId || ''] || '-'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                                                 {stations.find(s => s.id === log.stationId)?.name || log.brand}
                                             </td>

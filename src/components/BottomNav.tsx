@@ -31,16 +31,14 @@ const BottomNav = (): JSX.Element => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center w-full h-full transition-all duration-300 active:scale-90 ${
+              className={`flex flex-col items-center justify-center gap-0.5 w-full h-full transition-colors duration-200 active:scale-95 ${
                 isActive
-                  ? 'text-brand-primary'
-                  : 'text-gray-400 dark:text-gray-500 hover:text-brand-primary'
+                  ? 'text-brand-primary-hover dark:text-brand-primary'
+                  : 'text-gray-500 hover:text-brand-primary-hover dark:hover:text-brand-primary'
               }`}
             >
-              <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-brand-primary/10' : ''}`}>
-                <Icon size={22} strokeWidth={isActive ? 2.5 : 1.75} className={isActive ? 'animate-in zoom-in duration-300' : ''} />
-              </div>
-              <span className={"text-[9px] mt-0.5 px-1 w-full text-center uppercase font-black tracking-widest transition-all truncate " + (isActive ? "opacity-100" : "opacity-50")}>
+              <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-[8px] px-1 w-full text-center uppercase font-bold tracking-wider truncate">
                 {item.label}
               </span>
             </Link>

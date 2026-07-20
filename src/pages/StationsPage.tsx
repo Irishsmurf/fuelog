@@ -80,10 +80,10 @@ const StationsPage: React.FC = () => {
 
     return (
         <div className="p-4 sm:p-6 lg:p-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">{t('stations.title')}</h1>
+            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-gray-900 dark:text-gray-100 mb-6">{t('stations.title')}</h1>
             
             {stations.length === 0 ? (
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700 text-center text-gray-600 dark:text-gray-300">
+                <div className="nocturne-card p-6 text-center text-gray-600 dark:text-gray-300">
                     <p>{t('stations.noStationsFound')}</p>
                 </div>
             ) : (
@@ -100,7 +100,7 @@ const StationsPage: React.FC = () => {
                         {selectedStationId ? (
                             <StationDetail stationId={selectedStationId} />
                         ) : (
-                            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-100 dark:border-gray-700 text-center text-gray-600 dark:text-gray-300">
+                            <div className="nocturne-card p-6 text-center text-gray-600 dark:text-gray-300">
                                 <p>{t('stations.selectStationPrompt')}</p>
                             </div>
                         )}

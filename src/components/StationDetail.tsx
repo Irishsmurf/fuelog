@@ -133,7 +133,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
 
     if (loading) {
         return (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700">
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400 nocturne-card">
                 <Loader className="w-8 h-8 animate-spin mb-2" data-testid="loader-icon" />
                 <p>{t('stationDetail.loading')}</p>
             </div>
@@ -151,15 +151,15 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
 
     if (!station) {
         return (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-100 dark:border-gray-700">
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400 nocturne-card">
                 <p>{t('stationDetail.noData')}</p>
             </div>
         );
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 border border-gray-100 dark:border-gray-700 h-full">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center">
+        <div className="nocturne-card p-6 h-full">
+            <h2 className="text-2xl font-medium tracking-tight text-gray-900 dark:text-gray-100 mb-2 flex items-center">
                 <MapPin className="w-6 h-6 mr-2 text-brand-primary" />
                 {station.name}
             </h2>

@@ -67,8 +67,8 @@ const PageLoader = () => {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col justify-center items-center min-h-[60vh] space-y-4">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
-      <p className="text-gray-500 dark:text-gray-400 text-sm font-mono animate-pulse tracking-widest uppercase text-xs">{t('common.loading')}</p>
+      <div className="animate-spin rounded-full h-12 w-12 border-2 border-gray-200 dark:border-gray-700 border-t-brand-primary"></div>
+      <p className="text-gray-500 dark:text-gray-400 animate-pulse tracking-widest uppercase text-xs">{t('common.loading')}</p>
     </div>
   );
 };
@@ -82,9 +82,9 @@ function AuthenticatedApp(): JSX.Element {
   const isFullBleed = FULL_BLEED_PATHS.has(currentPath);
 
   const getNavLinkClass = (path: string): string => {
-    const baseClass = "px-3 py-1.5 text-sm font-bold rounded-xl transition-all duration-200";
-    const activeClass = "bg-brand-primary text-white shadow-md shadow-brand-primary/20 scale-105";
-    const inactiveClass = "text-gray-600 dark:text-gray-400 hover:text-brand-primary dark:hover:text-brand-primary hover:bg-gray-100 dark:hover:bg-gray-800";
+    const baseClass = "px-2 py-1.5 text-sm font-medium rounded-md transition-colors duration-200";
+    const activeClass = "text-brand-primary-hover dark:text-brand-primary";
+    const inactiveClass = "text-gray-600 dark:text-gray-300 hover:text-brand-primary-hover dark:hover:text-brand-primary";
     return `${baseClass} ${location.pathname === path ? activeClass : inactiveClass}`;
   };
 
@@ -93,18 +93,23 @@ function AuthenticatedApp(): JSX.Element {
       {/* Brand Glass Header */}
       <header className="glass-header">
         <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <Link to="/" className="font-display text-2xl font-bold tracking-tight hover:opacity-80 transition-opacity flex-shrink-0" style={{ letterSpacing: '-0.03em' }}>
-            <span className="text-amber-500">fuel</span><span className="text-gray-400 dark:text-gray-600">og</span>
+          <Link to="/" className="inline-flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity">
+            <span className="w-6 h-6 rounded-md bg-amber-200 dark:bg-amber-800 inline-flex items-center justify-center flex-none">
+              <svg width="13" height="13" viewBox="0 0 256 256" className="fill-amber-700 dark:fill-amber-200" aria-hidden="true">
+                <path d="M128,24S64,112,64,157a64,64,0,0,0,128,0C192,112,128,24,128,24Z" />
+              </svg>
+            </span>
+            <span className="font-display text-lg font-medium tracking-tight text-gray-900 dark:text-gray-100">fuelog</span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden sm:flex items-center space-x-2">
             <Link to="/" className={getNavLinkClass("/")}>{t('nav.log')}</Link>
             <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>{t('nav.dashboard')}</Link>
             <Link to="/history" className={getNavLinkClass("/history")}>{t('nav.history')}</Link>
-            <Link to="/profile" className={getNavLinkClass("/profile")}>{t('nav.profile')}</Link>
             <Link to="/map" className={getNavLinkClass("/map")}>{t('nav.map')}</Link>
             <Link to="/stations" className={getNavLinkClass("/stations")}>{t('nav.stations')}</Link>
+            <Link to="/profile" className={getNavLinkClass("/profile")}>{t('nav.profile')}</Link>
           </div>
 
           <div className="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
@@ -155,7 +160,7 @@ function AuthenticatedApp(): JSX.Element {
         </ErrorBoundary>
       </main>
 
-      <footer className="hidden sm:block relative z-30 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 mb-0">
+      <footer className="hidden sm:block relative z-30 bg-transparent border-t border-gray-200 dark:border-gray-700/60 py-4 mb-0">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500 dark:text-gray-400">
                {t('footer.copyright', { year: new Date().getFullYear() })} | {' '}
                <Link to="/about" className="hover:text-amber-600 dark:hover:text-amber-400 underline underline-offset-2">

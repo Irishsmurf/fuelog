@@ -6,18 +6,66 @@
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Colors: Fuelog Forecourt Palette — amber like a petrol price board */
-  --color-brand-primary: #D97706;          /* amber-600: light-mode buttons & active states */
-  --color-brand-primary-hover: #B45309;    /* amber-700 */
-  --color-brand-primary-glow: #FBBF24;     /* amber-400: dark-mode accents & glows */
+  /*
+   * Nocturne design system — a quiet, compact dark interface.
+   * Near-neutral blue-grey ground, Inter at medium weight, soft radii and
+   * a single blurple accent used as a line and a glow rather than a flood.
+   * Tonal ramps generated in OKLCH on a shared perceptual lightness scale.
+   */
+
+  /* Brand roles — the accent is an outline/glow colour, never a flood */
+  --color-brand-primary: #9184d9;          /* Nocturne accent (blurple) */
+  --color-brand-primary-hover: #796cbf;    /* accent-600 */
+  --color-brand-primary-glow: #b5abfc;     /* accent-400: dark-ground accents */
   --color-brand-success: #10b981;
   --color-brand-danger: #EF4444;
-  --color-brand-dark-surface: #0A0F1E;     /* petroleum blue-black — richer than pure #000 */
+  --color-brand-dark-surface: #161826;     /* Nocturne ground */
+  --color-surface: #232532;                /* Nocturne raised surface */
 
-  /* Typography: Forecourt Pair */
-  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  /* Neutral ramp — Nocturne blue-grey neutrals replace Tailwind's gray.
+     800 doubles as the dark surface fill, 700 as the dark edge/border. */
+  --color-gray-50: #f8f9fd;
+  --color-gray-100: #f3f5fe;
+  --color-gray-200: #e4e7f5;
+  --color-gray-300: #cfd3e5;
+  --color-gray-400: #b2b6ca;
+  --color-gray-500: #9397ab;
+  --color-gray-600: #75798c;
+  --color-gray-700: #454857;
+  --color-gray-800: #232532;
+  --color-gray-900: #1b1d29;
+  --color-gray-950: #131521;
+
+  /* Accent ramp — Nocturne blurple replaces amber (and indigo below) so
+     every existing accent resolves into the one accent role. */
+  --color-amber-50: #faf9ff;
+  --color-amber-100: #f5f4ff;
+  --color-amber-200: #e7e5fe;
+  --color-amber-300: #d2cefd;
+  --color-amber-400: #b5abfc;
+  --color-amber-500: #9184d9;
+  --color-amber-600: #796cbf;
+  --color-amber-700: #5d5294;
+  --color-amber-800: #423a6a;
+  --color-amber-900: #2b2741;
+  --color-amber-950: #201d33;
+
+  --color-indigo-50: #faf9ff;
+  --color-indigo-100: #f5f4ff;
+  --color-indigo-200: #e7e5fe;
+  --color-indigo-300: #d2cefd;
+  --color-indigo-400: #b5abfc;
+  --color-indigo-500: #9184d9;
+  --color-indigo-600: #796cbf;
+  --color-indigo-700: #5d5294;
+  --color-indigo-800: #423a6a;
+  --color-indigo-900: #2b2741;
+  --color-indigo-950: #201d33;
+
+  /* Typography: Inter carries both headings and body; data stays mono */
+  --font-display: "Inter", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "Space Mono", "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
 
   /* Custom Transitions */
   --animate-squish: squish 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -43,25 +91,103 @@
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
   }
-  
+
   body {
     @apply antialiased text-gray-900 bg-gray-50 dark:text-gray-100 dark:bg-brand-dark-surface transition-colors duration-300;
   }
+
+  /* Nocturne: the accent as a glow — one soft radial wash on the dark ground */
+  .dark body {
+    background-image: radial-gradient(
+      1200px 600px at 15% -10%,
+      color-mix(in srgb, var(--color-brand-primary) 8%, transparent),
+      transparent
+    );
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+
+  /* Interaction states are themed, never browser defaults */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-brand-primary) 30%, transparent);
+  }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: 4px;
+  }
+  .dark ::-webkit-scrollbar-thumb { background: var(--color-gray-700); }
 }
 
-/* Glassmorphism & Brand Components */
+/* Nocturne component layer */
 @layer components {
   .glass-header {
-    @apply sticky top-0 z-40 bg-white/80 dark:bg-brand-dark-surface/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm;
+    @apply sticky top-0 z-40 bg-white/85 dark:bg-brand-dark-surface/85 backdrop-blur-md border-b border-gray-200 dark:border-gray-700/60;
   }
 
   .glass-nav {
-    @apply fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-brand-dark-surface/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 pb-safe;
+    @apply fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700/60 pb-safe;
   }
 
-  /* Buttons: dark text on amber — mirrors LED price board digits */
+  /* Primary action: an accent outline, never a fill */
   .brand-button-primary {
-    @apply inline-flex items-center justify-center px-4 py-2.5 rounded-xl font-bold transition-all bg-brand-primary text-gray-950 hover:bg-brand-primary-hover shadow-md shadow-amber-500/20 hover:shadow-amber-600/30 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg font-medium text-brand-primary-hover dark:text-brand-primary border border-brand-primary-hover dark:border-brand-primary bg-transparent transition-colors hover:bg-brand-primary/10 active:bg-brand-primary/20 disabled:opacity-45 disabled:pointer-events-none;
+  }
+
+  /* Secondary action: hairline divider outline */
+  .brand-button-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 bg-transparent transition-colors hover:bg-gray-900/5 dark:hover:bg-gray-100/5 active:bg-gray-900/10 dark:active:bg-gray-100/10 disabled:opacity-45 disabled:pointer-events-none;
+  }
+
+  /* Surface-filled content card */
+  .nocturne-card {
+    @apply bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700/60 shadow-sm;
+  }
+
+  /* Form input on a native element */
+  .nocturne-input {
+    @apply w-full min-h-9 px-3 py-2 text-sm font-medium bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 caret-brand-primary transition-colors hover:border-gray-400 dark:hover:border-gray-600 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-45;
+  }
+
+  .nocturne-label {
+    @apply block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5;
+  }
+
+  /* Small tinted label from the accent ramp */
+  .nocturne-tag {
+    @apply inline-flex items-center text-[11px] tracking-wide px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-800 dark:text-amber-100;
+  }
+
+  .nocturne-tag-neutral {
+    @apply inline-flex items-center text-[11px] tracking-wide px-2.5 py-0.5 rounded-md bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100;
+  }
+
+  /* Segmented control (radiogroup of .nocturne-seg-opt labels) */
+  .nocturne-seg {
+    @apply inline-flex overflow-hidden border border-gray-300 dark:border-gray-700 rounded-lg;
+  }
+  .nocturne-seg-opt {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] cursor-pointer transition-colors;
+  }
+  .nocturne-seg-opt + .nocturne-seg-opt {
+    @apply border-l border-gray-300 dark:border-gray-700;
+  }
+  .nocturne-seg-opt:has(input:checked) {
+    @apply text-brand-primary-hover dark:text-brand-primary shadow-[inset_0_0_0_1px_var(--color-brand-primary)];
+  }
+  .nocturne-seg-opt:not(:has(input:checked)):hover {
+    @apply bg-gray-900/5 dark:bg-gray-100/5;
+  }
+  .nocturne-seg-opt input {
+    @apply absolute opacity-0 w-0 h-0 pointer-events-none;
   }
 
   /* Data display: tabular, monospaced, tight tracking */
@@ -78,9 +204,9 @@
 /* Dark mode popup styles */
 .dark .leaflet-popup-content-wrapper,
 .dark .leaflet-popup-tip {
-    background-color: #0f172a; /* slate-900 */
-    color: #f3f4f6; /* gray-100 */
-    border: 1px solid #1e293b;
+    background-color: #232532; /* Nocturne surface */
+    color: #e9e9ed;
+    border: 1px solid #3f424d;
 }
 
 /* Card Flip Animations */

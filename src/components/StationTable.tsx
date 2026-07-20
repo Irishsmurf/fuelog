@@ -122,8 +122,8 @@ const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, 
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg border border-gray-100 dark:border-gray-700">
-      <div className="flex flex-wrap items-center gap-1.5 p-3 border-b border-gray-100 dark:border-gray-700">
+    <div className="nocturne-card">
+      <div className="flex flex-wrap items-center gap-1.5 p-3 border-b border-gray-200 dark:border-gray-700/60">
         <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mr-1">
           {t('stationTable.sortBy')}
         </span>
@@ -149,7 +149,7 @@ const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, 
         })}
       </div>
 
-      <ul className="divide-y divide-gray-100 dark:divide-gray-700">
+      <ul className="divide-y divide-gray-200 dark:divide-gray-700/60">
         {sortedStations.map((station) => {
           const isSelected = selectedStationId === station.id;
           const tier = priceTiers.get(station.id);
@@ -159,7 +159,7 @@ const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, 
                 type="button"
                 onClick={() => onSelectStation(station.id)}
                 aria-current={isSelected ? 'true' : undefined}
-                className={`w-full flex items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                className={`w-full flex items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-100/[0.04] ${
                   isSelected ? 'bg-amber-50 dark:bg-amber-900/20' : ''
                 }`}
               >

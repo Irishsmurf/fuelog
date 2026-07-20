@@ -185,7 +185,7 @@ function ProfilePage(): JSX.Element {
   const archivedVehicles = vehicles.filter(v => v.isArchived);
 
   const renderVehicleCard = (v: Vehicle) => (
-    <div key={v.id} className={`group relative bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md ${v.isDefault ? 'border-brand-primary ring-1 ring-brand-primary/20' : 'border-gray-100 dark:border-gray-700'}`}>
+    <div key={v.id} className={`group relative bg-white dark:bg-gray-800 rounded-xl border transition-all duration-300 overflow-hidden ${v.isDefault ? 'border-brand-primary' : 'border-gray-200 dark:border-gray-700/60'}`}>
       <div className="p-5 flex items-start space-x-4">
         {/* Car Icon Accent */}
         <div className={`p-3 rounded-xl transition-colors ${v.isDefault ? 'bg-brand-primary/10 text-brand-primary' : 'bg-gray-50 dark:bg-gray-900 text-gray-400'}`}>
@@ -194,9 +194,9 @@ function ProfilePage(): JSX.Element {
 
         <div className="flex-grow min-w-0">
           <div className="flex justify-between items-start">
-            <h4 className="text-lg font-black tracking-tight truncate text-gray-900 dark:text-white">{v.name}</h4>
+            <h4 className="text-lg font-semibold tracking-tight truncate text-gray-900 dark:text-white">{v.name}</h4>
             {v.isDefault && (
-              <span className="shrink-0 flex items-center text-[10px] font-black uppercase tracking-widest text-brand-primary bg-brand-primary/10 px-2 py-0.5 rounded-full">
+              <span className="nocturne-tag shrink-0">
                 {t('profile.vehicleCard.primary')}
               </span>
             )}
@@ -221,7 +221,7 @@ function ProfilePage(): JSX.Element {
         {!v.isArchived && !v.isDefault && (
           <button
             onClick={() => handleSetDefault(v)}
-            className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-brand-primary hover:bg-brand-primary/5 transition-all flex items-center justify-center space-x-1.5"
+            className="flex-1 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:text-brand-primary hover:bg-brand-primary/5 transition-all flex items-center justify-center space-x-1.5"
           >
             <CheckCircle2 size={12} />
             <span>{t('profile.vehicleCard.makeDefault')}</span>
@@ -229,7 +229,7 @@ function ProfilePage(): JSX.Element {
         )}
         <button
           onClick={() => handleArchiveVehicle(v)}
-          className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all flex items-center justify-center space-x-1.5"
+          className="flex-1 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all flex items-center justify-center space-x-1.5"
           title={v.isArchived ? t('profile.vehicleCard.restore') : t('profile.vehicleCard.archive')}
         >
           <Archive size={12} />
@@ -237,7 +237,7 @@ function ProfilePage(): JSX.Element {
         </button>
         <button
           onClick={() => handleDeleteVehicle(v.id)}
-          className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all flex items-center justify-center space-x-1.5"
+          className="flex-1 py-3 text-[10px] font-bold uppercase tracking-wider text-gray-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all flex items-center justify-center space-x-1.5"
         >
           <Trash2 size={12} />
           <span>{t('profile.vehicleCard.delete')}</span>
@@ -249,19 +249,19 @@ function ProfilePage(): JSX.Element {
   return (
     <div className="container mx-auto max-w-4xl px-4 space-y-10 pb-12 text-gray-900 dark:text-gray-100">
       {/* App Preferences Section */}
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 sm:p-10 border border-gray-100 dark:border-gray-700/50">
+      <div className="nocturne-card rounded-2xl p-6 sm:p-8">
         <div className="flex items-center space-x-3 mb-8">
           <div className="bg-brand-primary/10 p-2 rounded-lg text-brand-primary">
             <Settings size={20} />
           </div>
-          <h3 className="text-xl font-black tracking-tight">{t('profile.appPreferences')}</h3>
+          <h3 className="text-xl font-medium tracking-tight">{t('profile.appPreferences')}</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-brand-primary">
               <Coins size={18} />
-              <h4 className="text-sm font-black uppercase tracking-widest">{t('profile.homeCurrency')}</h4>
+              <h4 className="text-xs font-medium uppercase tracking-wider">{t('profile.homeCurrency')}</h4>
             </div>
             <p className="text-xs text-gray-500 font-medium leading-relaxed">
               {t('profile.homeCurrencyDesc')}
@@ -269,7 +269,7 @@ function ProfilePage(): JSX.Element {
             <select
               value={profile?.homeCurrency || 'EUR'}
               onChange={(e) => updateProfile({ homeCurrency: e.target.value })}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white"
+              className="nocturne-input"
             >
               {COMMON_CURRENCIES.map((curr) => (
                 <option key={curr.code} value={curr.code}>
@@ -282,7 +282,7 @@ function ProfilePage(): JSX.Element {
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-brand-primary">
               <Wallet size={18} />
-              <h4 className="text-sm font-black uppercase tracking-widest">{t('profile.monthlyBudget')}</h4>
+              <h4 className="text-xs font-medium uppercase tracking-wider">{t('profile.monthlyBudget')}</h4>
             </div>
             <p className="text-xs text-gray-500 font-medium leading-relaxed">
               {t('profile.monthlyBudgetDesc')}
@@ -296,14 +296,14 @@ function ProfilePage(): JSX.Element {
               onChange={(e) => setBudgetInput(e.target.value)}
               onBlur={handleBudgetBlur}
               placeholder={t('profile.monthlyBudgetPlaceholder')}
-              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white"
+              className="nocturne-input"
             />
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-brand-primary">
               <Settings size={18} />
-              <h4 className="text-sm font-black uppercase tracking-widest">{t('language.label')}</h4>
+              <h4 className="text-xs font-medium uppercase tracking-wider">{t('language.label')}</h4>
             </div>
             <p className="text-xs text-gray-500 font-medium leading-relaxed">
               {t('language.en')} / {t('language.ga')}
@@ -317,7 +317,7 @@ function ProfilePage(): JSX.Element {
         <div className="mt-8 opacity-40 grayscale pointer-events-none">
           <div className="flex items-center space-x-2 text-gray-400">
             <Settings size={18} />
-            <h4 className="text-sm font-black uppercase tracking-widest">{t('profile.measurementUnits')}</h4>
+            <h4 className="text-xs font-medium uppercase tracking-wider">{t('profile.measurementUnits')}</h4>
           </div>
           <p className="text-xs text-gray-400 font-medium mt-4 italic">{t('profile.measurementUnitsSoon')}</p>
         </div>
@@ -326,13 +326,13 @@ function ProfilePage(): JSX.Element {
       <div>
         <div className="flex justify-between items-end mb-6">
           <div>
-            <h2 className="text-3xl font-black tracking-tighter text-gray-900 dark:text-white">{t('profile.vehicleFleet')}</h2>
+            <h2 className="text-3xl font-medium tracking-tight text-gray-900 dark:text-white">{t('profile.vehicleFleet')}</h2>
             <p className="text-sm font-medium text-gray-500">{t('profile.vehicleFleetSubtext')}</p>
           </div>
           {archivedVehicles.length > 0 && (
             <button
               onClick={() => setShowArchived(!showArchived)}
-              className="text-xs font-black uppercase tracking-widest text-brand-primary hover:underline"
+              className="text-xs font-medium uppercase tracking-wider text-amber-700 dark:text-amber-300 hover:underline"
             >
               {showArchived ? t('profile.hideArchived') : t('profile.showArchived', { count: archivedVehicles.length })}
             </button>
@@ -363,7 +363,7 @@ function ProfilePage(): JSX.Element {
         {/* Archived Vehicle Grid */}
         {showArchived && archivedVehicles.length > 0 && (
           <div className="mt-10 animate-in fade-in slide-in-from-top-4">
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center">
+            <h3 className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-4 flex items-center">
               <Archive size={14} className="mr-2" /> {t('profile.archivedFleet')}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
@@ -374,35 +374,35 @@ function ProfilePage(): JSX.Element {
       </div>
 
       {/* Add Vehicle Section */}
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 sm:p-10 border border-gray-100 dark:border-gray-700/50">
+      <div className="nocturne-card rounded-2xl p-6 sm:p-8">
         <div className="flex items-center space-x-3 mb-8">
           <div className="bg-brand-primary/10 p-2 rounded-lg text-brand-primary">
             <PlusCircle size={20} />
           </div>
-          <h3 className="text-xl font-black tracking-tight">{t('profile.addNewVehicle')}</h3>
+          <h3 className="text-xl font-medium tracking-tight">{t('profile.addNewVehicle')}</h3>
         </div>
 
         <form onSubmit={handleAddVehicle} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.nickname')}</label>
-              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.nicknamePlaceholder')} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+              <label className="block nocturne-label uppercase tracking-wider">{t('profile.vehicleForm.nickname')}</label>
+              <input type="text" name="name" value={formData.name} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.nicknamePlaceholder')} className="nocturne-input" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.make')}</label>
-              <input type="text" name="make" value={formData.make} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.makePlaceholder')} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+              <label className="block nocturne-label uppercase tracking-wider">{t('profile.vehicleForm.make')}</label>
+              <input type="text" name="make" value={formData.make} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.makePlaceholder')} className="nocturne-input" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.model')}</label>
-              <input type="text" name="model" value={formData.model} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.modelPlaceholder')} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+              <label className="block nocturne-label uppercase tracking-wider">{t('profile.vehicleForm.model')}</label>
+              <input type="text" name="model" value={formData.model} onChange={handleInputChange} required placeholder={t('profile.vehicleForm.modelPlaceholder')} className="nocturne-input" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.year')}</label>
-              <input type="number" name="year" value={formData.year} onChange={handleInputChange} required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white" />
+              <label className="block nocturne-label uppercase tracking-wider">{t('profile.vehicleForm.year')}</label>
+              <input type="number" name="year" value={formData.year} onChange={handleInputChange} required className="nocturne-input" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">{t('profile.vehicleForm.fuelType')}</label>
-              <select name="fuelType" value={formData.fuelType} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-brand-primary/20 transition-all font-bold text-gray-900 dark:text-white">
+              <label className="block nocturne-label uppercase tracking-wider">{t('profile.vehicleForm.fuelType')}</label>
+              <select name="fuelType" value={formData.fuelType} onChange={handleInputChange} className="nocturne-input">
                 <option value="Petrol">{t('profile.vehicleForm.fuelTypes.petrol')}</option>
                 <option value="Diesel">{t('profile.vehicleForm.fuelTypes.diesel')}</option>
                 <option value="Hybrid">{t('profile.vehicleForm.fuelTypes.hybrid')}</option>
@@ -438,12 +438,12 @@ function ProfilePage(): JSX.Element {
       </div>
 
       {/* Notifications Section */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-800">
+      <div className="nocturne-card rounded-2xl p-6 sm:p-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-2xl bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center">
             <Bell className="w-5 h-5 text-yellow-500" />
           </div>
-          <h3 className="text-xl font-black tracking-tight">{t('profile.notifications.heading', { defaultValue: 'Notifications' })}</h3>
+          <h3 className="text-xl font-medium tracking-tight">{t('profile.notifications.heading', { defaultValue: 'Notifications' })}</h3>
         </div>
         <div className="flex items-center justify-between">
           <div>
@@ -473,18 +473,18 @@ function ProfilePage(): JSX.Element {
       </div>
 
       {/* Data Import Section */}
-      <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-800">
+      <div className="nocturne-card rounded-2xl p-6 sm:p-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center">
             <UploadCloud className="w-5 h-5 text-indigo-500" />
           </div>
-          <h3 className="text-xl font-black tracking-tight">{t('profile.dataImport.heading')}</h3>
+          <h3 className="text-xl font-medium tracking-tight">{t('profile.dataImport.heading')}</h3>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">{t('profile.dataImport.description')}</p>
           <Link
             to="/import"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 shrink-0"
+            className="brand-button-primary px-4 py-2 text-sm shrink-0"
           >
             <UploadCloud className="w-4 h-4" />
             {t('profile.dataImport.cta')}
@@ -496,17 +496,17 @@ function ProfilePage(): JSX.Element {
       <ApiTokenManager />
 
       {/* Maintenance Section */}
-      <div className="bg-white dark:bg-gray-800 shadow-xl rounded-3xl p-6 sm:p-8 border border-gray-100 dark:border-gray-700/50">
+      <div className="nocturne-card rounded-2xl p-6 sm:p-8">
         <div className="flex items-center space-x-3 mb-6">
           <div className="bg-amber-500/10 p-2 rounded-lg text-amber-500">
             <RefreshCw size={20} />
           </div>
-          <h3 className="text-xl font-black tracking-tight">{t('profile.maintenance.heading')}</h3>
+          <h3 className="text-xl font-medium tracking-tight">{t('profile.maintenance.heading')}</h3>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <h4 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">{t('profile.maintenance.migrateStations')}</h4>
+            <h4 className="text-xs font-medium uppercase tracking-wider text-gray-900 dark:text-white">{t('profile.maintenance.migrateStations')}</h4>
             <p className="text-xs text-gray-500 font-medium leading-relaxed max-w-md">
               {t('profile.maintenance.migrateStationsDesc')}
             </p>
@@ -514,7 +514,7 @@ function ProfilePage(): JSX.Element {
           {!isMigrating ? (
             <button
               onClick={handleMigrateStations}
-              className="flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-md bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20"
+              className="brand-button-primary px-6 py-3 text-sm"
             >
               <RefreshCw size={16} />
               <span>{t('profile.maintenance.migrateStationsButton')}</span>
@@ -527,7 +527,7 @@ function ProfilePage(): JSX.Element {
               </div>
               <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-amber-500 transition-all duration-300 ease-out" 
+                  className="h-full bg-brand-primary transition-all duration-300 ease-out" 
                   style={{ width: `${migrationProgress ? (migrationProgress.current / migrationProgress.total) * 100 : 0}%` }}
                 ></div>
               </div>

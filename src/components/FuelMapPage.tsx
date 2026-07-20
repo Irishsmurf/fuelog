@@ -146,15 +146,15 @@ const FuelMapPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 z-0 flex justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <Loader className="w-8 h-8 animate-spin text-amber-500" />
+      <div className="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 z-0 flex justify-center items-center bg-gray-50 dark:bg-brand-dark-surface">
+        <Loader className="w-8 h-8 animate-spin text-brand-primary" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 z-0 flex flex-col justify-center items-center bg-gray-50 dark:bg-gray-900 text-red-500 dark:text-red-400">
+      <div className="fixed inset-x-0 top-0 bottom-16 sm:bottom-0 z-0 flex flex-col justify-center items-center bg-gray-50 dark:bg-brand-dark-surface text-red-500 dark:text-red-400">
         <AlertCircle className="w-12 h-12 mb-2" />
         <p>{error}</p>
       </div>
@@ -174,17 +174,17 @@ const FuelMapPage: React.FC = () => {
            </div>
        )}
 
-       <div className="absolute top-20 right-4 z-[1000] bg-white dark:bg-gray-800 rounded-md shadow-md border border-gray-200 dark:border-gray-700 flex overflow-hidden">
+       <div className="absolute top-20 right-4 z-[1000] bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-lg shadow-md border border-gray-200 dark:border-gray-700/60 flex overflow-hidden">
          <button 
            onClick={() => setViewMode('cluster')}
-           className={`px-3 py-1.5 text-sm font-medium flex items-center ${viewMode === 'cluster' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+           className={`px-3 py-1.5 text-sm font-medium flex items-center ${viewMode === 'cluster' ? 'text-brand-primary-hover dark:text-brand-primary shadow-[inset_0_0_0_1px_var(--color-brand-primary)]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
          >
            <Layers className="w-4 h-4 mr-1.5" />
            {t('map.clusters', 'Clusters')}
          </button>
          <button 
            onClick={() => setViewMode('heatmap')}
-           className={`px-3 py-1.5 text-sm font-medium flex items-center ${viewMode === 'heatmap' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/50 dark:text-indigo-400' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+           className={`px-3 py-1.5 text-sm font-medium flex items-center ${viewMode === 'heatmap' ? 'text-brand-primary-hover dark:text-brand-primary shadow-[inset_0_0_0_1px_var(--color-brand-primary)]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
          >
            <Activity className="w-4 h-4 mr-1.5" />
            {t('map.heatmap', 'Heatmap')}

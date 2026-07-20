@@ -255,20 +255,20 @@ function DashboardPage(): JSX.Element {
                         <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">{t('dashboard.charts.monthlySpend', { defaultValue: 'Monthly Spend (Last 6 Months)' })}</h3>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#3f424d' : '#e4e7f5'} />
-                                <XAxis dataKey="month" tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }} />
-                                <YAxis tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }} />
+                                <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'var(--color-gray-700)' : 'var(--color-gray-200)'} />
+                                <XAxis dataKey="month" tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }} />
+                                <YAxis tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }} />
                                 <Tooltip
                                     contentStyle={{
                                         fontSize: '12px',
                                         padding: '5px',
-                                        backgroundColor: theme === 'dark' ? '#232532' : 'white',
+                                        backgroundColor: theme === 'dark' ? 'var(--color-surface)' : 'white',
                                         color: theme === 'dark' ? 'white' : 'black',
-                                        border: theme === 'dark' ? '1px solid #3f424d' : '1px solid #e4e7f5'
+                                        border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)'
                                     }}
                                     formatter={(value: number) => `${homeCurrencySymbol}${value.toFixed(2)}`}
                                 />
-                                <Bar dataKey="cost" name={t('dashboard.charts.spend', { defaultValue: 'Spend' })} fill="#5d5294" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="cost" name={t('dashboard.charts.spend', { defaultValue: 'Spend' })} fill="var(--color-amber-700)" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -306,24 +306,24 @@ function DashboardPage(): JSX.Element {
                             <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">{t('history.charts.mpgOverTime')}</h3>
                             <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={trendChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#3f424d' : '#e4e7f5'} />
-                                    <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
-                                    <YAxis yAxisId="left" tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }} domain={['auto', 'auto']} label={{ value: 'MPG (UK)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#9397ab' : '#75798c' } }} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'var(--color-gray-700)' : 'var(--color-gray-200)'} />
+                                    <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
+                                    <YAxis yAxisId="left" tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }} domain={['auto', 'auto']} label={{ value: 'MPG (UK)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)' } }} />
                                     <YAxis
                                         yAxisId="right"
                                         orientation="right"
-                                        tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }}
+                                        tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }}
                                         domain={['auto', 'auto']}
                                         tickFormatter={(value: number) => value.toFixed(3)}
-                                        label={{ value: `${t('history.charts.pricePerLitre')} (${homeCurrencySymbol})`, angle: 90, position: 'insideRight', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#9397ab' : '#75798c' } }}
+                                        label={{ value: `${t('history.charts.pricePerLitre')} (${homeCurrencySymbol})`, angle: 90, position: 'insideRight', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)' } }}
                                     />
                                     <Tooltip
                                         contentStyle={{
                                             fontSize: '12px',
                                             padding: '5px',
-                                            backgroundColor: theme === 'dark' ? '#232532' : 'white',
+                                            backgroundColor: theme === 'dark' ? 'var(--color-surface)' : 'white',
                                             color: theme === 'dark' ? 'white' : 'black',
-                                            border: theme === 'dark' ? '1px solid #3f424d' : '1px solid #e4e7f5'
+                                            border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)'
                                         }}
                                         formatter={(value: number, name: string) => name === t('history.charts.pricePerLitre')
                                             ? `${homeCurrencySymbol}${value.toFixed(3)}`
@@ -333,8 +333,8 @@ function DashboardPage(): JSX.Element {
                                         wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black', cursor: 'pointer' }}
                                         onClick={(e) => toggleChartSeries(e.dataKey as string)}
                                     />
-                                    <Line yAxisId="left" type="monotone" dataKey="mpg" name="MPG (UK)" stroke="#9184d9" strokeWidth={2.5} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('mpg')} />
-                                    <Line yAxisId="right" type="monotone" dataKey="fuelPrice" name={t('history.charts.pricePerLitre')} stroke="#9397ab" strokeWidth={2} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('fuelPrice')} />
+                                    <Line yAxisId="left" type="monotone" dataKey="mpg" name="MPG (UK)" stroke="var(--color-brand-primary)" strokeWidth={2.5} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('mpg')} />
+                                    <Line yAxisId="right" type="monotone" dataKey="fuelPrice" name={t('history.charts.pricePerLitre')} stroke="var(--color-gray-500)" strokeWidth={2} activeDot={{ r: 6 }} connectNulls hide={hiddenChartSeries.has('fuelPrice')} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -346,20 +346,20 @@ function DashboardPage(): JSX.Element {
                             <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">{t('history.charts.costPerLitreOverTime')}</h3>
                             <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={trendChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#3f424d' : '#e4e7f5'} />
-                                    <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'var(--color-gray-700)' : 'var(--color-gray-200)'} />
+                                    <XAxis dataKey="date" tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }} angle={-30} textAnchor="end" height={50} interval="preserveStartEnd" />
                                     <YAxis
-                                        tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }}
+                                        tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }}
                                         domain={['auto', 'auto']}
-                                        label={{ value: 'Cost Per Litre (€)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? '#9397ab' : '#75798c' } }}
+                                        label={{ value: 'Cost Per Litre (€)', angle: -90, position: 'insideLeft', offset: 10, style: { fontSize: '12px', fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)' } }}
                                         tickFormatter={(value) => value.toFixed(3)}
                                     />
                                     <Tooltip
-                                        contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#232532' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #3f424d' : '1px solid #e4e7f5' }}
+                                        contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? 'var(--color-surface)' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)' }}
                                         formatter={(value: number) => `€${value.toFixed(3)}`}
                                     />
                                     <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
-                                    <Line type="monotone" dataKey="fuelPrice" name="Cost Per Litre" stroke="#9184d9" strokeWidth={2.5} activeDot={{ r: 6 }} connectNulls />
+                                    <Line type="monotone" dataKey="fuelPrice" name="Cost Per Litre" stroke="var(--color-brand-primary)" strokeWidth={2.5} activeDot={{ r: 6 }} connectNulls />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -371,19 +371,19 @@ function DashboardPage(): JSX.Element {
                             <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">{t('history.charts.vehicleComparison')}</h3>
                             <ResponsiveContainer width="100%" height={300}>
                                 <BarChart data={vehicleComparisonStats} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? '#3f424d' : '#e4e7f5'} />
-                                    <XAxis dataKey="name" tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke={theme === 'dark' ? 'var(--color-gray-700)' : 'var(--color-gray-200)'} />
+                                    <XAxis dataKey="name" tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }} />
                                     <YAxis
                                         yAxisId="left"
-                                        tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }}
+                                        tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }}
                                     />
                                     <YAxis
                                         yAxisId="right"
                                         orientation="right"
-                                        tick={{ fill: theme === 'dark' ? '#9397ab' : '#75798c', fontSize: 12 }}
+                                        tick={{ fill: theme === 'dark' ? 'var(--color-gray-500)' : 'var(--color-gray-600)', fontSize: 12 }}
                                     />
                                     <Tooltip
-                                        contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? '#232532' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid #3f424d' : '1px solid #e4e7f5' }}
+                                        contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? 'var(--color-surface)' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)' }}
                                         formatter={(value: number, name: string) => name === t('history.charts.totalSpend')
                                             ? `${homeCurrencySymbol}${value.toFixed(2)}`
                                             : name === t('history.charts.avgCostPerLitre')
@@ -391,9 +391,9 @@ function DashboardPage(): JSX.Element {
                                                 : value.toFixed(2)}
                                     />
                                     <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
-                                    <Bar yAxisId="left" dataKey="avgL100km" name={t('history.charts.avgL100km')} fill="#9184d9" />
-                                    <Bar yAxisId="left" dataKey="avgCostPerLitre" name={t('history.charts.avgCostPerLitre')} fill="#75798c" />
-                                    <Bar yAxisId="right" dataKey="totalSpend" name={t('history.charts.totalSpend')} fill="#5d5294" />
+                                    <Bar yAxisId="left" dataKey="avgL100km" name={t('history.charts.avgL100km')} fill="var(--color-brand-primary)" />
+                                    <Bar yAxisId="left" dataKey="avgCostPerLitre" name={t('history.charts.avgCostPerLitre')} fill="var(--color-gray-600)" />
+                                    <Bar yAxisId="right" dataKey="totalSpend" name={t('history.charts.totalSpend')} fill="var(--color-amber-700)" />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>

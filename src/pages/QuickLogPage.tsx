@@ -662,7 +662,7 @@ function QuickLogPage(): JSX.Element {
                               defaultValue: '{{lat}}, {{lng}}',
                             })}
                       </span>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${locationMode === 'manual' ? 'bg-amber-100 text-amber-700 dark:bg-amber-800 dark:text-amber-100' : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-100'}`}>
+                      <span className={`font-bold uppercase ${locationMode === 'manual' ? 'nocturne-tag' : 'nocturne-tag-neutral'}`}>
                         {locationMode === 'manual'
                           ? t('quickLog.location.manualBadge', { defaultValue: 'Pinned' })
                           : t('quickLog.location.gpsBadge', { defaultValue: 'GPS' })}

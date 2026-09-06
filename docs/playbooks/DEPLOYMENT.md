@@ -11,6 +11,16 @@ Before deploying, ensure you have the following environment variables configured
 - `VITE_FIREBASE_STORAGE_BUCKET`
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
+- `VITE_CARTO_API_KEY` — optional but recommended in production. Without it the
+  log-card map thumbnails render CARTO's keyless raster tiles, which are stamped
+  with an "API KEY REQUIRED" watermark. Get a free key (no CARTO account
+  required) at <https://carto.com/basemaps/apikey>.
+
+> The CARTO key is compiled into the client bundle by Vite, so it is publicly
+> visible — that is expected. Tile requests are made by the browser, so the key
+> is an identifier rather than a secret. It has no payment method attached, so
+> the worst case if it is scraped is exhausting CARTO's 5M-requests/month fair
+> use limit, which throttles rather than bills. Rotating it requires a redeploy.
 
 ### 2. Manual Vercel Deployment (CLI)
 If you have the Vercel CLI installed:

@@ -5,7 +5,7 @@ import { Loader, AlertCircle, MapPin } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -13,7 +13,8 @@ import { Log, Station } from '../utils/types';
 import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
 import { formatDate } from '../utils/formatDate';
 import { useTheme } from '../context/ThemeContext';
-import { MAP_TILES, createStationIcon } from '../utils/mapConstants';
+import { createStationIcon } from '../utils/mapConstants';
+import VectorBasemap from './VectorBasemap';
 
 // Leaflet's default marker icon URLs are broken under bundlers like Vite;
 // point them at the public assets instead. Safe to call more than once
@@ -192,10 +193,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                         scrollWheelZoom={false}
                         style={{ height: '100%', width: '100%' }}
                     >
-                        <TileLayer
-                            attribution={MAP_TILES.attribution}
-                            url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
-                        />
+                        <VectorBasemap theme={theme === 'dark' ? 'dark' : 'light'} />
                         <Marker position={[station.latitude, station.longitude]} icon={createStationIcon()} />
                     </MapContainer>
                 </div>

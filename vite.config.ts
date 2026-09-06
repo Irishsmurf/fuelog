@@ -152,6 +152,13 @@ export default defineConfig({
       }
     })
   ],
+  // maplibre-gl spawns a web worker via `new Worker(new URL(...))`. Vite's dep
+  // pre-bundler rewrites that URL and the worker then 404s, so the vector
+  // basemap never finishes loading under `npm run dev`. Excluding it from
+  // optimisation leaves the worker URL intact. Production builds are unaffected.
+  optimizeDeps: {
+    exclude: ['maplibre-gl'],
+  },
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
@@ -173,6 +180,10 @@ export default defineConfig({
             if (id.includes('leaflet.markercluster') || id.includes('react-leaflet-markercluster') || id.includes('leaflet.heat')) {
               return null;
             }
+            // maplibre-gl is a WebGL renderer pulled in only by VectorBasemap,
+            // which in turn only loads on map-bearing routes. Left in the
+            // catch-all vendor-libs chunk it would be downloaded by every page.
+            if (id.includes('maplibre')) return 'vendor-maplibre';
             return 'vendor-libs';
           }
         }

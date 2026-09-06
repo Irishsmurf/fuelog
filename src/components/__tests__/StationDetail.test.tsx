@@ -52,8 +52,13 @@ vi.mock('react-i18next', () => ({
 // Mock react-leaflet to avoid map rendering issues in tests
 vi.mock('react-leaflet', () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="map-container">{children}</div>,
-  TileLayer: () => <div />,
   Marker: () => <div data-testid="map-marker" />,
+}));
+
+// The vector basemap needs a real Leaflet map instance and a WebGL context,
+// neither of which jsdom provides.
+vi.mock('../VectorBasemap', () => ({
+  default: () => <div data-testid="vector-basemap" />,
 }));
 
 // Mock Recharts components (simplified)

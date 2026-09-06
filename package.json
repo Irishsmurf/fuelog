@@ -18,7 +18,7 @@
     "@google/genai": "^2.9.0",
     "@maplibre/maplibre-gl-leaflet": "^0.1.4",
     "@modelcontextprotocol/sdk": "^1.27.1",
-    "@sentry/node": "^10.42.0",
+    "@sentry/node": "^10.68.0",
     "@sentry/react": "^10.42.0",
     "@tailwindcss/cli": "^4.2.1",
     "@tailwindcss/vite": "^4.2.1",

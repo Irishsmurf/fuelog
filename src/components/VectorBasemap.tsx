@@ -1,9 +1,18 @@
 import React, { useEffect } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { setWorkerUrl } from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import '@maplibre/maplibre-gl-leaflet';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MAP_ATTRIBUTION, MAP_STYLES, cartoTransformRequest } from '../utils/mapConstants';
+
+// maplibre-gl derives its worker URL at runtime by string-manipulating
+// import.meta.url into a sibling "maplibre-gl-worker.mjs". No bundler can see
+// that statically, so the file is never emitted and the request 404s — which
+// this app's SPA rewrite answers with index.html, failing the module's MIME
+// check. Point maplibre at a worker Vite actually bundles instead.
+setWorkerUrl(maplibreWorkerUrl);
 
 interface VectorBasemapProps {
   theme: 'light' | 'dark';

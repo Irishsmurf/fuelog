@@ -152,10 +152,16 @@ export default defineConfig({
       }
     })
   ],
-  // maplibre-gl spawns a web worker via `new Worker(new URL(...))`. Vite's dep
-  // pre-bundler rewrites that URL and the worker then 404s, so the vector
-  // basemap never finishes loading under `npm run dev`. Excluding it from
-  // optimisation leaves the worker URL intact. Production builds are unaffected.
+  // maplibre-gl's worker is loaded as an ES module (`new Worker(url, { type:
+  // 'module' })`), so the bundled worker has to be ESM too. Vite emits workers
+  // as IIFE by default, which fails to load.
+  worker: {
+    format: 'es',
+  },
+  // maplibre-gl resolves its worker from import.meta.url at runtime, which the
+  // dep pre-bundler rewrites, breaking the worker under `npm run dev`.
+  // VectorBasemap overrides the URL via setWorkerUrl, but excluding the package
+  // keeps dev's module graph aligned with the bundled worker.
   optimizeDeps: {
     exclude: ['maplibre-gl'],
   },

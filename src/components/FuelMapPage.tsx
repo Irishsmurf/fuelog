@@ -16,7 +16,7 @@ import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreServ
 import { Log, Station } from '../utils/types';
 import { formatDate } from '../utils/formatDate';
 import { useTheme } from '../context/ThemeContext';
-import { createStationIcon } from '../utils/mapConstants';
+import { MAP_MAX_ZOOM, createStationIcon } from '../utils/mapConstants';
 import { useTranslation } from 'react-i18next';
 
 // --- Icon Fix (points to public assets) ---
@@ -192,7 +192,7 @@ const FuelMapPage: React.FC = () => {
          </button>
        </div>
 
-      <MapContainer center={initialCenter} zoom={validLocations.length > 0 ? 10 : 6} scrollWheelZoom={true} zoomControl={false} style={{ height: '100%', width: '100%' }}>
+      <MapContainer center={initialCenter} zoom={validLocations.length > 0 ? 10 : 6} maxZoom={MAP_MAX_ZOOM} scrollWheelZoom={true} zoomControl={false} style={{ height: '100%', width: '100%' }}>
         {/* Default zoom control lives top-left, where the full-bleed map now
             tucks under the sticky header. Move it bottom-left so it stays
             tappable. */}

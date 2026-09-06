@@ -22,6 +22,18 @@ export const MAP_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 /**
+ * Leaflet derives Map.getMaxZoom() from its layers, and a raster <TileLayer>
+ * supplied one for free (its default, 18). L.maplibreGL is a plain L.Layer and
+ * supplies none, which leaves getMaxZoom() as Infinity — and MarkerClusterGroup
+ * throws outright on a map without a finite maxZoom. So every map that renders
+ * a vector basemap has to state this explicitly.
+ *
+ * 20 is the value CARTO uses in its own Leaflet example for these styles;
+ * vector tiles overzoom cleanly well past the source data's zoom 14.
+ */
+export const MAP_MAX_ZOOM = 20;
+
+/**
  * Vector basemap styles — Positron for light, Dark Matter for dark, the vector
  * equivalents of the light_all/dark_all raster themes adopted in #140.
  */

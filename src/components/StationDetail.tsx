@@ -13,7 +13,7 @@ import { Log, Station } from '../utils/types';
 import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
 import { formatDate } from '../utils/formatDate';
 import { useTheme } from '../context/ThemeContext';
-import { createStationIcon } from '../utils/mapConstants';
+import { MAP_MAX_ZOOM, createStationIcon } from '../utils/mapConstants';
 import VectorBasemap from './VectorBasemap';
 
 // Leaflet's default marker icon URLs are broken under bundlers like Vite;
@@ -190,6 +190,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                     <MapContainer
                         center={[station.latitude, station.longitude]}
                         zoom={15}
+                        maxZoom={MAP_MAX_ZOOM}
                         scrollWheelZoom={false}
                         style={{ height: '100%', width: '100%' }}
                     >

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
 
 import VectorBasemap from './VectorBasemap';
+import { MAP_MAX_ZOOM } from '../utils/mapConstants';
 import { getCurrentPosition } from '../utils/locationService';
 import { useTheme } from '../context/ThemeContext';
 
@@ -87,6 +88,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, defaul
         <MapContainer
           center={[center.latitude, center.longitude]}
           zoom={value ? 15 : 11}
+          maxZoom={MAP_MAX_ZOOM}
           scrollWheelZoom={true}
           style={{ height: '100%', width: '100%' }}
         >

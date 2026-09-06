@@ -1,14 +1,67 @@
 import L from 'leaflet';
+import type { RequestParameters } from 'maplibre-gl';
 
 /**
- * Shared map tile provider configuration.
- * Uses CartoDB Positron for light theme and CartoDB Dark Matter for dark theme
- * to provide a quieter, more minimal visual appearance.
+ * CARTO now stamps an "API KEY REQUIRED" watermark across keyless raster tiles,
+ * and has said the raster endpoints are being retired in favour of vector.
+ *
+ * The key is deliberately shipped in the client bundle. Tiles are fetched by the
+ * browser, so a key in a tile URL is visible in the network tab wherever it is
+ * stored — it is an identifier, not a secret, the same posture as
+ * VITE_FIREBASE_API_KEY. It is a free, no-account key with no payment method
+ * attached, so the worst case if it is scraped is burning through CARTO's
+ * 5M-requests/month fair-use limit, which throttles rather than bills.
+ *
+ * Absent, everything below degrades to the keyless endpoints: vector renders
+ * clean, raster renders watermarked. That is what lets a fresh clone and CI run
+ * without a secret.
  */
+const CARTO_API_KEY = import.meta.env.VITE_CARTO_API_KEY as string | undefined;
+
+export const MAP_ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+/**
+ * Vector basemap styles — Positron for light, Dark Matter for dark, the vector
+ * equivalents of the light_all/dark_all raster themes adopted in #140.
+ */
+export const MAP_STYLES = {
+  light: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+};
+
+/**
+ * Appending `?key=` to a CARTO style.json does *not* propagate the key into the
+ * source, glyph and sprite URLs the style references, so it has to be attached
+ * per-request instead. MapLibre calls this for every resource it fetches.
+ *
+ * Returning undefined leaves the request untouched, which is both the no-key
+ * path and the correct behaviour for non-CARTO hosts.
+ */
+export const cartoTransformRequest = (url: string): RequestParameters | undefined => {
+  if (!CARTO_API_KEY || !url.includes('cartocdn.com')) return undefined;
+
+  const keyed = new URL(url);
+  keyed.searchParams.set('key', CARTO_API_KEY);
+  return { url: keyed.toString() };
+};
+
+/**
+ * Raster tiles, retained only for LogCard's non-interactive thumbnails: those
+ * render one map per flipped card in a list, and a vector basemap costs a WebGL
+ * context apiece, which browsers cap at ~16 before evicting the oldest and
+ * blanking the canvas. Raster tiles are plain <img> elements with no such limit.
+ *
+ * Built by concatenation rather than the URL API because the `{s}`/`{z}`/`{x}`
+ * /`{y}`/`{r}` placeholders Leaflet substitutes would otherwise be percent-encoded.
+ */
+const withKey = (tileUrl: string): string =>
+  CARTO_API_KEY ? `${tileUrl}?key=${encodeURIComponent(CARTO_API_KEY)}` : tileUrl;
+
 export const MAP_TILES = {
-  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  light: withKey('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'),
+  dark: withKey('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'),
+  attribution: MAP_ATTRIBUTION,
 };
 
 // Lucide's "fuel" icon path data, inlined so map markers don't need a React

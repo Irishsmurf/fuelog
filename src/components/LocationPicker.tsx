@@ -1,12 +1,12 @@
 // src/components/LocationPicker.tsx
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { Navigation, Loader } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
 
-import { MAP_TILES } from '../utils/mapConstants';
+import VectorBasemap from './VectorBasemap';
 import { getCurrentPosition } from '../utils/locationService';
 import { useTheme } from '../context/ThemeContext';
 
@@ -90,10 +90,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, defaul
           scrollWheelZoom={true}
           style={{ height: '100%', width: '100%' }}
         >
-          <TileLayer
-            attribution={MAP_TILES.attribution}
-            url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
-          />
+          <VectorBasemap theme={theme === 'dark' ? 'dark' : 'light'} />
           <ClickToPlace onChange={onChange} />
           <RecenterOnChange coords={value} />
           {value && (

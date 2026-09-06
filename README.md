@@ -100,6 +100,12 @@ Follow these instructions to get a copy of the project up and running on your lo
    VITE_GEMINI_API_KEY=
    VITE_GEMINI_MODEL=gemini-2.5-flash
    VITE_GEMINI_THINKING_LEVEL=low
+
+   # CARTO basemaps — optional. Maps work without it; the log-card thumbnails
+   # fall back to CARTO's keyless raster tiles, which carry an "API KEY
+   # REQUIRED" watermark. Free key (no account needed):
+   # https://carto.com/basemaps/apikey
+   VITE_CARTO_API_KEY=
    ```
 
 4. **Start the development server:**

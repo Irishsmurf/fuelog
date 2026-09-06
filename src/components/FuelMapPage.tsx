@@ -1,10 +1,11 @@
 // src/components/FuelMapPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
+import { MapContainer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster'; // Import the cluster group
 import { MapPin, Navigation, AlertCircle, Loader, Layers, Activity } from 'lucide-react'; // Icons
 import HeatmapLayer from './HeatmapLayer';
+import VectorBasemap from './VectorBasemap';
 
 // CSS Imports
 import 'leaflet/dist/leaflet.css';
@@ -15,7 +16,7 @@ import { fetchFuelLocations, fetchUserStations } from '../firebase/firestoreServ
 import { Log, Station } from '../utils/types';
 import { formatDate } from '../utils/formatDate';
 import { useTheme } from '../context/ThemeContext';
-import { MAP_TILES, createStationIcon } from '../utils/mapConstants';
+import { createStationIcon } from '../utils/mapConstants';
 import { useTranslation } from 'react-i18next';
 
 // --- Icon Fix (points to public assets) ---
@@ -196,10 +197,7 @@ const FuelMapPage: React.FC = () => {
             tucks under the sticky header. Move it bottom-left so it stays
             tappable. */}
         <ZoomControl position="bottomleft" />
-        <TileLayer
-          attribution={MAP_TILES.attribution}
-          url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
-        />
+        <VectorBasemap theme={theme === 'dark' ? 'dark' : 'light'} />
 
         {viewMode === 'cluster' ? (
           <MarkerClusterGroup chunkedLoading>

@@ -8,7 +8,6 @@ const setView = vi.fn();
 
 vi.mock('react-leaflet', () => ({
   MapContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="map">{children}</div>,
-  TileLayer: () => <div data-testid="tile" />,
   Marker: ({ position, eventHandlers }: { position: [number, number]; eventHandlers?: { dragend?: (e: unknown) => void } }) => (
     <div
       data-testid="marker"
@@ -21,6 +20,12 @@ vi.mock('react-leaflet', () => ({
     capturedClick = handlers.click;
     return null;
   },
+}));
+
+// The vector basemap needs a real Leaflet map instance and a WebGL context,
+// neither of which jsdom provides.
+vi.mock('./VectorBasemap', () => ({
+  default: () => <div data-testid="vector-basemap" />,
 }));
 
 vi.mock('../context/ThemeContext', () => ({

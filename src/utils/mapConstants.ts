@@ -31,19 +31,38 @@ export const MAP_STYLES = {
 };
 
 /**
+ * Matched on the parsed hostname rather than a substring of the whole URL. A
+ * substring test would also match hosts that merely mention CARTO —
+ * `https://evil.example/?r=cartocdn.com` or `https://cartocdn.com.evil.example`
+ * — and the key would then be appended to a request bound for that host.
+ */
+const isCartoHost = (hostname: string): boolean =>
+  hostname === 'cartocdn.com' || hostname.endsWith('.cartocdn.com');
+
+/**
  * Appending `?key=` to a CARTO style.json does *not* propagate the key into the
  * source, glyph and sprite URLs the style references, so it has to be attached
- * per-request instead. MapLibre calls this for every resource it fetches.
+ * per-request instead. MapLibre calls this for every resource it fetches, and
+ * the style is fetched remotely, so treat the URLs it yields as untrusted.
  *
  * Returning undefined leaves the request untouched, which is both the no-key
- * path and the correct behaviour for non-CARTO hosts.
+ * path and the correct behaviour for any host that is not CARTO's.
  */
 export const cartoTransformRequest = (url: string): RequestParameters | undefined => {
-  if (!CARTO_API_KEY || !url.includes('cartocdn.com')) return undefined;
+  if (!CARTO_API_KEY) return undefined;
 
-  const keyed = new URL(url);
-  keyed.searchParams.set('key', CARTO_API_KEY);
-  return { url: keyed.toString() };
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    // Relative or malformed; nothing we can safely attribute to CARTO.
+    return undefined;
+  }
+
+  if (!isCartoHost(parsed.hostname)) return undefined;
+
+  parsed.searchParams.set('key', CARTO_API_KEY);
+  return { url: parsed.toString() };
 };
 
 /**

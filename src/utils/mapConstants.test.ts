@@ -74,6 +74,36 @@ describe('mapConstants', () => {
 
       expect(cartoTransformRequest('https://example.com/tiles/1.png')).toBeUndefined();
     });
+
+    // The style document is fetched remotely and dictates the source, glyph and
+    // sprite URLs, so a host that merely mentions CARTO must not be handed the
+    // key. A substring test on the whole URL would leak it to all of these.
+    it.each([
+      'https://evil.example/?redirect=cartocdn.com',
+      'https://evil.example/cartocdn.com/tile.png',
+      'https://cartocdn.com.evil.example/tile.png',
+      'https://notcartocdn.com/tile.png',
+      'https://evil.example/#cartocdn.com',
+    ])('does not attach the key to %s', async (url) => {
+      const { cartoTransformRequest } = await loadWithKey('test-key-123');
+
+      expect(cartoTransformRequest(url)).toBeUndefined();
+    });
+
+    it('keys CARTO subdomains', async () => {
+      const { cartoTransformRequest } = await loadWithKey('test-key-123');
+
+      expect(cartoTransformRequest('https://tiles-a.basemaps.cartocdn.com/x.mvt')?.url).toContain(
+        'key=test-key-123'
+      );
+    });
+
+    it('ignores malformed URLs rather than throwing', async () => {
+      const { cartoTransformRequest } = await loadWithKey('test-key-123');
+
+      expect(() => cartoTransformRequest('not a url')).not.toThrow();
+      expect(cartoTransformRequest('not a url')).toBeUndefined();
+    });
   });
 
   describe('without an API key', () => {

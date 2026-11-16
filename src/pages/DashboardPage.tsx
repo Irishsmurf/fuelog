@@ -25,6 +25,10 @@ interface VehicleComparisonDatum {
 
 const MONTHS_BACK = 6;
 
+// Recharts 3 types tooltip values as possibly undefined or non-numeric.
+const fmtNum = (value: unknown, digits: number): string =>
+    typeof value === 'number' && Number.isFinite(value) ? value.toFixed(digits) : '';
+
 function DashboardPage(): JSX.Element {
     const { user, profile } = useAuth();
     const { theme } = useTheme();
@@ -260,7 +264,7 @@ function DashboardPage(): JSX.Element {
                                         color: theme === 'dark' ? 'white' : 'black',
                                         border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)'
                                     }}
-                                    formatter={(value: number) => `${homeCurrencySymbol}${value.toFixed(2)}`}
+                                    formatter={(value) => `${homeCurrencySymbol}${fmtNum(value, 2)}`}
                                 />
                                 <Bar dataKey="cost" name={t('dashboard.charts.spend', { defaultValue: 'Spend' })} fill="var(--color-amber-700)" radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -319,9 +323,9 @@ function DashboardPage(): JSX.Element {
                                             color: theme === 'dark' ? 'white' : 'black',
                                             border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)'
                                         }}
-                                        formatter={(value: number, name: string) => name === t('history.charts.pricePerLitre')
-                                            ? `${homeCurrencySymbol}${value.toFixed(3)}`
-                                            : value?.toFixed(2)}
+                                        formatter={(value, name) => name === t('history.charts.pricePerLitre')
+                                            ? `${homeCurrencySymbol}${fmtNum(value, 3)}`
+                                            : fmtNum(value, 2)}
                                     />
                                     <Legend
                                         wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black', cursor: 'pointer' }}
@@ -350,7 +354,7 @@ function DashboardPage(): JSX.Element {
                                     />
                                     <Tooltip
                                         contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? 'var(--color-surface)' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)' }}
-                                        formatter={(value: number) => `€${value.toFixed(3)}`}
+                                        formatter={(value) => `${homeCurrencySymbol}${fmtNum(value, 3)}`}
                                     />
                                     <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
                                     <Line type="monotone" dataKey="fuelPrice" name="Cost Per Litre" stroke="var(--color-brand-primary)" strokeWidth={2.5} activeDot={{ r: 6 }} connectNulls />
@@ -378,11 +382,11 @@ function DashboardPage(): JSX.Element {
                                     />
                                     <Tooltip
                                         contentStyle={{ fontSize: '12px', padding: '5px', backgroundColor: theme === 'dark' ? 'var(--color-surface)' : 'white', color: theme === 'dark' ? 'white' : 'black', border: theme === 'dark' ? '1px solid var(--color-gray-700)' : '1px solid var(--color-gray-200)' }}
-                                        formatter={(value: number, name: string) => name === t('history.charts.totalSpend')
-                                            ? `${homeCurrencySymbol}${value.toFixed(2)}`
+                                        formatter={(value, name) => name === t('history.charts.totalSpend')
+                                            ? `${homeCurrencySymbol}${fmtNum(value, 2)}`
                                             : name === t('history.charts.avgCostPerLitre')
-                                                ? `${homeCurrencySymbol}${value.toFixed(3)}`
-                                                : value.toFixed(2)}
+                                                ? `${homeCurrencySymbol}${fmtNum(value, 3)}`
+                                                : fmtNum(value, 2)}
                                     />
                                     <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px', color: theme === 'dark' ? 'white' : 'black' }} />
                                     <Bar yAxisId="left" dataKey="avgL100km" name={t('history.charts.avgL100km')} fill="var(--color-brand-primary)" />

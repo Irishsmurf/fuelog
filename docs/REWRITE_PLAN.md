@@ -17,7 +17,9 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
 - **Step 4, partly:** TanStack Query data layer in `src/data`, used by History; exports read all matching logs (#298). QuickLog offline saves and exchange-rate fixes (#299). Profile and auth fixes (#300).
 - **Step 7:** `CONTEXT.md`, ADRs 0001–0007, stale docs removed (this change).
 
-**In review:** precache budget, keeping route-only chunks out of the precache (#301).
+- **Step 5, partly:** route-only chunks (map renderer, PDF, canvas) kept out of the precache, with a 4,200 KiB precache budget in CI (#301).
+- **Step 6:** authenticated E2E (sign in, log, edit, delete) against the Auth and Firestore emulators with the real rules, as a CI job (#302).
+- **Security:** REST and MCP enforce read scopes; REST refuses to delete a vehicle that still has logs (#303).
 
 **Remaining**
 - Step 1: `apps/web` and `apps/functions`; drop the `jose`/`uuid` overrides.
@@ -26,11 +28,11 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
   - retire the backfill scripts and the ProfilePage client migration;
   - OIDC instead of `FIREBASE_TOKEN`.
 - Step 4: move QuickLog, Profile/Vehicles and Dashboard onto the data layer (each under about 250 lines).
-- Step 5: MapLibre only, remove Remote Config flags, lazy-load locales, bundle budget in CI ([ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md), proposed).
-- Step 6: Playwright with the Auth emulator as a deploy gate.
+- Step 5: MapLibre only, remove Remote Config flags, lazy-load locales ([ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md), proposed).
+- Step 6: make the emulator E2E job a gate on the Vercel and Firebase deploys (today it only runs in CI); rewrite the old `pdf_export`, `multi_vehicle` and `pwa` specs.
 - §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
 - Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).
-- §7 decisions are still open.
+- §7 decisions were taken with the recommended defaults (see §7).
 
 ## 1. Verdict: rebuild the core in place, not a big-bang rewrite
 
@@ -153,9 +155,11 @@ Leave room for, but do not build: the maintenance tracker (per-vehicle service e
 | 6 | Re-enable Playwright with the Auth emulator: log, edit and delete; offline save; map renders | E2E gate on deploy |
 | 7 | Bring the docs up to date: a `CONTEXT.md` glossary, ADRs for each decision in §3, and removal of stale docs (ISSUES.md, Toyota plan) | Docs match the code |
 
-## 7. Decisions needed from you
+## 7. Decisions
 
-1. **SPA hosting:** stay on Vercel (static only, recommended for previews) or move to Firebase Hosting (one platform).
-2. **Drop list in §5:** confirm the admin console, Toyota, weekly digest and monthly-summary notifications, and log-card map thumbnails.
-3. **Home-currency change:** keep historic costs as recorded (recommended; show the original currency), or recompute them.
-4. **Languages:** keep all 10, or cut to those with real users.
+The owner handed these over ("this code is yours"), so the recommended defaults were taken. Revisit any of them by updating this section and the matching ADR.
+
+1. **SPA hosting:** stays on Vercel (static only).
+2. **Drop list in §5:** accepted. The Toyota plan is deleted; the admin console, the digest and summary notifications, and log-card thumbnails go with step 5.
+3. **Home-currency change:** historic costs stay as recorded; the original currency is shown alongside.
+4. **Languages:** all 10 are kept.

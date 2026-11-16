@@ -12,9 +12,8 @@ When making a request, include the token in the `Authorization` header:
 Authorization: Bearer <your_token_here>
 ```
 
-Tokens are scoped, meaning they may only have permissions for specific actions (e.g., `read:logs`, `write:logs`, `read:vehicles`, `write:vehicles`). If your token lacks the required write scope for an endpoint, you will receive a `403 Forbidden` error.
+Tokens are scoped: `read:logs`, `write:logs`, `read:vehicles`, `write:vehicles`. Reading logs or analytics requires `read:logs`; reading vehicles requires `read:vehicles`; creating, updating or deleting requires the matching `write:*` scope. A token without the required scope receives `403 Forbidden`.
 
-> **Note:** only the write scopes are currently enforced. Any valid token can call the `GET` endpoints, whatever its scopes; `read:logs` and `read:vehicles` are not yet checked.
 
 ## Base URL
 

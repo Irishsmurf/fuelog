@@ -1,5 +1,7 @@
 // src/components/FuelMapPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
+import { localizeStation } from '@fuelog/core';
+import { useHomeCurrency } from '../hooks/useHomeCurrency';
 import { MapContainer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster'; // Import the cluster group
@@ -85,6 +87,7 @@ const LocateControl = () => {
 const FuelMapPage: React.FC = () => {
   const { theme } = useTheme();
   const { t } = useTranslation();
+  const { code: homeCurrency, symbol: currencySymbol } = useHomeCurrency();
   const [locations, setLocations] = useState<Log[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,7 +133,7 @@ const FuelMapPage: React.FC = () => {
   // association) fall back to coordinate-rounding so they still appear on
   // the map, grouped separately and flagged as unassigned.
   const stationGroups = useMemo(() => {
-     const stationsById = new Map(stations.map(s => [s.id, s]));
+     const stationsById = new Map(stations.map(s => [s.id, localizeStation(s, homeCurrency)]));
 
      const groups: { [key: string]: { logs: Log[], station?: Station } } = {};
      validLocations.forEach(log => {
@@ -143,7 +146,7 @@ const FuelMapPage: React.FC = () => {
          groups[key].logs.push(log);
      });
      return groups;
-  }, [validLocations, stations]);
+  }, [validLocations, stations, homeCurrency]);
 
   if (loading) {
     return (
@@ -226,7 +229,7 @@ const FuelMapPage: React.FC = () => {
                           {group.station?.avgPrice && (
                               <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded bg-green-50 dark:bg-green-500/10 text-[11px] text-brand-success font-bold uppercase border border-green-200 dark:border-green-500/20 w-fit">
                                   <span className="fuel-numeral">
-                                      {t('map.avgPrice', 'Avg: €{{price}}/L', { price: group.station.avgPrice.toFixed(3) })}
+                                      {t('map.avgPrice', 'Avg: {{currency}}{{price}}/L', { currency: currencySymbol, price: group.station.avgPrice.toFixed(3) })}
                                   </span>
                               </div>
                           )}

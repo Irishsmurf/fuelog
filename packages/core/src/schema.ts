@@ -72,9 +72,18 @@ export const stationSchema = z.object({
   latitude: finite,
   longitude: finite,
   address: z.string().optional(),
+  // Legacy client-maintained aggregates (currency-mixed). Superseded by priceStats.
   lastPrice: finite.optional(),
   avgPrice: finite.optional(),
   logCount: z.number().int().nonnegative().default(0),
+  /** Server-maintained per-currency stats (updateStationStats Cloud Function). */
+  priceStats: z.record(z.string(), z.object({
+    count: z.number().int().nonnegative(),
+    total: finite,
+    avgPrice: finite,
+    lastPrice: finite.nullable(),
+    lastAt: finite.nullable(),
+  })).optional(),
 });
 
 export const userProfileSchema = z.object({

@@ -6,15 +6,19 @@ on:
     paths:
       - 'firebase/**'
       - 'firebase.json'
+      - 'functions/**'
+      - 'packages/core/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a deploy half-way through; queue the next one instead.
+  cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy Firestore rules & indexes, Storage rules
+    name: Deploy rules, indexes, Storage rules and Cloud Functions
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     # Only deploy on pushes to main — never on PRs
     if: github.event_name == 'push'
 
@@ -23,10 +27,23 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: lts/*
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
 
       - name: Install firebase-tools
         run: npm install -g firebase-tools
 
-      - name: Deploy Firestore rules, indexes, and Storage rules
-        run: firebase deploy --only firestore,storage --project "${{ secrets.FIREBASE_PROJECT_ID }}" --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+      - name: Install Cloud Functions dependencies
+        run: npm ci
+        working-directory: functions
+
+      - name: Test Cloud Functions before deploying
+        run: npm test
+        working-directory: functions
+
+      # The functions predeploy hook (firebase.json) builds functions/lib.
+      # Without --force, a deploy that would delete a function that exists in
+      # the project but not in source fails loudly instead of deleting it.
+      - name: Deploy
+        run: firebase deploy --only firestore,storage,functions --project "${{ secrets.FIREBASE_PROJECT_ID }}" --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive

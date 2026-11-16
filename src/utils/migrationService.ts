@@ -2,7 +2,7 @@ import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/fire
 import { db } from '../firebase/config';
 import { Log } from './types';
 import { findNearestStation } from './locationService';
-import { getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
+import { getOrCreateStation } from '../firebase/firestoreService';
 
 /**
  * Migrates existing logs for a user that have coordinates but no stationId.
@@ -40,13 +40,11 @@ export async function migrateUserLogsToStations(
             const nearest = await findNearestStation(log.latitude!, log.longitude!);
             if (nearest) {
                 const stationId = await getOrCreateStation(nearest);
-                const pricePerLitre = log.cost / log.fuelAmountLiters;
-
+                // Linking the station is enough: the updateStationStats Cloud
+                // Function folds this log into the station's price stats.
                 await updateDoc(doc(db, 'fuelLogs', log.id), {
                     stationId: stationId
                 });
-
-                await updateStationMetrics(stationId, pricePerLitre);
                 migrated++;
             } else {
                 skipped++;

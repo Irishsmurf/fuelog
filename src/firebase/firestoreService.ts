@@ -1,5 +1,5 @@
 // src/firebase/firestoreService.ts
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, setDoc, increment, runTransaction, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { db, auth } from './config'; // db and auth from your config file
 import { Log, Station, Vehicle } from '../utils/types';
 import { previousReading } from '@fuelog/core';
@@ -122,34 +122,6 @@ export const getOrCreateStation = async (osmStation: OSMStation): Promise<string
 
     await setDoc(stationRef, newStation);
     return stationId;
-};
-
-/**
- * Updates station metrics when a new log is added.
- * Uses a transaction to avoid race conditions when multiple users/logs update the same station.
- */
-export const updateStationMetrics = async (stationId: string, pricePerLitre: number) => {
-    const stationRef = doc(db, 'stations', stationId);
-
-    // Let transaction failures propagate so callers can surface a warning to the
-    // user; callers (QuickLogPage, migrationService) handle this non-fatally.
-    await runTransaction(db, async (transaction) => {
-        const stationSnap = await transaction.get(stationRef);
-        if (!stationSnap.exists()) return;
-
-        const data = withId(stationSchema, 'station', stationSnap);
-        const currentCount = data.logCount || 0;
-        const currentAvg = data.avgPrice || 0;
-
-        // Calculate new average
-        const newAvg = ((currentAvg * currentCount) + pricePerLitre) / (currentCount + 1);
-
-        transaction.update(stationRef, {
-            logCount: increment(1),
-            avgPrice: newAvg,
-            lastPrice: pricePerLitre
-        });
-    });
 };
 
 /**

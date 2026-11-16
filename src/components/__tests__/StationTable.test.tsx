@@ -4,6 +4,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import StationTable from '../StationTable';
 import { Station } from '../../utils/types';
 
+vi.mock('../../hooks/useHomeCurrency', () => ({ useHomeCurrency: () => ({ code: 'EUR', symbol: '€' }) }));
+
 // Mock react-i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

@@ -547,7 +547,7 @@
   "map": {
     "clusters": "Klynger",
     "heatmap": "Varmekart",
-    "avgPrice": "Gjennomsnitt: €{{price}}/L",
+    "avgPrice": "Gjennomsnitt: {{currency}}{{price}}/L",
     "olderFuelings": "+ {{count}} eldre tanking",
     "fuelingsAtStation": "{{count}} tanking på denne stasjonen"
   },

@@ -524,7 +524,7 @@
   "map": {
     "clusters": "Clusters",
     "heatmap": "Heatmap",
-    "avgPrice": "Avg: €{{price}}/L",
+    "avgPrice": "Avg: {{currency}}{{price}}/L",
     "olderFuelings": "+ {{count}} older fuelings",
     "fuelingsAtStation": "{{count}} Fuelings at this station"
   },

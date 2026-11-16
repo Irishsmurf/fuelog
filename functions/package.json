@@ -12,7 +12,8 @@
     "backfill-odometer": "npm run build && node lib/scripts/backfillOdometer.js",
     "assign-stations": "npm run build && node lib/scripts/assignStationsToLogs.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "rebuild-station-stats": "npm run build && node lib/scripts/rebuildStationStats.js"
   },
   "engines": {
     "node": "22"

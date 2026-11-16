@@ -101,29 +101,9 @@ service cloud.firestore {
     }
 
     // Stations: global collection of petrol stations, shared by all users.
-    // Until station stats move to a server-side trigger, clients may only
-    // create a station with zeroed stats and then fold exactly one new price
-    // into the running average per write. The submitted average must match
-    // the one implied by the previous state, so a client cannot set an
-    // arbitrary avgPrice or logCount.
-    function plausiblePrice(p) {
-      // Upper bound is loose because the price is in the user's home currency
-      // (e.g. ~1,700 KRW per litre).
-      return p is number && p > 0 && p < 100000;
-    }
-
-    function isSingleMetricsIncrement() {
-      let before = resource.data;
-      let after = request.resource.data;
-      let n = before.get('logCount', 0);
-      let expectedAvg = (before.get('avgPrice', 0) * n + after.lastPrice) / (n + 1);
-      return after.diff(before).affectedKeys().hasOnly(['logCount', 'avgPrice', 'lastPrice'])
-        && after.logCount == n + 1
-        && plausiblePrice(after.lastPrice)
-        && after.avgPrice is number
-        && math.abs(after.avgPrice - expectedAvg) < 0.0001;
-    }
-
+    // Clients may create a station (with zeroed legacy stats) when they first
+    // link a fill-up to it. All statistics are maintained server-side by the
+    // updateStationStats Cloud Function (Admin SDK), so clients can't update.
     match /stations/{stationId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated()
@@ -131,8 +111,8 @@ service cloud.firestore {
         && request.resource.data.name is string
         && request.resource.data.logCount == 0
         && request.resource.data.avgPrice == 0
-        && !request.resource.data.keys().hasAny(['lastPrice']);
-      allow update: if isAuthenticated() && isSingleMetricsIncrement();
+        && !request.resource.data.keys().hasAny(['lastPrice', 'priceStats']);
+      allow update: if false;
     }
 
     // FCM tokens: users can only read/write their own push notification tokens.

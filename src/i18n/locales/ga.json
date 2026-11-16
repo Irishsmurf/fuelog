@@ -547,7 +547,7 @@
   "map": {
     "clusters": "Braistí",
     "heatmap": "Léarscáil Teochtasach",
-    "avgPrice": "Meán: €{{price}}/L",
+    "avgPrice": "Meán: {{currency}}{{price}}/L",
     "olderFuelings": "+ {{count}} seanbhealaí",
     "fuelingsAtStation": "{{count}} bhealaí ag an stáisiún seo"
   },

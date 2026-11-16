@@ -547,7 +547,7 @@
   "map": {
     "clusters": "Grupos",
     "heatmap": "Mapa de Calor",
-    "avgPrice": "Promedio: €{{price}}/L",
+    "avgPrice": "Promedio: {{currency}}{{price}}/L",
     "olderFuelings": "+ {{count}} repostajes anteriores",
     "fuelingsAtStation": "{{count}} repostajes en esta estación"
   },

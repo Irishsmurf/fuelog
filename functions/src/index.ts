@@ -12,4 +12,6 @@ export { sendMonthlySummary } from './monthlySummary';
 export { processReceipt } from './receiptProcessing';
 export { sendWeeklyDigest } from './weeklyDigest';
 export { checkBudgetAlert } from './budgetAlerts';
+export { updateStationStats } from './stationStats';
+export { runMigrations } from './migrations';
 export { sendTestNotification, checkDeveloperAccess } from './devNotifications';

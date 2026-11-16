@@ -6,6 +6,8 @@ import { Log } from '../../utils/types';
 import { Timestamp } from 'firebase/firestore';
 import { fetchFuelLogsByStationId, fetchStationById } from '../../firebase/firestoreService'; // Import the actual function for type inference with vi.mocked
 
+vi.mock('../../hooks/useHomeCurrency', () => ({ useHomeCurrency: () => ({ code: 'EUR', symbol: '€' }) }));
+
 // Mock firebase/firestoreService
 vi.mock('../../firebase/firestoreService', () => ({
   fetchFuelLogsByStationId: vi.fn(), // Initially mock as a simple fn

@@ -9,7 +9,7 @@ import { Vehicle, FuelLogData } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
-import { getLastOdometerReading, getOrCreateStation, updateStationMetrics, fetchVehicles, pickDefaultVehicle } from '../firebase/firestoreService';
+import { getLastOdometerReading, getOrCreateStation, fetchVehicles, pickDefaultVehicle } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import { calculateDistance } from '../utils/calculations';
 import { toDatetimeLocal } from '../utils/formatDate';
@@ -453,7 +453,6 @@ function QuickLogPage(): JSX.Element {
 
       // Calculate cost in home currency
       const costHomeCurrency = parsedCost * exchangeRate;
-      const pricePerLitre = costHomeCurrency / parsedFuel;
 
       // Prepare data object, including location if available
       const logData: Omit<FuelLogData, 'timestamp'> & { timestamp: Timestamp; userId: string } = {
@@ -490,15 +489,8 @@ function QuickLogPage(): JSX.Element {
       // wasn't recorded and we report a clear error below.
       await addDoc(collection(db, "fuelLogs"), logData);
 
-      // Update station metrics if linked (non-fatal — the log is already saved)
-      if (linkedStationId) {
-        try {
-          await updateStationMetrics(linkedStationId, pricePerLitre);
-        } catch (metricsError) {
-          console.error("Updating station metrics failed: ", metricsError);
-          saveWarnings.push(t('quickLog.messages.stationMetricsWarning'));
-        }
-      }
+      // Station price stats are maintained server-side by the
+      // updateStationStats Cloud Function, not by the client.
 
       analytics.then(a => { if (a) logEvent(a, 'fuel_log_submitted', { vehicle_id: selectedVehicleId, has_receipt: !!receiptFile, currency, used_ai_autofill: extractedData !== null, has_station: !!linkedStationId }); });
 

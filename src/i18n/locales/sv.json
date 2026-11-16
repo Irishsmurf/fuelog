@@ -547,7 +547,7 @@
   "map": {
     "clusters": "Kluster",
     "heatmap": "Värmekarta",
-    "avgPrice": "Genomsnitt: €{{price}}/L",
+    "avgPrice": "Genomsnitt: {{currency}}{{price}}/L",
     "olderFuelings": "+ {{count}} äldre tankning",
     "fuelingsAtStation": "{{count}} tankning på denna station"
   },

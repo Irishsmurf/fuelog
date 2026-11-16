@@ -1,3 +1,5 @@
+import { localizeStation } from '@fuelog/core';
+import { useHomeCurrency } from '../hooks/useHomeCurrency';
 // src/components/StationTable.tsx
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -62,8 +64,11 @@ const usePriceTiers = (stations: Station[]): Map<string, PriceTier> => {
   }, [stations]);
 };
 
-const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, selectedStationId, origin }) => {
+const StationTable: React.FC<StationTableProps> = ({ stations: rawStations, onSelectStation, selectedStationId, origin }) => {
   const { t } = useTranslation();
+  const { code: homeCurrency, symbol: currencySymbol } = useHomeCurrency();
+  // Show each station's stats in the viewer's home currency.
+  const stations = useMemo(() => rawStations.map(s => localizeStation(s, homeCurrency)), [rawStations, homeCurrency]);
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection } | null>(
     () => (origin ? { key: 'distance', direction: 'asc' } : null)
   );
@@ -177,7 +182,7 @@ const StationTable: React.FC<StationTableProps> = ({ stations, onSelectStation, 
                   </span>
                 </span>
                 <span className="text-sm font-mono font-semibold text-gray-900 dark:text-gray-100 shrink-0 whitespace-nowrap">
-                  {station.avgPrice ? `€${station.avgPrice.toFixed(3)}/L` : t('stationTable.noData')}
+                  {station.avgPrice ? `${currencySymbol}${station.avgPrice.toFixed(3)}/L` : t('stationTable.noData')}
                 </span>
               </button>
             </li>

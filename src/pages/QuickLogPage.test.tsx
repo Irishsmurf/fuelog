@@ -2,7 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { addDoc, getDocs } from 'firebase/firestore';
 import { fetchExchangeRate } from '../utils/currencyApi';
-import { getLastOdometerReading, getOrCreateStation, updateStationMetrics, fetchVehicles } from '../firebase/firestoreService';
+import { getLastOdometerReading, getOrCreateStation, fetchVehicles } from '../firebase/firestoreService';
 import { extractDataFromReceipt } from '../utils/gemini';
 import { findNearestStation, geocodeAddress, isAccurateEnoughForStationMatch } from '../utils/locationService';
 import QuickLogPage from './QuickLogPage';
@@ -75,7 +75,6 @@ vi.mock('../firebase/storageService', () => ({
 vi.mock('../firebase/firestoreService', () => ({
   getLastOdometerReading: vi.fn().mockResolvedValue(null),
   getOrCreateStation: vi.fn(),
-  updateStationMetrics: vi.fn(),
   fetchVehicles: vi.fn(),
   pickDefaultVehicle: (vs: { isDefault?: boolean }[]) => vs.find(v => v.isDefault) ?? vs[0],
 }));
@@ -417,7 +416,8 @@ describe('QuickLogPage', () => {
       stationId: 'station-123',
     });
 
-    expect(updateStationMetrics).toHaveBeenCalledWith('station-123', 50 / 30);
+    // Station stats are server-side now; the client only links the station.
+    expect(Object.keys(payload as Record<string, unknown>)).not.toContain('avgPrice');
   });
 
   it('omits stationId from the payload when no station is linked (no undefined fields)', async () => {
@@ -441,42 +441,6 @@ describe('QuickLogPage', () => {
     expect(payload).not.toHaveProperty('stationId');
     expect(payload).not.toHaveProperty('receiptUrl');
     expect(Object.values(payload as Record<string, unknown>)).not.toContain(undefined);
-  });
-
-  it('still saves the log and warns the user when updating station metrics fails', async () => {
-    const mockStation = {
-      id: 'station-123',
-      osmId: 'node/123',
-      name: 'Shell Berlin',
-      brand: 'Shell',
-      latitude: 52.52,
-      longitude: 13.405,
-    };
-
-    vi.mocked(findNearestStation).mockResolvedValue(mockStation);
-    vi.mocked(getOrCreateStation).mockResolvedValue('station-123');
-    vi.mocked(updateStationMetrics).mockRejectedValue(new Error('permission-denied'));
-
-    mockGetCurrentPosition.mockImplementation((success) =>
-      success({ coords: { latitude: 52.52, longitude: 13.405, accuracy: 15 } })
-    );
-
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
-
-    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
-
-    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
-    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
-    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
-
-    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
-
-    // The log itself is still persisted...
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
-    // ...and the user is warned about the metrics update without checking the console.
-    await waitFor(() =>
-      expect(screen.getByText(/quickLog\.messages\.stationMetricsWarning/)).toBeInTheDocument()
-    );
   });
 
   it('shows a clear error with the failure detail when the Firestore write fails', async () => {

@@ -547,7 +547,7 @@
   "map": {
     "clusters": "Grappes",
     "heatmap": "Carte de Chaleur",
-    "avgPrice": "Moy. : €{{price}}/L",
+    "avgPrice": "Moy. : {{currency}}{{price}}/L",
     "olderFuelings": "+ {{count}} anciens ravitaillements",
     "fuelingsAtStation": "{{count}} ravitaillements à cette station"
   },

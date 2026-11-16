@@ -192,26 +192,18 @@ describe('stations', () => {
     await assertFails(setDoc(doc(asUser(ALICE), 'stations/node_1'), { ...station, logCount: 50, avgPrice: 0.5 }));
   });
 
-  it('accepts folding one price into the running average', async () => {
+  it('rejects every client update — stats are server-owned', async () => {
     await seed('stations/node_1', { ...station, logCount: 2, avgPrice: 1.7, lastPrice: 1.7 });
     const db = asUser(ALICE);
-    // Mirrors updateStationMetrics in src/firebase/firestoreService.ts
+    // Even the update the old client used to make is now rejected.
     const newAvg = (1.7 * 2 + 1.8) / 3;
-    await assertSucceeds(updateDoc(doc(db, 'stations/node_1'), { logCount: increment(1), avgPrice: newAvg, lastPrice: 1.8 }));
-  });
-
-  it('accepts the first price on a fresh station', async () => {
-    await seed('stations/node_1', station);
-    await assertSucceeds(updateDoc(doc(asUser(ALICE), 'stations/node_1'), { logCount: increment(1), avgPrice: 1.75, lastPrice: 1.75 }));
-  });
-
-  it('rejects arbitrary average or count overwrites', async () => {
-    await seed('stations/node_1', { ...station, logCount: 2, avgPrice: 1.7, lastPrice: 1.7 });
-    const db = asUser(BOB);
-    await assertFails(updateDoc(doc(db, 'stations/node_1'), { logCount: 3, avgPrice: 0.01, lastPrice: 1.8 }));
-    await assertFails(updateDoc(doc(db, 'stations/node_1'), { logCount: 1000, avgPrice: 1.7, lastPrice: 1.7 }));
-    await assertFails(updateDoc(doc(db, 'stations/node_1'), { logCount: 3, avgPrice: (1.7 * 2 - 5) / 3, lastPrice: -5 }));
+    await assertFails(updateDoc(doc(db, 'stations/node_1'), { logCount: increment(1), avgPrice: newAvg, lastPrice: 1.8 }));
+    await assertFails(updateDoc(doc(db, 'stations/node_1'), { priceStats: { EUR: { count: 99 } } }));
     await assertFails(updateDoc(doc(db, 'stations/node_1'), { name: 'Hijacked' }));
+  });
+
+  it('rejects creating a station with server-owned priceStats', async () => {
+    await assertFails(setDoc(doc(asUser(ALICE), 'stations/node_1'), { ...station, priceStats: { EUR: { count: 5 } } }));
   });
 
   it('requires sign-in to read', async () => {

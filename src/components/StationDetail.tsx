@@ -1,3 +1,5 @@
+import { localizeStation } from '@fuelog/core';
+import { useHomeCurrency } from '../hooks/useHomeCurrency';
 // src/components/StationDetail.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -43,6 +45,7 @@ interface StationDetailProps {
 
 const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
     const { t } = useTranslation();
+    const { code: homeCurrency, symbol: currencySymbol } = useHomeCurrency();
     const { theme } = useTheme();
     const [station, setStation] = useState<Station | null>(null);
     const [fuelLogs, setFuelLogs] = useState<Log[]>([]);
@@ -57,8 +60,8 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
             try {
                 // Fetch only the most recent fills — used for the price-trend chart and
                 // recent-logs list. Lifetime stats (avg/last price, total log count) come
-                // from the station document's server-maintained aggregates (updated on every
-                // fill via updateStationMetrics), not from this limited log window.
+                // from the station document's server-maintained priceStats (updateStationStats
+                // Cloud Function), shown in the viewer's home currency, not from this log window.
                 // allSettled so a transient failure fetching the station doc doesn't discard
                 // already-fetched logs (and vice versa) — each result is handled independently.
                 const [logsResult, stationResult] = await Promise.allSettled([
@@ -75,7 +78,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                 setFuelLogs(logs);
 
                 if (stationDoc) {
-                    setStation(stationDoc);
+                    setStation(localizeStation(stationDoc, homeCurrency));
                 } else if (logs.length > 0) {
                     // Fallback for stations without a stored doc (shouldn't normally happen):
                     // derive lifetime-ish stats from the fetched log window.
@@ -117,7 +120,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
         // needed, and including it risks a refetch loop since useTranslation() returns a new t
         // reference on every render.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [stationId]);
+    }, [stationId, homeCurrency]);
 
     const chartData = useMemo(() => {
         return fuelLogs
@@ -170,13 +173,13 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                 <div>
                     <p className="text-gray-500 dark:text-gray-400">{t('stationDetail.avgPrice')}</p>
                     <p className="text-gray-900 dark:text-gray-100 font-semibold">
-                        {station.avgPrice ? `€${station.avgPrice.toFixed(3)}/L` : t('stationDetail.noData')}
+                        {station.avgPrice ? `${currencySymbol}${station.avgPrice.toFixed(3)}/L` : t('stationDetail.noData')}
                     </p>
                 </div>
                 <div>
                     <p className="text-gray-500 dark:text-gray-400">{t('stationDetail.lastPrice')}</p>
                     <p className="text-gray-900 dark:text-gray-100 font-semibold">
-                        {station.lastPrice ? `€${station.lastPrice.toFixed(3)}/L` : t('stationDetail.noData')}
+                        {station.lastPrice ? `${currencySymbol}${station.lastPrice.toFixed(3)}/L` : t('stationDetail.noData')}
                     </p>
                 </div>
                 <div>
@@ -269,7 +272,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
                                     {formatDate(log.timestamp.toDate())}
                                 </p>
                                 <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                                    €{log.cost.toFixed(2)} ({log.fuelAmountLiters.toFixed(2)}L @ {isFinite(log.cost / log.fuelAmountLiters) ? (log.cost / log.fuelAmountLiters).toFixed(3) : t('stationTable.noData')}/L)
+                                    {currencySymbol}{log.cost.toFixed(2)} ({log.fuelAmountLiters.toFixed(2)}L @ {isFinite(log.cost / log.fuelAmountLiters) ? (log.cost / log.fuelAmountLiters).toFixed(3) : t('stationTable.noData')}/L)
                                 </p>
                             </div>
                         ))}

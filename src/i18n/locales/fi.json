@@ -547,7 +547,7 @@
   "map": {
     "clusters": "Klusterit",
     "heatmap": "Lämpökartta",
-    "avgPrice": "Keskim.: €{{price}}/L",
+    "avgPrice": "Keskim.: {{currency}}{{price}}/L",
     "olderFuelings": "+ {{count}} vanhempaa tankkaamista",
     "fuelingsAtStation": "{{count}} tankkaamista tällä asemalla"
   },

@@ -14,7 +14,11 @@ import { defineString } from 'firebase-functions/params';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 
-const DEV_NOTIFICATION_UIDS = defineString('DEV_NOTIFICATION_UIDS', { default: '' });
+// The Firebase CLI treats an empty-string default as "no value" and refuses to
+// deploy non-interactively (CI), so the default is a sentinel that matches no
+// uid. Fails closed: set the real comma-separated allowlist in
+// functions/.env.<projectId> to grant access.
+const DEV_NOTIFICATION_UIDS = defineString('DEV_NOTIFICATION_UIDS', { default: 'none' });
 
 interface SendTestNotificationRequest {
     targetUid: string;

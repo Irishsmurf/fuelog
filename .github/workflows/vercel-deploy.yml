@@ -20,7 +20,6 @@ jobs:
     outputs:
       url: ${{ steps.deploy.outputs.url }}
       production_url: ${{ steps.alias.outputs.production_url }}
-      previous_id: ${{ steps.pre_deploy.outputs.previous_id }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -40,13 +39,6 @@ jobs:
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Capture Previous Deployment ID
-        id: pre_deploy
-        run: |
-          PREV=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&target=production&limit=1" | jq -r '.deployments[0].uid')
-          echo "previous_id=$PREV" >> "$GITHUB_OUTPUT"
-          echo "Found previous deployment: $PREV"
-
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
@@ -64,13 +56,15 @@ jobs:
 
       # Smoke-test the public production domain, not the unique *.vercel.app
       # deployment URL: that one sits behind Vercel Deployment Protection and
-      # serves a login page (HTTP 200, no app) to anonymous clients.
+      # serves a login page (HTTP 200, no app) to anonymous clients. Branch
+      # domains (gitBranch set, e.g. staging.*) are protected too, so only
+      # production domains — no gitBranch, no redirect — qualify.
       - name: Resolve production domain
         id: alias
         run: |
           DOMAIN=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
             "https://api.vercel.com/v9/projects/${{ secrets.VERCEL_PROJECT_ID }}/domains" \
-            | jq -r '[.domains[] | select(.redirect == null) | .name] | (map(select(endswith(".vercel.app") | not)) + .)[0] // empty')
+            | jq -r '[.domains[] | select(.redirect == null and .gitBranch == null) | .name] | (map(select(endswith(".vercel.app") | not)) + .)[0] // empty')
           if [ -z "$DOMAIN" ]; then echo "Could not resolve a production domain" >&2; exit 1; fi
           echo "production_url=https://$DOMAIN" >> "$GITHUB_OUTPUT"
           echo "Production domain: https://$DOMAIN"
@@ -84,7 +78,24 @@ jobs:
     # which hung on hosted runners). Keep the tag in sync with @playwright/test.
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble
+    outputs:
+      inconclusive: ${{ steps.preflight.outputs.inconclusive }}
     steps:
+      # If the domain doesn't serve the app to anonymous clients (e.g. it's
+      # behind a login wall), the smoke result says nothing about the
+      # deployment: fail loudly, but don't roll back.
+      - name: Preflight — domain serves the app publicly
+        id: preflight
+        env:
+          BASE_URL: ${{ needs.deploy.outputs.production_url }}
+        run: |
+          FINAL=$(node -e "fetch(process.env.BASE_URL + '/', { redirect: 'follow' }).then(r => console.log(r.url)).catch(e => { console.error(e); process.exit(2); })")
+          echo "Final URL: $FINAL"
+          if [ "$(node -e "console.log(new URL('$FINAL').host)")" != "$(node -e "console.log(new URL(process.env.BASE_URL).host)")" ]; then
+            echo "inconclusive=true" >> "$GITHUB_OUTPUT"
+            echo "::error::$BASE_URL redirects to $FINAL (not publicly reachable); smoke test is inconclusive, not rolling back."
+            exit 1
+          fi
       - uses: actions/checkout@v6
       - name: Install dependencies
         run: npm ci
@@ -105,21 +116,18 @@ jobs:
   rollback:
     name: Rollback on smoke failure
     needs: [deploy, smoke]
-    # Only when the smoke tests themselves failed (not when cancelled/skipped).
-    if: failure() && needs.smoke.result == 'failure'
+    # Only when the smoke tests themselves failed against a reachable app
+    # (not when cancelled/skipped or the preflight was inconclusive).
+    if: failure() && needs.smoke.result == 'failure' && needs.smoke.outputs.inconclusive != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
+      # Without an id, Vercel rolls back to the previous production
+      # deployment — the only rollback the Hobby plan allows (an explicit
+      # older id fails with 402).
       - name: Roll back to the previous production deployment
-        env:
-          PREV: ${{ needs.deploy.outputs.previous_id }}
         run: |
-          if [ "$PREV" != "null" ] && [ -n "$PREV" ]; then
-            echo "Smoke tests failed! Rolling back to $PREV..."
-            vercel rollback "$PREV" --yes --token=${{ secrets.VERCEL_TOKEN }}
-          else
-            echo "Could not determine previous deployment ID for rollback."
-            exit 1
-          fi
+          echo "Smoke tests failed! Rolling back to the previous production deployment..."
+          vercel rollback --yes --token=${{ secrets.VERCEL_TOKEN }}

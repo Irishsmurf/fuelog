@@ -14,6 +14,7 @@ export function registerVehicleTools(server: McpServer, userId: string, identity
       includeArchived: z.boolean().optional().describe('Include archived vehicles (default false)'),
     },
   }, async ({ includeArchived = false }) => {
+    if (!hasScope(identity, 'read:vehicles')) return UNAUTHORIZED;
     const db = getAdminDb();
     const snapshot = await db.collection('vehicles').where('userId', '==', userId).get();
     let vehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServerVehicle));

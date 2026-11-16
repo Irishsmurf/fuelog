@@ -110,6 +110,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: Build
         run: npm run build
+      - name: Precache size budget
+        run: node scripts/check-bundle-budget.mjs
 
   smoke:
     name: Smoke Test (production build)

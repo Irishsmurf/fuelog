@@ -102,7 +102,27 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Route-specific heavyweights (map renderer + its worker, PDF export,
+        // html2canvas) are not precached: every install would otherwise
+        // download ~2 MB the user may never need. They are cached on first
+        // use by the runtime rule below, so they still work offline after.
+        globIgnores: [
+          '**/vendor-maplibre-*.js',
+          '**/maplibre-gl-worker-*.js',
+          '**/vendor-pdf-*.js',
+          '**/vendor-canvas-*.js',
+        ],
         runtimeCaching: [
+          {
+            // Hashed build assets never change, so cache-first is safe.
+            urlPattern: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/assets/') && url.pathname.endsWith('.js'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'lazy-chunks',
+              expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 60 },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',

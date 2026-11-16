@@ -99,6 +99,7 @@
       "uploadingReceipt": "Laster opp kvitteringsbilde...",
       "savedSuccess": "Loggen ble lagret!",
       "savedNoLocation": "Loggen ble lagret! (Posisjon ikke hentet)",
+      "savedOffline": "Du er frakoblet: oppføringen synkroniseres når du er tilkoblet igjen.",
       "saveError": "Kunne ikke lagre loggen din: {{detail}}. Prøv igjen.",
       "fetchRateError": "Kunne ikke hente kurs for {{currency}}. Vennligst sett manuelt.",
       "locationCapturedAt": "Located at {{station}}.",

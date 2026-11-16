@@ -1,5 +1,5 @@
 // src/pages/QuickLogPage.tsx
-import React, { JSX, useState, ChangeEvent, FormEvent, useEffect } from 'react';
+import React, { JSX, useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
 import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
 import { db, analytics } from '../firebase/config';
 import { logEvent } from 'firebase/analytics';
@@ -66,6 +66,8 @@ function QuickLogPage(): JSX.Element {
   // --- Multi-Currency State ---
   const [currency, setCurrency] = useState<string>(homeCurrency); // Transaction Currency
   const [exchangeRate, setExchangeRate] = useState<number>(1.0);
+  /** Currency the user typed a rate for; fetched rates don't overwrite it. */
+  const manualRateCurrency = useRef<string | null>(null);
   const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
 
   // --- Receipt State ---
@@ -202,10 +204,14 @@ function QuickLogPage(): JSX.Element {
   // --- Fetch Exchange Rate when currency changes ---
   useEffect(() => {
     if (currency === homeCurrency) {
+      manualRateCurrency.current = null;
       setExchangeRate(1.0);
       return;
     }
+    // A rate the user typed for this currency wins over a fetched one.
+    if (manualRateCurrency.current === currency) return;
 
+    let cancelled = false;
     const getRate = async () => {
       setIsFetchingRate(true);
       try {
@@ -213,16 +219,20 @@ function QuickLogPage(): JSX.Element {
         // day's exchange rate. Fall back to now if the input isn't parseable yet.
         const rateDate = loggedAt ? new Date(loggedAt) : new Date();
         const rate = await fetchExchangeRate(isNaN(rateDate.getTime()) ? new Date() : rateDate, currency, homeCurrency);
-        setExchangeRate(rate);
+        // Ignore responses for a superseded currency/date, and never clobber
+        // a rate the user typed while the request was in flight.
+        if (!cancelled && manualRateCurrency.current !== currency) setExchangeRate(rate);
       } catch (error) {
+        if (cancelled) return;
         console.error("Failed to fetch rate:", error);
         setMessage({ type: 'error', text: t('quickLog.messages.fetchRateError', { currency }) });
       } finally {
-        setIsFetchingRate(false);
+        if (!cancelled) setIsFetchingRate(false);
       }
     };
 
     getRate();
+    return () => { cancelled = true; };
   }, [currency, homeCurrency, loggedAt, t]);
 
   // --- Fetch known brands effect ---
@@ -268,6 +278,7 @@ function QuickLogPage(): JSX.Element {
   // --- Exchange Rate Change Handler ---
   const handleRateChange = (e: ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
+    manualRateCurrency.current = currency;
     setExchangeRate(isNaN(val) ? 0 : val);
   };
 
@@ -487,7 +498,16 @@ function QuickLogPage(): JSX.Element {
 
       // Save to Firestore — this is the only fatal step; if it throws the log
       // wasn't recorded and we report a clear error below.
-      await addDoc(collection(db, "fuelLogs"), logData);
+      // addDoc only resolves once the *server* acknowledges the write, so
+      // offline we don't wait: Firestore has already queued it locally and
+      // will sync it on reconnect.
+      const pendingWrite = addDoc(collection(db, "fuelLogs"), logData);
+      const savedOffline = !navigator.onLine;
+      if (savedOffline) {
+        pendingWrite.catch(err => console.error('Queued fuel log failed to sync:', err));
+      } else {
+        await pendingWrite;
+      }
 
       // Station price stats are maintained server-side by the
       // updateStationStats Cloud Function, not by the client.
@@ -503,6 +523,10 @@ function QuickLogPage(): JSX.Element {
       setLocationMode('gps');
       setMatchedStation(null);
       setShowMap(false);
+      if (savedOffline) {
+        saveWarnings.unshift(t('quickLog.messages.savedOffline', { defaultValue: "You're offline: it will sync when you're back online." }));
+      }
+      manualRateCurrency.current = null;
       if (saveWarnings.length > 0) {
         // Saved, but something non-critical needs the user's attention.
         const base = locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation');

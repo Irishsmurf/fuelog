@@ -201,6 +201,47 @@ describe('QuickLogPage', () => {
     expect((payload as { cost: number }).cost).toBeCloseTo(55);
   });
 
+  it('keeps a rate the user typed when the fill-up time changes', async () => {
+    vi.mocked(fetchExchangeRate).mockResolvedValue(1.1);
+    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.currency')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.currency'), { target: { value: 'USD' } });
+    const rateInput = screen.getByLabelText(/quickLog.fields.exchangeRate/) as HTMLInputElement;
+    await waitFor(() => expect(rateInput.value).toBe('1.1'));
+
+    fireEvent.change(rateInput, { target: { value: '1.25' } });
+    const callsBefore = vi.mocked(fetchExchangeRate).mock.calls.length;
+    fireEvent.change(document.getElementById('loggedAt') as HTMLInputElement, { target: { value: '2026-11-01T09:30' } });
+
+    // No refetch overwrites the typed rate.
+    await new Promise(r => setTimeout(r, 50));
+    expect(vi.mocked(fetchExchangeRate).mock.calls.length).toBe(callsBefore);
+    expect(rateInput.value).toBe('1.25');
+  });
+
+  it('does not hang while offline: the write is queued and the form reports success', async () => {
+    const online = Object.getOwnPropertyDescriptor(Navigator.prototype, 'onLine');
+    Object.defineProperty(window.navigator, 'onLine', { value: false, configurable: true });
+    // Offline, addDoc never resolves (it waits for the server ack).
+    vi.mocked(addDoc).mockReturnValueOnce(new Promise(() => {}) as never);
+    try {
+      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+      await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+      fireEvent.change(screen.getByLabelText(/quickLog\.fields\.fillingStation/), { target: { value: 'Shell' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+      fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+      fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+      await waitFor(() => expect(screen.getByText(/quickLog.messages.savedOffline|back online/)).toBeInTheDocument());
+      expect(addDoc).toHaveBeenCalledTimes(1);
+    } finally {
+      delete (window.navigator as unknown as Record<string, unknown>).onLine;
+      if (online) Object.defineProperty(Navigator.prototype, 'onLine', online);
+    }
+  });
+
   it('extracts and pre-fills form fields from a receipt image', async () => {
     vi.mocked(extractDataFromReceipt).mockResolvedValue({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso', purchaseDate: null, purchaseTime: null, address: null });
 

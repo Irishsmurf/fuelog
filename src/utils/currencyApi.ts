@@ -18,6 +18,10 @@ interface ExchangeRateResponse {
  * Returns 1 Transaction Currency = X Home Currency.
  * Example: 1 GBP = 1.17 EUR
  */
+/** Local calendar date as YYYY-MM-DD. */
+export const toLocalYmd = (date: Date): string =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
 export const fetchExchangeRate = async (
   date: Date,
   fromCurrency: string,
@@ -25,8 +29,9 @@ export const fetchExchangeRate = async (
 ): Promise<number> => {
   if (fromCurrency === toCurrency) return 1.0;
 
-  // Frankfurter uses YYYY-MM-DD
-  const formattedDate = date.toISOString().split('T')[0];
+  // Frankfurter uses YYYY-MM-DD. Use the *local* calendar date: toISOString()
+  // is UTC, so an evening fill-up east of UTC got the next day's rate.
+  const formattedDate = toLocalYmd(date);
   
   try {
     const response = await fetch(`${BASE_URL}/${formattedDate}?from=${fromCurrency}&to=${toCurrency}`);

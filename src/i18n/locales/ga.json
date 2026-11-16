@@ -99,6 +99,7 @@
       "uploadingReceipt": "Ag uaslódáil grianghraf admhála...",
       "savedSuccess": "Iontráil sábháilte go rathúil!",
       "savedNoLocation": "Iontráil sábháilte go rathúil! (Suíomh gan gabhail)",
+      "savedOffline": "Tá tú as líne: sioncrófar é nuair a bheidh tú ar líne arís.",
       "saveError": "Níorbh fhéidir do logáil a shábháil: {{detail}}. Bain triail eile as le do thoil.",
       "fetchRateError": "Theip ar an ráta {{currency}} a fháil. Socraigh de láimh le do thoil.",
       "locationCapturedAt": "Located at {{station}}.",

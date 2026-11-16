@@ -359,6 +359,14 @@ function HistoryPage(): JSX.Element {
                 distanceKm: parsedDistanceKm,
                 fuelAmountLiters: parsedFuel,
             };
+            // The form edits the home-currency cost. For a foreign-currency log keep
+            // the stored transaction amount consistent with it at the saved rate;
+            // otherwise originalCost would silently disagree with cost.
+            if (editingLog.currency && editingLog.currency !== homeCurrency
+                && editingLog.exchangeRate && editingLog.exchangeRate > 0
+                && parsedCost !== editingLog.cost) {
+                updatedData.originalCost = Math.round((parsedCost / editingLog.exchangeRate) * 100) / 100;
+            }
             // vehicleId is optional on the form type; only write it when set so we
             // never pass `undefined` (which updateDoc rejects) or an empty string.
             if (editFormData.vehicleId) {

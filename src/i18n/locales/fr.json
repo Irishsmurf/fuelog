@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "Permission refusée pour la suppression.",
       "failedToSetDefault": "Échec de la définition du véhicule par défaut.",
       "permissionDeniedDefault": "Permission refusée pour mettre à jour les valeurs par défaut.",
-      "deleteConfirm": "Êtes-vous sûr ? Les saisies ne seront pas supprimées mais seront dissociées."
+      "deleteConfirm": "Êtes-vous sûr ? Les saisies ne seront pas supprimées mais seront dissociées.",
+      "vehicleHasLogs": "Ce véhicule a {{count}} pleins enregistrés. Archivez-le plutôt pour conserver son historique."
     },
     "notifications": {
       "heading": "Notifications",

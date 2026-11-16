@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "Cead diúltaithe le scriosadh.",
       "failedToSetDefault": "Theip ar an réamhshocrú feithicle a shocrú.",
       "permissionDeniedDefault": "Cead diúltaithe chun réamhshocruithe a nuashonrú.",
-      "deleteConfirm": "An bhfuil tú cinnte? Ní scriosfar iontrálacha ach déanfar dínascadh orthu."
+      "deleteConfirm": "An bhfuil tú cinnte? Ní scriosfar iontrálacha ach déanfar dínascadh orthu.",
+      "vehicleHasLogs": "Tá {{count}} taifead breosla ag an bhfeithicil seo. Cartlannaigh í ina ionad sin chun a stair a choinneáil."
     },
     "notifications": {
       "heading": "Fógraí",

@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "削除のアクセスが拒否されました。",
       "failedToSetDefault": "デフォルト車両の設定に失敗しました。",
       "permissionDeniedDefault": "デフォルトの更新のアクセスが拒否されました。",
-      "deleteConfirm": "よろしいですか？記録は削除されませんが、リンクが解除されます。"
+      "deleteConfirm": "よろしいですか？記録は削除されませんが、リンクが解除されます。",
+      "vehicleHasLogs": "この車両には{{count}}件の給油記録があります。履歴を残すため、削除ではなくアーカイブしてください。"
     },
     "notifications": {
       "heading": "通知",

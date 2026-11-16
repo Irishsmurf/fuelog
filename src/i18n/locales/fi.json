@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "Ei oikeutta poistaa.",
       "failedToSetDefault": "Oletusajoneuvon asetus epäonnistui.",
       "permissionDeniedDefault": "Ei oikeutta päivittää oletuksia.",
-      "deleteConfirm": "Oletko varma? Tämä ei poista lokeja, mutta irrottaa ne ajoneuvosta."
+      "deleteConfirm": "Oletko varma? Tämä ei poista lokeja, mutta irrottaa ne ajoneuvosta.",
+      "vehicleHasLogs": "Tällä ajoneuvolla on {{count}} tankkausmerkintää. Arkistoi se poistamisen sijaan, niin historia säilyy."
     },
     "notifications": {
       "heading": "Ilmoitukset",

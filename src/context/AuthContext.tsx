@@ -3,6 +3,7 @@ import { createContext, JSX, useState, useEffect, useContext, useMemo, useCallba
 // Import User type from firebase/auth
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import { parseDoc, userProfileSchema } from "../firebase/converters";
 import { setUserProperties } from "firebase/analytics";
 import { auth, db, analytics, signInWithGoogle, logout } from '../firebase/config';
 
@@ -53,12 +54,15 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser: User | null) => {
       setUser(currentUser);
+      // Always drop the previous user's listener first, so switching accounts
+      // (A -> B) can't leave A's profile snapshot feeding B's session.
+      if (unsubscribeProfile) { unsubscribeProfile(); unsubscribeProfile = undefined; }
 
       if (currentUser) {
         const profileRef = doc(db, "userProfiles", currentUser.uid);
         unsubscribeProfile = onSnapshot(profileRef, async (docSnap) => {
           const profileData: UserProfile = docSnap.exists()
-            ? (docSnap.data() as UserProfile)
+            ? (parseDoc(userProfileSchema, 'userProfile', docSnap.id, docSnap.data()) as UserProfile)
             : DEFAULT_PROFILE;
 
           if (!docSnap.exists()) {
@@ -81,7 +85,6 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
         });
       } else {
         setProfile(null);
-        if (unsubscribeProfile) unsubscribeProfile();
         setLoading(false);
       }
     });
@@ -95,8 +98,10 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
   const updateProfile = useCallback(async (updates: Partial<UserProfile>) => {
     if (!user) return;
     const profileRef = doc(db, "userProfiles", user.uid);
-    await setDoc(profileRef, { ...profile, ...updates }, { merge: true });
-  }, [user, profile]);
+    // Merge only the changed fields: spreading the in-memory profile could
+    // write back stale values over a newer server copy.
+    await setDoc(profileRef, updates, { merge: true });
+  }, [user]);
 
   // Memoized context value with the defined type
   const value: AuthContextType = useMemo(() => ({

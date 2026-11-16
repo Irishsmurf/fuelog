@@ -1,6 +1,7 @@
 import { JSX, useState, useEffect, ChangeEvent, FormEvent, useCallback } from 'react';
-import { collection, addDoc, deleteDoc, doc, writeBatch, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, writeBatch, updateDoc } from "firebase/firestore";
 import { fetchVehicles } from '../firebase/firestoreService';
+import { countVehicleLogs } from '../data/logs';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle, VehicleFuelType } from '../utils/types';
@@ -72,21 +73,22 @@ function ProfilePage(): JSX.Element {
     setMessage(null);
 
     try {
-      // If setting as default, unset others first
-      if (formData.isDefault && vehicles.length > 0) {
-        const batch = writeBatch(db);
+      // One atomic batch: clear the old default and add the new vehicle
+      // together, so a failure can't leave the user with no default.
+      const isDefault = vehicles.filter(v => !v.isArchived).length === 0 ? true : formData.isDefault;
+      const batch = writeBatch(db);
+      if (isDefault) {
         vehicles.forEach(v => {
           if (v.isDefault) batch.update(doc(db, "vehicles", v.id), { isDefault: false });
         });
-        await batch.commit();
       }
-
-      await addDoc(collection(db, "vehicles"), {
+      batch.set(doc(collection(db, "vehicles")), {
         ...formData,
         userId: user.uid,
         isArchived: false,
-        isDefault: vehicles.filter(v => !v.isArchived).length === 0 ? true : formData.isDefault
+        isDefault,
       });
+      await batch.commit();
 
       setMessage({ type: 'success', text: t('profile.messages.vehicleAdded') });
       setFormData({ name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol', isDefault: false });
@@ -104,8 +106,14 @@ function ProfilePage(): JSX.Element {
   };
 
   const handleDeleteVehicle = async (id: string) => {
-    if (!window.confirm(t('profile.messages.deleteConfirm'))) return;
+    if (!user || !window.confirm(t('profile.messages.deleteConfirm'))) return;
     try {
+      // Deleting a vehicle that has logs would orphan them; archive instead.
+      const logCount = await countVehicleLogs(user.uid, id);
+      if (logCount > 0) {
+        setMessage({ type: 'error', text: t('profile.messages.vehicleHasLogs', { count: logCount, defaultValue: 'This vehicle has {{count}} fuel logs. Archive it instead to keep its history.' }) });
+        return;
+      }
       await deleteDoc(doc(db, "vehicles", id));
       loadVehicles();
     } catch (err: unknown) {
@@ -121,8 +129,7 @@ function ProfilePage(): JSX.Element {
   const handleArchiveVehicle = async (vehicle: Vehicle) => {
     try {
       const isNowArchived = !vehicle.isArchived;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const updates: any = { isArchived: isNowArchived };
+      const updates: { isArchived: boolean; isDefault?: boolean } = { isArchived: isNowArchived };
 
       if (isNowArchived && vehicle.isDefault) {
         updates.isDefault = false;

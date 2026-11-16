@@ -12,7 +12,9 @@ When making a request, include the token in the `Authorization` header:
 Authorization: Bearer <your_token_here>
 ```
 
-Tokens are scoped, meaning they may only have permissions for specific actions (e.g., `read:logs`, `write:logs`, `read:vehicles`, `write:vehicles`). If your token lacks the required scope for an endpoint, you will receive a `403 Forbidden` error.
+Tokens are scoped, meaning they may only have permissions for specific actions (e.g., `read:logs`, `write:logs`, `read:vehicles`, `write:vehicles`). If your token lacks the required write scope for an endpoint, you will receive a `403 Forbidden` error.
+
+> **Note:** only the write scopes are currently enforced. Any valid token can call the `GET` endpoints, whatever its scopes; `read:logs` and `read:vehicles` are not yet checked.
 
 ## Base URL
 
@@ -76,17 +78,18 @@ Create a new fuel log entry.
     ```
 *   **Required Scope:** `write:logs`
 *   **Request Body:**
-    *   `brand` (string, required): Filling station brand.
-    *   `cost` (number, required): Total cost of the transaction.
-    *   `distanceKm` (number, required): Distance traveled since the last fill-up.
-    *   `fuelAmountLiters` (number, required): Amount of fuel added.
+    *   `brand` (string, required): Filling station brand (1–200 characters).
+    *   `cost` (number, required, ≥ 0): Total cost **in your home currency**. The API does not convert currencies; send `originalCost`, `currency` and `exchangeRate` yourself for a foreign-currency fill-up.
+    *   `distanceKm` (number, required, ≥ 0): Distance traveled since the last fill-up. The API does not derive it from `odometerKm`.
+    *   `fuelAmountLiters` (number, required, > 0): Amount of fuel added.
     *   `timestamp` (string, optional): ISO string date of the fill-up. Defaults to current time.
-    *   `currency` (string, optional): The currency of the transaction (e.g., "EUR", "USD").
-    *   `originalCost` (number, optional): The cost in the original transaction currency (if different from home currency).
-    *   `exchangeRate` (number, optional): The exchange rate applied (if applicable).
+    *   `currency` (string, optional): 3-letter ISO code of the currency paid (e.g., "USD").
+    *   `originalCost` (number, optional): The cost in `currency`.
+    *   `exchangeRate` (number, optional, > 0): Units of home currency per 1 unit of `currency`, so `cost = originalCost × exchangeRate`.
     *   `vehicleId` (string, optional): The ID of the associated vehicle.
-    *   `latitude` (number, optional): GPS latitude.
-    *   `longitude` (number, optional): GPS longitude.
+    *   `odometerKm` (number, optional, ≥ 0): Odometer reading at the fill-up.
+    *   `latitude` (number, optional, −90 to 90): GPS latitude.
+    *   `longitude` (number, optional, −180 to 180): GPS longitude.
 *   **Response:** `201 Created`
     ```json
     {
@@ -110,7 +113,7 @@ Update an existing fuel log entry.
       }'
     ```
 *   **Required Scope:** `write:logs`
-*   **Request Body:** Provide only the fields you wish to update (e.g., `brand`, `cost`, `timestamp`). Internal fields (`id`, `userId`) will be ignored.
+*   **Request Body:** Any of the Create Log fields; provide only those you wish to update. Other fields (`id`, `userId`, `stationId`, …) are ignored. A body with no updatable fields returns `400`.
 *   **Response:** `200 OK`
     ```json
     {
@@ -165,7 +168,7 @@ Retrieve a list of your vehicles.
           "name": "My Daily Driver",
           "make": "Volkswagen",
           "model": "Polo",
-          "year": 2013,
+          "year": "2013",
           "fuelType": "Petrol",
           "isDefault": true,
           "isArchived": false
@@ -197,8 +200,8 @@ Add a new vehicle to your account.
     *   `name` (string, required): A nickname for the vehicle.
     *   `make` (string, required): Vehicle manufacturer (e.g., "Ford").
     *   `model` (string, required): Vehicle model (e.g., "Focus").
-    *   `year` (number/string, required): Manufacturing year.
-    *   `fuelType` (string, required): Type of fuel used (e.g., "Petrol", "Diesel").
+    *   `year` (number/string, required): Manufacturing year. Stored as a string.
+    *   `fuelType` (string, required): One of `Petrol`, `Diesel`, `Hybrid`, `Electric`.
     *   `isDefault` (boolean, optional): Set to `true` to make this the default vehicle. (Will unset any previously default vehicle).
 *   **Response:** `201 Created`
     ```json
@@ -223,7 +226,7 @@ Update details for an existing vehicle.
       }'
     ```
 *   **Required Scope:** `write:vehicles`
-*   **Request Body:** Provide the fields you want to update.
+*   **Request Body:** Any of the Create Vehicle fields, plus `isArchived` (boolean). Setting `isDefault: true` unsets the previous default.
 *   **Response:** `200 OK`
     ```json
     {
@@ -232,7 +235,7 @@ Update details for an existing vehicle.
     ```
 
 ### Delete Vehicle
-Delete a vehicle from your account.
+Delete a vehicle from your account. The API does not check for logs that reference the vehicle; those logs keep the stale `vehicleId`. (The app refuses to delete a vehicle with logs and suggests archiving instead, e.g. `PUT` with `{"isArchived": true}`.)
 
 *   **URL:** `/api/rest?type=vehicles&id=<vehicle_id>`
 *   **Method:** `DELETE`
@@ -267,8 +270,8 @@ Get statistics like total spent, average efficiency, and total fuel consumed.
     ```
 *   **Query Parameters:**
     *   `vehicleId` (optional): Filter analytics to a specific vehicle.
-    *   `startDate` (optional): Filter logs starting from this date (format: `YYYY-MM-DD`).
-    *   `endDate` (optional): Filter logs up to this date (format: `YYYY-MM-DD`).
+    *   `startDate` (optional): Filter logs starting from this date (format: `YYYY-MM-DD`, UTC).
+    *   `endDate` (optional): Filter logs up to the end of this date (format: `YYYY-MM-DD`, UTC).
 *   **Required Scope:** `read:logs`
 *   **Response:**
     ```json

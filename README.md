@@ -54,11 +54,12 @@ Built with modern web technologies:
 
 - **Frontend:** React 19, TypeScript, Vite
 - **Styling:** Tailwind CSS v4
-- **Backend / DB:** Firebase (Auth, Firestore, Storage, Remote Config, FCM)
-- **AI Integration:** Google Gemini
-- **Maps:** Leaflet, react-leaflet
+- **Backend / DB:** Firebase (Auth, Firestore, Storage, Remote Config, FCM, Cloud Functions); Vercel functions for the REST API, MCP server and receipt extraction
+- **AI Integration:** Google Gemini (server-side)
+- **Maps:** Leaflet and react-leaflet with MapLibre GL vector basemaps
 - **Charts:** Recharts
-- **Testing:** Vitest, Playwright
+- **Data:** TanStack Query, zod schemas shared via the `@fuelog/core` workspace package
+- **Testing:** Vitest, Playwright, Firestore rules tests on the emulator
 
 ---
 
@@ -96,17 +97,36 @@ Follow these instructions to get a copy of the project up and running on your lo
    VITE_FIREBASE_MESSAGING_SENDER_ID=
    VITE_FIREBASE_APP_ID=
 
-   # Google Gemini — optional, enables AI receipt scanning
-   VITE_GEMINI_API_KEY=
-   VITE_GEMINI_MODEL=gemini-2.5-flash
-   VITE_GEMINI_THINKING_LEVEL=low
-
    # CARTO basemaps — optional. Maps work without it; the log-card thumbnails
    # fall back to CARTO's keyless raster tiles, which carry an "API KEY
    # REQUIRED" watermark. Free key (no account needed):
    # https://carto.com/basemaps/apikey
    VITE_CARTO_API_KEY=
+
+   # Optional client extras
+   VITE_FIREBASE_MEASUREMENT_ID=
+   VITE_FIREBASE_VAPID_KEY=   # web push (FCM)
+   VITE_SENTRY_DSN=
    ```
+
+   Server-side variables are set on the Vercel project (never prefixed with
+   `VITE_`, never shipped to the browser). They are used by the `api/`
+   functions (REST, MCP, receipt extraction):
+   ```env
+   FIREBASE_PROJECT_ID=
+   FIREBASE_SERVICE_ACCOUNT_JSON=      # Admin SDK service account, as JSON
+   GEMINI_API_KEY=                     # enables AI receipt scanning
+   GEMINI_MODEL=gemini-2.5-flash       # optional
+   GEMINI_THINKING_LEVEL=low           # optional
+   RECEIPT_DAILY_LIMIT=50              # optional; receipt scans per user per UTC day
+   CORS_ORIGIN=https://fuel.paddez.com # optional
+   ```
+   In development, Vite proxies `/api` to `http://localhost:$API_PORT` (default 3001).
+
+   Cloud Functions read one deploy-time param, `DEV_NOTIFICATION_UIDS`
+   (comma-separated UIDs allowed to use the test-notification tool). CI takes it
+   from the `DEV_NOTIFICATION_UIDS` GitHub repository variable and defaults to
+   `none`, which matches no one.
 
 4. **Start the development server:**
    ```bash
@@ -121,11 +141,14 @@ Open `http://localhost:5173` to view it in your browser.
 
 For deep-dives into the architecture, APIs, and integrations, explore our documentation:
 
+- [Domain glossary](CONTEXT.md) - Terms and invariants (fuel log, home currency, odometer, stations)
+- [Architecture decisions](docs/adr/) - Why things are built the way they are
+- [Rebuild plan](docs/REWRITE_PLAN.md) - Status and remaining steps
 - [Architecture](docs/ARCHITECTURE.md) - System design, Firestore schema, service layers
 - [REST API](docs/REST_API.md) - API endpoints & authentication
 - [MCP Server](docs/MCP.md) - Connect LLMs to your fuel data
 - [Firebase Setup](docs/FIREBASE.md) - Firestore rules, Storage config, FCM setup
-- [Gemini Integration](docs/GEMINI.md) - AI receipt extraction configuration
+- [GEMINI.md](docs/GEMINI.md) - Project context for the Gemini CLI agent
 - [Features & Roadmap](docs/FEATURES.md) - Full reference and planned milestones
 - [User Flows](docs/USER_FLOWS.md) - End-to-end user journey documentation
 

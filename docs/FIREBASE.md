@@ -2,77 +2,109 @@
 
 ## Services Used
 - **Authentication:** Google Sign-In.
-- **Firestore:** NoSQL Document Database.
-- **Remote Config:** Feature flagging and dynamic configuration.
+- **Firestore:** document database (`eur3` multi-region).
+- **Storage:** receipt images.
+- **Cloud Functions (v2, Node 22):** triggers and schedules in `functions/`.
+- **Cloud Messaging (FCM):** web push for budget alerts and digests.
+- **Remote Config:** feature flags.
+- **Trigger Email extension** (`firestore-send-email`): sends documents written to `mail`.
 
-## Firestore Schema
+Field meanings and invariants are in [`CONTEXT.md`](../CONTEXT.md). The
+authoritative shapes are the zod schemas in `packages/core/src/schema.ts`.
 
-### Collection: `fuelLogs`
+## Firestore schema
+
+| Collection | Doc id | Written by | Contents |
+| :--- | :--- | :--- | :--- |
+| `fuelLogs` | auto | client, REST, MCP | One fill-up (fields below). |
+| `vehicles` | auto | client, REST, MCP | `userId`, `name`, `make`, `model`, `year` (string), `fuelType`, `isDefault`, `isArchived`. |
+| `userProfiles` | uid | client | `homeCurrency`, `monthlyBudget`, `notificationsEnabled`, `hasSeenImportOnboarding`, `tester_group`. |
+| `stations` | OSM id, `/`→`_` | client creates; server updates | `osmId`, `name`, `brand`, `latitude`, `longitude`, `address`, `priceStats.<CUR>` (server), legacy `avgPrice`/`lastPrice`/`logCount`, `statsUpdatedAt`. |
+| `apiTokens` | auto | client creates/revokes; server sets `lastUsedAt` | `userId`, `name`, `tokenPrefix`, `tokenHash` (SHA-256 hex), `scopes`, `createdAt`, `lastUsedAt`, `expiresAt`, `isRevoked`. |
+| `fcmTokens` | the FCM token | client | `userId`, `token`, `platform: 'web'`, `createdAt`, `updatedAt`. |
+| `budgetAlerts` | `{uid}_{YYYY-MM}` | `checkBudgetAlert` | `userId`, `monthKey`, `thresholds` (80/100 already alerted), `updatedAt`. |
+| `usageQuotas` | `{uid}_{kind}_{YYYY-MM-DD}` | `api/extract-receipt` | `uid`, `kind`, `day` (UTC), `count`, `updatedAt`. |
+| `triggerEvents` | `stationStats_{eventId}` | `updateStationStats` | `createdAt`, `expireAt` (7 days; for a TTL policy). |
+| `migrations` | migration id | `runMigrations` | `completedAt` plus the migration's result. |
+| `testNotifications` | auto | `sendTestNotification` | Audit trail of dev test pushes. |
+| `mail` | auto | `sendMonthlySummary` | Picked up by the Trigger Email extension. |
+
+### `fuelLogs` fields
+
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `userId` | `string` | UID of the owner (from Firebase Auth). |
-| `timestamp` | `Timestamp` | Date and time of the fuel entry. |
-| `brand` | `string` | Filling station brand (e.g., "Circle K"). |
-| `cost` | `number` | Total cost of the transaction in Euro. |
-| `distanceKm` | `number` | Distance covered since the last log in Km. |
-| `fuelAmountLiters` | `number` | Amount of fuel added in Litres. |
-| `latitude` | `number` | (Optional) GPS Latitude. |
-| `longitude` | `number` | (Optional) GPS Longitude. |
-| `locationAccuracy` | `number` | (Optional) GPS accuracy in meters. |
+| `userId` | string | Owner's UID. Immutable. |
+| `timestamp` | Timestamp | When the fill-up happened (can be back-dated). |
+| `cost` | number | Total cost in the owner's **home currency**. |
+| `distanceKm` | number | Distance since the previous fill-up. |
+| `fuelAmountLiters` | number | Litres added. |
+| `brand` | string? | Station brand. |
+| `odometerKm` | number? | Odometer reading. |
+| `currency`, `originalCost`, `exchangeRate` | string?, number?, number? | Amount paid in the receipt's currency; `cost = originalCost × exchangeRate`. |
+| `vehicleId` | string? | Vehicle filled. |
+| `stationId` | string? | Linked `stations` doc. |
+| `latitude`, `longitude`, `locationAccuracy` | number? | Where the fill-up happened. |
+| `receiptUrl` | string? | Storage download URL of the receipt. |
+| `fillType`, `missedPrevious`, `source`, `schemaVersion` | v2, optional | Defined in the schema; not yet written. |
 
-### Collection: `vehicles`
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `userId` | `string` | UID of the owner. |
-| `name` | `string` | Nickname for the vehicle. |
-| `make` | `string` | e.g., "Volkswagen". |
-| `model` | `string` | e.g., "Polo". |
-| `year` | `string` | Manufacturing year. |
-| `fuelType` | `string` | Petrol, Diesel, Hybrid, or Electric. |
-| `isDefault` | `boolean` | Whether this is the primary vehicle for logging. |
+## Security rules
 
-### Collection: `userProfiles`
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `homeCurrency` | `string` | User's preferred currency code (e.g., "GBP"). |
+`firebase/firestore.rules` is the source of truth; it is tested against the
+emulator in CI (`npm run test:rules`). In summary:
+- `fuelLogs`, `vehicles`: owner-only; `userId` can never change. Fuel-log fields
+  are type-checked on every write, and `cost`, `distanceKm`, `fuelAmountLiters`
+  and `timestamp` are required on create.
+- `userProfiles/{uid}`: owner-only.
+- `apiTokens`: owner-only. Create needs `isRevoked == false`, a 64-char
+  `tokenHash`, scopes from `read:logs`, `write:logs`, `read:vehicles`,
+  `write:vehicles`, and a null or Timestamp `expiresAt`. The only allowed update
+  is `isRevoked: true`.
+- `stations`: any signed-in user can read, and create one with zeroed legacy
+  stats and no `priceStats`/`lastPrice`. Updates are denied (server only).
+- `fcmTokens`: owner-only, `platform == 'web'`.
+- `budgetAlerts`, `testNotifications`, `usageQuotas`: no client access.
+  `triggerEvents`, `migrations` and `mail` have no rule, so clients are denied.
 
-## Security Rules (Firestore)
-The following rules ensure that users can only read and write their own data.
+Storage (`firebase/storage.rules`): `receipts/{uid}/{file}` is owner-only;
+uploads must be images of at most 10 MB.
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Rules for Fuel Logs
-    match /fuelLogs/{logId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-    
-    // Rules for Vehicles
-    match /vehicles/{vehicleId} {
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
+## Cloud Functions
 
-    // Rules for User Profiles
-    match /userProfiles/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
-```
+Exported from `functions/src/index.ts`; deployed by the Firebase Deploy workflow.
 
-## Remote Config Parameters
-Managed in the Firebase Console and fetched during app initialization.
+| Function | Trigger | Region | Purpose |
+| :--- | :--- | :--- | :--- |
+| `updateStationStats` | `fuelLogs/{logId}` written | europe-west1 | Maintains `stations.priceStats.<CUR>`; idempotent via `triggerEvents`. |
+| `checkBudgetAlert` | `fuelLogs/{logId}` written | not set in code | Push at 80% / 100% of `monthlyBudget`; state in `budgetAlerts`. |
+| `runMigrations` | every 60 minutes | us-central1 (default) | Runs pending one-shot migrations (`migrations/{id}`). |
+| `cleanupExpiredTokens` | every 24 hours | us-central1 (default) | Revokes expired API tokens. |
+| `sendWeeklyDigest` | Mondays 08:00 (`every monday 08:00`) | us-central1 (default) | Weekly spend push. |
+| `sendMonthlySummary` | 1st of month 08:00 (`0 8 1 * *`) | us-central1 (default) | Monthly summary email via `mail`. |
+| `processReceipt` | Storage object finalized | us-central1 | Writes a `thumb_` copy of receipt images. |
+| `checkDeveloperAccess`, `sendTestNotification` | callable | us-central1 (default) | Dev test-push tool, restricted to `DEV_NOTIFICATION_UIDS`. |
 
-| Key | Default | Description |
-| :--- | :--- | :--- |
-| `darkModeEnabled` | `false` | Global override for dark mode (if needed). |
-| `costPerLitreGraphEnabled` | `false` | Feature flag for the Cost Per Litre trend graph. |
-| `totalSpentDisplayEnabled` | `false` | Feature flag for the "Total Lifetime Spent" display. |
-| `exampleFeatureFlagEnabled` | `false` | Generic example flag for testing. |
+No function sets a global region. Firestore-triggered functions are placed by
+the Firebase CLI; `updateStationStats` was deployed to `europe-west1`, next to
+the `eur3` database (#295).
 
-### Fetch Policy
-- **Minimum Fetch Interval:** 1 hour (3,600,000 ms).
-- **Initialization:** Called in `src/main.tsx` via `activateRemoteConfig()`.
+Functions param: `DEV_NOTIFICATION_UIDS` (comma-separated UIDs; CI writes it
+from the repo variable of the same name, default `none`).
+
+## Remote Config parameters
+
+In-app defaults are in `src/firebase/remoteConfigService.ts`. Fetch interval
+1 hour; fetch timeout 5 s (the app shell waits for it, then falls back to the
+defaults).
+
+| Key | Default |
+| :--- | :--- |
+| `darkModeEnabled` | `true` |
+| `costPerLitreGraphEnabled` | `false` |
+| `totalSpentDisplayEnabled` | `false` |
+| `receiptDigitizationEnabled` | `false` |
+| `receiptAutoFillEnabled` | `false` |
+| `odometerInputEnabled` | `false` |
+| `vehicleComparisonEnabled` | `false` |
+| `exampleFeatureFlagEnabled` | `false` |
+
+Removing these flags is proposed in [ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md).

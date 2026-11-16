@@ -1,6 +1,36 @@
 # Fuelog: rebuild plan and target design
 
-Status: proposal, 2026-11-16. Based on four parallel audits: frontend, backend and data, tooling and CI, and features and domain.
+Status: in progress. Proposed 2026-11-16, based on four parallel audits: frontend, backend and data, tooling and CI, and features and domain. Glossary: [`CONTEXT.md`](../CONTEXT.md). Decisions: [`docs/adr/`](adr/).
+
+## Status
+
+**Done**
+- **Step 0, urgent fixes:**
+  - Token-takeover hole closed; rules hardened (`userId` immutable, field types, token updates revoke-only, stations server-updated) and rules tests on the emulator in CI (#259).
+  - CI runs `tsc -b` across app, node and `api/`; `validate-env` runs only on push; a Functions job; a Playwright smoke test against a production build; REST bodies validated with zod and `limit` capped; per-user receipt quota in `usageQuotas` (#269).
+- **Step 1, partly:** npm workspaces with `packages/core` (#276). `api/`, `src/mcp` and the SPA have not moved to `apps/`.
+- **Step 2:** core zod schemas (with v2 fields), odometer rules with property tests, one copy of the maths; validated Firestore reads via `src/firebase/converters.ts` (#276, #282).
+- **Step 3, partly:**
+  - Server-owned per-currency station stats (`updateStationStats`, `stations.priceStats.<CUR>`) with idempotency markers in `triggerEvents`; `runMigrations` scheduled one-shot migrations (#284).
+  - Functions deployed from CI with tests first, no `--force` and artifact cleanup policies (#284, #285, #286, #295).
+  - Vercel deploy smoke-tests the production domain and rolls back on failure (#284, #285, #286).
+- **Step 4, partly:** TanStack Query data layer in `src/data`, used by History; exports read all matching logs (#298). QuickLog offline saves and exchange-rate fixes (#299). Profile and auth fixes (#300).
+- **Step 7:** `CONTEXT.md`, ADRs 0001–0007, stale docs removed (this change).
+
+**In review:** precache budget, keeping route-only chunks out of the precache (#301).
+
+**Remaining**
+- Step 1: `apps/web` and `apps/functions`; drop the `jose`/`uuid` overrides.
+- Step 3:
+  - an `onLogWrite` trigger for the rest of the derived data (distance from odometer, home-currency cost and rate, `stationId`);
+  - retire the backfill scripts and the ProfilePage client migration;
+  - OIDC instead of `FIREBASE_TOKEN`.
+- Step 4: move QuickLog, Profile/Vehicles and Dashboard onto the data layer (each under about 250 lines).
+- Step 5: MapLibre only, remove Remote Config flags, lazy-load locales, bundle budget in CI ([ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md), proposed).
+- Step 6: Playwright with the Auth emulator as a deploy gate.
+- §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
+- Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).
+- §7 decisions are still open.
 
 ## 1. Verdict: rebuild the core in place, not a big-bang rewrite
 

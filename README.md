@@ -54,7 +54,7 @@ Built with modern web technologies:
 
 - **Frontend:** React 19, TypeScript, Vite
 - **Styling:** Tailwind CSS v4
-- **Backend / DB:** Firebase (Auth, Firestore, Storage, Remote Config, FCM, Cloud Functions); Vercel functions for the REST API, MCP server and receipt extraction
+- **Backend / DB:** Firebase (Auth, Firestore, Storage, FCM, Cloud Functions); Vercel functions for the REST API, MCP server and receipt extraction
 - **AI Integration:** Google Gemini (server-side)
 - **Maps:** Leaflet and react-leaflet with MapLibre GL vector basemaps
 - **Charts:** Recharts

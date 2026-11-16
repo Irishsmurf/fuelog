@@ -16,24 +16,11 @@ describe('ThemeToggle', () => {
     vi.clearAllMocks();
   });
 
-  it('does not render if dark mode is disabled remotely', () => {
-    vi.mocked(useTheme).mockReturnValue({
-      theme: 'light',
-      toggleTheme: mockToggleTheme,
-      setThemeExplicitly: mockSetThemeExplicitly,
-      isDarkModeEnabledRemotely: false,
-    });
-
-    const { container } = render(<ThemeToggle />);
-    expect(container.firstChild).toBeNull();
-  });
-
   it('renders correctly in light mode', () => {
     vi.mocked(useTheme).mockReturnValue({
       theme: 'light',
       toggleTheme: mockToggleTheme,
       setThemeExplicitly: mockSetThemeExplicitly,
-      isDarkModeEnabledRemotely: true,
     });
 
     render(<ThemeToggle />);
@@ -46,7 +33,6 @@ describe('ThemeToggle', () => {
       theme: 'dark',
       toggleTheme: mockToggleTheme,
       setThemeExplicitly: mockSetThemeExplicitly,
-      isDarkModeEnabledRemotely: true,
     });
 
     render(<ThemeToggle />);
@@ -59,7 +45,6 @@ describe('ThemeToggle', () => {
       theme: 'light',
       toggleTheme: mockToggleTheme,
       setThemeExplicitly: mockSetThemeExplicitly,
-      isDarkModeEnabledRemotely: true,
     });
 
     render(<ThemeToggle />);

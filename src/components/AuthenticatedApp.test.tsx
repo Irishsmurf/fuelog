@@ -40,7 +40,6 @@ vi.mock('../context/ThemeContext', () => ({
     theme: 'light',
     toggleTheme: vi.fn(),
     setThemeExplicitly: vi.fn(),
-    isDarkModeEnabledRemotely: true,
   }),
 }));
 

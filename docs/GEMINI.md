@@ -6,7 +6,7 @@
 ### Key Technologies
 - **Frontend:** React 19, TypeScript, Vite.
 - **Styling:** Tailwind CSS 4 (using `@tailwindcss/vite` plugin).
-- **Backend:** Firebase (Authentication, Firestore with offline persistence, Remote Config).
+- **Backend:** Firebase (Authentication, Firestore with offline persistence).
 - **Routing:** React Router DOM (v7).
 - **Charts:** Recharts for visualizing efficiency metrics (MPG) over time.
 - **Maps:** Leaflet & React Leaflet for fuel station location visualization (heatmap/clusters).
@@ -58,7 +58,7 @@
 
 ### General Mandates
 - **Unit Testing:** ALWAYS add unit tests for all new code. Ensure that your changes are verified before completion.
-- **Feature Gating:** ALWAYS gate new features behind a **Remote Config** flag. Refer to `docs/playbooks/FEATURE_RELEASING.md` for the standard procedure.
+- **No feature flags:** ship features complete; there is no Remote Config (see `docs/adr/0007-proposed-single-backend-maplibre-no-flags.md`).
 
 ### Architecture
 - **Functional Components:** All components are written as functional components using TypeScript.
@@ -82,7 +82,7 @@
 ---
 
 ## Key Files Summary
-- `src/main.tsx`: App entry point, Remote Config initialization.
+- `src/main.tsx`: App entry point.
 - `src/App.tsx`: Root component with Context Providers and Router.
 - `src/firebase/config.ts`: Firebase initialization and auth functions.
 - `src/components/AuthenticatedApp.tsx`: Main layout and routing for logged-in users.

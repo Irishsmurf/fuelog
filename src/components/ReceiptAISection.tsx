@@ -5,8 +5,6 @@ import { ReceiptData } from '../utils/gemini';
 import { useTranslation } from 'react-i18next';
 
 interface ReceiptAISectionProps {
-  receiptDigitizationEnabled: boolean;
-  receiptAutoFillEnabled: boolean;
   receiptFile: File | null;
   setReceiptFile: (file: File | null) => void;
   isExtracting: boolean;
@@ -18,8 +16,6 @@ interface ReceiptAISectionProps {
 }
 
 const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
-  receiptDigitizationEnabled,
-  receiptAutoFillEnabled,
   receiptFile,
   setReceiptFile,
   isExtracting,
@@ -31,8 +27,6 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  if (!receiptDigitizationEnabled) return null;
-
   return (
     <div className="border-[1.5px] border-dashed border-gray-300 dark:border-gray-700 bg-brand-primary/[0.04] p-4 rounded-xl space-y-4">
       <h3 className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0">{t('quickLog.sections.receipt')}</h3>
@@ -43,7 +37,7 @@ const ReceiptAISection: React.FC<ReceiptAISectionProps> = ({
         }}
       />
 
-      {receiptAutoFillEnabled && receiptFile && (
+      {receiptFile && (
         <div className="mt-4">
           {!extractedData ? (
             <button

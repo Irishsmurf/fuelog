@@ -12,7 +12,6 @@ vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: mockT }) }));
 const auth = vi.hoisted(() => ({ user: { uid: 'u1', email: 'a@b.c' }, profile: { homeCurrency: 'EUR' } }));
 vi.mock('../../context/AuthContext', () => ({ useAuth: () => auth }));
 vi.mock('../../context/ThemeContext', () => ({ useTheme: () => ({ theme: 'light' }) }));
-vi.mock('../../context/RemoteConfigContext', () => ({ useRemoteConfig: () => ({ getBoolean: () => false }) }));
 vi.mock('../../firebase/config', () => ({ db: {} }));
 vi.mock('../../firebase/firestoreService', () => ({
   fetchUserStations: vi.fn().mockResolvedValue([]),

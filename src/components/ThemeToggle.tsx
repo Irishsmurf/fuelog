@@ -1,15 +1,9 @@
-// Example: src/components/ThemeToggle.tsx
 import React from 'react';
-import { useTheme } from '../context/ThemeContext'; // Adjust path
-import { Sun, Moon } from 'lucide-react'; // Example icons
+import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 const ThemeToggle: React.FC = () => {
-  const { theme, toggleTheme, isDarkModeEnabledRemotely } = useTheme();
-
-  // Don't render the toggle if the feature is disabled via Remote Config
-  if (!isDarkModeEnabledRemotely) {
-    return null;
-  }
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <button

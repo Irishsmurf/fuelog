@@ -19,7 +19,7 @@ few Vercel serverless functions. Domain terms are defined in
 
 - **Pages** in `src/pages/`, components in `src/components/`.
 - **Contexts:** `AuthContext` (user and profile), `ThemeContext`,
-  `RemoteConfigContext` (feature flags), `ApiTokenContext`.
+  `ApiTokenContext`. There are no feature flags.
 - **Data layer:** `src/data/` holds plain Firestore queries (e.g. `fetchLogsPage`,
   full-query exports), read through TanStack Query (`src/data/queryClient.ts`).
   History uses it; other pages still call `src/firebase/firestoreService.ts`

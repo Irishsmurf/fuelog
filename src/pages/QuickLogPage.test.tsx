@@ -35,13 +35,6 @@ vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({ user: mockUser, profile: mockProfile }),
 }));
 
-const mockGetBoolean = (key: string) =>
-  key === 'odometerInputEnabled' || key === 'receiptDigitizationEnabled' || key === 'receiptAutoFillEnabled';
-
-vi.mock('../context/RemoteConfigContext', () => ({
-  useRemoteConfig: () => ({ getBoolean: mockGetBoolean }),
-}));
-
 vi.mock('firebase/firestore', async (importOriginal) => {
   const actual = await importOriginal<typeof import('firebase/firestore')>();
   return {

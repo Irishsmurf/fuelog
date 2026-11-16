@@ -6,7 +6,6 @@
 - **Storage:** receipt images.
 - **Cloud Functions (v2, Node 22):** triggers and schedules in `functions/`.
 - **Cloud Messaging (FCM):** web push for budget alerts and digests.
-- **Remote Config:** feature flags.
 - **Trigger Email extension** (`firestore-send-email`): sends documents written to `mail`.
 
 Field meanings and invariants are in [`CONTEXT.md`](../CONTEXT.md). The
@@ -90,21 +89,9 @@ the `eur3` database (#295).
 Functions param: `DEV_NOTIFICATION_UIDS` (comma-separated UIDs; CI writes it
 from the repo variable of the same name, default `none`).
 
-## Remote Config parameters
+## Remote Config
 
-In-app defaults are in `src/firebase/remoteConfigService.ts`. Fetch interval
-1 hour; fetch timeout 5 s (the app shell waits for it, then falls back to the
-defaults).
-
-| Key | Default |
-| :--- | :--- |
-| `darkModeEnabled` | `true` |
-| `costPerLitreGraphEnabled` | `false` |
-| `totalSpentDisplayEnabled` | `false` |
-| `receiptDigitizationEnabled` | `false` |
-| `receiptAutoFillEnabled` | `false` |
-| `odometerInputEnabled` | `false` |
-| `vehicleComparisonEnabled` | `false` |
-| `exampleFeatureFlagEnabled` | `false` |
-
-Removing these flags is proposed in [ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md).
+Not used. The app had feature flags in Remote Config; they were removed and the
+flagged features (odometer, receipt AI, totals, extra dashboard charts, dark
+mode) are always on ([ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md)).
+The old parameters in the Firebase console can be deleted.

@@ -16,7 +16,6 @@ const IGNORED_ERRORS = [
   /auth\/(invalid-api-key|network-request-failed|api-key-not-valid)/i,
   /Failed to load resource/i,
   /net::ERR_/i,
-  /Remote Config/i,
   /installations\//i,
   /analytics/i,
   /ERR_BLOCKED_BY_CLIENT/i,

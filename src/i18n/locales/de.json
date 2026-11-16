@@ -237,6 +237,7 @@
       "confirm": "Diesen Eintrag löschen? Diese Aktion kann nicht rückgängig gemacht werden."
     },
     "loadError": "Fehler beim Laden des Kraftstoffverlaufs. Bitte überprüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "exportError": "Einträge für den Export konnten nicht geladen werden. Bitte versuche es erneut.",
     "deleteError": "Fehler beim Löschen des Eintrags. Bitte versuchen Sie es erneut.",
     "updateError": "Fehler beim Aktualisieren. Bitte versuchen Sie es erneut.",
     "lifetimeStats": {

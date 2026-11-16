@@ -241,6 +241,7 @@
       "confirm": "Delete this log entry? This action cannot be undone."
     },
     "loadError": "Failed to load fuel history. Please check your connection and try again.",
+    "exportError": "Failed to load logs for export. Please try again.",
     "deleteError": "Failed to delete log entry. Please try again.",
     "updateError": "Failed to update log. Please try again.",
     "lifetimeStats": {

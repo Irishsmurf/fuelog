@@ -9,6 +9,8 @@ import { ApiTokenProvider } from './context/ApiTokenContext';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { HelmetProvider } from 'react-helmet-async';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './data/queryClient';
 
 import AppContent from './components/AppContent';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -19,6 +21,7 @@ function App(): JSX.Element {
   return (
     <HelmetProvider>
       <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
         <RemoteConfigProvider>
           <AuthProvider>
             <ApiTokenProvider>
@@ -32,6 +35,7 @@ function App(): JSX.Element {
             </ApiTokenProvider>
           </AuthProvider>
         </RemoteConfigProvider>
+        </QueryClientProvider>
       </ErrorBoundary>
     </HelmetProvider>
   );

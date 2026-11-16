@@ -237,6 +237,7 @@
       "confirm": "¿Eliminar esta entrada? Esta acción no se puede deshacer."
     },
     "loadError": "Error al cargar el historial de combustible. Por favor, comprueba tu conexión e inténtalo de nuevo.",
+    "exportError": "No se pudieron cargar los registros para exportar. Inténtalo de nuevo.",
     "deleteError": "Error al eliminar la entrada. Por favor, inténtalo de nuevo.",
     "updateError": "Error al actualizar el registro. Por favor, inténtalo de nuevo.",
     "lifetimeStats": {

@@ -20,12 +20,12 @@ describe('Calculation Utilities', () => {
   describe('formatCostPerMile', () => {
     it('calculates cost per mile correctly', () => {
        // Cost 10, distance 100km (62.137 miles) -> 0.1609...
-       expect(formatCostPerMile(10, 100)).toBe('€0.161');
+       expect(formatCostPerMile(10, 100, '€')).toBe('€0.161');
     });
 
     it('returns N/A for invalid inputs', () => {
-      expect(formatCostPerMile(0, 100)).toBe('N/A');
-      expect(formatCostPerMile(10, 0)).toBe('N/A');
+      expect(formatCostPerMile(0, 100, '€')).toBe('N/A');
+      expect(formatCostPerMile(10, 0, '€')).toBe('N/A');
     });
   });
 

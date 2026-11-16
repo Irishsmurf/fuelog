@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminDb } from '../firebase-admin.js';
-import { calcKmL, calcFuelPrice } from '../calculations.js';
+import { kmPerLitre, pricePerLitre } from '../../../packages/core/src/index.js';
 import type { ServerLog } from '../types.js';
 
 async function fetchLogs(userId: string, opts: { vehicleId?: string; startDate?: string; endDate?: string; limit?: number } = {}): Promise<ServerLog[]> {
@@ -29,8 +29,8 @@ function logsToSummaryText(logs: ServerLog[], currency: string): string {
   const totalSpent = logs.reduce((s, l) => s + (l.cost ?? 0), 0);
   const totalLiters = logs.reduce((s, l) => s + (l.fuelAmountLiters ?? 0), 0);
   const totalKm = logs.reduce((s, l) => s + (l.distanceKm ?? 0), 0);
-  const kml = calcKmL(totalKm, totalLiters);
-  const cpl = calcFuelPrice(totalSpent, totalLiters);
+  const kml = kmPerLitre(totalKm, totalLiters);
+  const cpl = pricePerLitre(totalSpent, totalLiters);
   const entries = logs.map(l => ({
     date: l.timestamp?.toDate?.()?.toISOString()?.slice(0, 10),
     brand: l.brand,

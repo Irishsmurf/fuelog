@@ -154,7 +154,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
   {renderMetric(t('logCard.mpg'), formatMPG(log.distanceKm, log.fuelAmountLiters))}
   {renderMetric(t('logCard.kmL'), formatKmL(log.distanceKm, log.fuelAmountLiters))}
   {renderMetric(t('logCard.l100km'), formatL100km(log.distanceKm, log.fuelAmountLiters))}
-  {renderMetric(t('logCard.costPerMile'), formatCostPerMile(log.cost, log.distanceKm))}
+  {renderMetric(t('logCard.costPerMile'), formatCostPerMile(log.cost, log.distanceKm, homeCurrencySymbol))}
 </div>
 
           {/* Receipt Section */}

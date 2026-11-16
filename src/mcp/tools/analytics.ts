@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminDb } from '../firebase-admin.js';
-import { calcMPG, calcKmL, calcL100km, calcFuelPrice } from '../calculations.js';
+import { mpgUK, kmPerLitre, litresPer100km, pricePerLitre } from '../../../packages/core/src/index.js';
 import type { ServerLog } from '../types.js';
 
 async function fetchLogs(userId: string, opts: { vehicleId?: string; startDate?: string; endDate?: string } = {}): Promise<ServerLog[]> {
@@ -48,11 +48,11 @@ export function registerAnalyticsTools(server: McpServer, userId: string) {
       totalFuelLiters: Math.round(totalLiters * 100) / 100,
       totalDistanceKm: Math.round(totalKm * 100) / 100,
       efficiency: {
-        kml: calcKmL(totalKm, totalLiters),
-        l100km: calcL100km(totalKm, totalLiters),
-        mpgUK: calcMPG(totalKm, totalLiters),
+        kml: kmPerLitre(totalKm, totalLiters),
+        l100km: litresPer100km(totalKm, totalLiters),
+        mpgUK: mpgUK(totalKm, totalLiters),
       },
-      avgCostPerLiter: calcFuelPrice(totalSpent, totalLiters),
+      avgCostPerLiter: pricePerLitre(totalSpent, totalLiters),
       avgCostPerKm: totalKm > 0 ? Math.round((totalSpent / totalKm) * 10000) / 10000 : null,
       filters: { vehicleId: vehicleId ?? null, startDate: startDate ?? null, endDate: endDate ?? null },
     };
@@ -97,10 +97,10 @@ export function registerAnalyticsTools(server: McpServer, userId: string) {
         logCount: logs.length,
         totalSpent: Math.round(totalSpent * 100) / 100,
         totalKm: Math.round(totalKm * 100) / 100,
-        kml: calcKmL(totalKm, totalLiters),
-        mpgUK: calcMPG(totalKm, totalLiters),
-        l100km: calcL100km(totalKm, totalLiters),
-        avgCostPerLiter: calcFuelPrice(totalSpent, totalLiters),
+        kml: kmPerLitre(totalKm, totalLiters),
+        mpgUK: mpgUK(totalKm, totalLiters),
+        l100km: litresPer100km(totalKm, totalLiters),
+        avgCostPerLiter: pricePerLitre(totalSpent, totalLiters),
       };
     });
 

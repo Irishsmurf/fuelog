@@ -8,6 +8,7 @@ import {
   signInWithPopup,
   signOut,
   Auth,
+  connectAuthEmulator,
 } from "firebase/auth";
 // Import updated Firestore functions and types for persistence
 import {
@@ -16,7 +17,8 @@ import {
     persistentLocalCache, // Factory for persistent cache settings
     persistentSingleTabManager, // Use single tab manager (most common for web)
     // persistentMultipleTabManager // Alternative if multi-tab support needed
-    FirestoreSettings // Type for settings object
+    FirestoreSettings, // Type for settings object
+    connectFirestoreEmulator,
 } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import { getFunctions, Functions } from "firebase/functions";
@@ -87,6 +89,16 @@ try {
   db = initializeFirestore(app, {}); // Initialize with default settings
 }
 // --- End Firestore Initialization ---
+
+// --- Local emulators (E2E tests only) ---
+// Builds made with VITE_USE_EMULATORS=true talk to the Firebase Auth and
+// Firestore emulators and expose a tiny test hook. The flag is a build-time
+// constant, so production bundles contain none of this.
+if (import.meta.env.VITE_USE_EMULATORS === 'true') {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  import('./e2eHooks').then(m => m.installE2EHooks(auth, db));
+}
 
 
 // Initialize Firebase Analytics (only in environments that support it)

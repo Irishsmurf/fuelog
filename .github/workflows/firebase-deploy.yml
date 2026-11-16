@@ -42,6 +42,13 @@ jobs:
         run: npm test
         working-directory: functions
 
+      # Non-interactive deploys need every functions param in a dotenv file
+      # (the CLI won't fall back to defaults in CI). The dev-notification
+      # allowlist comes from the DEV_NOTIFICATION_UIDS repo variable when set;
+      # otherwise 'none' matches no uid (fails closed).
+      - name: Write functions params
+        run: echo "DEV_NOTIFICATION_UIDS=${{ vars.DEV_NOTIFICATION_UIDS || 'none' }}" > functions/.env
+
       # The functions predeploy hook (firebase.json) builds functions/lib.
       # Without --force, a deploy that would delete a function that exists in
       # the project but not in source fails loudly instead of deleting it.

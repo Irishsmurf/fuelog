@@ -51,8 +51,17 @@ jobs:
 
       # After a rollback Vercel stops auto-assigning production domains to new
       # deployments, so promote explicitly to make this deployment live.
+      # A 409 "already the current production deployment" means it went live
+      # on its own (no prior rollback) — that's success, not failure.
       - name: Promote to production
-        run: vercel promote "${{ steps.deploy.outputs.url }}" --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set +e
+          OUT=$(vercel promote "${{ steps.deploy.outputs.url }}" --yes --token=${{ secrets.VERCEL_TOKEN }} 2>&1)
+          CODE=$?
+          echo "$OUT"
+          if [ $CODE -ne 0 ] && ! echo "$OUT" | grep -q "already the current production deployment"; then
+            exit $CODE
+          fi
 
       # Smoke-test the public production domain, not the unique *.vercel.app
       # deployment URL: that one sits behind Vercel Deployment Protection and

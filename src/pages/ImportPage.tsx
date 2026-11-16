@@ -1,6 +1,7 @@
 // src/pages/ImportPage.tsx
 import { JSX, useState, useEffect, ChangeEvent } from 'react';
-import { collection, writeBatch, Timestamp, doc, query, where, getDocs } from "firebase/firestore";
+import { collection, writeBatch, Timestamp, doc } from "firebase/firestore";
+import { fetchVehicles, pickDefaultVehicle } from '../firebase/firestoreService';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle } from '../utils/types';
@@ -29,21 +30,12 @@ function ImportPage(): JSX.Element {
   // --- Fetch Vehicles ---
   useEffect(() => {
     if (!user) return;
-    const fetchVehicles = async () => {
+    const loadVehicles = async () => {
       setIsLoadingVehicles(true);
       try {
-        const q = query(collection(db, "vehicles"), where("userId", "==", user.uid));
-        const snap = await getDocs(q);
-        const list: Vehicle[] = [];
-        snap.forEach(doc => {
-            const data = doc.data();
-            if (!data.isArchived) {
-                list.push({ ...data, id: doc.id } as Vehicle);
-            }
-        });
-        const sorted = list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        const sorted = await fetchVehicles(user.uid);
         setVehicles(sorted);
-        const defaultVehicle = sorted.find(v => v.isDefault) || sorted[0];
+        const defaultVehicle = pickDefaultVehicle(sorted);
         if (defaultVehicle) setSelectedVehicleId(defaultVehicle.id);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
@@ -51,7 +43,7 @@ function ImportPage(): JSX.Element {
         setIsLoadingVehicles(false);
       }
     };
-    fetchVehicles();
+    loadVehicles();
   }, [user]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {

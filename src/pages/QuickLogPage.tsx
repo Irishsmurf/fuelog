@@ -9,7 +9,7 @@ import { Vehicle, FuelLogData } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
-import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
+import { getLastOdometerReading, getOrCreateStation, updateStationMetrics, fetchVehicles, pickDefaultVehicle } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
 import { calculateDistance } from '../utils/calculations';
 import { toDatetimeLocal } from '../utils/formatDate';
@@ -158,16 +158,12 @@ function QuickLogPage(): JSX.Element {
   // --- Fetch Vehicles ---
   useEffect(() => {
     if (!user) return;
-    const fetchVehicles = async () => {
+    const loadVehicles = async () => {
       setIsLoadingVehicles(true);
       try {
-        const q = query(collection(db, "vehicles"), where("userId", "==", user.uid));
-        const snap = await getDocs(q);
-        const list: Vehicle[] = [];
-        snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
-        const activeList = list.filter(v => !v.isArchived);
-        setVehicles(activeList.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
-        const defaultVehicle = activeList.find(v => v.isDefault) || activeList[0];
+        const activeList = await fetchVehicles(user.uid);
+        setVehicles(activeList);
+        const defaultVehicle = pickDefaultVehicle(activeList);
         if (defaultVehicle) setSelectedVehicleId(defaultVehicle.id);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
@@ -175,7 +171,7 @@ function QuickLogPage(): JSX.Element {
         setIsLoadingVehicles(false);
       }
     };
-    fetchVehicles();
+    loadVehicles();
   }, [user, t]);
 
   // --- Fetch Last Odometer ---
@@ -186,7 +182,9 @@ function QuickLogPage(): JSX.Element {
     }
     const fetchLastOdometer = async () => {
       try {
-        const reading = await getLastOdometerReading(selectedVehicleId);
+        const parsed = loggedAt ? new Date(loggedAt) : new Date();
+        const before = isNaN(parsed.getTime()) ? new Date() : parsed;
+        const reading = await getLastOdometerReading(selectedVehicleId, before);
         setLastOdometerReading(reading);
       } catch (error) {
         console.error('Error fetching last odometer reading:', error);
@@ -199,7 +197,7 @@ function QuickLogPage(): JSX.Element {
       }
     };
     fetchLastOdometer();
-  }, [selectedVehicleId]);
+  }, [selectedVehicleId, loggedAt, t]);
 
   // --- Fetch Exchange Rate when currency changes ---
   useEffect(() => {

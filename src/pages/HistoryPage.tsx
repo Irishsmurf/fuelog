@@ -25,7 +25,7 @@ import { uploadReceipt } from '../firebase/storageService';
 import { sanitizeUrl } from '../utils/sanitize';
 import { formatDate, toDatetimeLocal } from '../utils/formatDate';
 import LocationPicker, { PickerCoords } from '../components/LocationPicker';
-import { fetchUserStations } from '../firebase/firestoreService';
+import { fetchUserStations, fetchVehicles } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
 import ReceiptModal from '../components/ReceiptModal';
 
@@ -84,21 +84,17 @@ function HistoryPage(): JSX.Element {
     // --- Fetch Vehicles Effect ---
     useEffect(() => {
         if (!user) { setVehicles([]); return; }
-        const fetchVehicles = async () => {
+        const loadVehicles = async () => {
             try {
-                const q = query(collection(db, "vehicles"), where("userId", "==", user.uid));
-                const snap = await getDocs(q);
-                const list: Vehicle[] = [];
-                snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
-                const sorted = list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-                setVehicles(sorted);
+                // Include archived vehicles so their historical logs can still be filtered.
+                setVehicles(await fetchVehicles(user.uid, { includeArchived: true }));
                 // Default to "All Vehicles" (empty string)
                 setFilterVehicleId('');
             } catch (err) {
                 console.error("Error fetching vehicles:", err);
             }
         };
-        fetchVehicles();
+        loadVehicles();
     }, [user]);
 
     // --- State for View Toggle ---

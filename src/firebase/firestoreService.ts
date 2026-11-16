@@ -1,7 +1,9 @@
 // src/firebase/firestoreService.ts
-import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, setDoc, increment, runTransaction } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, doc, getDoc, setDoc, increment, runTransaction, Timestamp } from 'firebase/firestore';
 import { db, auth } from './config'; // db and auth from your config file
-import { Log, FuelLogData, Station } from '../utils/types'; // Adjust path as needed
+import { Log, Station, Vehicle } from '../utils/types';
+import { previousReading } from '@fuelog/core';
+import { fuelLogSchema, stationSchema, vehicleSchema, withId } from './converters';
 import { OSMStation } from '../utils/locationService';
 
 export class FirestoreOfflineError extends Error {
@@ -36,10 +38,7 @@ export const fetchFuelLocations = async (): Promise<Log[]> => {
 
   try {
     const querySnapshot = await getDocs(q);
-    const locations: Log[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...(doc.data() as Omit<Log, 'id'>)
-    }));
+    const locations: Log[] = querySnapshot.docs.map(doc => withId(fuelLogSchema, 'fuelLog', doc));
     // Additional filtering just in case Firestore rules change or for robustness
     return locations.filter(p => p.latitude !== undefined && p.longitude !== undefined);
   } catch (error) {
@@ -49,7 +48,16 @@ export const fetchFuelLocations = async (): Promise<Log[]> => {
 
 // You could add other Firestore-related functions here later (e.g., addFuelLog, updateFuelLog)
 
-export const getLastOdometerReading = async (vehicleId: string): Promise<number | null> => {
+/** How many recent logs to scan for the closest earlier odometer reading. */
+const ODOMETER_LOOKBACK = 20;
+
+/**
+ * The odometer reading a new fill-up at `before` should be measured from: the
+ * closest *earlier* reading for the vehicle. Skips recent logs that have no
+ * reading (previously one such log hid every earlier reading) and handles
+ * back-dated fill-ups.
+ */
+export const getLastOdometerReading = async (vehicleId: string, before: Date = new Date()): Promise<number | null> => {
     if (!auth.currentUser) {
         throw new Error('No user logged in');
     }
@@ -58,15 +66,19 @@ export const getLastOdometerReading = async (vehicleId: string): Promise<number 
         collection(db, 'fuelLogs'),
         where('userId', '==', auth.currentUser.uid),
         where('vehicleId', '==', vehicleId),
+        where('timestamp', '<', Timestamp.fromDate(before)),
         orderBy('timestamp', 'desc'),
-        limit(1)
+        limit(ODOMETER_LOOKBACK)
     );
 
     try {
         const querySnapshot = await getDocs(q);
         if (querySnapshot.empty) return null;
-        const lastLog = querySnapshot.docs[0].data() as FuelLogData;
-        return lastLog.odometerKm ?? null;
+        const entries = querySnapshot.docs.map(doc => {
+            const log = withId(fuelLogSchema, 'fuelLog', doc);
+            return { id: log.id, at: log.timestamp.toMillis?.() ?? log.timestamp.toDate().getTime(), odometerKm: log.odometerKm };
+        });
+        return previousReading(entries, before.getTime());
     } catch (error) {
         return rethrowFirestoreError(error, 'Error fetching last odometer reading:');
     }
@@ -80,7 +92,7 @@ export const fetchStationById = async (stationId: string): Promise<Station | nul
     const stationRef = doc(db, 'stations', stationId);
     const stationSnap = await getDoc(stationRef);
     if (!stationSnap.exists()) return null;
-    return { id: stationSnap.id, ...(stationSnap.data() as Omit<Station, 'id'>) };
+    return withId(stationSchema, 'station', stationSnap) as Station;
 };
 
 /**
@@ -125,7 +137,7 @@ export const updateStationMetrics = async (stationId: string, pricePerLitre: num
         const stationSnap = await transaction.get(stationRef);
         if (!stationSnap.exists()) return;
 
-        const data = stationSnap.data() as Station;
+        const data = withId(stationSchema, 'station', stationSnap);
         const currentCount = data.logCount || 0;
         const currentAvg = data.avgPrice || 0;
 
@@ -154,7 +166,7 @@ export const fetchUserStations = async (logs: Log[]): Promise<Station[]> => {
         const q = query(collection(db, 'stations'), where('__name__', 'in', batchIds));
         const snap = await getDocs(q);
         snap.forEach(doc => {
-            stations.push({ id: doc.id, ...(doc.data() as Omit<Station, 'id'>) });
+            stations.push(withId(stationSchema, 'station', doc) as Station);
         });
     }
 
@@ -182,12 +194,30 @@ export const fetchFuelLogsByStationId = async (stationId: string, maxResults: nu
 
     try {
         const querySnapshot = await getDocs(q);
-        const logs: Log[] = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...(doc.data() as Omit<Log, 'id'>)
-        }));
+        const logs: Log[] = querySnapshot.docs.map(doc => withId(fuelLogSchema, 'fuelLog', doc));
         return logs;
     } catch (error) {
         return rethrowFirestoreError(error, `Error fetching fuel logs for station ${stationId}:`);
     }
 };
+/**
+ * The signed-in user's vehicles, sorted by name. Archived vehicles are
+ * excluded unless `includeArchived` is set. Replaces the copy-pasted query
+ * that lived in five pages.
+ */
+export const fetchVehicles = async (userId: string, { includeArchived = false } = {}): Promise<Vehicle[]> => {
+    try {
+        const snap = await getDocs(query(collection(db, 'vehicles'), where('userId', '==', userId)));
+        const list: Vehicle[] = [];
+        snap.forEach(d => list.push(withId(vehicleSchema, 'vehicle', d)));
+        return list
+            .filter(v => includeArchived || !v.isArchived)
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    } catch (error) {
+        return rethrowFirestoreError(error, 'Error fetching vehicles:');
+    }
+};
+
+/** The vehicle to preselect: the default one, else the first. */
+export const pickDefaultVehicle = (vehicles: Vehicle[]): Vehicle | undefined =>
+    vehicles.find(v => v.isDefault) ?? vehicles[0];

@@ -2,7 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { addDoc, getDocs } from 'firebase/firestore';
 import { fetchExchangeRate } from '../utils/currencyApi';
-import { getLastOdometerReading, getOrCreateStation, updateStationMetrics } from '../firebase/firestoreService';
+import { getLastOdometerReading, getOrCreateStation, updateStationMetrics, fetchVehicles } from '../firebase/firestoreService';
 import { extractDataFromReceipt } from '../utils/gemini';
 import { findNearestStation, geocodeAddress, isAccurateEnoughForStationMatch } from '../utils/locationService';
 import QuickLogPage from './QuickLogPage';
@@ -76,6 +76,8 @@ vi.mock('../firebase/firestoreService', () => ({
   getLastOdometerReading: vi.fn().mockResolvedValue(null),
   getOrCreateStation: vi.fn(),
   updateStationMetrics: vi.fn(),
+  fetchVehicles: vi.fn(),
+  pickDefaultVehicle: (vs: { isDefault?: boolean }[]) => vs.find(v => v.isDefault) ?? vs[0],
 }));
 
 vi.mock('../utils/gemini', () => ({
@@ -109,6 +111,7 @@ describe('QuickLogPage', () => {
       return mockSnapshot([{ id: mockVehicle.id, data: mockVehicle }]) as never;
     });
     vi.mocked(getLastOdometerReading).mockResolvedValue(null);
+    vi.mocked(fetchVehicles).mockResolvedValue([mockVehicle] as never);
 
     mockGetCurrentPosition = vi.fn((_success, error) => error?.({ code: 1, message: 'denied' }));
     Object.defineProperty(globalThis.navigator, 'geolocation', {

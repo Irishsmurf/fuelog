@@ -16,6 +16,8 @@ export interface ServerLog {
   exchangeRate?: number;
   vehicleId?: string;
   receiptUrl?: string;
+  odometerKm?: number;
+  stationId?: string;
 }
 
 export interface ServerVehicle {

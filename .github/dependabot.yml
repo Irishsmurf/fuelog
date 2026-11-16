@@ -9,6 +9,10 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "chore(deps)"
+    ignore:
+      # Playwright is pinned to match the mcr.microsoft.com/playwright image
+      # used by CI; bump both together by hand.
+      - dependency-name: "@playwright/test"
     groups:
       firebase:
         patterns:
@@ -33,6 +37,13 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "chore(deps-functions)"
+    ignore:
+      # Types must match the Cloud Functions runtime (nodejs22 in firebase.json).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # TypeScript majors move together with the root project.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       firebase:
         patterns:

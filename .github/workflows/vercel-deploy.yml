@@ -86,7 +86,7 @@ jobs:
     # Browsers come preinstalled in the official image (no `playwright install`,
     # which hung on hosted runners). Keep the tag in sync with @playwright/test.
     container:
-      image: mcr.microsoft.com/playwright:v1.56.1-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
     outputs:
       inconclusive: ${{ steps.preflight.outputs.inconclusive }}
     steps:

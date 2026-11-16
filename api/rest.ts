@@ -6,6 +6,11 @@ import { Timestamp, AggregateField } from 'firebase-admin/firestore';
 import { log } from './_logger.js';
 import { calcMPG, calcKmL, calcL100km, calcFuelPrice } from '../src/mcp/calculations.js';
 import type { ServerLog, ServerVehicle } from '../src/mcp/types.js';
+import type { z } from 'zod';
+import {
+  formatIssues, isoDateString, logCreateSchema, logUpdateSchema, parseLimit,
+  vehicleCreateSchema, vehicleUpdateSchema,
+} from './_schemas.js';
 
 function extractBearerToken(req: IncomingMessage): string | null {
   const auth = req.headers['authorization'];
@@ -39,6 +44,26 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
     });
     req.on('error', reject);
   });
+}
+
+type ParseResult<T> = { ok: true; data: T } | { ok: false; status: number; error: string };
+
+/** Reads the request body and validates it against a schema. */
+async function readValidBody<S extends z.ZodType>(req: IncomingMessage, schema: S): Promise<ParseResult<z.output<S>>> {
+  let raw: unknown;
+  try {
+    raw = await readBody(req);
+  } catch (e: unknown) {
+    return { ok: false, status: 400, error: (e as Error).message };
+  }
+  const parsed = schema.safeParse(raw);
+  if (!parsed.success) return { ok: false, status: 400, error: formatIssues(parsed.error) };
+  return { ok: true, data: parsed.data };
+}
+
+/** Removes keys whose value is undefined (Firestore rejects them). */
+function definedOnly<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as Partial<T>;
 }
 
 function sendResponse(res: ServerResponse, statusCode: number, data: unknown) {
@@ -87,8 +112,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     if (type === 'logs') {
       if (req.method === 'GET') {
-        let limit = Number(url.searchParams.get('limit'));
-        if (isNaN(limit) || limit <= 0) limit = 100;
+        const limit = parseLimit(url.searchParams.get('limit'));
 
         const q = db.collection('fuelLogs').where('userId', '==', userId).orderBy('timestamp', 'desc').limit(limit);
         const snapshot = await q.get();
@@ -104,29 +128,13 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       }
 
       if (req.method === 'POST') {
-        let body;
-        try {
-          body = await readBody(req);
-        } catch (e: unknown) {
-          return sendResponse(res, 400, { error: (e as Error).message });
-        }
-        if (body.brand === undefined || body.cost === undefined || body.distanceKm === undefined || body.fuelAmountLiters === undefined) {
-            return sendResponse(res, 400, { error: 'Missing required fields' });
-        }
-        const ts = body.timestamp ? Timestamp.fromDate(new Date(body.timestamp)) : Timestamp.now();
+        const parsed = await readValidBody(req, logCreateSchema);
+        if (!parsed.ok) return sendResponse(res, parsed.status, { error: parsed.error });
+        const { timestamp, ...fields } = parsed.data;
         const data = {
+          ...definedOnly(fields),
           userId,
-          timestamp: ts,
-          brand: body.brand,
-          cost: body.cost,
-          distanceKm: body.distanceKm,
-          fuelAmountLiters: body.fuelAmountLiters,
-          ...(body.currency && { currency: body.currency }),
-          ...(body.originalCost && { originalCost: body.originalCost }),
-          ...(body.exchangeRate && { exchangeRate: body.exchangeRate }),
-          ...(body.vehicleId && { vehicleId: body.vehicleId }),
-          ...(body.latitude !== undefined && { latitude: body.latitude }),
-          ...(body.longitude !== undefined && { longitude: body.longitude }),
+          timestamp: timestamp ? Timestamp.fromDate(new Date(timestamp)) : Timestamp.now(),
         };
         const ref = await db.collection('fuelLogs').add(data);
         return sendResponse(res, 201, { id: ref.id });
@@ -134,33 +142,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
       if (req.method === 'PUT') {
         if (!id) return sendResponse(res, 400, { error: 'Missing id parameter' });
-        let body;
-        try {
-          body = await readBody(req);
-        } catch (e: unknown) {
-          return sendResponse(res, 400, { error: (e as Error).message });
-        }
+        const parsed = await readValidBody(req, logUpdateSchema);
+        if (!parsed.ok) return sendResponse(res, parsed.status, { error: parsed.error });
         const docRef = db.collection('fuelLogs').doc(id);
         const doc = await docRef.get();
         if (!doc.exists || doc.data()?.userId !== userId) {
           return sendResponse(res, 404, { error: 'Log not found' });
         }
-        // Exclude internal fields
-        const { timestamp, ...updates } = body;
-        delete updates.userId;
-        delete updates.id;
+        const { timestamp, ...fields } = parsed.data;
+        const updates: Record<string, unknown> = definedOnly(fields);
         if (timestamp) updates.timestamp = Timestamp.fromDate(new Date(timestamp));
-
-        // Basic validation for coordinates
-        if (updates.latitude !== undefined) {
-          if (typeof updates.latitude !== 'number' || updates.latitude < -90 || updates.latitude > 90) {
-            return sendResponse(res, 400, { error: 'Invalid latitude' });
-          }
-        }
-        if (updates.longitude !== undefined) {
-          if (typeof updates.longitude !== 'number' || updates.longitude < -180 || updates.longitude > 180) {
-            return sendResponse(res, 400, { error: 'Invalid longitude' });
-          }
+        if (Object.keys(updates).length === 0) {
+          return sendResponse(res, 400, { error: 'No updatable fields provided' });
         }
 
         await docRef.update(updates);
@@ -191,15 +184,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
        }
 
        if (req.method === 'POST') {
-           let body;
-           try {
-             body = await readBody(req);
-           } catch (e: unknown) {
-             return sendResponse(res, 400, { error: (e as Error).message });
-           }
-           if (!body.name || !body.make || !body.model || !body.year || !body.fuelType) {
-               return sendResponse(res, 400, { error: 'Missing required fields' });
-           }
+           const parsed = await readValidBody(req, vehicleCreateSchema);
+           if (!parsed.ok) return sendResponse(res, parsed.status, { error: parsed.error });
+           const body = parsed.data;
            const isDefault = !!body.isDefault;
            if (isDefault) {
              const existingSnapshot = await db.collection('vehicles')
@@ -225,18 +212,18 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
        if (req.method === 'PUT') {
            if (!id) return sendResponse(res, 400, { error: 'Missing id parameter' });
-           let body;
-           try {
-             body = await readBody(req);
-           } catch (e: unknown) {
-             return sendResponse(res, 400, { error: (e as Error).message });
+           const parsed = await readValidBody(req, vehicleUpdateSchema);
+           if (!parsed.ok) return sendResponse(res, parsed.status, { error: parsed.error });
+           const updates: Record<string, unknown> = definedOnly(parsed.data);
+           if (Object.keys(updates).length === 0) {
+             return sendResponse(res, 400, { error: 'No updatable fields provided' });
            }
            const docRef = db.collection('vehicles').doc(id);
            const doc = await docRef.get();
            if (!doc.exists || doc.data()?.userId !== userId) {
              return sendResponse(res, 404, { error: 'Vehicle not found' });
            }
-           if (body.isDefault) {
+           if (updates.isDefault) {
              const existingSnapshot = await db.collection('vehicles')
                .where('userId', '==', userId)
                .where('isDefault', '==', true)
@@ -245,9 +232,6 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
              existingSnapshot.docs.forEach(d => { if (d.id !== id) batch.update(d.ref, { isDefault: false }); });
              await batch.commit();
            }
-           const { ...updates } = body;
-           delete updates.userId;
-           delete updates.id;
            await docRef.update(updates);
            return sendResponse(res, 200, { success: true });
        }
@@ -267,6 +251,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
           const vehicleId = url.searchParams.get('vehicleId');
           const startDate = url.searchParams.get('startDate');
           const endDate = url.searchParams.get('endDate');
+          for (const [name, value] of [['startDate', startDate], ['endDate', endDate]] as const) {
+            if (value && !isoDateString.safeParse(value).success) {
+              return sendResponse(res, 400, { error: `Invalid ${name}` });
+            }
+          }
 
           let q = db.collection('fuelLogs').where('userId', '==', userId) as FirebaseFirestore.Query;
           if (vehicleId) q = q.where('vehicleId', '==', vehicleId);

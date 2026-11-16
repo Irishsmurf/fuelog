@@ -13,7 +13,7 @@ const SyncStatus = (): JSX.Element => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   useEffect(() => {
-    let syncTimer: NodeJS.Timeout;
+    let syncTimer: ReturnType<typeof setTimeout>;
 
     const handleOnline = () => {
       setIsOnline(true);

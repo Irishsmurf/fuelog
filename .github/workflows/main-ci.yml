@@ -25,7 +25,9 @@ jobs:
       - name: Lint
         run: npm run lint
       - name: Type Check
-        run: npx tsc --noEmit
+        # -b follows the project references (app, node and api); a bare
+        # `tsc --noEmit` checks nothing because the root tsconfig has files: [].
+        run: npx tsc -b
 
   test:
     name: Unit Tests & Coverage
@@ -98,6 +100,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Validate environment variables
+        # Deploy-time check; secrets aren't available to Dependabot/fork PRs.
+        if: github.event_name == 'push'
         run: npm run validate-env
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -105,3 +109,40 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: Build
         run: npm run build
+        env:
+          # Placeholder demo-project config so the bundle boots for the smoke
+          # test; this build is never deployed.
+          VITE_FIREBASE_API_KEY: AIzaSyA-smoke-test-dummy-key-0000000000
+          VITE_FIREBASE_AUTH_DOMAIN: demo-fuelog.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: demo-fuelog
+          VITE_FIREBASE_STORAGE_BUCKET: demo-fuelog.appspot.com
+          VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
+          VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000000000'
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Smoke test the production build
+        run: npx playwright test --project=chromium --grep @smoke
+        env:
+          CI: true
+
+  functions:
+    name: Cloud Functions
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Build (type check)
+        run: npm run build
+      - name: Unit tests
+        run: npm test
+      - name: Audit dependencies
+        run: npm audit --audit-level=critical

@@ -6,6 +6,9 @@ import type { TokenIdentity } from '../auth.js';
 import { hasScope } from '../auth.js';
 import type { ServerLog } from '../types.js';
 
+const BRAND_SCAN_PAGE = 200;
+const MAX_BRAND_SCAN = 5000;
+
 const UNAUTHORIZED = { content: [{ type: 'text' as const, text: 'Error: token does not have the required scope.' }], isError: true };
 
 export function registerFuelLogTools(server: McpServer, userId: string, identity: TokenIdentity) {
@@ -22,16 +25,31 @@ export function registerFuelLogTools(server: McpServer, userId: string, identity
     const db = getAdminDb();
     let q = db.collection('fuelLogs')
       .where('userId', '==', userId)
-      .orderBy('timestamp', 'desc')
-      .limit(limit) as FirebaseFirestore.Query;
+      .orderBy('timestamp', 'desc') as FirebaseFirestore.Query;
 
     if (vehicleId) q = q.where('vehicleId', '==', vehicleId);
     if (startDate) q = q.where('timestamp', '>=', Timestamp.fromDate(new Date(startDate)));
     if (endDate) q = q.where('timestamp', '<=', Timestamp.fromDate(new Date(endDate + 'T23:59:59Z')));
 
-    const snapshot = await q.get();
-    let logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServerLog & { id: string }));
-    if (brand) logs = logs.filter(l => l.brand?.toLowerCase().includes(brand.toLowerCase()));
+    // Brand is a case-insensitive substring match, which Firestore can't do,
+    // so filter in memory — but page through results so the limit applies to
+    // the *matching* logs rather than to the logs scanned.
+    const needle = brand?.toLowerCase();
+    const logs: (ServerLog & { id: string })[] = [];
+    let cursor: FirebaseFirestore.QueryDocumentSnapshot | undefined;
+    let scanned = 0;
+    while (logs.length < limit && scanned < MAX_BRAND_SCAN) {
+      const page = needle ? BRAND_SCAN_PAGE : limit;
+      const snapshot = await (cursor ? q.startAfter(cursor) : q).limit(page).get();
+      for (const doc of snapshot.docs) {
+        const log = { id: doc.id, ...doc.data() } as ServerLog & { id: string };
+        if (!needle || log.brand?.toLowerCase().includes(needle)) logs.push(log);
+        if (logs.length >= limit) break;
+      }
+      scanned += snapshot.docs.length;
+      if (!needle || snapshot.docs.length < page) break;
+      cursor = snapshot.docs[snapshot.docs.length - 1];
+    }
 
     return { content: [{ type: 'text' as const, text: JSON.stringify(logs.map(l => ({ ...l, timestamp: l.timestamp?.toDate?.()?.toISOString() })), null, 2) }] };
   });

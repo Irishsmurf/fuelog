@@ -15,7 +15,7 @@ describe('gemini utility', () => {
     vi.clearAllMocks();
 
     // Mock createImageBitmap (not available in jsdom)
-    global.createImageBitmap = vi.fn().mockResolvedValue({
+    globalThis.createImageBitmap = vi.fn().mockResolvedValue({
       width: 800,
       height: 600,
       close: vi.fn(),
@@ -41,12 +41,12 @@ describe('gemini utility', () => {
       }
     }
     // @ts-expect-error - Mocking global object for testing purposes
-    global.FileReader = MockFileReader;
+    globalThis.FileReader = MockFileReader;
   });
 
   it('scales down images larger than MAX_DIMENSION', async () => {
     // Simulate a 2000x1500 image — should be scaled to 768x576 in dev
-    global.createImageBitmap = vi.fn().mockResolvedValue({
+    globalThis.createImageBitmap = vi.fn().mockResolvedValue({
       width: 2000,
       height: 1500,
       close: vi.fn(),
@@ -61,7 +61,7 @@ describe('gemini utility', () => {
     };
     vi.spyOn(document, 'createElement').mockReturnValue(mockCanvas as unknown as HTMLCanvasElement);
 
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ cost: 10, fuelAmountLiters: 5, brand: 'Shell' }),
     }) as unknown as typeof fetch;
@@ -76,7 +76,7 @@ describe('gemini utility', () => {
 
   it('does not upscale images smaller than MAX_DIMENSION', async () => {
     // 400x300 image — should remain 400x300
-    global.createImageBitmap = vi.fn().mockResolvedValue({
+    globalThis.createImageBitmap = vi.fn().mockResolvedValue({
       width: 400,
       height: 300,
       close: vi.fn(),
@@ -91,7 +91,7 @@ describe('gemini utility', () => {
     };
     vi.spyOn(document, 'createElement').mockReturnValue(mockCanvas as unknown as HTMLCanvasElement);
 
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ cost: 10, fuelAmountLiters: 5, brand: 'Shell' }),
     }) as unknown as typeof fetch;
@@ -104,7 +104,7 @@ describe('gemini utility', () => {
   });
 
   it('extracts data from a receipt image successfully', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ cost: 45.67, fuelAmountLiters: 30.5, brand: 'Test Brand' }),
     }) as unknown as typeof fetch;
@@ -121,7 +121,7 @@ describe('gemini utility', () => {
   });
 
   it('throws when the API returns an error', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
+    globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       json: () => Promise.resolve({ error: 'Failed to extract data from receipt.' }),
     }) as unknown as typeof fetch;
@@ -139,7 +139,7 @@ describe('gemini utility', () => {
     await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow(
       'Unsupported file type. Please use JPEG, PNG, or WebP.'
     );
-    expect(global.createImageBitmap).not.toHaveBeenCalled();
+    expect(globalThis.createImageBitmap).not.toHaveBeenCalled();
   });
 
   it('rejects files larger than 10MB before processing', async () => {
@@ -150,11 +150,11 @@ describe('gemini utility', () => {
     await expect(gemini.extractDataFromReceipt(mockFile)).rejects.toThrow(
       'File too large (max 10 MB). Please compress the image.'
     );
-    expect(global.createImageBitmap).not.toHaveBeenCalled();
+    expect(globalThis.createImageBitmap).not.toHaveBeenCalled();
   });
 
   it('surfaces a friendly error when the image cannot be decoded', async () => {
-    global.createImageBitmap = vi.fn().mockRejectedValue(new Error('decode failed'));
+    globalThis.createImageBitmap = vi.fn().mockRejectedValue(new Error('decode failed'));
 
     const gemini = await import('./gemini');
     const mockFile = new File(['mock content'], 'corrupt.jpg', { type: 'image/jpeg' });

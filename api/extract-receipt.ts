@@ -1,7 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { getAdminApp } from '../src/mcp/firebase-admin.js';
+import { getAdminApp, getAdminDb } from '../src/mcp/firebase-admin.js';
+import { consumeDailyQuota, receiptDailyLimit } from './_quota.js';
 import { getAuth } from 'firebase-admin/auth';
 import { log } from './_logger.js';
+
+const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']);
+// The client resizes to 1600px before upload; Vercel caps bodies at 4.5 MB anyway.
+const MAX_BASE64_CHARS = 4_500_000;
 
 function handleCors(req: IncomingMessage, res: ServerResponse): boolean {
   const allowedOrigin = process.env.CORS_ORIGIN || 'https://fuel.paddez.com';
@@ -48,9 +53,10 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   }
   const idToken = authHeader.slice(7).trim();
 
+  let uid: string;
   try {
     const adminApp = getAdminApp();
-    await getAuth(adminApp).verifyIdToken(idToken);
+    ({ uid } = await getAuth(adminApp).verifyIdToken(idToken));
   } catch (err) {
     log('error', 'extract-receipt', 'ID token verification failed', { message: (err as Error).message });
     return sendResponse(res, 401, { error: 'Invalid or expired ID token' });
@@ -68,10 +74,26 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
   if (!base64Data || !mimeType) {
     return sendResponse(res, 400, { error: 'Missing base64Data or mimeType' });
   }
+  if (typeof base64Data !== 'string' || typeof mimeType !== 'string' || !ALLOWED_MIME_TYPES.has(mimeType)) {
+    return sendResponse(res, 415, { error: 'Unsupported image type' });
+  }
+  if (base64Data.length > MAX_BASE64_CHARS) {
+    return sendResponse(res, 413, { error: 'Image too large' });
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return sendResponse(res, 500, { error: 'Gemini API key is not configured on the server' });
+  }
+
+  try {
+    const allowed = await consumeDailyQuota(getAdminDb(), uid, 'receipt', receiptDailyLimit());
+    if (!allowed) {
+      return sendResponse(res, 429, { error: 'Daily receipt scan limit reached. Please try again tomorrow.' });
+    }
+  } catch (err) {
+    log('error', 'extract-receipt', 'Quota check failed', { message: (err as Error).message });
+    return sendResponse(res, 503, { error: 'Receipt scanning is temporarily unavailable' });
   }
 
   const geminiModel = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash';

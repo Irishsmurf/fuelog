@@ -69,3 +69,116 @@ describe('REST API Handler', () => {
     expect(res.end).toHaveBeenCalledWith(expect.stringContaining('Invalid or missing type parameter'));
   });
 });
+
+describe('REST API input validation', () => {
+  type Handlers = Record<string, (arg?: unknown) => void>;
+
+  function makeReq(method: string, url: string, body?: unknown): IncomingMessage {
+    const handlers: Handlers = {};
+    const req = {
+      method,
+      url,
+      headers: { authorization: 'Bearer valid_token', host: 'localhost' },
+      on: vi.fn((event: string, cb: (arg?: unknown) => void) => {
+        handlers[event] = cb;
+        if (event === 'end') {
+          queueMicrotask(() => {
+            if (body !== undefined) handlers.data?.(Buffer.from(JSON.stringify(body)));
+            handlers.end?.();
+          });
+        }
+        return req;
+      }),
+    };
+    return req as unknown as IncomingMessage;
+  }
+
+  function makeRes() {
+    return { setHeader: vi.fn(), writeHead: vi.fn(), end: vi.fn(), headersSent: false } as unknown as ServerResponse & {
+      writeHead: ReturnType<typeof vi.fn>; end: ReturnType<typeof vi.fn>;
+    };
+  }
+
+  const docRef = {
+    get: vi.fn(),
+    update: vi.fn(),
+  };
+  const collection = {
+    add: vi.fn(),
+    doc: vi.fn(() => docRef),
+    where: vi.fn(),
+    orderBy: vi.fn(),
+    limit: vi.fn(),
+    get: vi.fn(),
+  };
+
+  beforeEach(async () => {
+    vi.resetAllMocks();
+    const { hasScope } = await import('../../src/mcp/auth.js');
+    const { getAdminDb } = await import('../../src/mcp/firebase-admin.js');
+    vi.mocked(validateToken).mockResolvedValue({ userId: 'user123', scopes: ['write:logs', 'write:vehicles'], tokenId: 't' });
+    vi.mocked(hasScope).mockReturnValue(true);
+    collection.doc.mockReturnValue(docRef);
+    collection.where.mockReturnValue(collection);
+    collection.orderBy.mockReturnValue(collection);
+    collection.limit.mockReturnValue(collection);
+    collection.get.mockResolvedValue({ docs: [] });
+    collection.add.mockResolvedValue({ id: 'new-log' });
+    docRef.get.mockResolvedValue({ exists: true, data: () => ({ userId: 'user123' }) });
+    docRef.update.mockResolvedValue(undefined);
+    vi.mocked(getAdminDb).mockReturnValue({ collection: () => collection } as never);
+  });
+
+  it('rejects a log with a string cost (400, nothing written)', async () => {
+    const res = makeRes();
+    await handler(makeReq('POST', '/api/rest?type=logs', { brand: 'X', cost: '60', distanceKm: 500, fuelAmountLiters: 40 }), res);
+    expect(res.writeHead).toHaveBeenCalledWith(400, expect.anything());
+    expect(collection.add).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 (not 500) for an invalid timestamp', async () => {
+    const res = makeRes();
+    await handler(makeReq('POST', '/api/rest?type=logs', { brand: 'X', cost: 60, distanceKm: 500, fuelAmountLiters: 40, timestamp: 'nope' }), res);
+    expect(res.writeHead).toHaveBeenCalledWith(400, expect.anything());
+  });
+
+  it('creates a valid log owned by the caller, ignoring a spoofed userId', async () => {
+    const res = makeRes();
+    await handler(makeReq('POST', '/api/rest?type=logs', { brand: 'X', cost: 60, distanceKm: 500, fuelAmountLiters: 40, userId: 'victim' }), res);
+    expect(res.writeHead).toHaveBeenCalledWith(201, expect.anything());
+    expect(collection.add).toHaveBeenCalledWith(expect.objectContaining({ userId: 'user123', cost: 60 }));
+  });
+
+  it('only writes allowlisted fields on log update', async () => {
+    const res = makeRes();
+    await handler(makeReq('PUT', '/api/rest?type=logs&id=l1', { cost: 70, userId: 'victim', stationId: 'evil' }), res);
+    expect(res.writeHead).toHaveBeenCalledWith(200, expect.anything());
+    expect(docRef.update).toHaveBeenCalledWith({ cost: 70 });
+  });
+
+  it('rejects an update with no updatable fields', async () => {
+    const res = makeRes();
+    await handler(makeReq('PUT', '/api/rest?type=logs&id=l1', { userId: 'victim' }), res);
+    expect(res.writeHead).toHaveBeenCalledWith(400, expect.anything());
+    expect(docRef.update).not.toHaveBeenCalled();
+  });
+
+  it('caps the list limit', async () => {
+    const res = makeRes();
+    await handler(makeReq('GET', '/api/rest?type=logs&limit=999999'), res);
+    expect(collection.limit).toHaveBeenCalledWith(500);
+  });
+
+  it('rejects a vehicle update that tries to change ownership only', async () => {
+    const res = makeRes();
+    await handler(makeReq('PUT', '/api/rest?type=vehicles&id=v1', { userId: 'victim' }), res);
+    expect(res.writeHead).toHaveBeenCalledWith(400, expect.anything());
+    expect(docRef.update).not.toHaveBeenCalled();
+  });
+
+  it('rejects invalid analytics dates', async () => {
+    const res = makeRes();
+    await handler(makeReq('GET', '/api/rest?type=analytics&startDate=garbage'), res);
+    expect(res.writeHead).toHaveBeenCalledWith(400, expect.anything());
+  });
+});

@@ -43,8 +43,15 @@ test.describe('Production build smoke tests', () => {
       const errors = collectErrors(page);
       const response = await page.goto(path);
       expect(response?.status()).toBe(200);
+      // A redirect elsewhere (e.g. a hosting login wall) also answers 200;
+      // make sure we are actually looking at the app.
+      const expectedHost = new URL(process.env.BASE_URL || 'http://localhost:4173').host;
+      expect(new URL(page.url()).host, `Landed on ${page.url()} ("${await page.title()}") instead of the app`).toBe(expectedHost);
       // React mounted something (login screen or app shell), not a blank page.
-      await expect(page.locator('#root > *').first()).toBeVisible({ timeout: 15_000 });
+      await expect(
+        page.locator('#root > *').first(),
+        `App root stayed empty at ${page.url()} ("${await page.title()}")`,
+      ).toBeVisible({ timeout: 20_000 });
       await page.waitForLoadState('networkidle').catch(() => {});
       expect(errors, errors.join('\n')).toEqual([]);
     });

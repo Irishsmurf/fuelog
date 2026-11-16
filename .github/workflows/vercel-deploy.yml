@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 20
     outputs:
       url: ${{ steps.deploy.outputs.url }}
+      production_url: ${{ steps.alias.outputs.production_url }}
       previous_id: ${{ steps.pre_deploy.outputs.previous_id }}
     steps:
       - name: Checkout Code
@@ -56,6 +57,24 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Deployed to: $URL"
 
+      # After a rollback Vercel stops auto-assigning production domains to new
+      # deployments, so promote explicitly to make this deployment live.
+      - name: Promote to production
+        run: vercel promote "${{ steps.deploy.outputs.url }}" --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Smoke-test the public production domain, not the unique *.vercel.app
+      # deployment URL: that one sits behind Vercel Deployment Protection and
+      # serves a login page (HTTP 200, no app) to anonymous clients.
+      - name: Resolve production domain
+        id: alias
+        run: |
+          DOMAIN=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            "https://api.vercel.com/v9/projects/${{ secrets.VERCEL_PROJECT_ID }}/domains" \
+            | jq -r '[.domains[] | select(.redirect == null) | .name] | (map(select(endswith(".vercel.app") | not)) + .)[0] // empty')
+          if [ -z "$DOMAIN" ]; then echo "Could not resolve a production domain" >&2; exit 1; fi
+          echo "production_url=https://$DOMAIN" >> "$GITHUB_OUTPUT"
+          echo "Production domain: https://$DOMAIN"
+
   smoke:
     name: Smoke Test (deployment)
     needs: deploy
@@ -74,7 +93,7 @@ jobs:
         env:
           CI: true
           HOME: /root
-          BASE_URL: ${{ needs.deploy.outputs.url }}
+          BASE_URL: ${{ needs.deploy.outputs.production_url }}
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
         if: always()

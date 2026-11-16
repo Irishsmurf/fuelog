@@ -21,6 +21,10 @@ try {
   remoteConfigInstance = getRemoteConfig(app);
   remoteConfigInstance.defaultConfig = DEFAULT_CONFIG;
   remoteConfigInstance.settings.minimumFetchIntervalMillis = 3600000;
+  // The app shell waits for Remote Config before rendering (ThemeProvider),
+  // so never let a slow fetch blank the screen for the SDK default of 60s;
+  // on timeout we fall back to the in-app defaults.
+  remoteConfigInstance.settings.fetchTimeoutMillis = 5000;
   console.log("Remote Config initialized with defaults and settings.");
 } catch (error) {
   console.warn("Remote Config: Failed to initialize (IndexedDB may be unavailable). Falling back to defaults.", error);

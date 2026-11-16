@@ -127,6 +127,6 @@ For read-only access (recommended for most LLM use cases), select only `read:log
 
 **"Missing Authorization header"** — Make sure your MCP client config includes `"Authorization": "Bearer <token>"` in the headers.
 
-**No data returned** — Make sure you have fuel logs in Fuelog and the token has `read:logs` scope.
+**No data returned** — Make sure you have fuel logs in Fuelog. (Read scopes are not yet enforced, so any valid token can read.)
 
 **Tools fail with "required scope" error** — The token doesn't have write permissions. Generate a new token with `write:logs` or `write:vehicles` scope.

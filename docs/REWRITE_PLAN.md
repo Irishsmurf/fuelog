@@ -1,6 +1,38 @@
 # Fuelog: rebuild plan and target design
 
-Status: proposal, 2026-11-16. Based on four parallel audits: frontend, backend and data, tooling and CI, and features and domain.
+Status: in progress. Proposed 2026-11-16, based on four parallel audits: frontend, backend and data, tooling and CI, and features and domain. Glossary: [`CONTEXT.md`](../CONTEXT.md). Decisions: [`docs/adr/`](adr/).
+
+## Status
+
+**Done**
+- **Step 0, urgent fixes:**
+  - Token-takeover hole closed; rules hardened (`userId` immutable, field types, token updates revoke-only, stations server-updated) and rules tests on the emulator in CI (#259).
+  - CI runs `tsc -b` across app, node and `api/`; `validate-env` runs only on push; a Functions job; a Playwright smoke test against a production build; REST bodies validated with zod and `limit` capped; per-user receipt quota in `usageQuotas` (#269).
+- **Step 1, partly:** npm workspaces with `packages/core` (#276). `api/`, `src/mcp` and the SPA have not moved to `apps/`.
+- **Step 2:** core zod schemas (with v2 fields), odometer rules with property tests, one copy of the maths; validated Firestore reads via `src/firebase/converters.ts` (#276, #282).
+- **Step 3, partly:**
+  - Server-owned per-currency station stats (`updateStationStats`, `stations.priceStats.<CUR>`) with idempotency markers in `triggerEvents`; `runMigrations` scheduled one-shot migrations (#284).
+  - Functions deployed from CI with tests first, no `--force` and artifact cleanup policies (#284, #285, #286, #295).
+  - Vercel deploy smoke-tests the production domain and rolls back on failure (#284, #285, #286).
+- **Step 4, partly:** TanStack Query data layer in `src/data`, used by History; exports read all matching logs (#298). QuickLog offline saves and exchange-rate fixes (#299). Profile and auth fixes (#300).
+- **Step 7:** `CONTEXT.md`, ADRs 0001–0007, stale docs removed (this change).
+
+- **Step 5, partly:** route-only chunks (map renderer, PDF, canvas) kept out of the precache, with a 4,200 KiB precache budget in CI (#301).
+- **Step 6:** authenticated E2E (sign in, log, edit, delete) against the Auth and Firestore emulators with the real rules, as a CI job (#302).
+- **Security:** REST and MCP enforce read scopes; REST refuses to delete a vehicle that still has logs (#303).
+
+**Remaining**
+- Step 1: `apps/web` and `apps/functions`; drop the `jose`/`uuid` overrides.
+- Step 3:
+  - an `onLogWrite` trigger for the rest of the derived data (distance from odometer, home-currency cost and rate, `stationId`);
+  - retire the backfill scripts and the ProfilePage client migration;
+  - OIDC instead of `FIREBASE_TOKEN`.
+- Step 4: move QuickLog, Profile/Vehicles and Dashboard onto the data layer (each under about 250 lines).
+- Step 5: MapLibre only, remove Remote Config flags, lazy-load locales ([ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md), proposed).
+- Step 6: make the emulator E2E job a gate on the Vercel and Firebase deploys (today it only runs in CI); rewrite the old `pdf_export`, `multi_vehicle` and `pwa` specs.
+- §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
+- Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).
+- §7 decisions were taken with the recommended defaults (see §7).
 
 ## 1. Verdict: rebuild the core in place, not a big-bang rewrite
 
@@ -123,9 +155,11 @@ Leave room for, but do not build: the maintenance tracker (per-vehicle service e
 | 6 | Re-enable Playwright with the Auth emulator: log, edit and delete; offline save; map renders | E2E gate on deploy |
 | 7 | Bring the docs up to date: a `CONTEXT.md` glossary, ADRs for each decision in §3, and removal of stale docs (ISSUES.md, Toyota plan) | Docs match the code |
 
-## 7. Decisions needed from you
+## 7. Decisions
 
-1. **SPA hosting:** stay on Vercel (static only, recommended for previews) or move to Firebase Hosting (one platform).
-2. **Drop list in §5:** confirm the admin console, Toyota, weekly digest and monthly-summary notifications, and log-card map thumbnails.
-3. **Home-currency change:** keep historic costs as recorded (recommended; show the original currency), or recompute them.
-4. **Languages:** keep all 10, or cut to those with real users.
+The owner handed these over ("this code is yours"), so the recommended defaults were taken. Revisit any of them by updating this section and the matching ADR.
+
+1. **SPA hosting:** stays on Vercel (static only).
+2. **Drop list in §5:** accepted. The Toyota plan is deleted; the admin console, the digest and summary notifications, and log-card thumbnails go with step 5.
+3. **Home-currency change:** historic costs stay as recorded; the original currency is shown alongside.
+4. **Languages:** all 10 are kept.

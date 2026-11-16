@@ -54,6 +54,24 @@ jobs:
           files: ./test-results/junit.xml
           report_type: test_results
 
+  rules:
+    name: Security Rules Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Firestore rules tests against the emulator
+        run: npm run test:rules
+
   security:
     name: Security Audit
     runs-on: ubuntu-latest

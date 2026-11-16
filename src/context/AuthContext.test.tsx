@@ -219,12 +219,14 @@ describe('AuthContext', () => {
             });
             return vi.fn();
         });
-        let update: ((u: { monthlyBudget: number }) => Promise<void>) | undefined;
-        const Grab = () => { update = useAuth().updateProfile; return null; };
+        const Save = () => {
+            const { updateProfile, profile } = useAuth();
+            return profile ? <button onClick={() => updateProfile({ monthlyBudget: 200 })}>save</button> : null;
+        };
 
-        render(<AuthProvider><Grab /></AuthProvider>);
-        await waitFor(() => expect(update).toBeDefined());
-        await update!({ monthlyBudget: 200 });
+        render(<AuthProvider><Save /></AuthProvider>);
+        fireEvent.click(await screen.findByRole('button', { name: 'save' }));
+        await waitFor(() => expect(setDoc).toHaveBeenCalled());
 
         expect(setDoc).toHaveBeenCalledWith(undefined, { monthlyBudget: 200 }, { merge: true });
     });

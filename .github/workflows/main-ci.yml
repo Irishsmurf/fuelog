@@ -90,8 +90,8 @@ jobs:
 
   build:
     name: Build Verification
-    # Pinned: Playwright 1.56 can't install browser deps on ubuntu-latest (26.04).
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -110,21 +110,36 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: Build
         run: npm run build
+
+  smoke:
+    name: Smoke Test (production build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # The official image ships the browsers for this exact Playwright version,
+    # so there is no `playwright install` step (it hung for 6h on a runner, and
+    # can't install deps on ubuntu-latest 26.04). Keep the tag in sync with
+    # @playwright/test in package.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: npm ci
+      - name: Build with placeholder config
+        run: npm run build
         env:
-          # Placeholder demo-project config so the bundle boots for the smoke
-          # test; this build is never deployed.
+          # Demo-project config so the bundle boots; this build is never deployed.
           VITE_FIREBASE_API_KEY: AIzaSyA-smoke-test-dummy-key-0000000000
           VITE_FIREBASE_AUTH_DOMAIN: demo-fuelog.firebaseapp.com
           VITE_FIREBASE_PROJECT_ID: demo-fuelog
           VITE_FIREBASE_STORAGE_BUCKET: demo-fuelog.appspot.com
           VITE_FIREBASE_MESSAGING_SENDER_ID: '000000000000'
           VITE_FIREBASE_APP_ID: '1:000000000000:web:0000000000000000000000'
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Smoke test the production build
+      - name: Smoke test
         run: npx playwright test --project=chromium --grep @smoke
         env:
           CI: true
+          HOME: /root
 
   functions:
     name: Cloud Functions

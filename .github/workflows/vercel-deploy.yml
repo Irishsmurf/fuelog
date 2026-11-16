@@ -55,13 +55,14 @@ jobs:
           echo "Deployed to: $NEW_DEPLOYMENT_URL"
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        timeout-minutes: 10
+        run: npx playwright install --with-deps chromium
 
       - name: Run Playwright Smoke Tests
         id: smoke_tests
         run: |
           # Passing the newly generated production URL to Playwright
-          BASE_URL=$NEW_DEPLOYMENT_URL npx playwright test --grep @smoke
+          BASE_URL=$NEW_DEPLOYMENT_URL npx playwright test --project=chromium --grep @smoke
 
       - name: Rollback on Failure
         if: failure() && steps.smoke_tests.outcome == 'failure'

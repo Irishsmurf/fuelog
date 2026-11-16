@@ -1,26 +1,12 @@
 // src/components/LocationPicker.tsx
-import React, { useEffect, useState } from 'react';
-import { MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useEffect, useRef, useState } from 'react';
+import type { MapMouseEvent, Marker as MapLibreMarker } from 'maplibre-gl';
 import { Navigation, Loader } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import 'leaflet/dist/leaflet.css';
 
-import VectorBasemap from './VectorBasemap';
-import { MAP_MAX_ZOOM } from '../utils/mapConstants';
+import maplibregl from './map/maplibre';
+import { useMapLibre } from './map/useMapLibre';
 import { getCurrentPosition } from '../utils/locationService';
-import { useTheme } from '../context/ThemeContext';
-
-// --- Default marker icon fix (points to public assets) ---
-// Mirrors the fix in FuelMapPage so the marker renders when this component is
-// mounted independently of the map page.
-const iconRetinaUrl = '/marker-icon-2x.png';
-const iconUrl = '/marker-icon.png';
-const shadowUrl = '/marker-shadow.png';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
-// --- End Icon Fix ---
 
 export interface PickerCoords {
   latitude: number;
@@ -37,38 +23,71 @@ interface LocationPickerProps {
 
 const DUBLIN: PickerCoords = { latitude: 53.3498, longitude: -6.2603 };
 
-// Recentres the map whenever the selected coordinates change from outside
-// (e.g. a receipt-geocoded address or "use my current location").
-const RecenterOnChange: React.FC<{ coords: PickerCoords | null }> = ({ coords }) => {
-  const map = useMap();
-  useEffect(() => {
-    if (coords) {
-      map.setView([coords.latitude, coords.longitude], Math.max(map.getZoom(), 15));
-    }
-    // Depend on primitive lat/lng, not the object reference: parents recreate the
-    // coords object on every render, which would otherwise re-centre (snap back)
-    // the map whenever any other form field changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [coords?.latitude, coords?.longitude, map]);
-  return null;
-};
-
-// Places/moves the pin on map click.
-const ClickToPlace: React.FC<{ onChange: (coords: PickerCoords) => void }> = ({ onChange }) => {
-  useMapEvents({
-    click(e) {
-      onChange({ latitude: e.latlng.lat, longitude: e.latlng.lng });
-    },
-  });
-  return null;
-};
-
 const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, defaultCenter, className }) => {
-  const { theme } = useTheme();
   const { t } = useTranslation();
   const [locating, setLocating] = useState(false);
 
   const center = value ?? defaultCenter ?? DUBLIN;
+  const { containerRef, map } = useMapLibre({
+    center: [center.longitude, center.latitude],
+    zoom: value ? 15 : 11,
+  });
+
+  // Map handlers outlive a render; always call the latest onChange.
+  const onChangeRef = useRef(onChange);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Primitive lat/lng rather than the object: parents recreate the coords
+  // object on every render, which would otherwise re-centre (snap back) the
+  // map whenever any other form field changes.
+  const lat = value?.latitude;
+  const lng = value?.longitude;
+
+  useEffect(() => {
+    if (!map) return;
+    const control = new maplibregl.NavigationControl({ showCompass: false });
+    map.addControl(control, 'top-left');
+    // Places/moves the pin on map click.
+    const onClick = (e: MapMouseEvent) => {
+      onChangeRef.current({ latitude: e.lngLat.lat, longitude: e.lngLat.lng });
+    };
+    map.on('click', onClick);
+    return () => {
+      map.off('click', onClick);
+      map.removeControl(control);
+    };
+  }, [map]);
+
+  // Recentres the map whenever the selected coordinates change from outside
+  // (e.g. a receipt-geocoded address or "use my current location").
+  useEffect(() => {
+    if (!map || lat === undefined || lng === undefined) return;
+    map.jumpTo({ center: [lng, lat], zoom: Math.max(map.getZoom(), 15) });
+  }, [map, lat, lng]);
+
+  // The draggable pin, present only while there is a value.
+  const markerRef = useRef<MapLibreMarker | null>(null);
+  const hasValue = lat !== undefined && lng !== undefined;
+  useEffect(() => {
+    if (!map || !hasValue) return;
+    const marker = new maplibregl.Marker({ draggable: true });
+    marker.on('dragend', () => {
+      const pos = marker.getLngLat();
+      onChangeRef.current({ latitude: pos.lat, longitude: pos.lng });
+    });
+    markerRef.current = marker;
+    return () => {
+      marker.remove();
+      markerRef.current = null;
+    };
+  }, [map, hasValue]);
+
+  useEffect(() => {
+    if (!map || lat === undefined || lng === undefined) return;
+    markerRef.current?.setLngLat([lng, lat]).addTo(map);
+  }, [map, lat, lng]);
 
   const handleUseCurrentLocation = async () => {
     setLocating(true);
@@ -85,36 +104,13 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, defaul
   return (
     <div className={className}>
       <div className="relative h-56 w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner">
-        <MapContainer
-          center={[center.latitude, center.longitude]}
-          zoom={value ? 15 : 11}
-          maxZoom={MAP_MAX_ZOOM}
-          scrollWheelZoom={true}
-          style={{ height: '100%', width: '100%' }}
-        >
-          <VectorBasemap theme={theme === 'dark' ? 'dark' : 'light'} />
-          <ClickToPlace onChange={onChange} />
-          <RecenterOnChange coords={value} />
-          {value && (
-            <Marker
-              position={[value.latitude, value.longitude]}
-              draggable={true}
-              eventHandlers={{
-                dragend: (e) => {
-                  const m = e.target as L.Marker;
-                  const { lat, lng } = m.getLatLng();
-                  onChange({ latitude: lat, longitude: lng });
-                },
-              }}
-            />
-          )}
-        </MapContainer>
+        <div ref={containerRef} data-testid="location-picker-map" className="h-full w-full" />
 
         <button
           type="button"
           onClick={handleUseCurrentLocation}
           disabled={locating}
-          className="absolute z-[1000] bottom-2 right-2 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur border border-gray-300 dark:border-gray-600 shadow-md text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+          className="absolute z-10 bottom-8 right-2 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white/90 dark:bg-gray-800/90 backdrop-blur border border-gray-300 dark:border-gray-600 shadow-md text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
         >
           {locating
             ? <Loader className="w-3.5 h-3.5 animate-spin" />

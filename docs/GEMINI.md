@@ -9,7 +9,7 @@
 - **Backend:** Firebase (Authentication, Firestore with offline persistence).
 - **Routing:** React Router DOM (v7).
 - **Charts:** Recharts for visualizing efficiency metrics (MPG) over time.
-- **Maps:** Leaflet & React Leaflet for fuel station location visualization (heatmap/clusters).
+- **Maps:** MapLibre GL for fuel station location visualization (heatmap/clusters).
 - **Testing:** Vitest (unit/component), Playwright (E2E).
 - **Deployment:** Vercel (with Analytics integration).
 

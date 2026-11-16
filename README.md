@@ -56,7 +56,7 @@ Built with modern web technologies:
 - **Styling:** Tailwind CSS v4
 - **Backend / DB:** Firebase (Auth, Firestore, Storage, FCM, Cloud Functions); Vercel functions for the REST API, MCP server and receipt extraction
 - **AI Integration:** Google Gemini (server-side)
-- **Maps:** Leaflet and react-leaflet with MapLibre GL vector basemaps
+- **Maps:** MapLibre GL with CARTO vector basemaps (native clustering and heatmap layers)
 - **Charts:** Recharts
 - **Data:** TanStack Query, zod schemas shared via the `@fuelog/core` workspace package
 - **Testing:** Vitest, Playwright, Firestore rules tests on the emulator
@@ -97,9 +97,8 @@ Follow these instructions to get a copy of the project up and running on your lo
    VITE_FIREBASE_MESSAGING_SENDER_ID=
    VITE_FIREBASE_APP_ID=
 
-   # CARTO basemaps — optional. Maps work without it; the log-card thumbnails
-   # fall back to CARTO's keyless raster tiles, which carry an "API KEY
-   # REQUIRED" watermark. Free key (no account needed):
+   # CARTO basemaps — optional. Maps work without it, using CARTO's keyless
+   # vector endpoints. Free key (no account needed):
    # https://carto.com/basemaps/apikey
    VITE_CARTO_API_KEY=
 

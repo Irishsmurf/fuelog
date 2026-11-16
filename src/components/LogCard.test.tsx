@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import LogCard from './LogCard';
 import { describe, it, expect, vi } from 'vitest';
-import type { ReactNode } from 'react';
 import type { Log } from '../utils/types';
 import { Timestamp } from 'firebase/firestore';
 
@@ -18,8 +17,6 @@ vi.mock('react-i18next', () => ({
         'logCard.l100km': 'L/100km',
         'logCard.costPerMile': 'Cost/Mile',
         'logCard.receipt': 'Receipt',
-        'logCard.tapToViewMap': 'Tap to view map',
-        'logCard.noLocation': 'No location',
         'logCard.unknownStation': 'Unknown Station',
         'logCard.editEntry': 'Edit Entry',
         'logCard.deleteEntry': 'Delete Entry',
@@ -35,17 +32,6 @@ vi.mock('react-i18next', () => ({
 vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({
     profile: { homeCurrency: 'EUR' }
-  })
-}));
-
-// Mock react-leaflet to avoid map rendering issues in tests
-vi.mock('react-leaflet', () => ({
-  MapContainer: ({ children }: { children: ReactNode }) => <div data-testid="map-container">{children}</div>,
-  TileLayer: () => <div />,
-  Marker: () => <div />,
-  useMap: () => ({
-    invalidateSize: vi.fn(),
-    setView: vi.fn()
   })
 }));
 
@@ -93,8 +79,8 @@ describe('LogCard', () => {
     // The front face must clip any overflowing content (e.g. the receipt
     // thumbnail) instead of letting it spill outside the card's rounded
     // boundary, which is what caused #162.
-    const frontFace = receiptImg.closest('.backface-hidden');
-    expect(frontFace).toHaveClass('overflow-y-auto');
+    const cardBody = receiptImg.closest('[data-testid="log-card-body"]');
+    expect(cardBody).toHaveClass('overflow-y-auto');
   });
 
   it('calls onEdit when edit button is clicked', () => {
@@ -109,27 +95,27 @@ describe('LogCard', () => {
     expect(onEdit).toHaveBeenCalledWith(mockLog);
   });
 
-  describe('flip-to-map vs. scroll/drag (#162)', () => {
+  // The flip-to-map thumbnail was dropped with the move to MapLibre only
+  // (rewrite step 5): one WebGL context per card does not scale to a list.
+  describe('without a map thumbnail', () => {
     const logWithGeo: Log = { ...mockLog, latitude: 51.5, longitude: -0.1 };
 
-    it('flips to the map on a tap (no pointer movement)', () => {
+    it('stays on the log details when a geotagged card is tapped', () => {
       const { container } = render(<LogCard log={logWithGeo} onEdit={vi.fn()} onDelete={vi.fn()} />);
       const card = container.firstChild as HTMLElement;
 
       fireEvent.pointerDown(card, { clientX: 100, clientY: 100 });
       fireEvent.click(card, { clientX: 100, clientY: 100 });
 
-      expect(screen.getByTestId('map-container')).toBeInTheDocument();
+      expect(screen.getByText('Distance')).toBeVisible();
+      expect(container.querySelector('.maplibregl-map, .leaflet-container')).toBeNull();
+      expect(container.querySelector('.rotate-y-180')).toBeNull();
     });
 
-    it('does not flip when the pointer moved beyond the drag threshold (scrolling overflowing content)', () => {
-      const { container, queryByTestId } = render(<LogCard log={logWithGeo} onEdit={vi.fn()} onDelete={vi.fn()} />);
-      const card = container.firstChild as HTMLElement;
+    it('still lets a tall card scroll its own content (#162)', () => {
+      render(<LogCard log={logWithGeo} onEdit={vi.fn()} onDelete={vi.fn()} />);
 
-      fireEvent.pointerDown(card, { clientX: 100, clientY: 100 });
-      fireEvent.click(card, { clientX: 100, clientY: 150 });
-
-      expect(queryByTestId('map-container')).not.toBeInTheDocument();
+      expect(screen.getByTestId('log-card-body')).toHaveClass('overflow-y-auto');
     });
   });
 

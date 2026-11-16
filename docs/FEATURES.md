@@ -28,7 +28,7 @@
 - **Clipboard Export:** Button to copy table data to clipboard in TSV format.
 
 ## Fuel Map
-- **Map View:** Interactive map (Leaflet) showing the locations of filling stations.
+- **Map View:** Interactive map (MapLibre GL) showing the locations of filling stations.
 - **Clusters & Heatmaps:** Visualizes frequent filling locations using marker clustering and heatmaps.
 - **Popups:** Clicking a marker shows log details (date, brand, cost, efficiency).
 

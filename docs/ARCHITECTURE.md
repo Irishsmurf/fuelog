@@ -33,8 +33,9 @@ few Vercel serverless functions. Domain terms are defined in
 - **Offline:** Firestore `persistentLocalCache` with `persistentSingleTabManager`.
   QuickLog treats a queued write as saved when offline. The PWA (vite-plugin-pwa,
   Workbox) precaches the app shell.
-- **Maps:** Leaflet / react-leaflet with MapLibre GL vector basemaps via
-  `@maplibre/maplibre-gl-leaflet`.
+- **Maps:** plain `maplibre-gl` (CARTO vector basemaps) through a small
+  `useMapLibre` hook in `src/components/map/`; stations use a clustered
+  GeoJSON source and the heatmap is a native `heatmap` layer.
 - **Calculations:** the maths lives in `@fuelog/core`; `src/utils/calculations.ts`
   only formats results for display.
 

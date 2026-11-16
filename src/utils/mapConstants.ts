@@ -1,4 +1,3 @@
-import L from 'leaflet';
 import type { RequestParameters } from 'maplibre-gl';
 
 /**
@@ -22,14 +21,8 @@ export const MAP_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 /**
- * Leaflet derives Map.getMaxZoom() from its layers, and a raster <TileLayer>
- * supplied one for free (its default, 18). L.maplibreGL is a plain L.Layer and
- * supplies none, which leaves getMaxZoom() as Infinity — and MarkerClusterGroup
- * throws outright on a map without a finite maxZoom. So every map that renders
- * a vector basemap has to state this explicitly.
- *
- * 20 is the value CARTO uses in its own Leaflet example for these styles;
- * vector tiles overzoom cleanly well past the source data's zoom 14.
+ * Vector tiles overzoom cleanly well past the source data's zoom 14; 20 is
+ * the value CARTO uses in its own examples for these styles.
  */
 export const MAP_MAX_ZOOM = 20;
 
@@ -77,55 +70,44 @@ export const cartoTransformRequest = (url: string): RequestParameters | undefine
   return { url: parsed.toString() };
 };
 
-/**
- * Raster tiles, retained only for LogCard's non-interactive thumbnails: those
- * render one map per flipped card in a list, and a vector basemap costs a WebGL
- * context apiece, which browsers cap at ~16 before evicting the oldest and
- * blanking the canvas. Raster tiles are plain <img> elements with no such limit.
- *
- * Built by concatenation rather than the URL API because the `{s}`/`{z}`/`{x}`
- * /`{y}`/`{r}` placeholders Leaflet substitutes would otherwise be percent-encoded.
- */
-const withKey = (tileUrl: string): string =>
-  CARTO_API_KEY ? `${tileUrl}?key=${encodeURIComponent(CARTO_API_KEY)}` : tileUrl;
-
-export const MAP_TILES = {
-  light: withKey('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'),
-  dark: withKey('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'),
-  attribution: MAP_ATTRIBUTION,
-};
-
 // Lucide's "fuel" icon path data, inlined so map markers don't need a React
-// render pass — Leaflet markers are plain DOM, not React elements.
-const FUEL_ICON_SVG = `
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+// render pass: map markers are plain DOM or style images, not React elements.
+const FUEL_ICON_PATHS = `
   <line x1="3" x2="15" y1="22" y2="22"></line>
   <line x1="4" x2="14" y1="9" y2="9"></line>
   <path d="M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18"></path>
   <path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2a2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"></path>
-</svg>
 `;
 
+export const STATION_COLOR = '#f59e0b';
+export const UNASSIGNED_STATION_COLOR = '#9ca3af';
+
+/** Rendered size of a station marker, in CSS pixels. */
+export const STATION_MARKER_SIZE = 28;
+
 /**
- * A themed station marker: an amber pin (matching the brand palette) with
- * the same "fuel pump" glyph used for the Stations nav item, in place of
- * Leaflet's generic default pin. `unassigned` renders a muted grey variant
- * for logs with coordinates but no associated Station document, so they
- * remain visually distinct on the map rather than looking like a normal
- * station.
+ * A themed station marker as a standalone SVG: an amber disc (matching the
+ * brand palette) with the same "fuel pump" glyph used for the Stations nav
+ * item. `unassigned` renders a muted grey variant for logs with coordinates
+ * but no associated Station document, so they remain visually distinct on
+ * the map rather than looking like a normal station.
+ *
+ * `size` is the pixel size the SVG declares; the drawing is the same at any
+ * size, so callers can render it at 2x for a high-DPI style image.
  */
-export const createStationIcon = (unassigned = false): L.DivIcon => L.divIcon({
-  className: 'fuelog-station-marker',
-  html: `
-    <div style="
-      width: 28px; height: 28px; border-radius: 50%;
-      background: ${unassigned ? '#9ca3af' : '#f59e0b'};
-      border: 2px solid white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-      display: flex; align-items: center; justify-content: center;
-    ">${FUEL_ICON_SVG}</div>
-  `,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-  popupAnchor: [0, -14],
-});
+export const stationMarkerSvg = (unassigned = false, size = STATION_MARKER_SIZE): string => `
+<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 32 32">
+  <circle cx="16" cy="17" r="14" fill="rgba(0,0,0,0.25)"></circle>
+  <circle cx="16" cy="16" r="13" fill="${unassigned ? UNASSIGNED_STATION_COLOR : STATION_COLOR}" stroke="white" stroke-width="2"></circle>
+  <g transform="translate(7.6 7.6) scale(0.7)" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${FUEL_ICON_PATHS}</g>
+</svg>`.trim();
+
+/** A DOM element for a single station marker (e.g. a maplibregl.Marker). */
+export const createStationMarkerElement = (unassigned = false): HTMLElement => {
+  const el = document.createElement('div');
+  el.className = 'fuelog-station-marker';
+  el.style.width = `${STATION_MARKER_SIZE}px`;
+  el.style.height = `${STATION_MARKER_SIZE}px`;
+  el.innerHTML = stationMarkerSvg(unassigned);
+  return el;
+};

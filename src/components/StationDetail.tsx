@@ -7,27 +7,35 @@ import { Loader, AlertCircle, MapPin } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import { MapContainer, Marker } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 
 import { Log, Station } from '../utils/types';
 import { fetchFuelLogsByStationId, fetchStationById } from '../firebase/firestoreService';
 import { formatDate } from '../utils/formatDate';
-import { useTheme } from '../context/ThemeContext';
-import { MAP_MAX_ZOOM, createStationIcon } from '../utils/mapConstants';
-import VectorBasemap from './VectorBasemap';
+import { createStationMarkerElement } from '../utils/mapConstants';
+import maplibregl from './map/maplibre';
+import { useMapLibre } from './map/useMapLibre';
 
-// Leaflet's default marker icon URLs are broken under bundlers like Vite;
-// point them at the public assets instead. Safe to call more than once
-// (e.g. if FuelMapPage.tsx also runs this) since mergeOptions is idempotent.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: '/marker-icon-2x.png',
-    iconUrl: '/marker-icon.png',
-    shadowUrl: '/marker-shadow.png',
-});
+/** A small, static map showing where the station is. */
+const StationMiniMap: React.FC<{ latitude: number; longitude: number }> = ({ latitude, longitude }) => {
+    const { containerRef, map } = useMapLibre({
+        center: [longitude, latitude],
+        zoom: 15,
+        interactive: false,
+    });
+
+    useEffect(() => {
+        if (!map) return;
+        map.jumpTo({ center: [longitude, latitude] });
+        const marker = new maplibregl.Marker({ element: createStationMarkerElement() })
+            .setLngLat([longitude, latitude])
+            .addTo(map);
+        return () => {
+            marker.remove();
+        };
+    }, [map, latitude, longitude]);
+
+    return <div ref={containerRef} data-testid="station-map" className="h-full w-full" />;
+};
 
 // A station with no recorded coordinates (or an exact 0,0 — the null-island
 // default for missing OSM data) has nothing useful to plot on a map.
@@ -46,7 +54,6 @@ interface StationDetailProps {
 const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
     const { t } = useTranslation();
     const { code: homeCurrency, symbol: currencySymbol } = useHomeCurrency();
-    const { theme } = useTheme();
     const [station, setStation] = useState<Station | null>(null);
     const [fuelLogs, setFuelLogs] = useState<Log[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -190,16 +197,7 @@ const StationDetail: React.FC<StationDetailProps> = ({ stationId }) => {
 
             {hasValidCoordinates(station) ? (
                 <div className="h-56 mb-6 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
-                    <MapContainer
-                        center={[station.latitude, station.longitude]}
-                        zoom={15}
-                        maxZoom={MAP_MAX_ZOOM}
-                        scrollWheelZoom={false}
-                        style={{ height: '100%', width: '100%' }}
-                    >
-                        <VectorBasemap theme={theme === 'dark' ? 'dark' : 'light'} />
-                        <Marker position={[station.latitude, station.longitude]} icon={createStationIcon()} />
-                    </MapContainer>
+                    <StationMiniMap latitude={station.latitude} longitude={station.longitude} />
                 </div>
             ) : (
                 <div className="text-center text-gray-500 dark:text-gray-400 h-24 flex items-center justify-center border border-dashed border-gray-300 dark:border-gray-700 rounded-md mb-6">

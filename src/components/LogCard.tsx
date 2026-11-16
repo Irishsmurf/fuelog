@@ -1,30 +1,14 @@
 // src/components/LogCard.tsx
-import { JSX, useRef, useState } from 'react';
+import { JSX, useState } from 'react';
 import { Log } from '../utils/types';
 import { formatMPG, formatCostPerMile, formatKmL, formatL100km } from '../utils/calculations';
 import { sanitizeUrl } from '../utils/sanitize';
 import { formatDate } from '../utils/formatDate';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import { MapPin, Info, Edit3, Trash2, FileText } from 'lucide-react';
+import { MapPin, Edit3, Trash2, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { COMMON_CURRENCIES } from '../utils/currencyApi';
 import { useTranslation } from 'react-i18next';
-import { useTheme } from '../context/ThemeContext';
-import { MAP_TILES } from '../utils/mapConstants';
 import ReceiptModal from './ReceiptModal';
-
-// CSS for card flip and map container
-import 'leaflet/dist/leaflet.css';
-
-// --- Icon Fix (points to public assets) ---
-const iconRetinaUrl = '/marker-icon-2x.png';
-const iconUrl = '/marker-icon.png';
-const shadowUrl = '/marker-shadow.png';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({ iconRetinaUrl, iconUrl, shadowUrl });
-// --- End Icon Fix ---
 
 interface LogCardProps {
   log: Log;
@@ -34,25 +18,11 @@ interface LogCardProps {
   stationName?: string;
 }
 
-/** Small helper to fix the map view when flipping */
-const RecenterMap = ({ center }: { center: L.LatLngExpression }) => {
-    const map = useMap();
-    setTimeout(() => { map.invalidateSize(); map.setView(center, 15); }, 100);
-    return null;
-};
-
 function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardProps): JSX.Element {
   const { profile } = useAuth();
   const { t } = useTranslation();
-  const { theme } = useTheme();
-  const [isFlipped, setIsFlipped] = useState(false);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const hasGeo = log.latitude !== undefined && log.longitude !== undefined;
-  const pointerDownPos = useRef<{ x: number; y: number } | null>(null);
-  // Threshold (px) beyond which a pointer down→up is treated as a scroll/drag
-  // rather than a tap, so scrolling overflowing card content (#162) doesn't
-  // accidentally trigger the flip-to-map interaction.
-  const DRAG_THRESHOLD_PX = 10;
 
 
   const homeCurrency = profile?.homeCurrency || 'EUR';
@@ -73,37 +43,10 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
     ? `${log.originalCost?.toFixed(2)} ${log.currency}`
     : null;
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    pointerDownPos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleFlip = (e: React.MouseEvent) => {
-    // Don't flip if clicking action buttons
-    if ((e.target as HTMLElement).closest('button')) return;
-
-    const downPos = pointerDownPos.current;
-    if (downPos) {
-      const dx = e.clientX - downPos.x;
-      const dy = e.clientY - downPos.y;
-      if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD_PX) return;
-    }
-
-    if (hasGeo) setIsFlipped(!isFlipped);
-  };
-
-  const center: L.LatLngExpression = [log.latitude || 0, log.longitude || 0];
-
   return (
     <>
-    <div
-      className="relative w-full h-[320px] perspective-1000 group"
-      onPointerDown={handlePointerDown}
-      onClick={handleFlip}
-    >
-      <div className={`relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer ${isFlipped ? 'rotate-y-180' : ''}`}>
-
-        {/* FRONT: Log Details */}
-        <div className="absolute inset-0 backface-hidden nocturne-card rounded-2xl p-4 sm:p-5 flex flex-col overflow-y-auto">
+    <div className="relative w-full h-[320px] group">
+        <div data-testid="log-card-body" className="absolute inset-0 nocturne-card rounded-2xl p-4 sm:p-5 flex flex-col overflow-y-auto">
           {/* Header */}
           <div className="flex justify-between items-start mb-3">
             <div className="space-y-0.5 min-w-0 flex-grow">
@@ -111,7 +54,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
                 <p className="text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-widest truncate">
                     {log.timestamp?.toDate() ? formatDate(log.timestamp.toDate()) : 'N/A'}
                 </p>
-                {hasGeo && <MapPin size={10} className="text-brand-primary shrink-0 animate-pulse" />}
+                {hasGeo && <MapPin size={10} className="text-brand-primary shrink-0" />}
               </div>
               <h4 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 leading-tight truncate">
                 {stationName || log.brand || t('logCard.unknownStation')}
@@ -172,10 +115,7 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
           )}
 
           {/* Footer Actions */}
-          <div className="flex justify-between items-center pt-3 border-t border-gray-200 dark:border-gray-700/60 mt-auto">
-            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                {hasGeo ? t('logCard.tapToViewMap') : t('logCard.noLocation')}
-            </span>
+          <div className="flex justify-end items-center pt-3 border-t border-gray-200 dark:border-gray-700/60 mt-auto">
             <div className="flex space-x-2">
                 <button
                 onClick={(e) => { e.stopPropagation(); onEdit(log); }}
@@ -195,32 +135,6 @@ function LogCard({ log, onEdit, onDelete, vehicleName, stationName }: LogCardPro
           </div>
         </div>
 
-        {/* BACK: Map View */}
-        <div className="absolute inset-0 rotate-y-180 backface-hidden nocturne-card rounded-2xl overflow-hidden flex flex-col">
-          <div className="flex-grow relative bg-gray-100 dark:bg-gray-900">
-            {isFlipped && hasGeo && (
-              <MapContainer center={center} zoom={15} zoomControl={false} dragging={false} touchZoom={false} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                <TileLayer
-                  attribution={MAP_TILES.attribution}
-                  url={theme === 'dark' ? MAP_TILES.dark : MAP_TILES.light}
-                />
-                <Marker position={center} />
-                <RecenterMap center={center} />
-              </MapContainer>
-            )}
-            <div className="absolute top-3 left-3 z-[1000] bg-white/90 dark:bg-gray-800/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <p className="text-[10px] font-black uppercase tracking-widest text-brand-primary">{stationName || log.brand || t('logCard.unknownStation')}</p>
-            </div>
-            <button
-                className="absolute bottom-3 right-3 z-[1000] bg-brand-primary text-white p-2.5 rounded-xl shadow-lg shadow-brand-primary/30"
-                onClick={(e) => { e.stopPropagation(); setIsFlipped(false); }}
-            >
-                <Info size={16} />
-            </button>
-          </div>
-        </div>
-
-      </div>
     </div>
     {isReceiptOpen && log.receiptUrl && (
       <ReceiptModal url={log.receiptUrl} onClose={() => setIsReceiptOpen(false)} />

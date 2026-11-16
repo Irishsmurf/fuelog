@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom/client';
 import * as Sentry from '@sentry/react';
 import App from './App.tsx';
 import './index.css';
-import './i18n';
+import { i18nReady } from './i18n';
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -35,8 +35,12 @@ if (!rootElement) {
 
 const root = ReactDOM.createRoot(rootElement);
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// Render once the user's language is loaded, so non-English users never see
+// raw translation keys. English is bundled, so for most users this is instant.
+void i18nReady.then(() => {
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+});

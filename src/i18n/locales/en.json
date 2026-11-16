@@ -337,7 +337,8 @@
       "permissionDeniedDelete": "Permission denied to delete.",
       "failedToSetDefault": "Failed to set default vehicle.",
       "permissionDeniedDefault": "Permission denied to update defaults.",
-      "deleteConfirm": "Are you sure? This won't delete logs but will un-link them."
+      "deleteConfirm": "Are you sure? This won't delete logs but will un-link them.",
+      "vehicleHasLogs": "This vehicle has {{count}} fuel logs. Archive it instead to keep its history."
     },
     "notifications": {
       "heading": "Notifications",

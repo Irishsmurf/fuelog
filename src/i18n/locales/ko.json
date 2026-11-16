@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "삭제 권한이 거부되었습니다.",
       "failedToSetDefault": "기본 차량 설정에 실패했습니다.",
       "permissionDeniedDefault": "기본값 업데이트 권한이 거부되었습니다.",
-      "deleteConfirm": "확실합니까? 기록은 삭제되지 않지만 연결이 해제됩니다."
+      "deleteConfirm": "확실합니까? 기록은 삭제되지 않지만 연결이 해제됩니다.",
+      "vehicleHasLogs": "이 차량에는 주유 기록이 {{count}}건 있습니다. 기록을 유지하려면 삭제 대신 보관하세요."
     },
     "notifications": {
       "heading": "알림",

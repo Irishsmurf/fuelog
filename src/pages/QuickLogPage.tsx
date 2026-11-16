@@ -1,6 +1,7 @@
 // src/pages/QuickLogPage.tsx
 import React, { JSX, useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
-import { collection, addDoc, Timestamp, query, where, getDocs, QuerySnapshot, DocumentData } from "firebase/firestore";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { fetchRecentBrands } from '../data/logs';
 import { db, analytics } from '../firebase/config';
 import { logEvent } from 'firebase/analytics';
 import { useAuth } from '../context/AuthContext';
@@ -241,15 +242,7 @@ function QuickLogPage(): JSX.Element {
     const fetchBrands = async () => {
       setIsLoadingBrands(true);
       try {
-        const q = query(collection(db, "fuelLogs"), where("userId", "==", user.uid));
-        const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(q);
-        const brands = new Set<string>();
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.brand && data.brand.toLowerCase() !== 'unknown') { brands.add(data.brand.trim()); }
-        });
-        const sortedBrands = Array.from(brands).sort((a, b) => a.localeCompare(b));
-        setKnownBrands(sortedBrands);
+        setKnownBrands(await fetchRecentBrands(user.uid));
       } catch (error) { console.error("Error fetching known brands:", error); }
       finally { setIsLoadingBrands(false); }
     };

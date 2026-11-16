@@ -1,7 +1,7 @@
 // Fuel-log reads for list views and exports. Pure Firestore access (no React)
 // so it can be unit-tested and shared by hooks.
 import {
-  collection, query, where, orderBy, getDocs, limit, startAfter, Timestamp,
+  collection, query, where, orderBy, getDocs, limit, startAfter, Timestamp, getCountFromServer,
   type QueryConstraint, type QueryDocumentSnapshot, type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
@@ -113,4 +113,28 @@ export async function fetchAllLogs(userId: string, filters: LogFilters): Promise
     if (!page.nextCursor) return { logs: all, truncated: false };
     cursor = page.nextCursor;
   }
+}
+
+/**
+ * Distinct brands from the user's most recent logs, for autocomplete.
+ * Bounded: the previous implementation downloaded every log the user had.
+ */
+export async function fetchRecentBrands(userId: string, recent = 200): Promise<string[]> {
+  const snap = await getDocs(query(
+    collection(db, 'fuelLogs'), where('userId', '==', userId), orderBy('timestamp', 'desc'), limit(recent),
+  ));
+  const brands = new Set<string>();
+  snap.docs.forEach(d => {
+    const brand = (d.data() as { brand?: string }).brand;
+    if (isRealBrand(brand)) brands.add(brand!.trim());
+  });
+  return [...brands].sort((a, b) => a.localeCompare(b));
+}
+
+/** How many logs reference a vehicle (server count; needs a connection). */
+export async function countVehicleLogs(userId: string, vehicleId: string): Promise<number> {
+  const snap = await getCountFromServer(query(
+    collection(db, 'fuelLogs'), where('userId', '==', userId), where('vehicleId', '==', vehicleId),
+  ));
+  return snap.data().count;
 }

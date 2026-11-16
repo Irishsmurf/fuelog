@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getDocs, startAfter } from 'firebase/firestore';
-import { fetchLogsPage, fetchAllLogs, MAX_EXPORT_LOGS } from '../logs';
+import { fetchLogsPage, fetchAllLogs, fetchRecentBrands, MAX_EXPORT_LOGS } from '../logs';
+import { limit } from 'firebase/firestore';
 
 vi.mock('../../firebase/config', () => ({ db: {} }));
 vi.mock('@sentry/react', () => ({ captureMessage: vi.fn() }));
@@ -91,5 +92,16 @@ describe('fetchAllLogs (exports)', () => {
     const { logs, truncated } = await fetchAllLogs('u1', {});
     expect(logs).toHaveLength(MAX_EXPORT_LOGS);
     expect(truncated).toBe(true);
+  });
+});
+
+describe('fetchRecentBrands', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('reads a bounded window of recent logs and returns sorted distinct brands', async () => {
+    makeLogs(1000, i => ['Shell', 'Esso', 'Unknown', 'Applegreen'][i % 4]);
+    const brands = await fetchRecentBrands('u1', 200);
+    expect(brands).toEqual(['Applegreen', 'Esso', 'Shell']);
+    expect(vi.mocked(limit)).toHaveBeenCalledWith(200);
   });
 });

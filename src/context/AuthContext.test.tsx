@@ -1,7 +1,7 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { onSnapshot } from 'firebase/firestore';
+import { onSnapshot, setDoc } from 'firebase/firestore';
 import { AuthProvider, useAuth } from './AuthContext';
 import { signInWithGoogle as mockSignInWithGoogle, logout as mockLogout } from '../firebase/config';
 
@@ -30,6 +30,8 @@ vi.mock('firebase/analytics', async (importOriginal) => {
         setUserProperties: vi.fn(),
     };
 });
+
+vi.mock('@sentry/react', () => ({ captureMessage: vi.fn() }));
 
 vi.mock('../firebase/config', () => ({
     auth: {},
@@ -182,6 +184,51 @@ describe('AuthContext', () => {
         fireEvent.click(screen.getByText('Sign out'));
 
         expect(mockLogout).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops the previous user\'s profile listener when switching accounts', async () => {
+        let emitAuth: (u: User | null) => void = () => {};
+        vi.mocked(onAuthStateChanged).mockImplementation((_auth, callback) => {
+            emitAuth = callback as (u: User | null) => void;
+            return vi.fn();
+        });
+        const unsubs: ReturnType<typeof vi.fn>[] = [];
+        vi.mocked(onSnapshot).mockImplementation(() => {
+            const u = vi.fn();
+            unsubs.push(u);
+            return u;
+        });
+
+        render(<AuthProvider><TestComponent /></AuthProvider>);
+        emitAuth({ uid: 'user-a' } as User);
+        emitAuth({ uid: 'user-b' } as User);
+
+        await waitFor(() => expect(unsubs).toHaveLength(2));
+        expect(unsubs[0]).toHaveBeenCalledTimes(1); // A's listener is gone
+        expect(unsubs[1]).not.toHaveBeenCalled();    // B's is live
+    });
+
+    it('updateProfile merges only the changed fields', async () => {
+        vi.mocked(onAuthStateChanged).mockImplementation((_auth, callback) => {
+            (callback as (u: User | null) => void)({ uid: 'user-1' } as User);
+            return vi.fn();
+        });
+        vi.mocked(onSnapshot).mockImplementation((_ref, onNext) => {
+            (onNext as (snap: { id: string; exists: () => boolean; data: () => unknown }) => void)({
+                id: 'user-1', exists: () => true, data: () => ({ homeCurrency: 'USD', tester_group: false, monthlyBudget: 100 }),
+            });
+            return vi.fn();
+        });
+        const Save = () => {
+            const { updateProfile, profile } = useAuth();
+            return profile ? <button onClick={() => updateProfile({ monthlyBudget: 200 })}>save</button> : null;
+        };
+
+        render(<AuthProvider><Save /></AuthProvider>);
+        fireEvent.click(await screen.findByRole('button', { name: 'save' }));
+        await waitFor(() => expect(setDoc).toHaveBeenCalled());
+
+        expect(setDoc).toHaveBeenCalledWith(undefined, { monthlyBudget: 200 }, { merge: true });
     });
 
     it('throws when useAuth is used outside of an AuthProvider', () => {

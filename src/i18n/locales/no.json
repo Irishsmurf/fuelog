@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "Tilgang nektet for sletting.",
       "failedToSetDefault": "Kunne ikke sette standard kjøretøy.",
       "permissionDeniedDefault": "Tilgang nektet for å oppdatere standardinnstillinger.",
-      "deleteConfirm": "Er du sikker? Dette sletter ikke logger, men fjerner koblingen til dem."
+      "deleteConfirm": "Er du sikker? Dette sletter ikke logger, men fjerner koblingen til dem.",
+      "vehicleHasLogs": "Dette kjøretøyet har {{count}} tankinger. Arkiver det i stedet for å beholde historikken."
     },
     "notifications": {
       "heading": "Varsler",

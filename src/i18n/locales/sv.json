@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "Åtkomst nekad för radering.",
       "failedToSetDefault": "Misslyckades med att ställa in standardfordon.",
       "permissionDeniedDefault": "Åtkomst nekad för att uppdatera standardinställningar.",
-      "deleteConfirm": "Är du säker? Detta raderar inte loggar men tar bort kopplingen till dem."
+      "deleteConfirm": "Är du säker? Detta raderar inte loggar men tar bort kopplingen till dem.",
+      "vehicleHasLogs": "Det här fordonet har {{count}} tankningar. Arkivera det i stället för att behålla historiken."
     },
     "notifications": {
       "heading": "Aviseringar",

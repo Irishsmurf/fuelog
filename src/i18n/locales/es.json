@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "Permiso denegado para eliminar.",
       "failedToSetDefault": "Error al establecer el vehículo predeterminado.",
       "permissionDeniedDefault": "Permiso denegado para actualizar los valores predeterminados.",
-      "deleteConfirm": "¿Estás seguro? No se eliminarán los registros, pero se desvincularan."
+      "deleteConfirm": "¿Estás seguro? No se eliminarán los registros, pero se desvincularan.",
+      "vehicleHasLogs": "Este vehículo tiene {{count}} registros de repostaje. Archívalo para conservar su historial."
     },
     "notifications": {
       "heading": "Notificaciones",

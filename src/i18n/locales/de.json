@@ -328,7 +328,8 @@
       "permissionDeniedDelete": "Zugriff zum Löschen verweigert.",
       "failedToSetDefault": "Fehler beim Festlegen des Standardfahrzeugs.",
       "permissionDeniedDefault": "Zugriff zur Aktualisierung der Standards verweigert.",
-      "deleteConfirm": "Sind Sie sicher? Einträge werden nicht gelöscht, aber die Verknüpfung wird aufgehoben."
+      "deleteConfirm": "Sind Sie sicher? Einträge werden nicht gelöscht, aber die Verknüpfung wird aufgehoben.",
+      "vehicleHasLogs": "Dieses Fahrzeug hat {{count}} Tankeinträge. Archiviere es stattdessen, um den Verlauf zu behalten."
     },
     "notifications": {
       "heading": "Benachrichtigungen",

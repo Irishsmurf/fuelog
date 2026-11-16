@@ -11,59 +11,23 @@ interface ApiToken {
   expiresAt?: Timestamp | null;
 }
 
-type VehicleFuelType = 'Petrol' | 'Diesel' | 'Hybrid' | 'Electric';
+import type { z } from 'zod';
+import type { VehicleFuelType } from '@fuelog/core';
+import type { fuelLogSchema, vehicleSchema, stationSchema } from '../firebase/converters';
 
-interface Vehicle {
-    id: string;
-    userId: string;
-    name: string; // Nickname for the vehicle
-    make: string;
-    model: string;
-    year: string; // Kept as string for easier form handling, though numeric in usage
-    fuelType: VehicleFuelType;
-    isDefault: boolean;
-    isArchived?: boolean; // Multi-vehicle support: Archive rentals/sold cars
-}
+// Persisted document types are derived from the shared @fuelog/core schemas
+// (see src/firebase/converters.ts), so types and runtime validation can't drift.
 
-interface FuelLogData {
-    userId: string;
-    timestamp: Timestamp;
-    brand?: string; // Made optional
-    cost: number; // This will now represent the cost in HOME currency (e.g., EUR)
-    distanceKm: number;
-    fuelAmountLiters: number;
-    latitude?: number;
-    longitude?: number;
-    locationAccuracy?: number;
-    odometerKm?: number;
-    
-    // Multi-currency support
-    currency?: string;          // e.g., "GBP"
-    originalCost?: number;      // Amount in the transaction currency
-    exchangeRate?: number;      // Rate used: 1 Transaction Currency = X Home Currency
+/** A fuel log as stored in Firestore. `cost` is in the user's HOME currency. */
+type FuelLogData = z.output<typeof fuelLogSchema>;
 
-    // Multi-vehicle support
-    vehicleId?: string;         // Link to the vehicle (optional for backward compatibility)
-    receiptUrl?: string;        // Optional URL for fuel receipt image (Cloud Storage)
-    stationId?: string;         // Link to the Station document
-  }
-
-  interface Station {
-    id: string;               // Firestore Document ID
-    osmId: string;            // OpenStreetMap ID
-    name: string;             // Station Name (e.g., "Shell")
-    brand?: string;           // Station Brand (e.g., "Shell")
-    latitude: number;
-    longitude: number;
-    address?: string;         // Optional formatted address
-    lastPrice?: number;       // Last price logged at this station
-    avgPrice?: number;        // Average price logged at this station
-    logCount: number;         // Total logs for this station
-}
-
-  interface Log extends FuelLogData {
+interface Log extends FuelLogData {
     id: string;
 }
+
+type Vehicle = z.output<typeof vehicleSchema> & { id: string };
+
+type Station = z.output<typeof stationSchema> & { id: string };
 
 // Defines the structure of data points prepared specifically for the Recharts library
 interface ChartDataPoint {

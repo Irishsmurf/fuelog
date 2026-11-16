@@ -8,15 +8,18 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
 jobs:
-  deploy-and-verify:
-    name: Deploy & Verify
-    # Pinned: Playwright 1.56 cannot install browser deps on ubuntu-latest (26.04).
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+      previous_id: ${{ steps.pre_deploy.outputs.previous_id }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
@@ -39,10 +42,9 @@ jobs:
       - name: Capture Previous Deployment ID
         id: pre_deploy
         run: |
-          # Fetch the latest production deployment ID using Vercel REST API
-          PREV_DEPLOYMENT_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&target=production&limit=1" | jq -r '.deployments[0].uid')
-          echo "PREV_DEPLOYMENT_ID=$PREV_DEPLOYMENT_ID" >> $GITHUB_ENV
-          echo "Found previous deployment: $PREV_DEPLOYMENT_ID"
+          PREV=$(curl -s -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" "https://api.vercel.com/v6/deployments?projectId=${{ secrets.VERCEL_PROJECT_ID }}&target=production&limit=1" | jq -r '.deployments[0].uid')
+          echo "previous_id=$PREV" >> "$GITHUB_OUTPUT"
+          echo "Found previous deployment: $PREV"
 
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
@@ -50,31 +52,29 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         id: deploy
         run: |
-          NEW_DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
-          echo "NEW_DEPLOYMENT_URL=$NEW_DEPLOYMENT_URL" >> $GITHUB_ENV
-          echo "Deployed to: $NEW_DEPLOYMENT_URL"
+          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed to: $URL"
 
-      - name: Install Playwright Browsers
-        timeout-minutes: 10
-        run: npx playwright install --with-deps chromium
-
-      - name: Run Playwright Smoke Tests
-        id: smoke_tests
-        run: |
-          # Passing the newly generated production URL to Playwright
-          BASE_URL=$NEW_DEPLOYMENT_URL npx playwright test --project=chromium --grep @smoke
-
-      - name: Rollback on Failure
-        if: failure() && steps.smoke_tests.outcome == 'failure'
-        run: |
-          if [ "$PREV_DEPLOYMENT_ID" != "null" ] && [ -n "$PREV_DEPLOYMENT_ID" ]; then
-            echo "Smoke tests failed! Rolling back to $PREV_DEPLOYMENT_ID..."
-            vercel rollback $PREV_DEPLOYMENT_ID --yes --token=${{ secrets.VERCEL_TOKEN }}
-          else
-            echo "Could not determine previous deployment ID for rollback."
-            exit 1
-          fi
-
+  smoke:
+    name: Smoke Test (deployment)
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Browsers come preinstalled in the official image (no `playwright install`,
+    # which hung on hosted runners). Keep the tag in sync with @playwright/test.
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: npm ci
+      - name: Run smoke tests against the new deployment
+        run: npx playwright test --project=chromium --grep @smoke
+        env:
+          CI: true
+          HOME: /root
+          BASE_URL: ${{ needs.deploy.outputs.url }}
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
         if: always()
@@ -82,3 +82,25 @@ jobs:
           name: playwright-smoke-report
           path: playwright-report/
           retention-days: 30
+
+  rollback:
+    name: Rollback on smoke failure
+    needs: [deploy, smoke]
+    # Only when the smoke tests themselves failed (not when cancelled/skipped).
+    if: failure() && needs.smoke.result == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Roll back to the previous production deployment
+        env:
+          PREV: ${{ needs.deploy.outputs.previous_id }}
+        run: |
+          if [ "$PREV" != "null" ] && [ -n "$PREV" ]; then
+            echo "Smoke tests failed! Rolling back to $PREV..."
+            vercel rollback "$PREV" --yes --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            echo "Could not determine previous deployment ID for rollback."
+            exit 1
+          fi

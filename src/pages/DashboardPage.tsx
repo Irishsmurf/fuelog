@@ -2,6 +2,7 @@
 import { JSX, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { fetchVehicles } from '../firebase/firestoreService';
 import {
     BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
@@ -59,14 +60,11 @@ function DashboardPage(): JSX.Element {
         if (!user) { setVehicles([]); return; }
         let cancelled = false;
 
-        const fetchVehicles = async () => {
+        const loadVehicles = async () => {
             try {
-                const q = query(collection(db, 'vehicles'), where('userId', '==', user.uid));
-                const snap = await getDocs(q);
+                const list = await fetchVehicles(user.uid);
                 if (cancelled) return;
-                const list: Vehicle[] = [];
-                snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Vehicle));
-                setVehicles(list.filter(v => !v.isArchived));
+                setVehicles(list);
             } catch (err) {
                 if (cancelled) return;
                 console.error('Error fetching vehicles:', err);
@@ -77,7 +75,7 @@ function DashboardPage(): JSX.Element {
                 );
             }
         };
-        fetchVehicles();
+        loadVehicles();
 
         return () => { cancelled = true; };
     }, [user, t]);

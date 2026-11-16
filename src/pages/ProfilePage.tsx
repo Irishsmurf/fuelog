@@ -1,5 +1,6 @@
 import { JSX, useState, useEffect, ChangeEvent, FormEvent, useCallback } from 'react';
-import { collection, addDoc, query, where, getDocs, deleteDoc, doc, writeBatch, updateDoc } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, writeBatch, updateDoc } from "firebase/firestore";
+import { fetchVehicles } from '../firebase/firestoreService';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { Vehicle, VehicleFuelType } from '../utils/types';
@@ -31,17 +32,11 @@ function ProfilePage(): JSX.Element {
     name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol' as VehicleFuelType, isDefault: false
   });
 
-  const fetchVehicles = useCallback(async () => {
+  const loadVehicles = useCallback(async () => {
     if (!user) return;
     setIsLoading(true);
     try {
-      const q = query(collection(db, "vehicles"), where("userId", "==", user.uid));
-      const querySnapshot = await getDocs(q);
-      const vehicleList: Vehicle[] = [];
-      querySnapshot.forEach((doc) => {
-        vehicleList.push({ id: doc.id, ...doc.data() } as Vehicle);
-      });
-      setVehicles(vehicleList.sort((a, b) => (a.name || '').localeCompare(b.name || '')));
+      setVehicles(await fetchVehicles(user.uid, { includeArchived: true }));
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     } finally {
@@ -49,7 +44,7 @@ function ProfilePage(): JSX.Element {
     }
   }, [user]);
 
-  useEffect(() => { fetchVehicles(); }, [fetchVehicles]);
+  useEffect(() => { loadVehicles(); }, [loadVehicles]);
 
   // Seed the budget input from the loaded profile (0/unset renders as an empty field).
   useEffect(() => {
@@ -95,7 +90,7 @@ function ProfilePage(): JSX.Element {
 
       setMessage({ type: 'success', text: t('profile.messages.vehicleAdded') });
       setFormData({ name: '', make: '', model: '', year: new Date().getFullYear().toString(), fuelType: 'Petrol', isDefault: false });
-      fetchVehicles();
+      loadVehicles();
     } catch (err: unknown) {
       console.error("Error adding vehicle:", err);
       const error = err as { code?: string };
@@ -112,7 +107,7 @@ function ProfilePage(): JSX.Element {
     if (!window.confirm(t('profile.messages.deleteConfirm'))) return;
     try {
       await deleteDoc(doc(db, "vehicles", id));
-      fetchVehicles();
+      loadVehicles();
     } catch (err: unknown) {
       console.error("Error deleting vehicle:", err);
       const error = err as { code?: string };
@@ -134,7 +129,7 @@ function ProfilePage(): JSX.Element {
       }
 
       await updateDoc(doc(db, "vehicles", vehicle.id), updates);
-      fetchVehicles();
+      loadVehicles();
     } catch (err: unknown) {
       console.error("Error archiving vehicle:", err);
     }
@@ -148,7 +143,7 @@ function ProfilePage(): JSX.Element {
         batch.update(doc(db, "vehicles", v.id), { isDefault: v.id === vehicle.id });
       });
       await batch.commit();
-      fetchVehicles();
+      loadVehicles();
     } catch (err: unknown) {
       console.error("Error setting default vehicle:", err);
       const error = err as { code?: string };

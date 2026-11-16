@@ -237,6 +237,7 @@
       "confirm": "Radera detta logginlägg? Denna åtgärd kan inte ångras."
     },
     "loadError": "Misslyckades med att ladda bränslehistorik. Kontrollera din anslutning och försök igen.",
+    "exportError": "Det gick inte att läsa in poster för export. Försök igen.",
     "deleteError": "Misslyckades med att radera logginlägget. Försök igen.",
     "updateError": "Misslyckades med att uppdatera loggen. Försök igen.",
     "lifetimeStats": {

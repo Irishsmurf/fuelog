@@ -237,6 +237,7 @@
       "confirm": "Slett denne loggoppføringen? Denne handlingen kan ikke angres."
     },
     "loadError": "Kunne ikke laste drivstoffhistorikk. Vennligst sjekk tilkoblingen din og prøv igjen.",
+    "exportError": "Kunne ikke laste inn oppføringer for eksport. Prøv igjen.",
     "deleteError": "Kunne ikke slette loggoppføringen. Prøv igjen.",
     "updateError": "Kunne ikke oppdatere loggen. Prøv igjen.",
     "lifetimeStats": {

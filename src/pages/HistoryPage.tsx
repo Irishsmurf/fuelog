@@ -1,12 +1,9 @@
 // src/pages/HistoryPage.tsx
-import { JSX, useState, useEffect, useMemo, useCallback, useRef, ChangeEvent, FormEvent } from 'react';
+import { JSX, useState, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
+import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 // Import Firestore functions for reading, updating, and deleting documents
-import {
-    collection, query, where, orderBy, getDocs, limit, startAfter,
-    doc, deleteDoc, updateDoc, DocumentData, QueryDocumentSnapshot,
-    QueryConstraint, Timestamp
-} from "firebase/firestore";
+import { doc, deleteDoc, updateDoc, Timestamp } from "firebase/firestore";
 // Import Firebase config and Auth hook
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +25,7 @@ import LocationPicker, { PickerCoords } from '../components/LocationPicker';
 import { fetchUserStations, fetchVehicles } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
 import ReceiptModal from '../components/ReceiptModal';
+import { fetchLogsPage, fetchAllLogs, DEFAULT_PAGE_SIZE, type LogFilters, type LogsPage, type LogCursor } from '../data/logs';
 
 // --- React Component ---
 function HistoryPage(): JSX.Element {
@@ -47,10 +45,9 @@ function HistoryPage(): JSX.Element {
     const receiptDigitizationEnabled = getBoolean("receiptDigitizationEnabled");
     const odometerInputEnabled = getBoolean("odometerInputEnabled");
 
-    const [logs, setLogs] = useState<Log[]>([]); // Holds the array of ALL fetched fuel logs for the user
     const [stations, setStations] = useState<Station[]>([]); // Holds station info
-    const [isLoading, setIsLoading] = useState<boolean>(true); // Tracks if logs are currently being fetched
-    const [error, setError] = useState<string | null>(null); // Stores any error message during data fetching
+    const [stationError, setStationError] = useState<string | null>(null);
+    const [isExporting, setIsExporting] = useState<boolean>(false);
     const [copyStatus, setCopyStatus] = useState<'idle' | 'copying' | 'copied' | 'failed' | 'noData' | 'unavailable'>('idle'); // Manages the text/state of the copy button
 
     // --- Multi-Vehicle State ---
@@ -73,13 +70,6 @@ function HistoryPage(): JSX.Element {
     const [filterEndDate, setFilterEndDate] = useState<string>('');     // Format: YYYY-MM-DD
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
     const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
-
-    // --- Pagination State ---
-    const PAGE_SIZE = 25;
-    const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
-    const [hasMore, setHasMore] = useState<boolean>(true);
-    const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
-    const requestSeq = useRef(0);
 
     // --- Fetch Vehicles Effect ---
     useEffect(() => {
@@ -111,102 +101,61 @@ function HistoryPage(): JSX.Element {
         // but initial load should be correct.
     }, []);
 
-    // --- Paginated Fetch Function ---
-    const fetchLogs = useCallback(async (loadMore = false) => {
-        if (!user) return;
-        const currentSeq = ++requestSeq.current;
-        if (loadMore) { setIsLoadingMore(true); } else { setIsLoading(true); }
-        setError(null);
+    // --- Paginated logs (TanStack Query) ---
+    // The brand filter is part of the query: fetchLogsPage keeps scanning
+    // until a page is full of matches, so "Load More" never disappears just
+    // because the first raw page had no logs for that brand.
+    const filters: LogFilters = useMemo(() => ({
+        vehicleId: filterVehicleId || undefined,
+        startDate: filterStartDate || undefined,
+        endDate: filterEndDate || undefined,
+        brand: filterBrand || undefined,
+    }), [filterVehicleId, filterStartDate, filterEndDate, filterBrand]);
 
-        try {
-            const constraints: QueryConstraint[] = [
-                where("userId", "==", user.uid),
-                orderBy("timestamp", "desc"),
-            ];
+    const queryClient = useQueryClient();
+    const logsQueryKey = useMemo(() => ['logs', user?.uid, filters] as const, [user?.uid, filters]);
+    const logsQuery = useInfiniteQuery({
+        queryKey: logsQueryKey,
+        enabled: !!user,
+        initialPageParam: null as LogCursor | null,
+        queryFn: ({ pageParam }) => fetchLogsPage(user!.uid, filters, pageParam, DEFAULT_PAGE_SIZE),
+        getNextPageParam: (last) => last.nextCursor ?? undefined,
+    });
 
-            if (filterVehicleId) {
-                constraints.push(where("vehicleId", "==", filterVehicleId));
-            }
-            if (filterStartDate) {
-                const [y, m, d] = filterStartDate.split('-').map(Number);
-                const start = new Date(y, m - 1, d, 0, 0, 0, 0);
-                constraints.push(where("timestamp", ">=", Timestamp.fromDate(start)));
-            }
-            if (filterEndDate) {
-                const [y, m, d] = filterEndDate.split('-').map(Number);
-                const end = new Date(y, m - 1, d, 23, 59, 59, 999);
-                constraints.push(where("timestamp", "<=", Timestamp.fromDate(end)));
-            }
+    const logs: Log[] = useMemo(() => logsQuery.data?.pages.flatMap(p => p.logs) ?? [], [logsQuery.data]);
+    const hasMore = !!logsQuery.hasNextPage;
+    const isLoading = !!user && logsQuery.isPending;
+    const isLoadingMore = logsQuery.isFetchingNextPage;
+    const listError = logsQuery.isError
+        ? (!navigator.onLine
+            ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
+            : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' }))
+        : null;
+    const error = listError ?? stationError;
 
-            if (loadMore && lastDoc) {
-                constraints.push(startAfter(lastDoc));
-            }
-            constraints.push(limit(PAGE_SIZE));
-
-            const q = query(collection(db, "fuelLogs"), ...constraints);
-            const snapshot = await getDocs(q);
-
-            if (currentSeq !== requestSeq.current) return;
-
-            const newLogs: Log[] = [];
-            const brands = new Set<string>();
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data() as FuelLogData;
-                newLogs.push({ id: docSnap.id, ...data });
-                if (data.brand && data.brand.toLowerCase() !== 'unknown') {
-                    brands.add(data.brand.trim());
-                }
-            });
-
-            if (loadMore) {
-                setLogs(prev => [...prev, ...newLogs]);
-            } else {
-                setLogs(newLogs);
-            }
-
-            setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
-            setHasMore(snapshot.docs.length === PAGE_SIZE);
-            setUniqueBrands(prev => {
-                const merged = new Set([...prev, ...brands]);
-                return Array.from(merged).sort((a, b) => a.localeCompare(b));
-            });
-        } catch (err) {
-            if (currentSeq !== requestSeq.current) return;
-            console.error("Error fetching fuel logs:", err);
-            setError(
-                !navigator.onLine
-                    ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
-                    : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' })
-            );
-        } finally {
-            if (currentSeq === requestSeq.current) {
-                setIsLoading(false);
-                setIsLoadingMore(false);
-            }
-        }
-    }, [user, filterVehicleId, filterStartDate, filterEndDate, lastDoc, t]);
-
-    // Reset and re-fetch when user or filters change
-    const [fetchKey, setFetchKey] = useState(0);
+    // Brands seen so far feed the filter dropdown; reset when the underlying
+    // log set (vehicle / date range) changes.
+    useEffect(() => { setUniqueBrands(prev => (prev.length ? [] : prev)); }, [user?.uid, filterVehicleId, filterStartDate, filterEndDate]);
     useEffect(() => {
-        setLastDoc(null);
-        setHasMore(true);
-        setLogs([]);
-        setUniqueBrands([]);
-        setFetchKey(k => k + 1);
-    }, [user, filterVehicleId, filterStartDate, filterEndDate]);
+        const seen = logsQuery.data?.pages.flatMap(p => p.brands) ?? [];
+        if (seen.length === 0) return;
+        setUniqueBrands(prev => Array.from(new Set([...prev, ...seen])).sort((a, b) => a.localeCompare(b)));
+    }, [logsQuery.data]);
 
-    useEffect(() => {
-        if (user) fetchLogs(false);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fetchKey]);
+    /** Applies a local change to every cached page of the current list. */
+    const updateCachedLogs = (fn: (logs: Log[]) => Log[]) => {
+        queryClient.setQueryData<InfiniteData<LogsPage, LogCursor | null>>(logsQueryKey, data => data && {
+            ...data,
+            pages: data.pages.map(p => ({ ...p, logs: fn(p.logs) })),
+        });
+    };
 
     // --- Fetch Stations Effect ---
     useEffect(() => {
         if (logs.length > 0) {
-            fetchUserStations(logs).then(setStations).catch(err => {
+            fetchUserStations(logs).then(stations => { setStations(stations); setStationError(null); }).catch(err => {
                 console.error('Error fetching stations:', err);
-                setError(
+                setStationError(
                     !navigator.onLine
                         ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
                         : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' })
@@ -220,10 +169,8 @@ function HistoryPage(): JSX.Element {
     // --- Filtering Logic using useMemo ---
     // Creates a memoized array of logs based on the current filter state.
     // This avoids re-filtering on every render unless logs or filters change.
-    const filteredLogs = useMemo(() => {
-        if (!filterBrand) return logs;
-        return logs.filter(log => log.brand === filterBrand);
-    }, [logs, filterBrand]);
+    // Brand filtering happens in the query (see fetchLogsPage).
+    const filteredLogs = logs;
 
     const vehicleMap = useMemo(() => {
         const map: Record<string, string> = {};
@@ -251,18 +198,33 @@ function HistoryPage(): JSX.Element {
         };
     }, [filteredLogs]);
 
-    // --- Copy Table Data Function (Uses filteredLogs) ---
-    // Formats the *currently filtered* logs as TSV and copies to clipboard.
+    /**
+     * Every log matching the current filters — not just the pages loaded on
+     * screen — so "All History" exports really contain all history.
+     */
+    const loadLogsForExport = async (): Promise<Log[]> => {
+        if (!user) return [];
+        if (!hasMore) return filteredLogs;
+        const { logs: all, truncated } = await fetchAllLogs(user.uid, filters);
+        if (truncated) console.warn(`Export truncated to ${all.length} logs.`);
+        return all;
+    };
+
+    // --- Copy Table Data Function ---
+    // Formats all logs matching the filters as TSV and copies to clipboard.
     const copyTableData = async () => {
         if (!filteredLogs || filteredLogs.length === 0) { setCopyStatus('noData'); setTimeout(() => setCopyStatus('idle'), 2000); return; }
         if (!navigator.clipboard || !navigator.clipboard.writeText) { setCopyStatus('unavailable'); setTimeout(() => setCopyStatus('idle'), 3000); console.error('Clipboard API not available.'); return; }
         setCopyStatus('copying');
+        let exportLogs: Log[];
+        try { exportLogs = await loadLogsForExport(); }
+        catch (err) { console.error('Failed to load logs for export:', err); setCopyStatus('failed'); setTimeout(() => setCopyStatus('idle'), 2000); return; }
         const headers = [
             "Date", "Vehicle", "Brand",
             `Cost (${homeCurrency})`, "Odometer (Km)", "Distance (Km)", "Fuel (L)",
             "km/L", "L/100km", "MPG (UK)", `Cost/Mile (${homeCurrency})`
         ].join('\t');
-        const dataRows = filteredLogs.map(log => {
+        const dataRows = exportLogs.map(log => {
             const date = log.timestamp?.toDate();
             const dateStr = date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : '';
             const vehicleStr = (vehicleMap[log.vehicleId || ''] || '').replace(/\t|\n|\r/g, ' ');
@@ -282,14 +244,27 @@ function HistoryPage(): JSX.Element {
         try { await navigator.clipboard.writeText(tsvString); setCopyStatus('copied'); } catch (err) { console.error('Failed to copy data to clipboard:', err); setCopyStatus('failed'); } finally { setTimeout(() => setCopyStatus('idle'), 2000); }
     };
 
-    const handleDownloadPDF = () => {
-        if (filteredLogs.length === 0) return;
+    const handleDownloadPDF = async () => {
+        if (filteredLogs.length === 0 || isExporting) return;
+        setIsExporting(true);
+        let exportLogs: Log[];
+        try { exportLogs = await loadLogsForExport(); }
+        catch (err) {
+            console.error('Failed to load logs for export:', err);
+            alert(t('history.exportError', { defaultValue: 'Failed to load logs for export. Please try again.' }));
+            setIsExporting(false);
+            return;
+        }
         const dateRangeText = filterStartDate && filterEndDate 
             ? `${filterStartDate} to ${filterEndDate}`
             : filterStartDate ? `Since ${filterStartDate}` : filterEndDate ? `Until ${filterEndDate}` : "All History";
         
         const vehicleName = filterVehicleId ? vehicleMap[filterVehicleId] : "All Vehicles";
-        exportLogsToPDF(filteredLogs, user?.displayName || user?.email || "User", dateRangeText, vehicleName, homeCurrency, homeCurrencySymbol);
+        try {
+            exportLogsToPDF(exportLogs, user?.displayName || user?.email || "User", dateRangeText, vehicleName, homeCurrency, homeCurrencySymbol);
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     // --- Delete Function ---
@@ -300,7 +275,7 @@ function HistoryPage(): JSX.Element {
             try {
                 const logRef = doc(db, "fuelLogs", logId);
                 await deleteDoc(logRef);
-                setLogs(prev => prev.filter(l => l.id !== logId));
+                updateCachedLogs(prev => prev.filter(l => l.id !== logId));
             } catch (error) {
                 console.error("Error deleting document: ", error);
                 alert(t('history.deleteError', { defaultValue: 'Failed to delete log entry.' }));
@@ -404,9 +379,12 @@ function HistoryPage(): JSX.Element {
             }
             updatedData.timestamp = editedTimestamp;
             await updateDoc(logRef, updatedData);
-            setLogs(prev => prev.map(l => l.id === editingLog.id ? { ...l, ...updatedData } : l)
+            const editedId = editingLog.id;
+            updateCachedLogs(prev => prev.map(l => l.id === editedId ? { ...l, ...updatedData } : l)
                 .filter(l => !filterVehicleId || l.vehicleId === filterVehicleId)
             );
+            // A changed date can move the log within (or out of) the list; refetch in the background.
+            queryClient.invalidateQueries({ queryKey: ['logs', user?.uid] });
             handleCloseModal();
         } catch (error) { console.error("Error updating document: ", error); setModalError(t('history.updateError', { defaultValue: 'Failed to update log. Please try again.' })); }
         finally { setIsUpdating(false); }
@@ -518,7 +496,7 @@ function HistoryPage(): JSX.Element {
                     <div className="flex space-x-2">
                         <button 
                             onClick={handleDownloadPDF} 
-                            disabled={filteredLogs.length === 0} 
+                            disabled={filteredLogs.length === 0 || isExporting} 
                             className="px-3 py-1.5 text-xs font-medium rounded-md shadow-sm transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {t('history.exportPdf')}
@@ -634,7 +612,7 @@ function HistoryPage(): JSX.Element {
                 {!isLoading && !error && hasMore && filteredLogs.length > 0 && (
                     <div className="text-center mt-6">
                         <button
-                            onClick={() => fetchLogs(true)}
+                            onClick={() => logsQuery.fetchNextPage()}
                             disabled={isLoadingMore}
                             className="px-6 py-2 text-sm font-medium rounded-md shadow-sm bg-indigo-100 dark:bg-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-600 disabled:opacity-50 transition duration-150"
                         >

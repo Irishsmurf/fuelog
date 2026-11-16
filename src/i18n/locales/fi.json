@@ -237,6 +237,7 @@
       "confirm": "Poistetaanko tämä merkintä? Toimintoa ei voi peruuttaa."
     },
     "loadError": "Historian lataus epäonnistui. Tarkista yhteys ja yritä uudelleen.",
+    "exportError": "Merkintöjen lataaminen vientiä varten epäonnistui. Yritä uudelleen.",
     "deleteError": "Merkinnän poisto epäonnistui. Yritä uudelleen.",
     "updateError": "Login päivitys epäonnistui. Yritä uudelleen.",
     "lifetimeStats": {

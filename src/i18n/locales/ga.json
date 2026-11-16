@@ -237,6 +237,7 @@
       "confirm": "An iontráil logála seo a scriosadh? Ní féidir an gníomh seo a chealú."
     },
     "loadError": "Theip ar stair breosla a lódáil. Seiceáil do nasc le do thoil agus déan iarracht arís.",
+    "exportError": "Theip ar na hiontrálacha a lódáil le haghaidh easpórtála. Bain triail eile as.",
     "deleteError": "Theip ar an iontráil a scriosadh. Déan iarracht arís le do thoil.",
     "updateError": "Theip ar an iontráil a nuashonrú. Déan iarracht arís le do thoil.",
     "lifetimeStats": {

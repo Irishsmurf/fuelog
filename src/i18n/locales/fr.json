@@ -237,6 +237,7 @@
       "confirm": "Supprimer cette saisie ? Cette action est irréversible."
     },
     "loadError": "Échec du chargement de l'historique. Vérifiez votre connexion et réessayez.",
+    "exportError": "Impossible de charger les entrées pour l'export. Veuillez réessayer.",
     "deleteError": "Échec de la suppression de la saisie. Veuillez réessayer.",
     "updateError": "Échec de la mise à jour. Veuillez réessayer.",
     "lifetimeStats": {

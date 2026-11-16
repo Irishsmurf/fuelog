@@ -13,18 +13,61 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    // Helper: the existing doc belongs to the caller and an update keeps it that
+    // way. Without the second check a user could re-assign their own document
+    // (or API token) to another uid.
+    function ownsAndKeepsOwnership() {
+      return isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Helper: an optional field is either absent or of the expected type.
+    function optNumber(d, k) { return d.get(k, 0) is number; }
+    function optString(d, k) { return d.get(k, '') is string; }
+
+    // Shape checks applied to every write of a fuel log (create and update).
+    // Optional fields are type-checked only when present so legacy documents
+    // remain editable.
+    function validLogFields(d) {
+      return d.userId is string
+        && optNumber(d, 'cost')
+        && optNumber(d, 'distanceKm')
+        && optNumber(d, 'fuelAmountLiters')
+        && optNumber(d, 'odometerKm')
+        && optNumber(d, 'originalCost')
+        && optNumber(d, 'exchangeRate')
+        && optNumber(d, 'latitude')
+        && optNumber(d, 'longitude')
+        && optNumber(d, 'locationAccuracy')
+        && optString(d, 'vehicleId')
+        && optString(d, 'stationId')
+        && optString(d, 'brand')
+        && optString(d, 'currency')
+        && optString(d, 'receiptUrl')
+        && (!d.keys().hasAny(['timestamp']) || d.timestamp is timestamp);
+    }
+
     // Fuel logs: users can only read/write their own entries
     match /fuelLogs/{logId} {
-      allow read, update, delete: if isAuthenticated()
+      allow read, delete: if isAuthenticated()
         && resource.data.userId == request.auth.uid;
+      allow update: if ownsAndKeepsOwnership()
+        && validLogFields(request.resource.data);
       allow create: if isAuthenticated()
-        && request.resource.data.userId == request.auth.uid;
+        && request.resource.data.userId == request.auth.uid
+        && validLogFields(request.resource.data)
+        && request.resource.data.cost is number
+        && request.resource.data.distanceKm is number
+        && request.resource.data.fuelAmountLiters is number
+        && request.resource.data.timestamp is timestamp;
     }
 
     // Vehicles: users can only read/write their own vehicles
     match /vehicles/{vehicleId} {
-      allow read, update, delete: if isAuthenticated()
+      allow read, delete: if isAuthenticated()
         && resource.data.userId == request.auth.uid;
+      allow update: if ownsAndKeepsOwnership();
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid;
     }
@@ -36,26 +79,60 @@ service cloud.firestore {
 
     // API tokens: users can manage their own tokens.
     // Only the SHA-256 hash is stored — the raw token never touches Firestore.
+    // Tokens are immutable once created; the only client-side change allowed is
+    // revoking (isRevoked: true). lastUsedAt is written by the server via the
+    // Admin SDK, which bypasses these rules.
     match /apiTokens/{tokenId} {
-      allow read, update, delete: if isAuthenticated()
+      allow read, delete: if isAuthenticated()
         && resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRevoked'])
+        && request.resource.data.isRevoked == true;
       allow create: if isAuthenticated()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.isRevoked == false
         && request.resource.data.tokenHash is string
-        && request.resource.data.tokenHash.size() == 64;  // SHA-256 hex = 64 chars
+        && request.resource.data.tokenHash.size() == 64  // SHA-256 hex = 64 chars
+        && request.resource.data.scopes is list
+        && request.resource.data.scopes.hasOnly(['read:logs', 'write:logs', 'read:vehicles', 'write:vehicles'])
+        && (request.resource.data.get('expiresAt', null) == null
+            || request.resource.data.expiresAt is timestamp);
     }
 
-    // Stations: global collection of petrol stations
+    // Stations: global collection of petrol stations, shared by all users.
+    // Until station stats move to a server-side trigger, clients may only
+    // create a station with zeroed stats and then fold exactly one new price
+    // into the running average per write. The submitted average must match
+    // the one implied by the previous state, so a client cannot set an
+    // arbitrary avgPrice or logCount.
+    function plausiblePrice(p) {
+      // Upper bound is loose because the price is in the user's home currency
+      // (e.g. ~1,700 KRW per litre).
+      return p is number && p > 0 && p < 100000;
+    }
+
+    function isSingleMetricsIncrement() {
+      let before = resource.data;
+      let after = request.resource.data;
+      let n = before.get('logCount', 0);
+      let expectedAvg = (before.get('avgPrice', 0) * n + after.lastPrice) / (n + 1);
+      return after.diff(before).affectedKeys().hasOnly(['logCount', 'avgPrice', 'lastPrice'])
+        && after.logCount == n + 1
+        && plausiblePrice(after.lastPrice)
+        && after.avgPrice is number
+        && math.abs(after.avgPrice - expectedAvg) < 0.0001;
+    }
+
     match /stations/{stationId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated()
         && request.resource.data.osmId is string
-        && request.resource.data.name is string;
-      allow update: if isAuthenticated()
-        && request.resource.data.osmId == resource.data.osmId // Prevent changing OSM ID
-        && request.resource.data.logCount is number
-        && request.resource.data.avgPrice is number;
+        && request.resource.data.name is string
+        && request.resource.data.logCount == 0
+        && request.resource.data.avgPrice == 0
+        && !request.resource.data.keys().hasAny(['lastPrice']);
+      allow update: if isAuthenticated() && isSingleMetricsIncrement();
     }
 
     // FCM tokens: users can only read/write their own push notification tokens.

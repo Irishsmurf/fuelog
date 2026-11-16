@@ -229,7 +229,8 @@ const FuelMap: React.FC<FuelMapProps> = ({ groups, points, viewMode, currencySym
     const control = new maplibregl.NavigationControl({ showCompass: false });
     map.addControl(control, 'bottom-left');
     return () => {
-      map.removeControl(control);
+      // map.remove() (the map unmounting first) already detached it.
+      if (map.hasControl(control)) map.removeControl(control);
     };
   }, [map]);
 

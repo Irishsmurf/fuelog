@@ -138,6 +138,12 @@ describe('LocationPicker', () => {
     await waitFor(() => expect(onChange).toHaveBeenCalledWith({ latitude: 40, longitude: -70 }));
   });
 
+  it('unmounts cleanly (as when the edit modal closes)', () => {
+    const { unmount } = render(<LocationPicker value={{ latitude: 53.3, longitude: -6.2 }} onChange={vi.fn()} />);
+    expect(() => unmount()).not.toThrow();
+    expect(mapInstances[0].removed).toBe(true);
+  });
+
   it('does not change anything when current location is unavailable', async () => {
     getCurrentPosition.mockResolvedValue(null);
     const onChange = vi.fn();

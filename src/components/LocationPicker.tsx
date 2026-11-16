@@ -56,7 +56,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, defaul
     map.on('click', onClick);
     return () => {
       map.off('click', onClick);
-      map.removeControl(control);
+      // map.remove() (the map unmounting first) already detached it.
+      if (map.hasControl(control)) map.removeControl(control);
     };
   }, [map]);
 

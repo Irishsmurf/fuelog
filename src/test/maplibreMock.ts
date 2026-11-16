@@ -117,7 +117,16 @@ export class MockMap extends Evented {
     this.controls.push({ control, position });
     return this;
   }
+  hasControl(control: unknown) {
+    return this.controls.some(c => c.control === control);
+  }
   removeControl(control: unknown) {
+    // Like maplibre-gl: the control's onRemove dereferences the map it was
+    // added to, so removing one that is no longer attached (e.g. after
+    // map.remove() already detached every control) throws.
+    if (!this.hasControl(control)) {
+      throw new TypeError("Cannot read properties of undefined (reading 'off')");
+    }
     this.controls = this.controls.filter(c => c.control !== control);
     return this;
   }
@@ -157,6 +166,8 @@ export class MockMap extends Evented {
     return this.canvas;
   }
   remove() {
+    // maplibre-gl's remove() calls onRemove on, and drops, every control.
+    this.controls = [];
     this.removed = true;
   }
 

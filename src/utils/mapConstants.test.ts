@@ -20,30 +20,13 @@ describe('mapConstants', () => {
   });
 
   describe('with an API key configured', () => {
-    it('appends the key to the raster tile URLs as ?key=', async () => {
-      const { MAP_TILES } = await loadWithKey('test-key-123');
-
-      expect(MAP_TILES.light).toBe(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=test-key-123'
-      );
-      expect(MAP_TILES.dark).toBe(
-        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=test-key-123'
-      );
-    });
-
-    it('leaves Leaflet URL placeholders unescaped', async () => {
-      const { MAP_TILES } = await loadWithKey('test-key-123');
-
-      // A URL-encoding pass would turn these into %7Bs%7D and silently break
-      // subdomain sharding and tile addressing.
-      expect(MAP_TILES.light).toContain('{s}');
-      expect(MAP_TILES.light).toContain('{z}/{x}/{y}{r}');
-    });
-
     it('escapes characters that would otherwise break the query string', async () => {
-      const { MAP_TILES } = await loadWithKey('a key&b=c');
+      const { cartoTransformRequest } = await loadWithKey('a key&b=c');
 
-      expect(MAP_TILES.light).toContain('?key=a%20key%26b%3Dc');
+      const result = cartoTransformRequest('https://basemaps.cartocdn.com/gl/positron-gl-style/style.json');
+
+      expect(new URL(result!.url).searchParams.get('key')).toBe('a key&b=c');
+      expect(result?.url).not.toContain('&b=c');
     });
 
     it('adds the key to CARTO requests via transformRequest', async () => {
@@ -107,15 +90,6 @@ describe('mapConstants', () => {
   });
 
   describe('without an API key', () => {
-    it('falls back to the keyless raster URLs', async () => {
-      const { MAP_TILES } = await loadWithKey(undefined);
-
-      expect(MAP_TILES.light).toBe(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
-      );
-      expect(MAP_TILES.light).not.toContain('key=');
-    });
-
     it('leaves CARTO requests untouched so vector still renders', async () => {
       const { cartoTransformRequest } = await loadWithKey(undefined);
 
@@ -133,10 +107,34 @@ describe('mapConstants', () => {
   });
 
   it('credits both OpenStreetMap and CARTO, as the free tier requires', async () => {
-    const { MAP_ATTRIBUTION, MAP_TILES } = await loadWithKey('test-key-123');
+    const { MAP_ATTRIBUTION } = await loadWithKey('test-key-123');
 
     expect(MAP_ATTRIBUTION).toContain('OpenStreetMap');
     expect(MAP_ATTRIBUTION).toContain('CARTO');
-    expect(MAP_TILES.attribution).toBe(MAP_ATTRIBUTION);
+  });
+
+  describe('station markers', () => {
+    it('renders an amber marker for a known station and grey for an unassigned one', async () => {
+      const { stationMarkerSvg, STATION_COLOR, UNASSIGNED_STATION_COLOR } = await loadWithKey(undefined);
+
+      expect(stationMarkerSvg(false)).toContain(`fill="${STATION_COLOR}"`);
+      expect(stationMarkerSvg(true)).toContain(`fill="${UNASSIGNED_STATION_COLOR}"`);
+    });
+
+    it('declares the requested pixel size, for high-DPI style images', async () => {
+      const { stationMarkerSvg, STATION_MARKER_SIZE } = await loadWithKey(undefined);
+
+      expect(stationMarkerSvg(false)).toContain(`width="${STATION_MARKER_SIZE}"`);
+      expect(stationMarkerSvg(false, 56)).toContain('width="56" height="56"');
+    });
+
+    it('builds a DOM element holding the marker SVG', async () => {
+      const { createStationMarkerElement, STATION_MARKER_SIZE } = await loadWithKey(undefined);
+
+      const el = createStationMarkerElement();
+      expect(el.className).toBe('fuelog-station-marker');
+      expect(el.style.width).toBe(`${STATION_MARKER_SIZE}px`);
+      expect(el.querySelector('svg')).not.toBeNull();
+    });
   });
 });

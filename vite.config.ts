@@ -203,12 +203,10 @@ export default defineConfig({
             if (id.includes('html2canvas')) return 'vendor-canvas';
             if (id.includes('dompurify')) return 'vendor-sanitize';
             if (id.includes('@google/genai')) return 'vendor-ai';
-            if (id.includes('leaflet.markercluster') || id.includes('react-leaflet-markercluster') || id.includes('leaflet.heat')) {
-              return null;
-            }
-            // maplibre-gl is a WebGL renderer pulled in only by VectorBasemap,
-            // which in turn only loads on map-bearing routes. Left in the
-            // catch-all vendor-libs chunk it would be downloaded by every page.
+            // maplibre-gl is a WebGL renderer imported only by the map
+            // components, which load only on map-bearing routes. Left in the
+            // catch-all vendor-libs chunk it would be downloaded by every page;
+            // as its own chunk it is also kept out of the precache (globIgnores).
             if (id.includes('maplibre')) return 'vendor-maplibre';
             return 'vendor-libs';
           }

@@ -196,33 +196,29 @@
   }
 }
 
-/* Dark mode map tiles */
-.dark .leaflet-tile-pane {
-    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-}
-
-/* Dark mode popup styles */
-.dark .leaflet-popup-content-wrapper,
-.dark .leaflet-popup-tip {
+/* Dark mode map popups (MapLibre). The basemap itself has a
+   dedicated dark style, so only the chrome drawn over it needs theming. */
+.dark .maplibregl-popup-content {
     background-color: #232532; /* Nocturne surface */
     color: #e9e9ed;
     border: 1px solid #3f424d;
 }
-
-/* Card Flip Animations */
-.perspective-1000 {
-  perspective: 1000px;
+.dark .maplibregl-popup-close-button {
+    color: #e9e9ed;
 }
-
-.preserve-3d {
-  transform-style: preserve-3d;
+.dark .maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.dark .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.dark .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+    border-top-color: #232532;
 }
-
-.backface-hidden {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+.dark .maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.dark .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.dark .maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+    border-bottom-color: #232532;
 }
-
-.rotate-y-180 {
-  transform: rotateY(180deg);
+.dark .maplibregl-popup-anchor-left .maplibregl-popup-tip {
+    border-right-color: #232532;
+}
+.dark .maplibregl-popup-anchor-right .maplibregl-popup-tip {
+    border-left-color: #232532;
 }

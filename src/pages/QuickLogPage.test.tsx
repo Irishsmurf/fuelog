@@ -8,7 +8,7 @@ import { findNearestStation, geocodeAddress, isAccurateEnoughForStationMatch } f
 import QuickLogPage from './QuickLogPage';
 import { MemoryRouter } from 'react-router-dom';
 
-// Stub the Leaflet-based picker so these tests don't mount a real map; the
+// Stub the MapLibre-based picker so these tests don't mount a real map; the
 // picker has its own unit tests. Exposes a button that reports a fixed pin.
 vi.mock('../components/LocationPicker', () => ({
   default: ({ onChange }: { onChange: (c: { latitude: number; longitude: number }) => void }) => (

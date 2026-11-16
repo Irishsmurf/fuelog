@@ -5,6 +5,7 @@ import StationDetail from '../StationDetail';
 import { Log } from '../../utils/types';
 import { Timestamp } from 'firebase/firestore';
 import { fetchFuelLogsByStationId, fetchStationById } from '../../firebase/firestoreService'; // Import the actual function for type inference with vi.mocked
+import { mapInstances, markerInstances, resetMapLibreMock } from '../../test/maplibreMock';
 
 vi.mock('../../hooks/useHomeCurrency', () => ({ useHomeCurrency: () => ({ code: 'EUR', symbol: '€' }) }));
 
@@ -42,17 +43,8 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// Mock react-leaflet to avoid map rendering issues in tests
-vi.mock('react-leaflet', () => ({
-  MapContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="map-container">{children}</div>,
-  Marker: () => <div data-testid="map-marker" />,
-}));
-
-// The vector basemap needs a real Leaflet map instance and a WebGL context,
-// neither of which jsdom provides.
-vi.mock('../VectorBasemap', () => ({
-  default: () => <div data-testid="vector-basemap" />,
-}));
+// jsdom has no WebGL, so MapLibre itself is replaced by a recording stub.
+vi.mock('maplibre-gl', () => import('../../test/maplibreMock'));
 
 // Mock Recharts components (simplified)
 vi.mock('recharts', () => ({
@@ -92,6 +84,7 @@ const mockLogs: Log[] = [
 describe('StationDetail', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetMapLibreMock();
     vi.mocked(fetchFuelLogsByStationId).mockReset(); // Reset the mock before each test
     vi.mocked(fetchFuelLogsByStationId).mockResolvedValue([]); // Default mock implementation
     vi.mocked(fetchStationById).mockReset();
@@ -263,10 +256,21 @@ describe('StationDetail', () => {
     render(<StationDetail stationId={mockStationId} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('map-container')).toBeInTheDocument();
-      expect(screen.getByTestId('map-marker')).toBeInTheDocument();
+      expect(screen.getByTestId('station-map')).toBeInTheDocument();
       expect(screen.queryByText('No location data available for this station.')).not.toBeInTheDocument();
     });
+
+    // A small static map, centred on the station, with the station's marker.
+    expect(mapInstances).toHaveLength(1);
+    const map = mapInstances[0];
+    expect(map.options.center).toEqual([-6.260310, 53.349805]);
+    expect(map.options.zoom).toBe(15);
+    expect(map.options.interactive).toBe(false);
+    expect(map.options.container).toBe(screen.getByTestId('station-map'));
+
+    const marker = markerInstances.find(m => m.map === map);
+    expect(marker?.getLngLat()).toEqual({ lng: -6.260310, lat: 53.349805 });
+    expect((marker?.options.element as HTMLElement).className).toBe('fuelog-station-marker');
   });
 
   it('shows a placeholder instead of a map when the station has no valid coordinates', async () => {
@@ -285,8 +289,9 @@ describe('StationDetail', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No location data available for this station.')).toBeInTheDocument();
-      expect(screen.queryByTestId('map-container')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('station-map')).not.toBeInTheDocument();
     });
+    expect(mapInstances).toHaveLength(0);
   });
 
   it('does not render a nested scroll container for the recent logs list', async () => {

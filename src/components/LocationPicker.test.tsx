@@ -1,32 +1,9 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { mapInstances, markerInstances, resetMapLibreMock } from '../test/maplibreMock';
 
-// Capture the map click handler registered via useMapEvents so tests can
-// simulate tapping the map to drop a pin.
-let capturedClick: ((e: { latlng: { lat: number; lng: number } }) => void) | undefined;
-const setView = vi.fn();
-
-vi.mock('react-leaflet', () => ({
-  MapContainer: ({ children }: { children: React.ReactNode }) => <div data-testid="map">{children}</div>,
-  Marker: ({ position, eventHandlers }: { position: [number, number]; eventHandlers?: { dragend?: (e: unknown) => void } }) => (
-    <div
-      data-testid="marker"
-      data-pos={JSON.stringify(position)}
-      onClick={() => eventHandlers?.dragend?.({ target: { getLatLng: () => ({ lat: 9, lng: 8 }) } })}
-    />
-  ),
-  useMap: () => ({ setView, getZoom: () => 13 }),
-  useMapEvents: (handlers: { click: (e: { latlng: { lat: number; lng: number } }) => void }) => {
-    capturedClick = handlers.click;
-    return null;
-  },
-}));
-
-// The vector basemap needs a real Leaflet map instance and a WebGL context,
-// neither of which jsdom provides.
-vi.mock('./VectorBasemap', () => ({
-  default: () => <div data-testid="vector-basemap" />,
-}));
+// jsdom has no WebGL, so MapLibre itself is replaced by a recording stub.
+vi.mock('maplibre-gl', () => import('../test/maplibreMock'));
 
 vi.mock('../context/ThemeContext', () => ({
   useTheme: () => ({ theme: 'light' }),
@@ -57,40 +34,99 @@ vi.mock('../utils/locationService', () => ({
 
 import LocationPicker from './LocationPicker';
 
+const liveMarkers = () => markerInstances.filter(m => !m.removed && m.map);
+
 describe('LocationPicker', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    capturedClick = undefined;
+    resetMapLibreMock();
   });
 
   it('renders a marker at the provided value and shows its coordinates', () => {
     render(<LocationPicker value={{ latitude: 53.34, longitude: -6.26 }} onChange={vi.fn()} />);
-    const marker = screen.getByTestId('marker');
-    expect(JSON.parse(marker.getAttribute('data-pos')!)).toEqual([53.34, -6.26]);
+    const markers = liveMarkers();
+    expect(markers).toHaveLength(1);
+    expect(markers[0].getLngLat()).toEqual({ lng: -6.26, lat: 53.34 });
+    expect(markers[0].options.draggable).toBe(true);
     const hint = screen.getByText(/tap or drag the pin to adjust/);
     expect(hint).toHaveTextContent('53.34000');
     expect(hint).toHaveTextContent('-6.26000');
   });
 
+  it('centres on the value, or the default centre when there is none', () => {
+    const { unmount } = render(<LocationPicker value={{ latitude: 53.34, longitude: -6.26 }} onChange={vi.fn()} />);
+    expect(mapInstances[0].options).toMatchObject({ center: [-6.26, 53.34], zoom: 15 });
+    unmount();
+    expect(mapInstances[0].removed).toBe(true);
+
+    render(<LocationPicker value={null} defaultCenter={{ latitude: 40, longitude: -70 }} onChange={vi.fn()} />);
+    expect(mapInstances[1].options).toMatchObject({ center: [-70, 40], zoom: 11 });
+  });
+
   it('shows the tap-to-place hint and no marker when there is no value', () => {
     render(<LocationPicker value={null} onChange={vi.fn()} />);
-    expect(screen.queryByTestId('marker')).not.toBeInTheDocument();
+    expect(liveMarkers()).toHaveLength(0);
     expect(screen.getByText(/Tap the map to drop a pin/)).toBeInTheDocument();
   });
 
   it('drops a pin when the map is clicked', () => {
     const onChange = vi.fn();
     render(<LocationPicker value={null} onChange={onChange} />);
-    expect(capturedClick).toBeDefined();
-    capturedClick!({ latlng: { lat: 1.23, lng: 4.56 } });
+    act(() => {
+      mapInstances[0].fire('click', { lngLat: { lat: 1.23, lng: 4.56 } });
+    });
     expect(onChange).toHaveBeenCalledWith({ latitude: 1.23, longitude: 4.56 });
+  });
+
+  it('calls the latest onChange after a re-render', () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const { rerender } = render(<LocationPicker value={null} onChange={first} />);
+    rerender(<LocationPicker value={null} onChange={second} />);
+    act(() => {
+      mapInstances[0].fire('click', { lngLat: { lat: 1, lng: 2 } });
+    });
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith({ latitude: 1, longitude: 2 });
   });
 
   it('updates coordinates when the marker is dragged', () => {
     const onChange = vi.fn();
     render(<LocationPicker value={{ latitude: 1, longitude: 2 }} onChange={onChange} />);
-    fireEvent.click(screen.getByTestId('marker')); // mock maps click -> dragend
+    const [marker] = liveMarkers();
+    marker.setLngLat([8, 9]);
+    act(() => {
+      marker.fire('dragend');
+    });
     expect(onChange).toHaveBeenCalledWith({ latitude: 9, longitude: 8 });
+  });
+
+  it('moves the pin and recentres when the value changes from outside', () => {
+    const { rerender } = render(<LocationPicker value={{ latitude: 1, longitude: 2 }} onChange={vi.fn()} />);
+    const map = mapInstances[0];
+    map.jumpTo.mockClear();
+
+    rerender(<LocationPicker value={{ latitude: 3, longitude: 4 }} onChange={vi.fn()} />);
+
+    expect(liveMarkers()).toHaveLength(1);
+    expect(liveMarkers()[0].getLngLat()).toEqual({ lng: 4, lat: 3 });
+    expect(map.jumpTo).toHaveBeenCalledWith({ center: [4, 3], zoom: 15 });
+  });
+
+  it('does not recentre when the parent re-renders with equal coordinates', () => {
+    const { rerender } = render(<LocationPicker value={{ latitude: 1, longitude: 2 }} onChange={vi.fn()} />);
+    const map = mapInstances[0];
+    map.jumpTo.mockClear();
+
+    rerender(<LocationPicker value={{ latitude: 1, longitude: 2 }} onChange={vi.fn()} />);
+
+    expect(map.jumpTo).not.toHaveBeenCalled();
+  });
+
+  it('removes the pin when the value is cleared', () => {
+    const { rerender } = render(<LocationPicker value={{ latitude: 1, longitude: 2 }} onChange={vi.fn()} />);
+    rerender(<LocationPicker value={null} onChange={vi.fn()} />);
+    expect(liveMarkers()).toHaveLength(0);
   });
 
   it('uses the current location when the button resolves a position', async () => {
@@ -100,6 +136,12 @@ describe('LocationPicker', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Use my location/ }));
     await waitFor(() => expect(onChange).toHaveBeenCalledWith({ latitude: 40, longitude: -70 }));
+  });
+
+  it('unmounts cleanly (as when the edit modal closes)', () => {
+    const { unmount } = render(<LocationPicker value={{ latitude: 53.3, longitude: -6.2 }} onChange={vi.fn()} />);
+    expect(() => unmount()).not.toThrow();
+    expect(mapInstances[0].removed).toBe(true);
   });
 
   it('does not change anything when current location is unavailable', async () => {

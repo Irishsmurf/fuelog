@@ -51,6 +51,15 @@ jobs:
       - name: Write functions params
         run: echo "DEV_NOTIFICATION_UIDS=${{ vars.DEV_NOTIFICATION_UIDS || 'none' }}" > functions/.env
 
+      # Keep old function container images from piling up (and failing the
+      # deploy, which errors when a region has no cleanup policy). Idempotent.
+      - name: Ensure artifact cleanup policies
+        run: |
+          for region in us-central1 europe-west1; do
+            firebase functions:artifacts:setpolicy --location "$region" --days 7 --force \
+              --project "${{ secrets.FIREBASE_PROJECT_ID }}" --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+          done
+
       # The functions predeploy hook (firebase.json) builds functions/lib.
       # Without --force, a deploy that would delete a function that exists in
       # the project but not in source fails loudly instead of deleting it.

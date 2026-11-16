@@ -13,6 +13,9 @@ updates:
       # Playwright is pinned to match the mcr.microsoft.com/playwright image
       # used by CI; bump both together by hand.
       - dependency-name: "@playwright/test"
+      # typescript-eslint supports TypeScript <6.1 only; revisit when it widens.
+      - dependency-name: "typescript"
+        versions: [">=6.1.0"]
     groups:
       firebase:
         patterns:
@@ -41,9 +44,9 @@ updates:
       # Types must match the Cloud Functions runtime (nodejs22 in firebase.json).
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
-      # TypeScript majors move together with the root project.
+      # TypeScript moves together with the root project (<6.1 for typescript-eslint).
       - dependency-name: "typescript"
-        update-types: ["version-update:semver-major"]
+        versions: [">=6.1.0"]
     groups:
       firebase:
         patterns:

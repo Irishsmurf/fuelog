@@ -13,8 +13,25 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
+  ci-gate:
+    name: Wait for Main CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/actions
+      - uses: ./.github/actions/wait-for-ci
+        with:
+          sha: ${{ github.sha }}
+          token: ${{ github.token }}
+
   deploy:
     name: Deploy
+    needs: ci-gate
     runs-on: ubuntu-latest
     timeout-minutes: 20
     outputs:

@@ -40,7 +40,7 @@ If you have the Vercel CLI installed:
     - **Output Directory:** `dist`
     - **Install Command:** `npm install`
 3.  Add the environment variables in the Vercel project settings.
-4.  Every push to the `main` branch will trigger a deployment.
+4.  Every push to the `main` branch triggers a deployment once Main CI (including the emulator E2E tests) has passed for that commit.
 
 ### 4. Configuration Highlights
 - **`vercel.json`:**

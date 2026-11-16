@@ -56,6 +56,9 @@ few Vercel serverless functions. Domain terms are defined in
 - **SPA and `api/`:** Vercel, deployed from GitHub Actions on push to `main`,
   then smoke-tested on the production domain and rolled back on failure.
 - **Rules, indexes and Functions:** the Firebase Deploy workflow on push to `main`.
+- **Gate:** both deploy workflows first wait for Main CI on the same commit
+  (lint, types, unit, rules, functions, smoke, emulator E2E) and deploy only if
+  it passed (`.github/actions/wait-for-ci`).
 - **Analytics:** `@vercel/analytics`; errors to Sentry.
 
 See [ADR 0006](adr/0006-deploy-pipeline.md).

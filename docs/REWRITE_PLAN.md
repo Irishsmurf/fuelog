@@ -22,6 +22,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
 - **Security:** REST and MCP enforce read scopes; REST refuses to delete a vehicle that still has logs (#303).
 - **Step 5, partly:** Remote Config removed; the flagged features (odometer, receipt AI, totals, extra dashboard charts, dark mode) are always on, and the app shell no longer waits on a network fetch.
 - **Step 5, partly:** only English ships in the entry chunk; other locales load on demand (entry chunk 462 KB → 295 KB).
+- **Step 6:** both deploy workflows wait for Main CI, including the emulator E2E job, and deploy only if it passed.
 
 **Remaining**
 - Step 1: `apps/web` and `apps/functions`; drop the `jose`/`uuid` overrides.
@@ -31,7 +32,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
   - OIDC instead of `FIREBASE_TOKEN`.
 - Step 4: move QuickLog, Profile/Vehicles and Dashboard onto the data layer (each under about 250 lines).
 - Step 5: MapLibre only ([ADR 0007](adr/0007-proposed-single-backend-maplibre-no-flags.md), proposed).
-- Step 6: make the emulator E2E job a gate on the Vercel and Firebase deploys (today it only runs in CI); rewrite the old `pdf_export`, `multi_vehicle` and `pwa` specs.
+- Step 6: rewrite the old `pdf_export`, `multi_vehicle` and `pwa` specs.
 - §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
 - Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).
 - §7 decisions were taken with the recommended defaults (see §7).

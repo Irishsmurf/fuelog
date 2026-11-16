@@ -17,7 +17,7 @@ vi.mock('./config', () => ({
 }));
 
 const setNotificationPermission = (requestPermission: () => Promise<NotificationPermission>) => {
-    Object.defineProperty(global, 'Notification', {
+    Object.defineProperty(globalThis, 'Notification', {
         value: { requestPermission },
         writable: true,
         configurable: true,

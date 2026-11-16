@@ -222,10 +222,12 @@ describe('stations', () => {
 });
 
 describe('server-only collections', () => {
-  it('denies all client access to budgetAlerts and testNotifications', async () => {
+  it('denies all client access to budgetAlerts, testNotifications and usageQuotas', async () => {
     const db = asUser(ALICE);
     await assertFails(setDoc(doc(db, `budgetAlerts/${ALICE}_2026-11`), { userId: ALICE }));
     await assertFails(getDoc(doc(db, `budgetAlerts/${ALICE}_2026-11`)));
     await assertFails(setDoc(doc(db, 'testNotifications/n1'), { userId: ALICE }));
+    await assertFails(setDoc(doc(db, `usageQuotas/${ALICE}_receipt_2026-11-16`), { uid: ALICE, count: 0 }));
+    await assertFails(getDoc(doc(db, `usageQuotas/${ALICE}_receipt_2026-11-16`)));
   });
 });

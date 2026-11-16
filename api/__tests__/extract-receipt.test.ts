@@ -1,10 +1,17 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { IncomingMessage, ServerResponse } from 'http';
 import { Readable } from 'stream';
-import handler from './extract-receipt.js';
+import handler from '../extract-receipt.js';
 
-vi.mock('../src/mcp/firebase-admin.js', () => ({
+vi.mock('../../src/mcp/firebase-admin.js', () => ({
   getAdminApp: vi.fn().mockReturnValue({}),
+  getAdminDb: vi.fn().mockReturnValue({}),
+}));
+
+const quota = vi.hoisted(() => ({ allowed: true }));
+vi.mock('../_quota.js', () => ({
+  consumeDailyQuota: vi.fn(async () => quota.allowed),
+  receiptDailyLimit: vi.fn(() => 50),
 }));
 
 vi.mock('firebase-admin/auth', () => ({
@@ -94,5 +101,31 @@ describe('api/extract-receipt handler', () => {
       purchaseTime: '14:30',
       address: 'Main St, Dublin',
     });
+  });
+
+  it('rejects unsupported image types with 415', async () => {
+    const req = createMockReq({ bodyData: JSON.stringify({ base64Data: 'abc', mimeType: 'application/pdf' }) });
+    const res = createMockRes();
+    await handler(req, res);
+    expect(res._statusCode).toBe(415);
+  });
+
+  it('rejects oversized payloads with 413', async () => {
+    const req = createMockReq({ bodyData: JSON.stringify({ base64Data: 'a'.repeat(4_500_001), mimeType: 'image/png' }) });
+    const res = createMockRes();
+    await handler(req, res);
+    expect(res._statusCode).toBe(413);
+  });
+
+  it('returns 429 once the daily quota is used up', async () => {
+    quota.allowed = false;
+    try {
+      const req = createMockReq({ bodyData: JSON.stringify({ base64Data: 'abc', mimeType: 'image/jpeg' }) });
+      const res = createMockRes();
+      await handler(req, res);
+      expect(res._statusCode).toBe(429);
+    } finally {
+      quota.allowed = true;
+    }
   });
 });

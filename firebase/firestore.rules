@@ -159,5 +159,11 @@ service cloud.firestore {
     match /testNotifications/{notificationId} {
       allow read, write: if false;
     }
+
+    // Per-user rate-limit counters (e.g. receipt scans), written only by the
+    // API via the Admin SDK. Clients must not be able to reset their quota.
+    match /usageQuotas/{quotaId} {
+      allow read, write: if false;
+    }
   }
 }

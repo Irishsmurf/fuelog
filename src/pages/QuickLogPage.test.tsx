@@ -111,7 +111,7 @@ describe('QuickLogPage', () => {
     vi.mocked(getLastOdometerReading).mockResolvedValue(null);
 
     mockGetCurrentPosition = vi.fn((_success, error) => error?.({ code: 1, message: 'denied' }));
-    Object.defineProperty(global.navigator, 'geolocation', {
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
       value: { getCurrentPosition: mockGetCurrentPosition },
       configurable: true,
     });

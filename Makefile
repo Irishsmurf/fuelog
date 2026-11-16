@@ -35,7 +35,7 @@ lint:
 	npm run lint
 
 typecheck:
-	npx tsc --noEmit
+	npx tsc -b
 
 build:
 	npm run build

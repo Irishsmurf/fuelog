@@ -29,6 +29,11 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+
+    /* Optional: point at a pre-installed browser (e.g. sandboxed dev boxes). */
+    ...(process.env.PW_EXECUTABLE_PATH && {
+      launchOptions: { executablePath: process.env.PW_EXECUTABLE_PATH },
+    }),
   },
 
   /* Configure projects for major browsers */
@@ -70,7 +75,8 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
+  /* Skipped when BASE_URL targets an existing deployment. */
+  webServer: process.env.BASE_URL ? undefined : {
     command: 'npm run preview -- --host --port 4173',
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,

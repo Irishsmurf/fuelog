@@ -37,7 +37,7 @@ Retrieve a list of your fuel logs, ordered by newest first.
       -H "Authorization: Bearer <your_token_here>"
     ```
 *   **Query Parameters:**
-    *   `limit` (optional): The maximum number of logs to return. Defaults to 100.
+    *   `limit` (optional): The maximum number of logs to return. Defaults to 100, capped at 500.
 *   **Required Scope:** `read:logs`
 *   **Response:**
     ```json
@@ -297,7 +297,7 @@ Get statistics like total spent, average efficiency, and total fuel consumed.
 
 ## Error Codes
 
-*   `400 Bad Request`: Missing required parameters, invalid JSON payload, or unsupported `type`.
+*   `400 Bad Request`: Missing required parameters, invalid JSON payload, unsupported `type`, or a body that fails validation (wrong types, out-of-range values, invalid dates). The `error` message names the offending fields. Only documented fields are written; anything else in the body (e.g. `userId`, `stationId`) is ignored.
 *   `401 Unauthorized`: Missing or invalid `Authorization` header. Token might be revoked.
 *   `403 Forbidden`: Token does not have the required scope for the action.
 *   `404 Not Found`: The requested log or vehicle does not exist, or does not belong to the user.

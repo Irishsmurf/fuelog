@@ -17,11 +17,11 @@ describe('locationService', () => {
     beforeEach(() => {
         vi.resetAllMocks();
         // Mock global fetch
-        global.fetch = vi.fn();
+        globalThis.fetch = vi.fn();
     });
 
     it('returns null when Overpass API returns no elements', async () => {
-        vi.mocked(global.fetch).mockResolvedValue({
+        vi.mocked(globalThis.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({ elements: [] })
         } as Response);
@@ -48,7 +48,7 @@ describe('locationService', () => {
             ]
         };
 
-        vi.mocked(global.fetch).mockResolvedValue({
+        vi.mocked(globalThis.fetch).mockResolvedValue({
             ok: true,
             json: async () => mockOsmData
         } as Response);
@@ -63,7 +63,7 @@ describe('locationService', () => {
     });
 
     it('falls back to brand or operator if name is missing', async () => {
-        vi.mocked(global.fetch).mockResolvedValue({
+        vi.mocked(globalThis.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({
                 elements: [
@@ -86,7 +86,7 @@ describe('locationService', () => {
     });
 
     it('handles way-type stations with centers', async () => {
-        vi.mocked(global.fetch).mockResolvedValue({
+        vi.mocked(globalThis.fetch).mockResolvedValue({
             ok: true,
             json: async () => ({
                 elements: [
@@ -106,7 +106,7 @@ describe('locationService', () => {
     });
 
     it('throws on API error so callers can surface a warning', async () => {
-        vi.mocked(global.fetch).mockResolvedValue({
+        vi.mocked(globalThis.fetch).mockResolvedValue({
             ok: false,
             status: 500
         } as Response);
@@ -129,7 +129,7 @@ describe('locationService', () => {
                 })
             } as Response);
 
-        global.fetch = mockFetch;
+        globalThis.fetch = mockFetch;
 
         const result = await findNearestStation(53.3, -6.2);
         
@@ -141,11 +141,11 @@ describe('locationService', () => {
 describe('geocodeAddress', () => {
     beforeEach(() => {
         vi.resetAllMocks();
-        global.fetch = vi.fn();
+        globalThis.fetch = vi.fn();
     });
 
     it('returns coordinates for the first Nominatim match', async () => {
-        vi.mocked(global.fetch).mockResolvedValue({
+        vi.mocked(globalThis.fetch).mockResolvedValue({
             ok: true,
             json: async () => ([{ lat: '53.3498', lon: '-6.2603' }]),
         } as Response);
@@ -157,11 +157,11 @@ describe('geocodeAddress', () => {
     it('returns null for an empty query without calling the API', async () => {
         const result = await geocodeAddress('   ');
         expect(result).toBeNull();
-        expect(global.fetch).not.toHaveBeenCalled();
+        expect(globalThis.fetch).not.toHaveBeenCalled();
     });
 
     it('returns null when no results are found', async () => {
-        vi.mocked(global.fetch).mockResolvedValue({
+        vi.mocked(globalThis.fetch).mockResolvedValue({
             ok: true,
             json: async () => ([]),
         } as Response);
@@ -170,7 +170,7 @@ describe('geocodeAddress', () => {
     });
 
     it('returns null on a network/API error', async () => {
-        vi.mocked(global.fetch).mockRejectedValue(new Error('network down'));
+        vi.mocked(globalThis.fetch).mockRejectedValue(new Error('network down'));
         expect(await geocodeAddress('anywhere')).toBeNull();
     });
 });

@@ -22,6 +22,7 @@ export function registerFuelLogTools(server: McpServer, userId: string, identity
       brand: z.string().optional().describe('Filter by fuel station brand (case-insensitive partial match)'),
     },
   }, async ({ limit = 100, vehicleId, startDate, endDate, brand }) => {
+    if (!hasScope(identity, 'read:logs')) return UNAUTHORIZED;
     const db = getAdminDb();
     let q = db.collection('fuelLogs')
       .where('userId', '==', userId)

@@ -57,3 +57,22 @@ describe('MCP list_logs', () => {
     expect(logs).toHaveLength(7);
   });
 });
+
+describe('MCP read scopes', () => {
+  it('list_logs refuses a token without read:logs', async () => {
+    const tools: Record<string, ToolHandler> = {};
+    const server = { registerTool: (name: string, _def: unknown, fn: ToolHandler) => { tools[name] = fn; } };
+    registerFuelLogTools(server as unknown as McpServer, 'u1', { userId: 'u1', scopes: ['write:logs'], tokenId: 't' });
+    const result = await tools.list_logs({ limit: 5 }) as unknown as { isError?: boolean };
+    expect(result.isError).toBe(true);
+  });
+
+  it('createMcpServer exposes no log/vehicle resources to a write-only token', async () => {
+    const { createMcpServer } = await import('../server.js');
+    const writeOnly = createMcpServer({ userId: 'u1', scopes: ['write:logs', 'write:vehicles'], tokenId: 't' });
+    const full = createMcpServer({ userId: 'u1', scopes: ['read:logs', 'read:vehicles'], tokenId: 't' });
+    const names = (s: unknown) => Object.keys((s as { _registeredResources: Record<string, unknown> })._registeredResources ?? {});
+    expect(names(writeOnly)).not.toContain('fuelog://logs');
+    expect(names(full)).toContain('fuelog://logs');
+  });
+});

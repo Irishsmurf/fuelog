@@ -181,4 +181,51 @@ describe('REST API input validation', () => {
     await handler(makeReq('GET', '/api/rest?type=analytics&startDate=garbage'), res);
     expect(res.writeHead).toHaveBeenCalledWith(400, expect.anything());
   });
+
+  describe('read scopes and vehicle deletes', () => {
+    const scopesOnly = async (granted: string[]) => {
+      const { hasScope } = await import('../../src/mcp/auth.js');
+      vi.mocked(hasScope).mockImplementation((_id, scope) => granted.includes(scope));
+    };
+
+    it('rejects reading logs without read:logs (write-only token)', async () => {
+      await scopesOnly(['write:logs']);
+      const res = makeRes();
+      await handler(makeReq('GET', '/api/rest?type=logs'), res);
+      expect(res.writeHead).toHaveBeenCalledWith(403, expect.anything());
+      expect(collection.get).not.toHaveBeenCalled();
+    });
+
+    it('rejects reading vehicles without read:vehicles', async () => {
+      await scopesOnly(['read:logs', 'write:vehicles']);
+      const res = makeRes();
+      await handler(makeReq('GET', '/api/rest?type=vehicles'), res);
+      expect(res.writeHead).toHaveBeenCalledWith(403, expect.anything());
+    });
+
+    it('rejects analytics without read:logs', async () => {
+      await scopesOnly(['read:vehicles']);
+      const res = makeRes();
+      await handler(makeReq('GET', '/api/rest?type=analytics'), res);
+      expect(res.writeHead).toHaveBeenCalledWith(403, expect.anything());
+    });
+
+    it('allows reading logs with read:logs', async () => {
+      await scopesOnly(['read:logs']);
+      const res = makeRes();
+      await handler(makeReq('GET', '/api/rest?type=logs'), res);
+      expect(res.writeHead).toHaveBeenCalledWith(200, expect.anything());
+    });
+
+    it('refuses to delete a vehicle that still has logs (409)', async () => {
+      await scopesOnly(['write:vehicles']);
+      const del = vi.fn();
+      (docRef as unknown as { delete: typeof del }).delete = del;
+      (collection as unknown as { count: () => unknown }).count = () => ({ get: async () => ({ data: () => ({ count: 3 }) }) });
+      const res = makeRes();
+      await handler(makeReq('DELETE', '/api/rest?type=vehicles&id=v1'), res);
+      expect(res.writeHead).toHaveBeenCalledWith(409, expect.anything());
+      expect(del).not.toHaveBeenCalled();
+    });
+  });
 });

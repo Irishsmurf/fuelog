@@ -114,6 +114,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
 
     if (type === 'logs') {
       if (req.method === 'GET') {
+        if (!hasScope(identity, 'read:logs')) {
+          return sendResponse(res, 403, { error: 'Missing read:logs scope' });
+        }
         const limit = parseLimit(url.searchParams.get('limit'));
 
         const q = db.collection('fuelLogs').where('userId', '==', userId).orderBy('timestamp', 'desc').limit(limit);
@@ -174,6 +177,9 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       }
     } else if (type === 'vehicles') {
        if (req.method === 'GET') {
+          if (!hasScope(identity, 'read:vehicles')) {
+            return sendResponse(res, 403, { error: 'Missing read:vehicles scope' });
+          }
           const includeArchived = url.searchParams.get('includeArchived') === 'true';
           const snapshot = await db.collection('vehicles').where('userId', '==', userId).get();
           let vehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServerVehicle));
@@ -245,11 +251,21 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
            if (!doc.exists || doc.data()?.userId !== userId) {
              return sendResponse(res, 404, { error: 'Vehicle not found' });
            }
+           // Deleting a vehicle that still has logs would orphan them.
+           const logCount = (await db.collection('fuelLogs')
+             .where('userId', '==', userId).where('vehicleId', '==', id)
+             .count().get()).data().count;
+           if (logCount > 0) {
+             return sendResponse(res, 409, { error: `Vehicle has ${logCount} fuel logs; archive it instead (PUT isArchived: true)` });
+           }
            await docRef.delete();
            return sendResponse(res, 200, { success: true });
        }
     } else if (type === 'analytics') {
        if (req.method === 'GET') {
+          if (!hasScope(identity, 'read:logs')) {
+            return sendResponse(res, 403, { error: 'Missing read:logs scope' });
+          }
           const vehicleId = url.searchParams.get('vehicleId');
           const startDate = url.searchParams.get('startDate');
           const endDate = url.searchParams.get('endDate');

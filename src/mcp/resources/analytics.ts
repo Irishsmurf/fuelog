@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { getAdminDb } from '../firebase-admin.js';
-import { calcMPG, calcKmL, calcL100km, calcFuelPrice } from '../calculations.js';
+import { mpgUK, kmPerLitre, litresPer100km, pricePerLitre } from '../../../packages/core/src/index.js';
 import type { ServerLog, AnalyticsSummary, MonthlyDataPoint, VehicleStats } from '../types.js';
 
 async function fetchAllLogs(userId: string): Promise<ServerLog[]> {
@@ -33,11 +33,11 @@ function computeSummary(logs: ServerLog[], homeCurrency: string): AnalyticsSumma
     totalFuelLiters: Math.round(totalFuelLiters * 100) / 100,
     totalDistanceKm: Math.round(totalDistanceKm * 100) / 100,
     averageEfficiency: {
-      kml: calcKmL(totalDistanceKm, totalFuelLiters),
-      l100km: calcL100km(totalDistanceKm, totalFuelLiters),
-      mpg: calcMPG(totalDistanceKm, totalFuelLiters),
+      kml: kmPerLitre(totalDistanceKm, totalFuelLiters),
+      l100km: litresPer100km(totalDistanceKm, totalFuelLiters),
+      mpg: mpgUK(totalDistanceKm, totalFuelLiters),
     },
-    averageCostPerLiter: calcFuelPrice(totalSpent, totalFuelLiters),
+    averageCostPerLiter: pricePerLitre(totalSpent, totalFuelLiters),
     dateRange: {
       from: sorted[0]?.timestamp?.toDate?.()?.toISOString()?.slice(0, 10) ?? null,
       to: sorted[sorted.length - 1]?.timestamp?.toDate?.()?.toISOString()?.slice(0, 10) ?? null,
@@ -66,8 +66,8 @@ function computeMonthly(logs: ServerLog[]): MonthlyDataPoint[] {
         totalLiters: Math.round(totalLiters * 100) / 100,
         totalDistanceKm: Math.round(totalDistanceKm * 100) / 100,
         logCount: monthLogs.length,
-        avgEfficiencyKml: calcKmL(totalDistanceKm, totalLiters),
-        avgCostPerLiter: calcFuelPrice(totalSpent, totalLiters),
+        avgEfficiencyKml: kmPerLitre(totalDistanceKm, totalLiters),
+        avgCostPerLiter: pricePerLitre(totalSpent, totalLiters),
       };
     });
 }
@@ -90,9 +90,9 @@ function computeVehicleStats(logs: ServerLog[], vehicleMap: Map<string, string>)
       totalSpent: Math.round(totalSpent * 100) / 100,
       totalLiters: Math.round(totalLiters * 100) / 100,
       totalDistanceKm: Math.round(totalDistanceKm * 100) / 100,
-      avgEfficiencyKml: calcKmL(totalDistanceKm, totalLiters),
-      avgMpg: calcMPG(totalDistanceKm, totalLiters),
-      avgCostPerLiter: calcFuelPrice(totalSpent, totalLiters),
+      avgEfficiencyKml: kmPerLitre(totalDistanceKm, totalLiters),
+      avgMpg: mpgUK(totalDistanceKm, totalLiters),
+      avgCostPerLiter: pricePerLitre(totalSpent, totalLiters),
     };
   });
 }

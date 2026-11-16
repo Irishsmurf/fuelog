@@ -278,7 +278,7 @@ function HistoryPage(): JSX.Element {
             const kmLStr = formatKmL(log.distanceKm, log.fuelAmountLiters);
             const l100kmStr = formatL100km(log.distanceKm, log.fuelAmountLiters);
             const mpgStr = formatMPG(log.distanceKm, log.fuelAmountLiters);
-            const costPerMileRaw = formatCostPerMile(log.cost, log.distanceKm);
+            const costPerMileRaw = formatCostPerMile(log.cost, log.distanceKm, homeCurrencySymbol);
             const costPerMileStr = ['N/A', 'Error'].includes(costPerMileRaw) ? costPerMileRaw : costPerMileRaw.replace(/^[^\d]+/, '');
             return [dateStr, vehicleStr, brandStr, costStr, odometerStr, distanceKmStr, fuelLitersStr, kmLStr, l100kmStr, mpgStr, costPerMileStr].join('\t');
         });
@@ -568,7 +568,7 @@ function HistoryPage(): JSX.Element {
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{formatCostPerMile(log.cost, log.distanceKm)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{formatCostPerMile(log.cost, log.distanceKm, homeCurrencySymbol)}</td>
                                             
                                             {/* Receipt Thumbnail Column */}
                                             {receiptDigitizationEnabled && (

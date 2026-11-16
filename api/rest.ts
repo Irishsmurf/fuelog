@@ -4,7 +4,9 @@ import { validateToken, hasScope } from '../src/mcp/auth.js';
 import { getAdminDb } from '../src/mcp/firebase-admin.js';
 import { Timestamp, AggregateField } from 'firebase-admin/firestore';
 import { log } from './_logger.js';
-import { calcMPG, calcKmL, calcL100km, calcFuelPrice } from '../src/mcp/calculations.js';
+// Relative import (not '@fuelog/core'): Vercel compiles api/ itself and is
+// known to follow relative .ts imports; server code moves to Functions in step 3.
+import { mpgUK, kmPerLitre, litresPer100km, pricePerLitre } from '../packages/core/src/index.js';
 import type { ServerLog, ServerVehicle } from '../src/mcp/types.js';
 import type { z } from 'zod';
 import {
@@ -287,11 +289,11 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
             totalFuelLiters: Math.round(totalLiters * 100) / 100,
             totalDistanceKm: Math.round(totalKm * 100) / 100,
             efficiency: {
-              kml: calcKmL(totalKm, totalLiters),
-              l100km: calcL100km(totalKm, totalLiters),
-              mpgUK: calcMPG(totalKm, totalLiters),
+              kml: kmPerLitre(totalKm, totalLiters),
+              l100km: litresPer100km(totalKm, totalLiters),
+              mpgUK: mpgUK(totalKm, totalLiters),
             },
-            avgCostPerLiter: calcFuelPrice(totalSpent, totalLiters),
+            avgCostPerLiter: pricePerLitre(totalSpent, totalLiters),
             avgCostPerKm: totalKm > 0 ? Math.round((totalSpent / totalKm) * 10000) / 10000 : null,
             filters: { vehicleId: vehicleId ?? null, startDate: startDate ?? null, endDate: endDate ?? null },
           };

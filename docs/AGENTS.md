@@ -11,7 +11,6 @@ This document provides guidelines for AI agents (like you!) when making changes 
 5.  **Test Thoroughly:**
     *   Write unit tests for new functionality where appropriate.
     *   Perform manual testing (simulated or actual, if possible) to ensure the feature works as expected and doesn't break existing functionality.
-6.  **Consider Feature Flags:** For significant new UI elements or behavioral changes, consider using feature flags (managed via Firebase Remote Config, see `src/firebase/AGENTS.md` and `src/firebase/remoteConfigService.ts`) to allow for phased rollouts or quick disabling if issues arise.
 
 ## Development Environment & Build Process
 
@@ -34,7 +33,6 @@ Before committing any changes, and especially when adding new dependencies or fe
 ## Submitting Changes
 
 *   Use descriptive commit messages.
-*   If you created a feature flag, remind the user to configure it in the Firebase Remote Config console.
 *   Ensure all steps in your plan are complete.
 
 By following these guidelines, you'll help maintain the quality and stability of this codebase. Thank you!

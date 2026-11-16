@@ -25,10 +25,6 @@ vi.mock('../context/ThemeContext', () => ({
   useTheme: () => ({ theme: 'light' }),
 }));
 
-const mockGetBoolean = vi.fn<(key: string) => boolean>(() => false);
-vi.mock('../context/RemoteConfigContext', () => ({
-  useRemoteConfig: () => ({ getBoolean: mockGetBoolean }),
-}));
 
 const mockGetLifetimeStats = vi.fn().mockResolvedValue({ totalCost: 0, totalLitres: 0, totalDistanceKm: 0, logCount: 0 });
 vi.mock('../firebase/aggregationService', () => ({
@@ -74,7 +70,6 @@ function mockSnapshot(docs: { id: string; data: Record<string, unknown> }[]) {
 describe('DashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetBoolean.mockReturnValue(false);
     mockGetLifetimeStats.mockResolvedValue({ totalCost: 0, totalLitres: 0, totalDistanceKm: 0, logCount: 0 });
   });
 
@@ -158,11 +153,11 @@ describe('DashboardPage', () => {
     expect(screen.getByText('67.8L')).toBeInTheDocument();
     expect(screen.getByText('910km')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
-    expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    // MPG/price trend plus cost-per-litre trend.
+    expect(screen.getAllByTestId('line-chart')).toHaveLength(2);
   });
 
-  it('renders the multi-vehicle comparison chart when the feature flag is enabled and stats exist', async () => {
-    mockGetBoolean.mockImplementation((key: string): boolean => key === 'vehicleComparisonEnabled');
+  it('renders the multi-vehicle comparison chart when two vehicles have stats', async () => {
     const now = new Date();
     const vehicles = [
       { id: 'v1', name: 'Car 1', make: 'Toyota', userId: 'user-1', isArchived: false },
@@ -184,8 +179,7 @@ describe('DashboardPage', () => {
     await waitFor(() => expect(screen.getAllByTestId('bar-chart').length).toBeGreaterThan(1));
   });
 
-  it('renders the cost-per-litre chart when its feature flag is enabled', async () => {
-    mockGetBoolean.mockImplementation((key: string): boolean => key === 'costPerLitreGraphEnabled');
+  it('renders the cost-per-litre chart when there are two or more logs', async () => {
     const now = new Date();
     vi.mocked(getDocs)
       .mockResolvedValueOnce(mockSnapshot([]) as never) // vehicles

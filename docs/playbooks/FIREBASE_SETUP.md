@@ -49,17 +49,7 @@
       ```
     - Click **Publish**.
 
-## 5. Enable Remote Config
-1.  Go to **Build** > **Remote Config**.
-2.  Click **Create configuration**.
-3.  Add the following parameters (all as **Boolean**):
-    - `darkModeEnabled` (Default: `false`)
-    - `costPerLitreGraphEnabled` (Default: `false`)
-    - `totalSpentDisplayEnabled` (Default: `false`)
-    - `exampleFeatureFlagEnabled` (Default: `false`)
-4.  Click **Publish changes**.
-
-## 6. Configure Environment Variables
+## 5. Configure Environment Variables
 1.  Go to **Project Settings** (gear icon) > **General**.
 2.  Scroll down to **Your apps** and copy the values from the `firebaseConfig` object.
 3.  Create or update your `.env` file with these values:

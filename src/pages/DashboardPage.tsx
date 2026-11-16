@@ -9,7 +9,6 @@ import {
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { getLifetimeStats, LifetimeStats } from '../firebase/aggregationService';
 import { Log, FuelLogData, Vehicle, ChartDataPoint } from '../utils/types';
 import { getMonthlyTotals, getNumericFuelPrice, getNumericMPG } from '../utils/calculations';
@@ -31,13 +30,10 @@ function DashboardPage(): JSX.Element {
     const { theme } = useTheme();
     const { t } = useTranslation();
 
-    const { getBoolean } = useRemoteConfig();
 
     const homeCurrency = profile?.homeCurrency || 'EUR';
     const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
 
-    const costPerLitreGraphEnabled = getBoolean("costPerLitreGraphEnabled");
-    const vehicleComparisonEnabled = getBoolean("vehicleComparisonEnabled");
 
     const [logs, setLogs] = useState<Log[]>([]);
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -125,7 +121,7 @@ function DashboardPage(): JSX.Element {
     }, [user, selectedVehicleId]);
 
     useEffect(() => {
-        if (!user || !vehicleComparisonEnabled) { setVehicleComparisonStats([]); return; }
+        if (!user) { setVehicleComparisonStats([]); return; }
         if (vehicles.length < 2) { setVehicleComparisonStats([]); return; }
 
         let cancelled = false;
@@ -149,7 +145,7 @@ function DashboardPage(): JSX.Element {
             .catch(err => console.error('Error fetching vehicle comparison stats:', err));
 
         return () => { cancelled = true; };
-    }, [user, vehicles, vehicleComparisonEnabled]);
+    }, [user, vehicles]);
 
     const monthlyTotals = useMemo(() => getMonthlyTotals(logs, MONTHS_BACK), [logs]);
 
@@ -339,7 +335,7 @@ function DashboardPage(): JSX.Element {
                     )}
 
                     {/* Conditionally render Cost Per Litre Graph if feature flag is enabled and data exists */}
-                    {costPerLitreGraphEnabled && trendChartData.length > 1 && (
+                    {trendChartData.length > 1 && (
                         <div className="nocturne-card p-4 sm:p-6">
                             <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">{t('history.charts.costPerLitreOverTime')}</h3>
                             <ResponsiveContainer width="100%" height={300}>
@@ -363,8 +359,8 @@ function DashboardPage(): JSX.Element {
                         </div>
                     )}
 
-                    {/* Multi-vehicle efficiency/cost comparison, behind vehicleComparisonEnabled flag */}
-                    {vehicleComparisonEnabled && vehicleComparisonStats.length >= 2 && (
+                    {/* Multi-vehicle efficiency/cost comparison */}
+                    {vehicleComparisonStats.length >= 2 && (
                         <div className="nocturne-card p-4 sm:p-6">
                             <h3 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">{t('history.charts.vehicleComparison')}</h3>
                             <ResponsiveContainer width="100%" height={300}>

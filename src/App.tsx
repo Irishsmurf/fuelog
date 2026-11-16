@@ -2,7 +2,6 @@
 import { JSX } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 // Import context providers
-import { RemoteConfigProvider } from './context/RemoteConfigContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { ApiTokenProvider } from './context/ApiTokenContext';
@@ -22,7 +21,6 @@ function App(): JSX.Element {
     <HelmetProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-        <RemoteConfigProvider>
           <AuthProvider>
             <ApiTokenProvider>
             <ThemeProvider>
@@ -34,7 +32,6 @@ function App(): JSX.Element {
             </ThemeProvider>
             </ApiTokenProvider>
           </AuthProvider>
-        </RemoteConfigProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </HelmetProvider>

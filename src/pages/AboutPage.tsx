@@ -1,11 +1,9 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { useTranslation } from 'react-i18next';
 
 const AboutPage: React.FC = () => {
-  const { getBoolean } = useRemoteConfig();
   const { t } = useTranslation();
 
   return (
@@ -25,14 +23,6 @@ const AboutPage: React.FC = () => {
           <li>{t('about.features.quickLog')}</li>
         </ul>
 
-        {getBoolean("exampleFeatureFlagEnabled") && (
-          <div className="mt-6 p-4 border border-blue-300 dark:border-blue-700 rounded-md bg-blue-50 dark:bg-blue-900">
-            <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 New Feature Showcase!</h3>
-            <p className="text-blue-600 dark:text-blue-200">
-              This section is displayed because the 'exampleFeatureFlagEnabled' is currently active in Remote Config!
-            </p>
-          </div>
-        )}
 
         <div className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
           <p>

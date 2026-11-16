@@ -21,7 +21,6 @@ Example:
 - [ ] I have added/updated unit tests for my changes.
 - [ ] I have followed the project's coding standards and naming conventions.
 - [ ] I have updated the documentation (`docs/`) if necessary.
-- [ ] New features are gated behind a Remote Config flag (refer to FEATURE_RELEASING.md).
 
 ## 📸 Screenshots (if applicable)
 <!-- Add screenshots or screen recordings to demonstrate visual changes. -->

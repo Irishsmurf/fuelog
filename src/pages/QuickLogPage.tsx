@@ -8,7 +8,6 @@ import { useAuth } from '../context/AuthContext';
 import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
 import { Vehicle, FuelLogData } from '../utils/types';
 import { Link } from 'react-router-dom';
-import { useRemoteConfig } from '../context/RemoteConfigContext';
 import { uploadReceipt } from '../firebase/storageService';
 import { getLastOdometerReading, getOrCreateStation, fetchVehicles, pickDefaultVehicle } from '../firebase/firestoreService';
 import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
@@ -38,11 +37,7 @@ type LocationMode = 'gps' | 'manual';
 
 function QuickLogPage(): JSX.Element {
   const { user, profile } = useAuth();
-  const { getBoolean } = useRemoteConfig();
   const { t } = useTranslation();
-  const receiptDigitizationEnabled = getBoolean('receiptDigitizationEnabled');
-  const receiptAutoFillEnabled = getBoolean('receiptAutoFillEnabled');
-  const odometerInputEnabled = getBoolean('odometerInputEnabled');
 
   const [brand, setBrand] = useState<string>('');
   const [cost, setCost] = useState<string>('');
@@ -744,13 +739,11 @@ function QuickLogPage(): JSX.Element {
                   )}
 
                   <div className="grid grid-cols-3 gap-3 pt-2">
-                    {odometerInputEnabled && (
-                      <div>
+                    <div>
                         <label htmlFor="odometer" className="nocturne-label text-[10px]">{t('quickLog.fields.odometer')}</label>
                         <input type="number" inputMode="decimal" id="odometer" value={odometerKmInput} onChange={handleOdometerChange} placeholder="0" step="1" min="0" className="nocturne-input fuel-numeral" disabled={isSaving} />
                       </div>
-                    )}
-                    <div className={odometerInputEnabled ? "" : "col-span-2"}>
+                    <div>
                       <label htmlFor="distance" className="nocturne-label text-[10px]">{t('quickLog.fields.distance')}</label>
                       <div className="relative">
                         <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="nocturne-input fuel-numeral pr-9" disabled={isSaving} />
@@ -770,7 +763,7 @@ function QuickLogPage(): JSX.Element {
                     </div>
                   </div>
 
-                  {odometerInputEnabled && odometerKmInput && (
+                  {odometerKmInput && (
                     <div className="mt-2">
                       {lastOdometerReading === null ? (
                         <p className="text-[11px] text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1.5">
@@ -796,8 +789,6 @@ function QuickLogPage(): JSX.Element {
               {/* Section 3: Receipt Digitization */}
               <div>
                 <ReceiptAISection
-                  receiptDigitizationEnabled={receiptDigitizationEnabled}
-                  receiptAutoFillEnabled={receiptAutoFillEnabled}
                   receiptFile={receiptFile}
                   setReceiptFile={setReceiptFile}
                   isExtracting={isExtracting}

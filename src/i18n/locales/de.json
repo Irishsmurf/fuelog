@@ -99,6 +99,7 @@
       "uploadingReceipt": "Quittungsfoto wird hochgeladen...",
       "savedSuccess": "Eintrag erfolgreich gespeichert!",
       "savedNoLocation": "Eintrag erfolgreich gespeichert! (Standort nicht erfasst)",
+      "savedOffline": "Du bist offline: Der Eintrag wird synchronisiert, sobald du wieder online bist.",
       "saveError": "Dein Eintrag konnte nicht gespeichert werden: {{detail}}. Bitte versuche es erneut.",
       "fetchRateError": "Fehler beim Abrufen des {{currency}}-Kurses. Bitte manuell einstellen.",
       "locationCapturedAt": "Located at {{station}}.",

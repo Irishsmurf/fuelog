@@ -99,6 +99,7 @@
       "uploadingReceipt": "レシート写真をアップロード中...",
       "savedSuccess": "記録が正常に保存されました！",
       "savedNoLocation": "記録が正常に保存されました！（位置情報なし）",
+      "savedOffline": "オフラインです。オンラインに戻ると同期されます。",
       "saveError": "記録を保存できませんでした: {{detail}}。もう一度お試しください。",
       "fetchRateError": "{{currency}}のレートの取得に失敗しました。手動で設定してください。",
       "locationCapturedAt": "Located at {{station}}.",

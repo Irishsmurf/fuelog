@@ -99,6 +99,7 @@
       "uploadingReceipt": "Ladataan kuittikuvaa...",
       "savedSuccess": "Loki tallennettu onnistuneesti!",
       "savedNoLocation": "Loki tallennettu onnistuneesti! (Sijaintia ei saatu)",
+      "savedOffline": "Olet offline-tilassa: merkintä synkronoidaan, kun yhteys palaa.",
       "saveError": "Lokin tallentaminen epäonnistui: {{detail}}. Yritä uudelleen.",
       "fetchRateError": "Valuuttakurssin {{currency}} haku epäonnistui. Aseta manuaalisesti.",
       "locationCapturedAt": "Located at {{station}}.",

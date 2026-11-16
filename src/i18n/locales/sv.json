@@ -99,6 +99,7 @@
       "uploadingReceipt": "Laddar upp kvittofoto...",
       "savedSuccess": "Loggen sparades framgångsrikt!",
       "savedNoLocation": "Loggen sparades framgångsrikt! (Plats hämtades inte)",
+      "savedOffline": "Du är offline: posten synkroniseras när du är online igen.",
       "saveError": "Det gick inte att spara din logg: {{detail}}. Försök igen.",
       "fetchRateError": "Misslyckades med att hämta kurs för {{currency}}. Ställ in manuellt.",
       "locationCapturedAt": "Located at {{station}}.",

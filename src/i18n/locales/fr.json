@@ -99,6 +99,7 @@
       "uploadingReceipt": "Téléversement de la photo du reçu...",
       "savedSuccess": "Saisie enregistrée avec succès !",
       "savedNoLocation": "Saisie enregistrée avec succès ! (Localisation non capturée)",
+      "savedOffline": "Vous êtes hors ligne : la saisie sera synchronisée dès votre retour en ligne.",
       "saveError": "Impossible d'enregistrer votre entrée : {{detail}}. Veuillez réessayer.",
       "fetchRateError": "Échec de la récupération du taux {{currency}}. Veuillez le définir manuellement.",
       "locationCapturedAt": "Located at {{station}}.",

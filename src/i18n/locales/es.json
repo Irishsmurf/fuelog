@@ -99,6 +99,7 @@
       "uploadingReceipt": "Subiendo foto del recibo...",
       "savedSuccess": "¡Registro guardado exitosamente!",
       "savedNoLocation": "¡Registro guardado exitosamente! (Ubicación no capturada)",
+      "savedOffline": "Estás sin conexión: se sincronizará cuando vuelvas a estar en línea.",
       "saveError": "No se pudo guardar tu registro: {{detail}}. Inténtalo de nuevo.",
       "fetchRateError": "Error al obtener la tasa de {{currency}}. Por favor, configúrala manualmente.",
       "locationCapturedAt": "Located at {{station}}.",

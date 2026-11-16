@@ -100,6 +100,7 @@
       "uploadingReceipt": "Uploading receipt photo...",
       "savedSuccess": "Log saved successfully!",
       "savedNoLocation": "Log saved successfully! (Location not captured)",
+      "savedOffline": "You're offline: it will sync when you're back online.",
       "saveError": "Couldn't save your log: {{detail}}. Please try again.",
       "receiptUploadWarning": "Your receipt photo couldn't be uploaded, so the log was saved without it.",
       "stationLookupWarning": "Couldn't look up a nearby station, so this log wasn't linked to one.",

@@ -5,6 +5,7 @@ import { getAdminDb } from '../firebase-admin.js';
 import type { TokenIdentity } from '../auth.js';
 import { hasScope } from '../auth.js';
 import type { ServerLog } from '../types.js';
+import { CURRENT_SCHEMA_VERSION } from '../../../packages/core/src/index.js';
 
 const BRAND_SCAN_PAGE = 200;
 const MAX_BRAND_SCAN = 5000;
@@ -87,6 +88,8 @@ export function registerFuelLogTools(server: McpServer, userId: string, identity
       ...(args.vehicleId && { vehicleId: args.vehicleId }),
       ...(args.latitude !== undefined && { latitude: args.latitude }),
       ...(args.longitude !== undefined && { longitude: args.longitude }),
+      source: 'mcp',
+      schemaVersion: CURRENT_SCHEMA_VERSION,
     };
     const ref = await db.collection('fuelLogs').add(data);
     return { content: [{ type: 'text' as const, text: `Fuel log created with ID: ${ref.id}` }] };

@@ -144,6 +144,13 @@ describe('fuelLogs', () => {
     await assertFails(updateDoc(doc(db, 'fuelLogs/l4'), { odometerKm: 'lots' }));
   });
 
+  it('accepts the v2 source/schemaVersion fields and rejects bad values', async () => {
+    const db = asUser(ALICE);
+    await assertSucceeds(setDoc(doc(db, 'fuelLogs/v2'), { ...validLog(ALICE), source: 'app', schemaVersion: 2 }));
+    await assertFails(setDoc(doc(db, 'fuelLogs/v2bad'), { ...validLog(ALICE), source: 'scraper' }));
+    await assertFails(setDoc(doc(db, 'fuelLogs/v2bad2'), { ...validLog(ALICE), schemaVersion: '2' }));
+  });
+
   it('keeps legacy logs (missing optional fields) editable', async () => {
     await seed('fuelLogs/legacy', {
       userId: ALICE, timestamp: Timestamp.now(), brand: 'Esso', cost: 50, distanceKm: 400, fuelAmountLiters: 35,

@@ -56,6 +56,40 @@ test.describe('Production build smoke tests', () => {
     });
   }
 
+  test('is an installable PWA with an active service worker @smoke', async ({ page }) => {
+    await page.goto('/');
+
+    // Manifest is linked, parses, and carries what install prompts need.
+    const href = await page.locator('link[rel="manifest"]').getAttribute('href');
+    expect(href, 'no <link rel="manifest">').toBeTruthy();
+    const res = await page.request.get(new URL(href!, page.url()).toString());
+    expect(res.ok()).toBe(true);
+    const manifest = await res.json();
+    expect(manifest.name).toBeTruthy();
+    expect(manifest.start_url).toBeTruthy();
+    expect(manifest.display).toBe('standalone');
+    expect((manifest.icons ?? []).length).toBeGreaterThan(0);
+
+    // The page's theme-color matches the manifest, so the installed app and
+    // the browser tab are tinted the same.
+    await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', manifest.theme_color);
+
+    // The service worker registers and activates (offline support).
+    const state = await page.evaluate(async () => {
+      if (!('serviceWorker' in navigator)) return 'unsupported';
+      const timeout = new Promise<string>((r) => setTimeout(() => r('timeout'), 15_000));
+      // ready resolves once a worker is active, possibly still 'activating'.
+      const ready = navigator.serviceWorker.ready.then((reg) => new Promise<string>((r) => {
+        const sw = reg.active;
+        if (!sw) return r('none');
+        if (sw.state === 'activated') return r(sw.state);
+        sw.addEventListener('statechange', () => sw.state === 'activated' && r(sw.state));
+      }));
+      return Promise.race([ready, timeout]);
+    });
+    expect(state).toBe('activated');
+  });
+
   test('every lazy JS chunk evaluates without throwing @smoke', async ({ page }) => {
     // Only possible when the build output is on disk (vite preview in CI).
     const assetsDir = resolve(process.cwd(), 'dist/assets');

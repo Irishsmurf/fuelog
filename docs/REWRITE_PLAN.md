@@ -23,6 +23,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
 - **Step 5, partly:** Remote Config removed; the flagged features (odometer, receipt AI, totals, extra dashboard charts, dark mode) are always on, and the app shell no longer waits on a network fetch.
 - **Step 5, partly:** only English ships in the entry chunk; other locales load on demand (entry chunk 462 KB → 295 KB).
 - **Step 6:** both deploy workflows wait for Main CI, including the emulator E2E job, and deploy only if it passed.
+- **Step 6:** the old placeholder specs are replaced: emulator E2E for multiple vehicles (log per vehicle, History filter) and PDF export (a real `%PDF` file); the PWA checks (manifest, theme colour, active service worker) run in the production smoke suite. The disabled `playwright.yml` workflow is removed.
 - **Step 5:** maps use `maplibre-gl` only (clustered GeoJSON, native heatmap); Leaflet and its plugins removed, log-card map thumbnails dropped. Precache 3,817 KiB.
 
 **Remaining**
@@ -32,7 +33,6 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
   - retire the backfill scripts and the ProfilePage client migration;
   - OIDC instead of `FIREBASE_TOKEN`.
 - Step 4: move QuickLog, Profile/Vehicles and Dashboard onto the data layer (each under about 250 lines).
-- Step 6: rewrite the old `pdf_export`, `multi_vehicle` and `pwa` specs.
 - §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
 - Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).
 - §7 decisions were taken with the recommended defaults (see §7).

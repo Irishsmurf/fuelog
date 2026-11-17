@@ -78,7 +78,8 @@ describe('HistoryPage (data layer)', () => {
     await waitFor(() => expect(options()).toEqual(['Esso', 'Shell']));
 
     fireEvent.change(brandSelect(), { target: { value: 'Shell' } });
-    await waitFor(() => expect(vi.mocked(fetchLogsPage).mock.calls.at(-1)![1].brand).toBe('Shell'));
+    const lastCall = () => vi.mocked(fetchLogsPage).mock.calls[vi.mocked(fetchLogsPage).mock.calls.length - 1];
+    await waitFor(() => expect(lastCall()[1].brand).toBe('Shell'));
     // Narrowing to one brand must not drop the other option from the dropdown.
     expect(options()).toEqual(['Esso', 'Shell']);
   });

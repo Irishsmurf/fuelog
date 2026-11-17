@@ -15,7 +15,9 @@ function AdminConsolePage(): JSX.Element {
   const { user } = useAuth();
   const [accessState, setAccessState] = useState<'checking' | 'denied' | 'granted'>('checking');
 
-  const [targetUid, setTargetUid] = useState('');
+  // null until edited: defaults to the signed-in user's own UID.
+  const [targetUidInput, setTargetUid] = useState<string | null>(null);
+  const targetUid = targetUidInput ?? user?.uid ?? '';
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [dataJson, setDataJson] = useState('');
@@ -28,10 +30,6 @@ function AdminConsolePage(): JSX.Element {
     checkAccess()
       .then(res => setAccessState(res.data.isDeveloper ? 'granted' : 'denied'))
       .catch(() => setAccessState('denied'));
-  }, [user]);
-
-  useEffect(() => {
-    if (user) setTargetUid(user.uid);
   }, [user]);
 
   const handleSubmit = async (e: FormEvent) => {

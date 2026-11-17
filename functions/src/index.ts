@@ -13,5 +13,6 @@ export { processReceipt } from './receiptProcessing';
 export { sendWeeklyDigest } from './weeklyDigest';
 export { checkBudgetAlert } from './budgetAlerts';
 export { updateStationStats } from './stationStats';
+export { onLogWrite } from './logDerived';
 export { runMigrations } from './migrations';
 export { sendTestNotification, checkDeveloperAccess } from './devNotifications';

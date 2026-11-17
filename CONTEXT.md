@@ -18,7 +18,10 @@ Decisions are in [`docs/adr/`](docs/adr/).
 - `fuelAmountLiters`: litres added.
 - `odometerKm`: the vehicle's odometer reading at the fill-up (optional).
 - `distanceKm`: distance driven since the previous fill-up. Entered directly, or
-  derived from the odometer (see invariants).
+  derived from the odometer (see invariants); when the odometer is given, the
+  `onLogWrite` Cloud Function keeps it in line with the previous reading.
+- `pricePerLitre` (home currency) and `kmPerLitre`: written by `onLogWrite` from
+  `cost`, `distanceKm` and `fuelAmountLiters`; absent until a log is derived.
 - `vehicleId`: the vehicle filled (optional on legacy logs).
 - `brand`, `latitude`/`longitude`/`locationAccuracy`, `stationId`: where.
 - `receiptUrl`: Storage download URL of the receipt image.
@@ -54,12 +57,13 @@ Only the SHA-256 `tokenHash` and a display `tokenPrefix` are stored. `scopes` ‚ä
 **Usage quota** (`usageQuotas/{uid}_{kind}_{YYYY-MM-DD}`): per-user, per-UTC-day
 counter (e.g. receipt scans, limit `RECEIPT_DAILY_LIMIT`, default 50). Server-only.
 
-**Trigger event** (`triggerEvents/stationStats_{eventId}`): marker that a
-Firestore trigger event was already applied, so redelivery is a no-op. Has
-`expireAt` (7 days) for a TTL policy.
+**Trigger event** (`triggerEvents/stationStats_{eventId}`,
+`triggerEvents/logDerived_{eventId}`): marker that a Firestore trigger event was
+already applied, so redelivery is a no-op. Has `expireAt` (7 days) for a TTL policy.
 
-**Migration** (`migrations/{id}`): completion record of a one-shot server data
-migration run by `runMigrations`. Present means done; never runs again.
+**Migration** (`migrations/{id}`): record of a one-shot server data migration run
+by `runMigrations`. With `completedAt` it is done and never runs again; without
+it, the migration ran out of time and resumes from its saved `state`.
 
 Other server-only collections: `budgetAlerts/{uid}_{YYYY-MM}` (thresholds already
 alerted this month), `testNotifications` (dev tool audit), `mail` (Trigger Email
@@ -79,6 +83,8 @@ extension). `fcmTokens/{token}` holds a user's web push tokens.
   (`deriveDistances`).
 - **Server-owned derived data**: clients cannot update stations; `priceStats`,
   token `lastUsedAt`, quotas, budget alerts and migrations are written only by
-  the Admin SDK.
+  the Admin SDK. `onLogWrite` derives a log's odometer `distanceKm` (and the next
+  log's), `pricePerLitre`, `kmPerLitre`, a missing `stationId`, and a missing
+  home-currency `cost` from `originalCost` + `currency`.
 - **Legacy tolerance**: reads are validated against the core schemas; a document
   that fails is reported to Sentry once and still shown, never dropped.

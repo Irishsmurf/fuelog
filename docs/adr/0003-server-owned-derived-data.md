@@ -31,6 +31,13 @@ any client. Repairs needed hand-run backfill scripts.
 - Pure planners (`applyContribution`, `planStationStats`) are unit-tested. The
   same rebuild is available as `npm run rebuild-station-stats` in `functions/`
   (dry run by default).
-- Still derived in the client: `distanceKm` from the odometer, `cost` and
-  `exchangeRate`, and `stationId`. Moving these into an `onLogWrite` trigger is
-  outstanding.
+- `onLogWrite` (#264) now derives log fields on the server: the odometer
+  `distanceKm` (and the next log's), `stationId`, `pricePerLitre`, `kmPerLitre`,
+  and a missing home-currency `cost`. The app still writes `cost`,
+  `exchangeRate`, `distanceKm` and, when it finds one, `stationId` itself for
+  its offline UX; the trigger agrees with or corrects them. Its markers are
+  `triggerEvents/logDerived_{eventId}`. `derivedLogFields_v1` backfills
+  existing logs (run by hand after a reviewed dry run, not scheduled, since it
+  bulk-rewrites user data) and replaced the hand-run backfill scripts and the in-app
+  "Identify Stations" action. A migration that cannot finish in one run saves a
+  `state` and resumes on the next.

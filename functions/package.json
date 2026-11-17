@@ -3,22 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "tsc && cp -r src/templates lib/templates",
+    "build": "rm -rf lib && tsc && cp -r src/templates lib/functions/src/templates",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "recompress-receipts": "npm run build && node lib/scripts/recompressReceipts.js",
-    "backfill-odometer": "npm run build && node lib/scripts/backfillOdometer.js",
-    "assign-stations": "npm run build && node lib/scripts/assignStationsToLogs.js",
+    "recompress-receipts": "npm run build && node lib/functions/src/scripts/recompressReceipts.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "rebuild-station-stats": "npm run build && node lib/scripts/rebuildStationStats.js"
+    "rebuild-station-stats": "npm run build && node lib/functions/src/scripts/rebuildStationStats.js",
+    "derived-log-fields": "npm run build && node lib/functions/src/scripts/derivedLogFields.js"
   },
   "engines": {
     "node": "22"
   },
-  "main": "lib/index.js",
+  "main": "lib/functions/src/index.js",
   "dependencies": {
     "firebase-admin": "^14.5.1",
     "firebase-functions": "^7.4.0",

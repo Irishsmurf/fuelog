@@ -16,6 +16,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
   - Vercel deploy smoke-tests the production domain and rolls back on failure (#284, #285, #286).
 - **Step 4:** TanStack Query data layer in `src/data` (query keys in `keys.ts`; every log-derived view lives under `['logs', uid]`, so one invalidation after a write refreshes History, Dashboard, brands, odometer and stats). History (#298), then QuickLog, Profile/Vehicles and Dashboard (845/554/405 lines → 135/99/105), split into `src/components/{quicklog,profile,dashboard}` and hooks. Earlier fixes: offline saves and exchange rates (#299), profile and auth (#300).
 - **Step 7:** `CONTEXT.md`, ADRs 0001–0007, stale docs removed (this change).
+- **Step 3:** `onLogWrite` derives `distanceKm` from the odometer (and fixes the next log on insert, edit, back-date or delete), `stationId` (shared Overpass lookup in core), missing home-currency `cost`, `pricePerLitre` and `kmPerLitre`, loop-safe and idempotent. The `derivedLogFields_v1` backfill replaces the backfill scripts and the Profile "Identify Stations" action. Deploys can authenticate with OIDC (#329).
 
 - **Step 5, partly:** route-only chunks (map renderer, PDF, canvas) kept out of the precache, with a 4,200 KiB precache budget in CI (#301).
 - **Step 6:** authenticated E2E (sign in, log, edit, delete) against the Auth and Firestore emulators with the real rules, as a CI job (#302).
@@ -29,8 +30,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
 **Remaining**
 - Step 1: `apps/web` and `apps/functions`. The `uuid` override is gone; the `jose ~5.10` override stays until the Vercel functions' Node version is confirmed to be 20.19+/22.12+, because `jwks-rsa` (via firebase-admin) still calls `require('jose')` and jose 6 is ESM-only (#207).
 - Step 3:
-  - an `onLogWrite` trigger for the rest of the derived data (distance from odometer, home-currency cost and rate, `stationId`);
-  - retire the backfill scripts and the ProfilePage client migration;
+  - run the `derivedLogFields_v1` backfill on production: `npm run derived-log-fields` in `functions/` (dry run), review, then `--apply`. It is deliberately not scheduled.
   - switch the repo to OIDC: the workflow supports it, but the Workload Identity pool and repo variables must be created by a project owner (`docs/playbooks/DEPLOYMENT.md`).
 - §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
 - Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).

@@ -12,7 +12,6 @@ import VehicleFleetSection from '../components/profile/VehicleFleetSection';
 import AddVehicleForm from '../components/profile/AddVehicleForm';
 import NotificationsSection from '../components/profile/NotificationsSection';
 import DataImportSection from '../components/profile/DataImportSection';
-import MaintenanceSection from '../components/profile/MaintenanceSection';
 import type { StatusMessage } from '../components/profile/StatusBanner';
 
 const NO_VEHICLES: Vehicle[] = [];
@@ -91,7 +90,6 @@ function ProfilePage(): JSX.Element {
       <NotificationsSection />
       <DataImportSection />
       <ApiTokenManager />
-      <MaintenanceSection />
     </div>
   );
 }

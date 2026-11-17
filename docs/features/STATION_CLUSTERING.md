@@ -48,13 +48,12 @@ match /stations/{stationId} {
 (Optional) While not currently gated, the feature relies on location permission. Ensure `navigator.geolocation` is available and permissions are requested in your environment.
 
 ## Historical Data Migration
-Users with existing logs containing coordinates can link them to stations retroactively:
-1. Navigate to the **Profile** page.
-2. Locate the **Maintenance** section.
-3. Click **Identify Stations**.
-4. The app will iterate through coordinates in historical logs and perform OSM lookups to populate `stationId` fields.
+Logs with coordinates but no `stationId` are linked server-side: the `onLogWrite`
+Cloud Function looks up the nearest station when a log is written, and the
+hand-run `derivedLogFields_v1` backfill does the same for historical logs (see
+`scripts/README.md`).
 
 ## Technical Details
 - **Service**: `src/utils/locationService.ts` handles the OSM/Overpass logic.
-- **Migration**: `src/utils/migrationService.ts` handles the batch processing of historical logs.
+- **Server**: `functions/src/logDerived.ts` (trigger) and `functions/src/derivedLogFieldsMigration.ts` (backfill); the query and nearest-station choice are shared from `packages/core/src/overpass.ts`.
 - **UI Components**: Updated `QuickLogPage.tsx`, `FuelMapPage.tsx`, `HistoryPage.tsx`, and `LogCard.tsx`.

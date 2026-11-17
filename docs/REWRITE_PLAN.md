@@ -27,7 +27,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
 - **Step 5:** maps use `maplibre-gl` only (clustered GeoJSON, native heatmap); Leaflet and its plugins removed, log-card map thumbnails dropped. Precache 3,817 KiB.
 
 **Remaining**
-- Step 1: `apps/web` and `apps/functions`; drop the `jose`/`uuid` overrides.
+- Step 1: `apps/web` and `apps/functions`. The `uuid` override is gone; the `jose ~5.10` override stays until the Vercel functions' Node version is confirmed to be 20.19+/22.12+, because `jwks-rsa` (via firebase-admin) still calls `require('jose')` and jose 6 is ESM-only (#207).
 - Step 3:
   - an `onLogWrite` trigger for the rest of the derived data (distance from odometer, home-currency cost and rate, `stationId`);
   - retire the backfill scripts and the ProfilePage client migration;

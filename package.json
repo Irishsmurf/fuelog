@@ -46,7 +46,6 @@
   "overrides": {
     "react": "$react",
     "react-dom": "$react-dom",
-    "uuid": "^11.1.1",
     "jose": "~5.10.0",
     "@grpc/grpc-js": "^1.14.7"
   },

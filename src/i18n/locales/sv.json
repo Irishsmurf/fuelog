@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "Datum och tid för tankning"
+      "dateTime": "Datum och tid för tankning",
+      "fillType": "Tankning",
+      "fillType_full": "Full tank",
+      "fillType_partial": "Delvis",
+      "missedPrevious": "Jag missade att logga en tankning före den här"
     },
     "submit": {
       "save": "Spara bränslelogg",

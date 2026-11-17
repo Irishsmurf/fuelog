@@ -47,6 +47,8 @@ service cloud.firestore {
         && optString(d, 'receiptUrl')
         && (!d.keys().hasAny(['source']) || d.source in ['app', 'import', 'api', 'mcp'])
         && optNumber(d, 'schemaVersion')
+        && (!d.keys().hasAny(['fillType']) || d.fillType in ['full', 'partial'])
+        && (!d.keys().hasAny(['missedPrevious']) || d.missedPrevious is bool)
         && (!d.keys().hasAny(['timestamp']) || d.timestamp is timestamp);
     }
 

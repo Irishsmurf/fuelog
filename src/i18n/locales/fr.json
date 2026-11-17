@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "Date et heure du plein"
+      "dateTime": "Date et heure du plein",
+      "fillType": "Plein",
+      "fillType_full": "Plein complet",
+      "fillType_partial": "Partiel",
+      "missedPrevious": "J'ai oublié d'enregistrer un plein avant celui-ci"
     },
     "submit": {
       "save": "Enregistrer la Saisie",

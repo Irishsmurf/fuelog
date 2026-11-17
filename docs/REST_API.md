@@ -89,6 +89,8 @@ Create a new fuel log entry.
     *   `odometerKm` (number, optional, ≥ 0): Odometer reading at the fill-up.
     *   `latitude` (number, optional, −90 to 90): GPS latitude.
     *   `longitude` (number, optional, −180 to 180): GPS longitude.
+    *   `fillType` (string, optional): `full` (tank filled up) or `partial`. Efficiency is only exact between two full fills.
+    *   `missedPrevious` (boolean, optional): `true` if a fill-up before this one was not logged.
 *   **Response:** `201 Created`
     ```json
     {

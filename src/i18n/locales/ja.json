@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "給油の日時"
+      "dateTime": "給油の日時",
+      "fillType": "給油",
+      "fillType_full": "満タン",
+      "fillType_partial": "部分給油",
+      "missedPrevious": "この前の給油を記録し忘れました"
     },
     "submit": {
       "save": "記録を保存",

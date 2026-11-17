@@ -33,7 +33,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
   - run the `derivedLogFields_v1` backfill on production: `npm run derived-log-fields` in `functions/` (dry run), review, then `--apply`. It is deliberately not scheduled.
   - switch the repo to OIDC: the workflow supports it, but the Workload Identity pool and repo variables must be created by a project owner (`docs/playbooks/DEPLOYMENT.md`).
 - §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
-- Writers set `source` (`app`, `import`, `api`, `mcp`) and `schemaVersion: 2`; `fillType` and `missedPrevious` still need a Quick Log control (a product decision: default `full`).
+- Writers set `source` (`app`, `import`, `api`, `mcp`) and `schemaVersion: 2`. Quick Log and the History edit dialog record `fillType` (default `full`) and `missedPrevious`; REST and MCP accept both. Efficiency figures don't use them yet (next: compute efficiency between full fills only).
 - §7 decisions were taken with the recommended defaults (see §7).
 
 ## 1. Verdict: rebuild the core in place, not a big-bang rewrite

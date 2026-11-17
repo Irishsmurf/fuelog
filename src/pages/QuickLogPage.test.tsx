@@ -140,7 +140,24 @@ describe('QuickLogPage', () => {
       exchangeRate: 1,
       source: 'app',
       schemaVersion: 2,
+      fillType: 'full',
+      missedPrevious: false,
     });
+  });
+
+  it('records a partial fill and a missed previous fill-up', async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '20' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '150' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '12' } });
+    fireEvent.click(screen.getByRole('radio', { name: 'quickLog.fields.fillType_partial' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'quickLog.fields.missedPrevious' }));
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(addLog).mock.calls[0][0]).toMatchObject({ fillType: 'partial', missedPrevious: true });
   });
 
   it('refreshes log-derived data (e.g. brand suggestions) after a save', async () => {

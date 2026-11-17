@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "Fecha y hora del repostaje"
+      "dateTime": "Fecha y hora del repostaje",
+      "fillType": "Repostaje",
+      "fillType_full": "Depósito lleno",
+      "fillType_partial": "Parcial",
+      "missedPrevious": "Olvidé registrar un repostaje anterior a este"
     },
     "submit": {
       "save": "Guardar Registro",

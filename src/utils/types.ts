@@ -50,6 +50,8 @@ interface EditFormData {
     latitude?: string;
     longitude?: string;
     loggedAt?: string;  // datetime-local string for editing the fuelling date/time
+    fillType?: 'full' | 'partial';
+    missedPrevious?: boolean;
 }
 // Type for view mode state
 type ViewMode = 'table' | 'cards';

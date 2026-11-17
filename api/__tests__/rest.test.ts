@@ -149,6 +149,16 @@ describe('REST API input validation', () => {
     expect(collection.add).toHaveBeenCalledWith(expect.objectContaining({ userId: 'user123', cost: 60, source: 'api', schemaVersion: 2 }));
   });
 
+  it('accepts fillType/missedPrevious and rejects an unknown fill type', async () => {
+    const ok = makeRes();
+    await handler(makeReq('POST', '/api/rest?type=logs', { brand: 'X', cost: 30, distanceKm: 200, fuelAmountLiters: 20, fillType: 'partial', missedPrevious: true }), ok);
+    expect(ok.writeHead).toHaveBeenCalledWith(201, expect.anything());
+    expect(collection.add).toHaveBeenLastCalledWith(expect.objectContaining({ fillType: 'partial', missedPrevious: true }));
+    const bad = makeRes();
+    await handler(makeReq('POST', '/api/rest?type=logs', { brand: 'X', cost: 30, distanceKm: 200, fuelAmountLiters: 20, fillType: 'half' }), bad);
+    expect(bad.writeHead).toHaveBeenCalledWith(400, expect.anything());
+  });
+
   it('only writes allowlisted fields on log update', async () => {
     const res = makeRes();
     await handler(makeReq('PUT', '/api/rest?type=logs&id=l1', { cost: 70, userId: 'victim', stationId: 'evil' }), res);

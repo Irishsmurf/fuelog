@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "Tankkauksen päivä ja aika"
+      "dateTime": "Tankkauksen päivä ja aika",
+      "fillType": "Tankkaus",
+      "fillType_full": "Täysi tankki",
+      "fillType_partial": "Osittainen",
+      "missedPrevious": "Unohdin kirjata tätä edeltävän tankkauksen"
     },
     "submit": {
       "save": "Tallenna loki",

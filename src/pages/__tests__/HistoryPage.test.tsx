@@ -2,7 +2,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import HistoryPage from '../HistoryPage';
-import { fetchLogsPage, fetchAllLogs } from '../../data/logs';
+import { fetchLogsPage, fetchAllLogs, updateLog } from '../../data/logs';
 import { exportLogsToPDF } from '../../utils/pdfExport';
 import type { Log } from '../../utils/types';
 
@@ -24,7 +24,7 @@ vi.mock('../../components/ImageUpload', () => ({ default: () => null }));
 vi.mock('../../components/ReceiptModal', () => ({ default: () => null }));
 vi.mock('../../data/logs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../data/logs')>();
-  return { ...actual, fetchLogsPage: vi.fn(), fetchAllLogs: vi.fn() };
+  return { ...actual, fetchLogsPage: vi.fn(), fetchAllLogs: vi.fn(), updateLog: vi.fn().mockResolvedValue(undefined) };
 });
 
 const ts = (d: string) => ({ toDate: () => new Date(d), toMillis: () => new Date(d).getTime() });
@@ -121,6 +121,33 @@ describe('HistoryPage (data layer)', () => {
       const calls = vi.mocked(fetchLogsPage).mock.calls;
       const lastCall = calls[calls.length - 1];
       expect(lastCall[1]).toMatchObject({ brand: 'Shell' });
+    });
+  });
+
+  describe('editing fill type', () => {
+    const openAndSave = async (choose?: () => void) => {
+      renderPage();
+      fireEvent.click(await screen.findByTitle('history.table.editLog'));
+      choose?.();
+      fireEvent.click(screen.getByRole('button', { name: 'history.edit.save' }));
+      await waitFor(() => expect(updateLog).toHaveBeenCalledTimes(1));
+      return vi.mocked(updateLog).mock.calls[0][1];
+    };
+
+    it('does not stamp a legacy log with fillType when it is saved unchanged', async () => {
+      vi.mocked(fetchLogsPage).mockResolvedValue({ logs: [log('a')], nextCursor: null, brands: ['Esso'] });
+      const updates = await openAndSave();
+      expect(updates).not.toHaveProperty('fillType');
+      expect(updates).not.toHaveProperty('missedPrevious');
+    });
+
+    it('saves a partial fill and a missed previous fill-up', async () => {
+      vi.mocked(fetchLogsPage).mockResolvedValue({ logs: [log('a')], nextCursor: null, brands: ['Esso'] });
+      const updates = await openAndSave(() => {
+        fireEvent.click(screen.getByRole('radio', { name: 'quickLog.fields.fillType_partial' }));
+        fireEvent.click(screen.getByRole('checkbox', { name: 'quickLog.fields.missedPrevious' }));
+      });
+      expect(updates).toMatchObject({ fillType: 'partial', missedPrevious: true });
     });
   });
 });

@@ -31,4 +31,7 @@ failures reached users. Functions were deployed by hand.
 ## Consequences
 
 - A bad web deploy is reverted automatically; a bad Functions deploy is not.
-- Deploys authenticate with `FIREBASE_TOKEN`; moving to OIDC is outstanding.
+- Firebase deploys authenticate with Workload Identity Federation (OIDC) once the
+  `GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT` repo variables are set,
+  falling back to the legacy `FIREBASE_TOKEN` secret until then
+  (setup: `docs/playbooks/DEPLOYMENT.md`).

@@ -41,9 +41,26 @@ jobs:
     timeout-minutes: 30
     # Only deploy from main (push or manual run) — never on PRs
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write   # OIDC token for Workload Identity Federation
+    env:
+      # Credentials: Workload Identity Federation (OIDC) when the repo
+      # variable GCP_WORKLOAD_IDENTITY_PROVIDER is set, otherwise the legacy
+      # FIREBASE_TOKEN secret. firebase-tools reads FIREBASE_TOKEN from the
+      # environment, and Application Default Credentials otherwise. See
+      # docs/playbooks/DEPLOYMENT.md.
+      FIREBASE_TOKEN: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER == '' && secrets.FIREBASE_TOKEN || '' }}
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud (OIDC)
+        if: vars.GCP_WORKLOAD_IDENTITY_PROVIDER != ''
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
 
       - uses: actions/setup-node@v6
         with:
@@ -75,11 +92,11 @@ jobs:
         run: |
           for region in us-central1 europe-west1; do
             firebase functions:artifacts:setpolicy --location "$region" --days 7 --force \
-              --project "${{ secrets.FIREBASE_PROJECT_ID }}" --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+              --project "${{ secrets.FIREBASE_PROJECT_ID }}" --non-interactive
           done
 
       # The functions predeploy hook (firebase.json) builds functions/lib.
       # Without --force, a deploy that would delete a function that exists in
       # the project but not in source fails loudly instead of deleting it.
       - name: Deploy
-        run: firebase deploy --only firestore,storage,functions --project "${{ secrets.FIREBASE_PROJECT_ID }}" --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+        run: firebase deploy --only firestore,storage,functions --project "${{ secrets.FIREBASE_PROJECT_ID }}" --non-interactive

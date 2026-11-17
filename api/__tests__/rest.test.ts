@@ -146,7 +146,7 @@ describe('REST API input validation', () => {
     const res = makeRes();
     await handler(makeReq('POST', '/api/rest?type=logs', { brand: 'X', cost: 60, distanceKm: 500, fuelAmountLiters: 40, userId: 'victim' }), res);
     expect(res.writeHead).toHaveBeenCalledWith(201, expect.anything());
-    expect(collection.add).toHaveBeenCalledWith(expect.objectContaining({ userId: 'user123', cost: 60 }));
+    expect(collection.add).toHaveBeenCalledWith(expect.objectContaining({ userId: 'user123', cost: 60, source: 'api', schemaVersion: 2 }));
   });
 
   it('only writes allowlisted fields on log update', async () => {

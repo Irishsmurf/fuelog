@@ -1,4 +1,5 @@
 // src/pages/ImportPage.tsx
+import { CURRENT_SCHEMA_VERSION } from '@fuelog/core';
 import { JSX, useState, useEffect, ChangeEvent } from 'react';
 import { collection, writeBatch, Timestamp, doc } from "firebase/firestore";
 import { fetchVehicles, pickDefaultVehicle } from '../firebase/firestoreService';
@@ -109,6 +110,8 @@ function ImportPage(): JSX.Element {
 
           // NO conversion here, save distanceKm directly
           logsToImport.push({
+            source: 'import',
+            schemaVersion: CURRENT_SCHEMA_VERSION,
             userId: user.uid,
             vehicleId: selectedVehicleId, // Link to vehicle
             timestamp: timestamp,

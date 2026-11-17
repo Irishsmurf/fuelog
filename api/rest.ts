@@ -6,7 +6,7 @@ import { Timestamp, AggregateField } from 'firebase-admin/firestore';
 import { log } from './_logger.js';
 // Relative import (not '@fuelog/core'): Vercel compiles api/ itself and is
 // known to follow relative .ts imports; server code moves to Functions in step 3.
-import { mpgUK, kmPerLitre, litresPer100km, pricePerLitre } from '../packages/core/src/index.js';
+import { mpgUK, kmPerLitre, litresPer100km, pricePerLitre, CURRENT_SCHEMA_VERSION } from '../packages/core/src/index.js';
 import type { ServerLog, ServerVehicle } from '../src/mcp/types.js';
 import type { z } from 'zod';
 import {
@@ -140,6 +140,8 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
           ...definedOnly(fields),
           userId,
           timestamp: timestamp ? Timestamp.fromDate(new Date(timestamp)) : Timestamp.now(),
+          source: 'api',
+          schemaVersion: CURRENT_SCHEMA_VERSION,
         };
         const ref = await db.collection('fuelLogs').add(data);
         return sendResponse(res, 201, { id: ref.id });

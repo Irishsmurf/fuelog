@@ -45,6 +45,8 @@ service cloud.firestore {
         && optString(d, 'brand')
         && optString(d, 'currency')
         && optString(d, 'receiptUrl')
+        && (!d.keys().hasAny(['source']) || d.source in ['app', 'import', 'api', 'mcp'])
+        && optNumber(d, 'schemaVersion')
         && (!d.keys().hasAny(['timestamp']) || d.timestamp is timestamp);
     }
 

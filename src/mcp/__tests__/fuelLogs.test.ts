@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 const allLogs = vi.hoisted(() => ({ docs: [] as { id: string; data: () => Record<string, unknown> }[] }));
+const added = vi.hoisted(() => [] as Record<string, unknown>[]);
 
 vi.mock('../firebase-admin.js', () => {
   // Fake query that honours startAfter/limit over an ordered in-memory list.
@@ -13,7 +14,8 @@ vi.mock('../firebase-admin.js', () => {
     limit: (n: number) => makeQuery(start, n),
     get: async () => ({ docs: allLogs.docs.slice(start, start + max) }),
   });
-  return { getAdminDb: () => ({ collection: () => makeQuery() }) };
+  const add = async (d: Record<string, unknown>) => { added.push(d); return { id: 'new-log' }; };
+  return { getAdminDb: () => ({ collection: () => ({ ...makeQuery(), add }) }) };
 });
 
 import { registerFuelLogTools } from '../tools/fuelLogs.js';
@@ -74,5 +76,17 @@ describe('MCP read scopes', () => {
     const names = (s: unknown) => Object.keys((s as { _registeredResources: Record<string, unknown> })._registeredResources ?? {});
     expect(names(writeOnly)).not.toContain('fuelog://logs');
     expect(names(full)).toContain('fuelog://logs');
+  });
+});
+
+describe('MCP log_fuel', () => {
+  it('stamps new logs with source "mcp" and the current schema version', async () => {
+    added.length = 0;
+    const tools: Record<string, ToolHandler> = {};
+    const server = { registerTool: (name: string, _def: unknown, fn: ToolHandler) => { tools[name] = fn; } };
+    registerFuelLogTools(server as unknown as McpServer, 'u1', { userId: 'u1', scopes: ['write:logs'], tokenId: 't' });
+    await tools.log_fuel({ brand: 'Esso', cost: 60, distanceKm: 500, fuelAmountLiters: 40 });
+    expect(added).toHaveLength(1);
+    expect(added[0]).toMatchObject({ userId: 'u1', brand: 'Esso', source: 'mcp', schemaVersion: 2 });
   });
 });

@@ -1,5 +1,6 @@
 // Quick Log save flow: validate, resolve location + station, upload the
 // receipt, then add the log through the data layer.
+import { CURRENT_SCHEMA_VERSION } from '@fuelog/core';
 import { FormEvent, useState } from 'react';
 import type { User } from 'firebase/auth';
 import { Timestamp } from 'firebase/firestore';
@@ -156,6 +157,8 @@ export function useQuickLogSubmit(o: Options) {
         currency: rate.currency,
         originalCost: v.cost,
         exchangeRate: rate.exchangeRate,
+        source: 'app',
+        schemaVersion: CURRENT_SCHEMA_VERSION,
       };
       if (receiptUrl) logData.receiptUrl = receiptUrl;
       if (station) logData.stationId = station.id;

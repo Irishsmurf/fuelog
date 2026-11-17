@@ -138,6 +138,8 @@ describe('QuickLogPage', () => {
       currency: 'EUR',
       originalCost: 50,
       exchangeRate: 1,
+      source: 'app',
+      schemaVersion: 2,
     });
   });
 

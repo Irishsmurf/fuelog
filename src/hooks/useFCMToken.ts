@@ -26,7 +26,7 @@ export function useFCMToken(): FCMTokenState {
 
     // Check on mount whether the user already has a stored token
     useEffect(() => {
-        if (!user) { setIsEnabled(false); return; }
+        if (!user) return;
         const q = query(collection(db, 'fcmTokens'), where('userId', '==', user.uid));
         getDocs(q).then(snap => setIsEnabled(!snap.empty)).catch(() => setIsEnabled(false));
     }, [user]);
@@ -91,5 +91,6 @@ export function useFCMToken(): FCMTokenState {
         }
     }, [user, updateProfile]);
 
-    return { isEnabled, isLoading, permissionDenied, enable, disable };
+    // Signed out means no token, whatever a previous session left in state.
+    return { isEnabled: !!user && isEnabled, isLoading, permissionDenied, enable, disable };
 }

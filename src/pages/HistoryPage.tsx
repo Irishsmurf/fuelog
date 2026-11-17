@@ -1,6 +1,6 @@
 // src/pages/HistoryPage.tsx
 import { JSX, useState, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
-import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Timestamp } from "firebase/firestore";
 import { useAuth } from '../context/AuthContext';
@@ -40,8 +40,6 @@ function HistoryPage(): JSX.Element {
 
     // --- Feature Flags ---
 
-    const [stations, setStations] = useState<Station[]>([]); // Holds station info
-    const [stationError, setStationError] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState<boolean>(false);
     const [copyStatus, setCopyStatus] = useState<'idle' | 'copying' | 'copied' | 'failed' | 'noData' | 'unavailable'>('idle'); // Manages the text/state of the copy button
 
@@ -68,7 +66,6 @@ function HistoryPage(): JSX.Element {
     const [filterStartDate, setFilterStartDate] = useState<string>(''); // Format: YYYY-MM-DD
     const [filterEndDate, setFilterEndDate] = useState<string>('');     // Format: YYYY-MM-DD
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
-    const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
 
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
@@ -114,16 +111,22 @@ function HistoryPage(): JSX.Element {
             ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
             : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' }))
         : null;
-    const error = listError ?? stationError;
 
     // Brands seen so far feed the filter dropdown; reset when the underlying
     // log set (vehicle / date range) changes.
-    useEffect(() => { setUniqueBrands(prev => (prev.length ? [] : prev)); }, [user?.uid, filterVehicleId, filterStartDate, filterEndDate]);
-    useEffect(() => {
-        const seen = logsQuery.data?.pages.flatMap(p => p.brands) ?? [];
-        if (seen.length === 0) return;
-        setUniqueBrands(prev => Array.from(new Set([...prev, ...seen])).sort((a, b) => a.localeCompare(b)));
-    }, [logsQuery.data]);
+    // Brands accumulate across pages and survive picking a brand (so the other
+    // options stay in the dropdown); they reset when the vehicle or date range
+    // changes. Adjusted during render rather than in an effect.
+    const brandScope = `${user?.uid}|${filterVehicleId}|${filterStartDate}|${filterEndDate}`;
+    const [brandState, setBrandState] = useState<{ scope: string; brands: string[] }>({ scope: brandScope, brands: [] });
+    const knownBrands = brandState.scope === brandScope ? brandState.brands : [];
+    const seenBrands = logsQuery.data?.pages.flatMap(p => p.brands) ?? [];
+    const uniqueBrands = seenBrands.every(b => knownBrands.includes(b))
+        ? knownBrands
+        : Array.from(new Set([...knownBrands, ...seenBrands])).sort((a, b) => a.localeCompare(b));
+    if (brandState.scope !== brandScope || uniqueBrands !== knownBrands) {
+        setBrandState({ scope: brandScope, brands: uniqueBrands });
+    }
 
     /** Applies a local change to every cached page of the current list. */
     const updateCachedLogs = (fn: (logs: Log[]) => Log[]) => {
@@ -133,21 +136,23 @@ function HistoryPage(): JSX.Element {
         });
     };
 
-    // --- Fetch Stations Effect ---
-    useEffect(() => {
-        if (logs.length > 0) {
-            fetchUserStations(logs).then(stations => { setStations(stations); setStationError(null); }).catch(err => {
-                console.error('Error fetching stations:', err);
-                setStationError(
-                    !navigator.onLine
-                        ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
-                        : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' })
-                );
-            });
-        } else {
-            setStations([]);
-        }
-    }, [logs]);
+    // Stations referenced by the loaded logs (names and brands for the table).
+    const stationIds = useMemo(
+        () => Array.from(new Set(logs.map(l => l.stationId).filter((id): id is string => !!id))).sort(),
+        [logs],
+    );
+    const stationsQuery = useQuery({
+        queryKey: ['stations', user?.uid, stationIds],
+        queryFn: () => fetchUserStations(logs),
+        enabled: logs.length > 0,
+    });
+    const stations: Station[] = logs.length > 0 ? (stationsQuery.data ?? []) : [];
+    const stationError = stationsQuery.isError
+        ? (!navigator.onLine
+            ? t('history.offlineError', { defaultValue: 'You are offline. Please check your connection and try again.' })
+            : t('history.loadError', { defaultValue: 'Failed to load fuel history. Please check your connection and try again.' }))
+        : null;
+    const error = listError ?? stationError;
 
     // --- Filtering Logic using useMemo ---
     // Creates a memoized array of logs based on the current filter state.

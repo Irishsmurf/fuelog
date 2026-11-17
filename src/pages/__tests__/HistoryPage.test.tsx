@@ -65,6 +65,24 @@ describe('HistoryPage (data layer)', () => {
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Load More' })).not.toBeInTheDocument());
   });
 
+  it('keeps every seen brand in the filter while a brand is selected', async () => {
+    vi.mocked(fetchLogsPage).mockImplementation(async (_uid, filters) => (
+      filters.brand === 'Shell'
+        ? { logs: [log('s', 'Shell')], nextCursor: null, brands: ['Shell'] }
+        : { logs: [log('a', 'Esso'), log('b', 'Shell')], nextCursor: null, brands: ['Shell', 'Esso'] }
+    ));
+    renderPage();
+
+    const brandSelect = () => screen.getByLabelText('history.filters.brand') as HTMLSelectElement;
+    const options = () => Array.from(brandSelect().options).map(o => o.value).filter(Boolean);
+    await waitFor(() => expect(options()).toEqual(['Esso', 'Shell']));
+
+    fireEvent.change(brandSelect(), { target: { value: 'Shell' } });
+    await waitFor(() => expect(vi.mocked(fetchLogsPage).mock.calls.at(-1)![1].brand).toBe('Shell'));
+    // Narrowing to one brand must not drop the other option from the dropdown.
+    expect(options()).toEqual(['Esso', 'Shell']);
+  });
+
   it('exports every matching log, not just the loaded page', async () => {
     vi.mocked(fetchLogsPage).mockResolvedValue({ logs: [log('a')], nextCursor: cursor as never, brands: ['Esso'] });
     const all = Array.from({ length: 120 }, (_, i) => log(`l${i}`));

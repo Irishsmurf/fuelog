@@ -1,5 +1,48 @@
 # Changelog
 
+## [2.4.0](https://github.com/Irishsmurf/fuelog/compare/v2.3.0...v2.4.0) (2026-11-17)
+
+
+### Features
+
+* **functions:** add --verbose per-vehicle breakdown to odometer backfill ([#218](https://github.com/Irishsmurf/fuelog/issues/218)) ([f207832](https://github.com/Irishsmurf/fuelog/commit/f20783276a566cfee709c798206396e7395a0192))
+* **functions:** add script to assign stations to coordinate-only logs ([#219](https://github.com/Irishsmurf/fuelog/issues/219)) ([dec135b](https://github.com/Irishsmurf/fuelog/commit/dec135b768081bd7787e2e86e2ed5ee86a661b5a))
+* **functions:** backfill odometer readings from distance history ([#216](https://github.com/Irishsmurf/fuelog/issues/216)) ([d2cb326](https://github.com/Irishsmurf/fuelog/commit/d2cb3269e578b35582df87b06cf40028a90dec3e))
+* **functions:** onLogWrite trigger for server-derived log fields (rewrite step 3) ([#330](https://github.com/Irishsmurf/fuelog/issues/330)) ([6b1fb62](https://github.com/Irishsmurf/fuelog/commit/6b1fb62cc9ffc3151ec8cbe2840047c95091b927))
+* **functions:** server-owned station stats; fix deploy smoke target ([#284](https://github.com/Irishsmurf/fuelog/issues/284)) ([30562ed](https://github.com/Irishsmurf/fuelog/commit/30562edff866589a6743df328026c1b37608780d))
+* **history:** add a query-based data layer; fix exports and brand filter ([#298](https://github.com/Irishsmurf/fuelog/issues/298)) ([4ed7e4c](https://github.com/Irishsmurf/fuelog/commit/4ed7e4ca78d1ba25fed9789e2a07b4f368241f06))
+* log fuel-ups at a later time and location ([#213](https://github.com/Irishsmurf/fuelog/issues/213)) ([c80f11f](https://github.com/Irishsmurf/fuelog/commit/c80f11f9ec53dc5d3a1ed4d9a814d4f6abf68831))
+* **logs:** writers stamp source and schemaVersion on new logs ([#331](https://github.com/Irishsmurf/fuelog/issues/331)) ([89b4cba](https://github.com/Irishsmurf/fuelog/commit/89b4cba083273e6e2ea9a41580814c8bc72b13ab))
+* **map:** make Map page full-bleed across the viewport ([#220](https://github.com/Irishsmurf/fuelog/issues/220)) ([9825f38](https://github.com/Irishsmurf/fuelog/commit/9825f3871790dc7068fde23d58d9ecf4f371f40b))
+* **map:** move CARTO basemaps to keyed vector styles ([#246](https://github.com/Irishsmurf/fuelog/issues/246)) ([105c75d](https://github.com/Irishsmurf/fuelog/commit/105c75d7290d11ad2f3b95ffdee36ac06647987b))
+* **ui:** redesign app with the Nocturne design system ([#228](https://github.com/Irishsmurf/fuelog/issues/228)) ([8206f2b](https://github.com/Irishsmurf/fuelog/commit/8206f2b45bf11111bc505f27b99826024ffea4ae))
+
+
+### Bug Fixes
+
+* allow log updates without a receipt and stop modal viewport clipping ([#215](https://github.com/Irishsmurf/fuelog/issues/215)) ([f6a9a81](https://github.com/Irishsmurf/fuelog/commit/f6a9a8142016b03d941b2e3ef0e2ecda58049c77))
+* **api:** enforce read scopes on REST and MCP; don't orphan logs ([#303](https://github.com/Irishsmurf/fuelog/issues/303)) ([5561845](https://github.com/Irishsmurf/fuelog/commit/55618454f14fb3ff9951f4282b59532cbfad1d54))
+* **ci,api:** make CI trustworthy and validate REST/receipt input ([#269](https://github.com/Irishsmurf/fuelog/issues/269)) ([2bc7cc4](https://github.com/Irishsmurf/fuelog/commit/2bc7cc4876baee4827e375adffccc4345655f1a2))
+* **deploy:** unblock Functions deploy; correct prod smoke domain and rollback ([#285](https://github.com/Irishsmurf/fuelog/issues/285)) ([df8a5e3](https://github.com/Irishsmurf/fuelog/commit/df8a5e3a343a11da1484fa4b19482b35d77efcd5))
+* **deploy:** write functions params for CI; treat promote 409 as success ([#286](https://github.com/Irishsmurf/fuelog/issues/286)) ([3c0f063](https://github.com/Irishsmurf/fuelog/commit/3c0f063845a0335465964dcbcee93530a5f82088))
+* **functions:** avoid Overpass 406 in assign-stations script ([#221](https://github.com/Irishsmurf/fuelog/issues/221)) ([db98827](https://github.com/Irishsmurf/fuelog/commit/db98827db50411735747562d1bb0f57084f36f8d))
+* **functions:** pin Firestore project in odometer backfill script ([#217](https://github.com/Irishsmurf/fuelog/issues/217)) ([21839d6](https://github.com/Irishsmurf/fuelog/commit/21839d6592fbfd2bde69b81b9e2ec51c8e91cef1))
+* **map:** bundle the maplibre worker instead of relying on its runtime URL ([#247](https://github.com/Irishsmurf/fuelog/issues/247)) ([b605a68](https://github.com/Irishsmurf/fuelog/commit/b605a68fe378a1ff12043bb4bab9c6b8a71b1b65))
+* **map:** give vector maps an explicit maxZoom ([#248](https://github.com/Irishsmurf/fuelog/issues/248)) ([4b82e21](https://github.com/Irishsmurf/fuelog/commit/4b82e21d7e6facb54d08946cf4c3c7d23d5bbedb))
+* prevent undefined Firestore fields and clarify save errors ([#212](https://github.com/Irishsmurf/fuelog/issues/212)) ([62b0855](https://github.com/Irishsmurf/fuelog/commit/62b08551e5337760da2c7c0f9a88c7ae3a4bfd66))
+* **profile,auth:** listener leak, stale profile writes, orphaned logs ([#300](https://github.com/Irishsmurf/fuelog/issues/300)) ([77e1957](https://github.com/Irishsmurf/fuelog/commit/77e1957e4f30f55e9f43360dedff6aa1959af576))
+* **quicklog:** offline saves, exchange-rate races, local rate date ([#299](https://github.com/Irishsmurf/fuelog/issues/299)) ([02294fc](https://github.com/Irishsmurf/fuelog/commit/02294fc705c3bacef28da8cb325f80e1c756462b))
+* resolve ERR_REQUIRE_ESM from jose/jwks-rsa ([#207](https://github.com/Irishsmurf/fuelog/issues/207)) ([48b2627](https://github.com/Irishsmurf/fuelog/commit/48b262770c810d5f7b735fdce886b629e2d7e3bd))
+* **security:** close API-token takeover hole; add rebuild plan ([#259](https://github.com/Irishsmurf/fuelog/issues/259)) ([f9609d5](https://github.com/Irishsmurf/fuelog/commit/f9609d551ed9e04db6470ccd0798046edf75cdeb))
+* use correct Interactions API parameters for Gemini thinking config ([#209](https://github.com/Irishsmurf/fuelog/issues/209)) ([293465a](https://github.com/Irishsmurf/fuelog/commit/293465af674483d68cc5f85b42dc228b981a51df))
+
+
+### Performance Improvements
+
+* compress receipt images before uploading to storage ([#211](https://github.com/Irishsmurf/fuelog/issues/211)) ([51b9552](https://github.com/Irishsmurf/fuelog/commit/51b955206cb1be9096b4a78b0555ea6a738b7f7c))
+* **i18n:** load non-english locales on demand ([#306](https://github.com/Irishsmurf/fuelog/issues/306)) ([d8bd239](https://github.com/Irishsmurf/fuelog/commit/d8bd239c04ee1c151f43982b2c33666bb2abc6d7))
+* **pwa:** keep route-only chunks out of the precache; add a budget ([#301](https://github.com/Irishsmurf/fuelog/issues/301)) ([6048a98](https://github.com/Irishsmurf/fuelog/commit/6048a98f74b3a7d8d266f9044a13fd738520e781))
+
 ## [2.3.0](https://github.com/Irishsmurf/fuelog/compare/v2.2.0...v2.3.0) (2026-06-17)
 
 

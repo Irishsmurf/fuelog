@@ -1,12 +1,14 @@
-// Fuel-log reads for list views and exports. Pure Firestore access (no React)
-// so it can be unit-tested and shared by hooks.
+// Fuel-log reads and writes for list views, exports, the log form and the
+// dashboard. Pure Firestore access (no React) so it can be unit-tested and
+// shared by hooks (see logHooks.ts).
 import {
   collection, query, where, orderBy, getDocs, limit, startAfter, Timestamp, getCountFromServer,
+  addDoc, updateDoc, deleteDoc, doc,
   type QueryConstraint, type QueryDocumentSnapshot, type DocumentData,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { fuelLogSchema, withId } from '../firebase/converters';
-import type { Log } from '../utils/types';
+import type { FuelLogData, Log } from '../utils/types';
 
 export interface LogFilters {
   vehicleId?: string;
@@ -137,4 +139,45 @@ export async function countVehicleLogs(userId: string, vehicleId: string): Promi
     collection(db, 'fuelLogs'), where('userId', '==', userId), where('vehicleId', '==', vehicleId),
   ));
   return snap.data().count;
+}
+
+/**
+ * Logs since `since` (inclusive), optionally for one vehicle. Unordered; the
+ * dashboard sorts and buckets them itself.
+ */
+export async function fetchLogsSince(userId: string, since: Date, vehicleId?: string): Promise<Log[]> {
+  const c: QueryConstraint[] = [
+    where('userId', '==', userId),
+    where('timestamp', '>=', Timestamp.fromDate(since)),
+  ];
+  if (vehicleId) c.push(where('vehicleId', '==', vehicleId));
+  const snap = await getDocs(query(collection(db, 'fuelLogs'), ...c));
+  return snap.docs.map(d => withId(fuelLogSchema, 'fuelLog', d) as Log);
+}
+
+/** A new log as the client writes it (user-entered fields only). */
+export type NewFuelLog = Omit<FuelLogData, 'timestamp'> & { timestamp: Timestamp; userId: string };
+
+/**
+ * Adds a fuel log. `addDoc` only resolves once the *server* acknowledges the
+ * write, so offline we don't wait: Firestore has already queued it locally
+ * and will sync it on reconnect. Rejects only when an online write fails.
+ */
+export async function addLog(log: NewFuelLog): Promise<{ savedOffline: boolean }> {
+  const pendingWrite = addDoc(collection(db, 'fuelLogs'), log);
+  if (!navigator.onLine) {
+    pendingWrite.catch(err => console.error('Queued fuel log failed to sync:', err));
+    return { savedOffline: true };
+  }
+  await pendingWrite;
+  return { savedOffline: false };
+}
+
+/** Updates fields of a log. Never pass `undefined` values: updateDoc rejects them. */
+export async function updateLog(logId: string, updates: Partial<FuelLogData>): Promise<void> {
+  await updateDoc(doc(db, 'fuelLogs', logId), updates);
+}
+
+export async function deleteLog(logId: string): Promise<void> {
+  await deleteDoc(doc(db, 'fuelLogs', logId));
 }

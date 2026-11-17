@@ -1,6 +1,8 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { addDoc, getDocs } from 'firebase/firestore';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { addDoc } from 'firebase/firestore';
+import { addLog, fetchRecentBrands } from '../data/logs';
 import { fetchExchangeRate } from '../utils/currencyApi';
 import { getLastOdometerReading, getOrCreateStation, fetchVehicles } from '../firebase/firestoreService';
 import { extractDataFromReceipt } from '../utils/gemini';
@@ -35,15 +37,19 @@ vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({ user: mockUser, profile: mockProfile }),
 }));
 
+// Only for the end-to-end offline check, which runs the real addLog.
 vi.mock('firebase/firestore', async (importOriginal) => {
   const actual = await importOriginal<typeof import('firebase/firestore')>();
+  return { ...actual, collection: vi.fn(() => ({})), addDoc: vi.fn() };
+});
+
+// The page writes through the data layer: mock its functions, not Firestore.
+vi.mock('../data/logs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../data/logs')>();
   return {
     ...actual,
-    collection: vi.fn(() => ({})),
-    query: vi.fn(() => ({})),
-    where: vi.fn(() => ({})),
-    getDocs: vi.fn(),
-    addDoc: vi.fn(),
+    addLog: vi.fn(),
+    fetchRecentBrands: vi.fn().mockResolvedValue([]),
   };
 });
 
@@ -86,12 +92,9 @@ vi.mock('../utils/locationService', () => ({
 
 const mockVehicle = { id: 'vehicle-1', name: 'Car', make: 'Toyota', isDefault: true, isArchived: false };
 
-function mockSnapshot(docs: { id: string; data: Record<string, unknown> }[]) {
-  return {
-    forEach: (cb: (doc: { id: string; data: () => Record<string, unknown> }) => void) => {
-      docs.forEach(d => cb({ id: d.id, data: () => d.data }));
-    },
-  };
+function renderPage() {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={client}><MemoryRouter><QuickLogPage /></MemoryRouter></QueryClientProvider>);
 }
 
 describe('QuickLogPage', () => {
@@ -99,9 +102,7 @@ describe('QuickLogPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getDocs).mockImplementation(async () => {
-      return mockSnapshot([{ id: mockVehicle.id, data: mockVehicle }]) as never;
-    });
+    vi.mocked(addLog).mockResolvedValue({ savedOffline: false });
     vi.mocked(getLastOdometerReading).mockResolvedValue(null);
     vi.mocked(fetchVehicles).mockResolvedValue([mockVehicle] as never);
 
@@ -113,7 +114,7 @@ describe('QuickLogPage', () => {
   });
 
   it('saves a fuel log with the correct payload on the happy path', async () => {
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -124,9 +125,9 @@ describe('QuickLogPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
 
-    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    const [payload] = vi.mocked(addLog).mock.calls[0];
     expect(payload).toMatchObject({
       userId: 'user-1',
       vehicleId: 'vehicle-1',
@@ -140,21 +141,61 @@ describe('QuickLogPage', () => {
     });
   });
 
+  it('refreshes log-derived data (e.g. brand suggestions) after a save', async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+    await waitFor(() => expect(fetchRecentBrands).toHaveBeenCalledTimes(1));
+
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(fetchRecentBrands).toHaveBeenCalledTimes(2));
+  });
+
+  it('reports a failed exchange-rate lookup', async () => {
+    vi.mocked(fetchExchangeRate).mockRejectedValue(new Error('down'));
+    renderPage();
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.currency')).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText('quickLog.fields.currency'), { target: { value: 'USD' } });
+    await waitFor(() => expect(screen.getByText('quickLog.messages.fetchRateError')).toBeInTheDocument());
+  });
+
+  it('reports a failed odometer lookup', async () => {
+    vi.mocked(getLastOdometerReading).mockRejectedValue(new Error('down'));
+    renderPage();
+    await waitFor(() => expect(screen.getByText('Failed to load last odometer reading.')).toBeInTheDocument());
+  });
+
+  it('preselects the default vehicle', async () => {
+    vi.mocked(fetchVehicles).mockResolvedValue([
+      { ...mockVehicle, id: 'a', name: 'Alpha', isDefault: false },
+      { ...mockVehicle, id: 'b', name: 'Beta', isDefault: true },
+    ] as never);
+    renderPage();
+    const beta = await screen.findByRole('radio', { name: 'Beta' });
+    expect(beta).toBeChecked();
+    fireEvent.click(screen.getByRole('radio', { name: 'Alpha' }));
+    expect(screen.getByRole('radio', { name: 'Alpha' })).toBeChecked();
+  });
+
   it('shows a validation error when required fields are missing', async () => {
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
     await waitFor(() => expect(screen.getByText('quickLog.messages.fillRequired')).toBeInTheDocument());
-    expect(addDoc).not.toHaveBeenCalled();
+    expect(addLog).not.toHaveBeenCalled();
   });
 
   it('auto-populates distance from the odometer reading when a prior reading exists', async () => {
     vi.mocked(getLastOdometerReading).mockResolvedValue(10000);
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.odometer')).toBeInTheDocument());
 
@@ -168,7 +209,7 @@ describe('QuickLogPage', () => {
   it('fetches the exchange rate and stores originalCost + exchangeRate when a non-home currency is selected', async () => {
     vi.mocked(fetchExchangeRate).mockResolvedValue(1.1);
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.currency')).toBeInTheDocument());
 
@@ -184,8 +225,8 @@ describe('QuickLogPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
-    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
+    const [payload] = vi.mocked(addLog).mock.calls[0];
     expect(payload).toMatchObject({
       currency: 'USD',
       originalCost: 50,
@@ -196,7 +237,7 @@ describe('QuickLogPage', () => {
 
   it('keeps a rate the user typed when the fill-up time changes', async () => {
     vi.mocked(fetchExchangeRate).mockResolvedValue(1.1);
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.currency')).toBeInTheDocument());
 
     fireEvent.change(screen.getByLabelText('quickLog.fields.currency'), { target: { value: 'USD' } });
@@ -213,15 +254,33 @@ describe('QuickLogPage', () => {
     expect(rateInput.value).toBe('1.25');
   });
 
-  it('does not hang while offline: the write is queued and the form reports success', async () => {
+  it('reports an offline save as queued instead of waiting for the server', async () => {
+    // addLog resolves at once offline (see data/logs tests) and says so.
+    vi.mocked(addLog).mockResolvedValueOnce({ savedOffline: true });
+    renderPage();
+    await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText(/quickLog\.fields\.fillingStation/), { target: { value: 'Shell' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
+    fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
+
+    await waitFor(() => expect(screen.getByText(/quickLog.messages.savedOffline|back online/)).toBeInTheDocument());
+    expect(addLog).toHaveBeenCalledTimes(1);
+    // The form is cleared for the next entry.
+    expect((screen.getByLabelText('quickLog.fields.totalCost') as HTMLInputElement).value).toBe('');
+  });
+
+  it('does not hang offline even when the underlying Firestore write never resolves', async () => {
     const online = Object.getOwnPropertyDescriptor(Navigator.prototype, 'onLine');
     Object.defineProperty(window.navigator, 'onLine', { value: false, configurable: true });
+    const actual = await vi.importActual<typeof import('../data/logs')>('../data/logs');
     // Offline, addDoc never resolves (it waits for the server ack).
     vi.mocked(addDoc).mockReturnValueOnce(new Promise(() => {}) as never);
+    vi.mocked(addLog).mockImplementationOnce(actual.addLog);
     try {
-      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+      renderPage();
       await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
-      fireEvent.change(screen.getByLabelText(/quickLog\.fields\.fillingStation/), { target: { value: 'Shell' } });
       fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
       fireEvent.change(screen.getByLabelText('quickLog.fields.distance'), { target: { value: '400' } });
       fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
@@ -238,7 +297,7 @@ describe('QuickLogPage', () => {
   it('extracts and pre-fills form fields from a receipt image', async () => {
     vi.mocked(extractDataFromReceipt).mockResolvedValue({ cost: 42.5, fuelAmountLiters: 28, brand: 'Esso', purchaseDate: null, purchaseTime: null, address: null });
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -265,7 +324,7 @@ describe('QuickLogPage', () => {
       purchaseDate: '2026-06-20', purchaseTime: '14:30', address: null,
     });
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
     const file = new File(['mock'], 'receipt.jpg', { type: 'image/jpeg' });
@@ -284,7 +343,7 @@ describe('QuickLogPage', () => {
     vi.mocked(geocodeAddress).mockResolvedValue({ latitude: 10, longitude: 20 });
     vi.mocked(findNearestStation).mockResolvedValue(null);
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
     const file = new File(['mock'], 'receipt.jpg', { type: 'image/jpeg' });
@@ -305,7 +364,7 @@ describe('QuickLogPage', () => {
     vi.mocked(findNearestStation).mockResolvedValue(mockStation);
     vi.mocked(getOrCreateStation).mockResolvedValue('station-9');
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
     // Open the map and drop a pin via the stubbed picker.
@@ -318,8 +377,8 @@ describe('QuickLogPage', () => {
     fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '30' } });
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
-    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
+    const [payload] = vi.mocked(addLog).mock.calls[0];
     expect(payload).toMatchObject({ latitude: 1.5, longitude: 2.5, stationId: 'station-9' });
     // Manual pins carry no GPS accuracy figure.
     expect(payload).not.toHaveProperty('locationAccuracy');
@@ -336,7 +395,7 @@ describe('QuickLogPage', () => {
       vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(false);
       setGeolocationAccuracy(500);
 
-      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+      renderPage();
 
       await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -353,7 +412,7 @@ describe('QuickLogPage', () => {
 
       // ...and is still visible once the save completes successfully (not overwritten
       // by the subsequent "saving"/"success" status messages, which share a different slot).
-      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
       expect(screen.getByText('GPS accuracy is low (500m); skipping station detection.')).toBeInTheDocument();
     });
 
@@ -361,7 +420,7 @@ describe('QuickLogPage', () => {
       vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(true);
       setGeolocationAccuracy(20);
 
-      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+      renderPage();
 
       await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -371,7 +430,7 @@ describe('QuickLogPage', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
       expect(screen.queryByText(/skipping station detection/)).not.toBeInTheDocument();
     });
 
@@ -379,7 +438,7 @@ describe('QuickLogPage', () => {
       vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(false);
       setGeolocationAccuracy(500);
 
-      render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+      renderPage();
       await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
       fireEvent.change(screen.getByLabelText('quickLog.fields.totalCost'), { target: { value: '50' } });
@@ -390,7 +449,7 @@ describe('QuickLogPage', () => {
       await waitFor(() =>
         expect(screen.getByText('GPS accuracy is low (500m); skipping station detection.')).toBeInTheDocument()
       );
-      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
 
       // Second submission with good accuracy should clear the stale warning.
       vi.mocked(isAccurateEnoughForStationMatch).mockReturnValue(true);
@@ -401,7 +460,7 @@ describe('QuickLogPage', () => {
       fireEvent.change(screen.getByLabelText('quickLog.fields.fuel'), { target: { value: '20' } });
       fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-      await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(2));
+      await waitFor(() => expect(addLog).toHaveBeenCalledTimes(2));
       expect(screen.queryByText(/skipping station detection/)).not.toBeInTheDocument();
     });
   });
@@ -429,7 +488,7 @@ describe('QuickLogPage', () => {
       })
     );
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -439,9 +498,9 @@ describe('QuickLogPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
 
-    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    const [payload] = vi.mocked(addLog).mock.calls[0];
     expect(payload).toMatchObject({
       brand: 'Shell Berlin',
       latitude: 52.52,
@@ -456,7 +515,7 @@ describe('QuickLogPage', () => {
 
   it('omits stationId from the payload when no station is linked (no undefined fields)', async () => {
     // Geolocation is denied in the default beforeEach, so no station is linked.
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -467,9 +526,9 @@ describe('QuickLogPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
 
-    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    const [payload] = vi.mocked(addLog).mock.calls[0];
     // Firestore's addDoc() rejects fields whose value is undefined, so optional
     // fields must be absent rather than set to undefined.
     expect(payload).not.toHaveProperty('stationId');
@@ -478,9 +537,9 @@ describe('QuickLogPage', () => {
   });
 
   it('shows a clear error with the failure detail when the Firestore write fails', async () => {
-    vi.mocked(addDoc).mockRejectedValue(new Error('permission-denied'));
+    vi.mocked(addLog).mockRejectedValue(new Error('permission-denied'));
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -490,7 +549,7 @@ describe('QuickLogPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
     // The save error is surfaced to the user instead of only being logged.
     // (The mock t() returns the key; the real en.json string interpolates the
     // {{detail}} placeholder with the underlying error message.)
@@ -506,7 +565,7 @@ describe('QuickLogPage', () => {
       success({ coords: { latitude: 52.52, longitude: 13.405, accuracy: 15 } })
     );
 
-    render(<MemoryRouter><QuickLogPage /></MemoryRouter>);
+    renderPage();
 
     await waitFor(() => expect(screen.getByLabelText('quickLog.fields.totalCost')).toBeInTheDocument());
 
@@ -516,12 +575,12 @@ describe('QuickLogPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /quickLog.submit.save/ }));
 
-    await waitFor(() => expect(addDoc).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(addLog).toHaveBeenCalledTimes(1));
     await waitFor(() =>
       expect(screen.getByText(/quickLog\.messages\.stationLookupWarning/)).toBeInTheDocument()
     );
 
-    const [, payload] = vi.mocked(addDoc).mock.calls[0];
+    const [payload] = vi.mocked(addLog).mock.calls[0];
     expect(payload).not.toHaveProperty('stationId');
   });
 });

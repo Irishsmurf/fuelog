@@ -14,7 +14,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
   - Server-owned per-currency station stats (`updateStationStats`, `stations.priceStats.<CUR>`) with idempotency markers in `triggerEvents`; `runMigrations` scheduled one-shot migrations (#284).
   - Functions deployed from CI with tests first, no `--force` and artifact cleanup policies (#284, #285, #286, #295).
   - Vercel deploy smoke-tests the production domain and rolls back on failure (#284, #285, #286).
-- **Step 4, partly:** TanStack Query data layer in `src/data`, used by History; exports read all matching logs (#298). QuickLog offline saves and exchange-rate fixes (#299). Profile and auth fixes (#300).
+- **Step 4:** TanStack Query data layer in `src/data` (query keys in `keys.ts`; every log-derived view lives under `['logs', uid]`, so one invalidation after a write refreshes History, Dashboard, brands, odometer and stats). History (#298), then QuickLog, Profile/Vehicles and Dashboard (845/554/405 lines → 135/99/105), split into `src/components/{quicklog,profile,dashboard}` and hooks. Earlier fixes: offline saves and exchange rates (#299), profile and auth (#300).
 - **Step 7:** `CONTEXT.md`, ADRs 0001–0007, stale docs removed (this change).
 
 - **Step 5, partly:** route-only chunks (map renderer, PDF, canvas) kept out of the precache, with a 4,200 KiB precache budget in CI (#301).
@@ -32,7 +32,6 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
   - an `onLogWrite` trigger for the rest of the derived data (distance from odometer, home-currency cost and rate, `stationId`);
   - retire the backfill scripts and the ProfilePage client migration;
   - OIDC instead of `FIREBASE_TOKEN`.
-- Step 4: move QuickLog, Profile/Vehicles and Dashboard onto the data layer (each under about 250 lines).
 - §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
 - Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).
 - §7 decisions were taken with the recommended defaults (see §7).

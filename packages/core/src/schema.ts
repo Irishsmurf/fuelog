@@ -46,6 +46,11 @@ export const createFuelLogSchema = <TS extends z.ZodType>(timestamp: TS) =>
     vehicleId: z.string().optional(),
     receiptUrl: z.string().optional(),
     stationId: z.string().optional(),
+    // Written by the onLogWrite Cloud Function (absent until a log is derived).
+    /** Home-currency cost per litre. */
+    pricePerLitre: finite.optional(),
+    /** distanceKm / fuelAmountLiters. */
+    kmPerLitre: finite.optional(),
     // v2 fields — absent on legacy documents.
     fillType: z.enum(FILL_TYPES).optional(),
     missedPrevious: z.boolean().optional(),

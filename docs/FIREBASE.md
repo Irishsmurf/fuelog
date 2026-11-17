@@ -18,13 +18,13 @@ authoritative shapes are the zod schemas in `packages/core/src/schema.ts`.
 | `fuelLogs` | auto | client, REST, MCP | One fill-up (fields below). |
 | `vehicles` | auto | client, REST, MCP | `userId`, `name`, `make`, `model`, `year` (string), `fuelType`, `isDefault`, `isArchived`. |
 | `userProfiles` | uid | client | `homeCurrency`, `monthlyBudget`, `notificationsEnabled`, `hasSeenImportOnboarding`, `tester_group`. |
-| `stations` | OSM id, `/`→`_` | client creates; server updates | `osmId`, `name`, `brand`, `latitude`, `longitude`, `address`, `priceStats.<CUR>` (server), legacy `avgPrice`/`lastPrice`/`logCount`, `statsUpdatedAt`. |
+| `stations` | OSM id, `/`→`_` | client or `onLogWrite` creates; server updates | `osmId`, `name`, `brand`, `latitude`, `longitude`, `address`, `priceStats.<CUR>` (server), legacy `avgPrice`/`lastPrice`/`logCount`, `statsUpdatedAt`. |
 | `apiTokens` | auto | client creates/revokes; server sets `lastUsedAt` | `userId`, `name`, `tokenPrefix`, `tokenHash` (SHA-256 hex), `scopes`, `createdAt`, `lastUsedAt`, `expiresAt`, `isRevoked`. |
 | `fcmTokens` | the FCM token | client | `userId`, `token`, `platform: 'web'`, `createdAt`, `updatedAt`. |
 | `budgetAlerts` | `{uid}_{YYYY-MM}` | `checkBudgetAlert` | `userId`, `monthKey`, `thresholds` (80/100 already alerted), `updatedAt`. |
 | `usageQuotas` | `{uid}_{kind}_{YYYY-MM-DD}` | `api/extract-receipt` | `uid`, `kind`, `day` (UTC), `count`, `updatedAt`. |
-| `triggerEvents` | `stationStats_{eventId}` | `updateStationStats` | `createdAt`, `expireAt` (7 days; for a TTL policy). |
-| `migrations` | migration id | `runMigrations` | `completedAt` plus the migration's result. |
+| `triggerEvents` | `stationStats_{eventId}`, `logDerived_{eventId}` | `updateStationStats`, `onLogWrite` | `createdAt`, `expireAt` (7 days; for a TTL policy). |
+| `migrations` | migration id | `runMigrations` | `completedAt` plus the migration's result; or, while unfinished, `state` to resume from and `lastRun`. |
 | `testNotifications` | auto | `sendTestNotification` | Audit trail of dev test pushes. |
 | `mail` | auto | `sendMonthlySummary` | Picked up by the Trigger Email extension. |
 
@@ -35,13 +35,14 @@ authoritative shapes are the zod schemas in `packages/core/src/schema.ts`.
 | `userId` | string | Owner's UID. Immutable. |
 | `timestamp` | Timestamp | When the fill-up happened (can be back-dated). |
 | `cost` | number | Total cost in the owner's **home currency**. |
-| `distanceKm` | number | Distance since the previous fill-up. |
+| `distanceKm` | number | Distance since the previous fill-up. With an odometer reading, `onLogWrite` derives it from the previous reading of the same vehicle (and re-derives the next log's). |
 | `fuelAmountLiters` | number | Litres added. |
 | `brand` | string? | Station brand. |
 | `odometerKm` | number? | Odometer reading. |
 | `currency`, `originalCost`, `exchangeRate` | string?, number?, number? | Amount paid in the receipt's currency; `cost = originalCost × exchangeRate`. |
 | `vehicleId` | string? | Vehicle filled. |
-| `stationId` | string? | Linked `stations` doc. |
+| `stationId` | string? | Linked `stations` doc. Filled by `onLogWrite` when coordinates are given without one. |
+| `pricePerLitre`, `kmPerLitre` | number? | Written by `onLogWrite`: `cost / fuelAmountLiters` (home currency) and `distanceKm / fuelAmountLiters`. |
 | `latitude`, `longitude`, `locationAccuracy` | number? | Where the fill-up happened. |
 | `receiptUrl` | string? | Storage download URL of the receipt. |
 | `fillType`, `missedPrevious`, `source`, `schemaVersion` | v2, optional | Defined in the schema; not yet written. |
@@ -74,8 +75,9 @@ Exported from `functions/src/index.ts`; deployed by the Firebase Deploy workflow
 | Function | Trigger | Region | Purpose |
 | :--- | :--- | :--- | :--- |
 | `updateStationStats` | `fuelLogs/{logId}` written | europe-west1 | Maintains `stations.priceStats.<CUR>`; idempotent via `triggerEvents`. |
+| `onLogWrite` | `fuelLogs/{logId}` written | placed by the CLI (expected europe-west1) | Server-derived log fields (see below); idempotent via `triggerEvents`. |
 | `checkBudgetAlert` | `fuelLogs/{logId}` written | not set in code | Push at 80% / 100% of `monthlyBudget`; state in `budgetAlerts`. |
-| `runMigrations` | every 60 minutes | us-central1 (default) | Runs pending one-shot migrations (`migrations/{id}`). |
+| `runMigrations` | every 60 minutes, 540 s timeout | us-central1 (default) | Runs pending one-shot migrations (`migrations/{id}`): `stationPriceStats_v1`. |
 | `cleanupExpiredTokens` | every 24 hours | us-central1 (default) | Revokes expired API tokens. |
 | `sendWeeklyDigest` | Mondays 08:00 (`every monday 08:00`) | us-central1 (default) | Weekly spend push. |
 | `sendMonthlySummary` | 1st of month 08:00 (`0 8 1 * *`) | us-central1 (default) | Monthly summary email via `mail`. |
@@ -85,6 +87,32 @@ Exported from `functions/src/index.ts`; deployed by the Firebase Deploy workflow
 No function sets a global region. Firestore-triggered functions are placed by
 the Firebase CLI; `updateStationStats` was deployed to `europe-west1`, next to
 the `eur3` database (#295).
+
+### `onLogWrite`
+
+`functions/src/logDerived.ts`. On every fuel-log create, update and delete:
+- `distanceKm` from `odometerKm` and the previous reading of the same (user,
+  vehicle) (`deriveDistances`), for the written log and for the next log with a
+  reading, so inserts, back-dating, edits and deletes fix the neighbour too. A
+  stored distance within 1 km of the derived one is kept (readings are whole km).
+- `stationId` from an Overpass lookup when the log has new coordinates and no
+  station. Best-effort: a failed lookup leaves it unset.
+- `cost` + `exchangeRate` only when `originalCost` + `currency` are given and
+  `cost` is not (the app always writes both itself). Frankfurter rate for the
+  log's `localDate` (YYYY-MM-DD) if the writer set one, else the UTC date.
+- `pricePerLitre`, `kmPerLitre`.
+
+It writes only fields whose value changes, so its own writes re-fire as no-ops.
+It never touches `stations.priceStats` (`updateStationStats` does).
+
+`derivedLogFields_v1` backfills the same fields for existing logs (and rebuilds
+missing odometer readings from distance chains). It is **not** scheduled, because
+it bulk-rewrites user data: run `npm run derived-log-fields` in `functions/`
+(a dry run), review the report, then re-run with `--apply`.
+
+Build note: functions import pure modules from `packages/core/src` directly, so
+`functions/tsconfig.json` has `rootDir: ".."` and the entry point is
+`lib/functions/src/index.js`.
 
 Functions param: `DEV_NOTIFICATION_UIDS` (comma-separated UIDs; CI writes it
 from the repo variable of the same name, default `none`).

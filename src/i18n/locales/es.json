@@ -336,15 +336,6 @@
       "disable": "Desactivar",
       "enable": "Activar",
       "permissionDenied": "Las notificaciones están bloqueadas para este sitio en la configuración de tu navegador. Habilítalas en los permisos del sitio de tu navegador e inténtalo de nuevo."
-    },
-    "maintenance": {
-      "heading": "Mantenimiento",
-      "migrateStations": "Vincular Estaciones",
-      "migrateStationsDesc": "Analiza tus registros para vincularlos a gasolineras conocidas.",
-      "migrateStationsButton": "Identificar Estaciones",
-      "migrating": "Analizando...",
-      "migrationSuccess": "¡{{count}} registros migrados con éxito!",
-      "migrationError": "Error en la migración. Inténtalo de nuevo."
     }
   },
   "receipt": {

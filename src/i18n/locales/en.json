@@ -284,15 +284,6 @@
       "description": "Already tracking fuel elsewhere? Import your past logs from a CSV file.",
       "cta": "Go to Import"
     },
-    "maintenance": {
-      "heading": "Maintenance",
-      "migrateStations": "Link Stations",
-      "migrateStationsDesc": "Analyze your historical logs to identify and link them to known petrol stations based on coordinates.",
-      "migrateStationsButton": "Identify Stations",
-      "migrating": "Analyzing...",
-      "migrationSuccess": "Successfully migrated {{count}} logs!",
-      "migrationError": "Migration failed. Please try again."
-    },
     "vehicleFleet": "Vehicle Fleet",
     "vehicleFleetSubtext": "Manage your cars and rentals.",
     "showArchived": "Show Archived ({{count}})",

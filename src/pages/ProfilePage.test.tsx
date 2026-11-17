@@ -30,7 +30,6 @@ vi.mock('../hooks/useFCMToken', () => ({
 
 vi.mock('../components/ApiTokenManager', () => ({ default: () => <div /> }));
 vi.mock('../components/LanguageSelector', () => ({ default: () => <div /> }));
-vi.mock('../utils/migrationService', () => ({ migrateUserLogsToStations: vi.fn() }));
 
 vi.mock('../firebase/config', () => ({ db: {} }));
 

@@ -15,47 +15,27 @@ Then, you can open `mock_logs.tsv` in a text editor, copy its content, and paste
 ### Configuration
 You can edit the `numEntries`, `brands`, and date range variables directly at the top of the script to customize the generated data.
 
-## Assigning stations to coordinate-only logs
+## Derived log fields (odometer distances, stations)
 
-Logs that have coordinates but no `stationId` — including fuel station locations
-pinned retroactively by hand — have nothing to group on, so the map renders them
-as loose "unassigned" clusters. The one-off job at
-[`functions/src/scripts/assignStationsToLogs.ts`](../functions/src/scripts/assignStationsToLogs.ts)
-resolves each of these to a station the same way live logging does: it looks up
-the nearest `amenity=fuel` via the OpenStreetMap Overpass API, gets-or-creates
-the matching `stations` document, writes its id back onto the log, and folds the
-log's price into the station's running average. It is the batch, server-side
-equivalent of the in-app **Profile → Maintenance → Identify Stations** action.
+Older logs predate server-side derivation. The `derivedLogFields_v1` backfill
+(run by hand: dry run first, then `--apply`; it is not scheduled) rebuilds
+missing odometer readings from distance chains, re-derives `distanceKm` from the
+readings, fills `pricePerLitre`/`kmPerLitre`, and links logs that have
+coordinates but no `stationId` to the nearest OpenStreetMap station. It replaced
+the `backfill-odometer` and `assign-stations` scripts and the in-app
+"Identify Stations" action. Logic: `functions/src/derivedLogFieldsMigration.ts`.
 
-Existing stations are never overwritten and logs that already have a `stationId`
-are skipped, so the job is safe to re-run.
-
-### Usage
-Run from the `functions/` directory with application default credentials:
+Run it from `functions/` (a dry run unless `--apply` is given):
 
 ```bash
 cd functions
-GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run assign-stations -- --dry-run   # preview
-GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run assign-stations                # apply
+GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run derived-log-fields                  # dry run
+GOOGLE_APPLICATION_CREDENTIALS=../service-account.json npm run derived-log-fields -- --no-stations # dry run, no Overpass calls
 ```
 
-Flags: `--dry-run` (report only), `--user=<uid>` (one user), `--project=<id>`
-(target project, defaults to `fuelog-paddez`), `--radius=<m>` (search radius,
-default 150), `--delay=<ms>` (spacing between Overpass calls, default 1100),
-`--overpass-url=<url>` (use a different Overpass instance, or set `OVERPASS_URL`),
-and `--verbose` (print each log as it resolves). Overpass enforces fair-use
-limits, so a large backlog is processed slowly and retried with backoff on rate
-limits.
-
-The default instance (`overpass-api.de`) increasingly rejects programmatic
-requests with **HTTP 406** when it is overloaded. The script identifies itself
-with a `User-Agent` to avoid this where possible, but if you still hit 406, point
-it at a mirror:
-
-```bash
-GOOGLE_APPLICATION_CREDENTIALS=../service-account.json \
-  npm run assign-stations -- --overpass-url=https://overpass.kumi.systems/api/interpreter
-```
+Flags: `--user=<uid>`, `--project=<id>` (defaults to `fuelog-paddez`),
+`--no-stations`, `--apply`. Set `OVERPASS_URL` to use an Overpass mirror (e.g.
+`https://overpass.kumi.systems/api/interpreter`) if the main instance answers 406.
 
 ## Re-compressing legacy receipt images
 

@@ -31,7 +31,7 @@ Status: in progress. Proposed 2026-11-16, based on four parallel audits: fronten
 - Step 3:
   - an `onLogWrite` trigger for the rest of the derived data (distance from odometer, home-currency cost and rate, `stationId`);
   - retire the backfill scripts and the ProfilePage client migration;
-  - OIDC instead of `FIREBASE_TOKEN`.
+  - switch the repo to OIDC: the workflow supports it, but the Workload Identity pool and repo variables must be created by a project owner (`docs/playbooks/DEPLOYMENT.md`).
 - §3 decision 1: single backend on Firebase Functions (ADR 0007, proposed).
 - Writers do not yet set the v2 fields (`fillType`, `missedPrevious`, `source`, `schemaVersion`).
 - §7 decisions were taken with the recommended defaults (see §7).

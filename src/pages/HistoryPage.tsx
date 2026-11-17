@@ -2,11 +2,11 @@
 import { JSX, useState, useEffect, useMemo, ChangeEvent, FormEvent } from 'react';
 import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-// Import Firestore functions for reading, updating, and deleting documents
-import { doc, deleteDoc, updateDoc, Timestamp } from "firebase/firestore";
-// Import Firebase config and Auth hook
-import { db } from '../firebase/config';
+import { Timestamp } from "firebase/firestore";
 import { useAuth } from '../context/AuthContext';
+import { logKeys } from '../data/keys';
+import { useDeleteLog, useUpdateLog } from '../data/logHooks';
+import { useVehicles } from '../data/vehicleHooks';
 // Import icons
 import { FileText } from 'lucide-react';
 // Import the LogCard component
@@ -21,7 +21,7 @@ import { uploadReceipt } from '../firebase/storageService';
 import { sanitizeUrl } from '../utils/sanitize';
 import { formatDate, toDatetimeLocal } from '../utils/formatDate';
 import LocationPicker, { PickerCoords } from '../components/LocationPicker';
-import { fetchUserStations, fetchVehicles } from '../firebase/firestoreService';
+import { fetchUserStations } from '../firebase/firestoreService';
 import { Station } from '../utils/types';
 import ReceiptModal from '../components/ReceiptModal';
 import { fetchLogsPage, fetchAllLogs, DEFAULT_PAGE_SIZE, type LogFilters, type LogsPage, type LogCursor } from '../data/logs';
@@ -46,7 +46,11 @@ function HistoryPage(): JSX.Element {
     const [copyStatus, setCopyStatus] = useState<'idle' | 'copying' | 'copied' | 'failed' | 'noData' | 'unavailable'>('idle'); // Manages the text/state of the copy button
 
     // --- Multi-Vehicle State ---
-    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+    // Include archived vehicles so their historical logs can still be filtered.
+    const vehiclesQuery = useVehicles(user?.uid, { includeArchived: true });
+    const vehicles: Vehicle[] = useMemo(() => vehiclesQuery.data ?? [], [vehiclesQuery.data]);
+    const updateLogMutation = useUpdateLog(user?.uid);
+    const deleteLogMutation = useDeleteLog(user?.uid);
     const [filterVehicleId, setFilterVehicleId] = useState<string>(''); // '' means all vehicles
 
     // --- State for Edit Modal ---
@@ -65,22 +69,6 @@ function HistoryPage(): JSX.Element {
     const [filterEndDate, setFilterEndDate] = useState<string>('');     // Format: YYYY-MM-DD
     const [filterBrand, setFilterBrand] = useState<string>('');       // Selected brand or '' for all
     const [uniqueBrands, setUniqueBrands] = useState<string[]>([]);    // List of unique brands for the filter dropdown
-
-    // --- Fetch Vehicles Effect ---
-    useEffect(() => {
-        if (!user) { setVehicles([]); return; }
-        const loadVehicles = async () => {
-            try {
-                // Include archived vehicles so their historical logs can still be filtered.
-                setVehicles(await fetchVehicles(user.uid, { includeArchived: true }));
-                // Default to "All Vehicles" (empty string)
-                setFilterVehicleId('');
-            } catch (err) {
-                console.error("Error fetching vehicles:", err);
-            }
-        };
-        loadVehicles();
-    }, [user]);
 
     // --- State for View Toggle ---
     const [viewMode, setViewMode] = useState<ViewMode>('table'); // Default to table view
@@ -108,7 +96,7 @@ function HistoryPage(): JSX.Element {
     }), [filterVehicleId, filterStartDate, filterEndDate, filterBrand]);
 
     const queryClient = useQueryClient();
-    const logsQueryKey = useMemo(() => ['logs', user?.uid, filters] as const, [user?.uid, filters]);
+    const logsQueryKey = useMemo(() => logKeys.list(user?.uid, filters), [user?.uid, filters]);
     const logsQuery = useInfiniteQuery({
         queryKey: logsQueryKey,
         enabled: !!user,
@@ -268,8 +256,7 @@ function HistoryPage(): JSX.Element {
         if (!logId) return;
         if (window.confirm(t('history.delete.confirm'))) {
             try {
-                const logRef = doc(db, "fuelLogs", logId);
-                await deleteDoc(logRef);
+                await deleteLogMutation.mutateAsync(logId);
                 updateCachedLogs(prev => prev.filter(l => l.id !== logId));
             } catch (error) {
                 console.error("Error deleting document: ", error);
@@ -347,7 +334,6 @@ function HistoryPage(): JSX.Element {
         try {
             // A receipt is optional — only upload/replace it when the user picked a
             // new file. Otherwise keep whatever the log already had (which may be none).
-            const logRef = doc(db, "fuelLogs", editingLog.id);
             const updatedData: Partial<FuelLogData> = {
                 brand: brand.trim() || 'Unknown',
                 cost: parsedCost,
@@ -381,13 +367,13 @@ function HistoryPage(): JSX.Element {
                 updatedData.longitude = parsedLon;
             }
             updatedData.timestamp = editedTimestamp;
-            await updateDoc(logRef, updatedData);
+            // The mutation also invalidates every log query (a changed date can move
+            // the log within or out of the list), so it refetches in the background.
+            await updateLogMutation.mutateAsync({ logId: editingLog.id, updates: updatedData });
             const editedId = editingLog.id;
             updateCachedLogs(prev => prev.map(l => l.id === editedId ? { ...l, ...updatedData } : l)
                 .filter(l => !filterVehicleId || l.vehicleId === filterVehicleId)
             );
-            // A changed date can move the log within (or out of) the list; refetch in the background.
-            queryClient.invalidateQueries({ queryKey: ['logs', user?.uid] });
             handleCloseModal();
         } catch (error) { console.error("Error updating document: ", error); setModalError(t('history.updateError', { defaultValue: 'Failed to update log. Please try again.' })); }
         finally { setIsUpdating(false); }

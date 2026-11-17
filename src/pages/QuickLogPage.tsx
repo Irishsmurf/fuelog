@@ -1,561 +1,72 @@
 // src/pages/QuickLogPage.tsx
-import React, { JSX, useState, ChangeEvent, FormEvent, useEffect, useRef } from 'react';
-import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { fetchRecentBrands } from '../data/logs';
-import { db, analytics } from '../firebase/config';
-import { logEvent } from 'firebase/analytics';
-import { useAuth } from '../context/AuthContext';
-import { fetchExchangeRate, COMMON_CURRENCIES } from '../utils/currencyApi';
-import { Vehicle, FuelLogData } from '../utils/types';
-import { Link } from 'react-router-dom';
-import { uploadReceipt } from '../firebase/storageService';
-import { getLastOdometerReading, getOrCreateStation, fetchVehicles, pickDefaultVehicle } from '../firebase/firestoreService';
-import { extractDataFromReceipt, ReceiptData } from '../utils/gemini';
-import { calculateDistance } from '../utils/calculations';
-import { toDatetimeLocal } from '../utils/formatDate';
-import { findNearestStation, geocodeAddress, isAccurateEnoughForStationMatch, OSMStation } from '../utils/locationService';
-import ReceiptAISection from '../components/ReceiptAISection';
-import LocationPicker, { PickerCoords } from '../components/LocationPicker';
+import { JSX, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
+import { useVehicles } from '../data/vehicleHooks';
+import { useLastOdometerReading, useRecentBrands } from '../data/logHooks';
+import { pickDefaultVehicle } from '../data/vehicles';
+import { COMMON_CURRENCIES } from '../utils/currencyApi';
+import { useOdometerDistance, useQuickLogFields } from '../hooks/useQuickLogFields';
+import { useExchangeRate } from '../hooks/useExchangeRate';
+import { useLocationPin } from '../hooks/useLocationPin';
+import { useReceiptExtraction } from '../hooks/useReceiptExtraction';
+import { useQuickLogSubmit } from '../hooks/useQuickLogSubmit';
+import ReceiptAISection from '../components/ReceiptAISection';
+import VehicleAndBrandFields from '../components/quicklog/VehicleAndBrandFields';
+import LocationSection from '../components/quicklog/LocationSection';
+import FuelDetailsSection from '../components/quicklog/FuelDetailsSection';
+import SaveControls from '../components/quicklog/SaveControls';
+import NoVehiclesPrompt, { LoadingVehicles } from '../components/quicklog/NoVehiclesPrompt';
+import type { MessageState } from '../components/quicklog/types';
+import type { Vehicle } from '../utils/types';
 
-// Types
-type MessageType = 'success' | 'error' | 'info' | 'warning' | '';
-interface MessageState {
-  type: MessageType;
-  text: string;
-}
-// Type for location data we want to store. `locationAccuracy` is only present
-// for GPS-derived fixes; a manually pinned location has no accuracy figure.
-interface LocationData {
-    latitude: number;
-    longitude: number;
-    locationAccuracy?: number;
-}
-
-type LocationMode = 'gps' | 'manual';
-
+const NO_VEHICLES: Vehicle[] = [];
+const NO_BRANDS: string[] = [];
 
 function QuickLogPage(): JSX.Element {
   const { user, profile } = useAuth();
   const { t } = useTranslation();
+  const uid = user?.uid;
+  const homeCurrency = profile?.homeCurrency || 'EUR';
+  const currencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
 
-  const [brand, setBrand] = useState<string>('');
-  const [cost, setCost] = useState<string>('');
-  const [distanceKmInput, setDistanceKmInput] = useState<string>('');
-  const [odometerKmInput, setOdometerKmInput] = useState<string>('');
-  const [fuelAmountLiters, setFuelAmountLiters] = useState<string>('');
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [savingStep, setSavingStep] = useState<'locating' | 'saving'>('saving');
   const [message, setMessage] = useState<MessageState>({ type: '', text: '' });
   const [stationWarning, setStationWarning] = useState<string>('');
-  const [knownBrands, setKnownBrands] = useState<string[]>([]);
-  const [isLoadingBrands, setIsLoadingBrands] = useState<boolean>(false);
 
-  const homeCurrency = profile?.homeCurrency || 'EUR';
+  // --- Vehicles: the user's pick, else the default (re-derived when the list changes) ---
+  const vehiclesQuery = useVehicles(uid);
+  const vehicles = vehiclesQuery.data ?? NO_VEHICLES;
+  const [pickedVehicleId, setPickedVehicleId] = useState<string>('');
+  const vehicleId = vehicles.some(v => v.id === pickedVehicleId)
+    ? pickedVehicleId
+    : pickDefaultVehicle(vehicles)?.id ?? '';
 
-  // --- Multi-Vehicle State ---
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
-  const [isLoadingVehicles, setIsLoadingVehicles] = useState<boolean>(true);
-  const [lastOdometerReading, setLastOdometerReading] = useState<number | null>(null);
+  const brandsQuery = useRecentBrands(uid);
+  const fields = useQuickLogFields();
 
-  // --- Multi-Currency State ---
-  const [currency, setCurrency] = useState<string>(homeCurrency); // Transaction Currency
-  const [exchangeRate, setExchangeRate] = useState<number>(1.0);
-  /** Currency the user typed a rate for; fetched rates don't overwrite it. */
-  const manualRateCurrency = useRef<string | null>(null);
-  const [isFetchingRate, setIsFetchingRate] = useState<boolean>(false);
-
-  // --- Receipt State ---
-  const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [isExtracting, setIsExtracting] = useState<boolean>(false);
-  const [extractedData, setExtractedData] = useState<ReceiptData | null>(null);
-
-  // --- Date/Time of fuelling ---
-  // Defaults to "now" but is fully editable so a delayed entry keeps the real
-  // fuelling time rather than the submission time.
-  const [loggedAt, setLoggedAt] = useState<string>(() => toDatetimeLocal(new Date()));
-
-  // --- Location State ---
-  // Location is resolved into state (rather than grabbed inline at submit) so
-  // the user can review it and override it on a map before saving. This fixes
-  // late entries getting the submission-time location instead of the fuelling
-  // location.
-  const [location, setLocation] = useState<LocationData | null>(null);
-  const [locationMode, setLocationMode] = useState<LocationMode>('gps');
-  const [showMap, setShowMap] = useState<boolean>(false);
-  const [matchedStation, setMatchedStation] = useState<OSMStation | null>(null);
-  const [isResolvingStation, setIsResolvingStation] = useState<boolean>(false);
-
-  // --- Handle AI Extraction ---
-  const handleExtractData = async () => {
-    if (!receiptFile) return;
-    setIsExtracting(true);
-    setExtractedData(null);
-    setMessage({ type: 'info', text: t('receipt.analyzing') });
-    try {
-      const data = await extractDataFromReceipt(receiptFile);
-      setExtractedData(data);
-      setMessage({ type: '', text: '' });
-    } catch (error) {
-      console.error("Extraction error:", error);
-      const text = error instanceof Error ? error.message : t('receipt.extractionFailed');
-      setMessage({ type: 'error', text });
-    } finally {
-      setIsExtracting(false);
-    }
-  };
-
-  // --- Confirm Extracted Data ---
-  const handleConfirmExtraction = () => {
-    if (extractedData) {
-      if (extractedData.cost != null) setCost(extractedData.cost.toString());
-      if (extractedData.fuelAmountLiters != null) setFuelAmountLiters(extractedData.fuelAmountLiters.toString());
-      if (extractedData.brand != null) setBrand(extractedData.brand);
-
-      // Apply the receipt's printed date/time so a late entry is dated to the
-      // actual fuelling, not when it was logged.
-      if (extractedData.purchaseDate) {
-        const dateTime = extractedData.purchaseTime
-          ? `${extractedData.purchaseDate}T${extractedData.purchaseTime}`
-          : `${extractedData.purchaseDate}T12:00`;
-        const parsed = new Date(dateTime);
-        if (!isNaN(parsed.getTime())) setLoggedAt(toDatetimeLocal(parsed));
-      }
-
-      // Best-effort: geocode the receipt's printed address to default the map
-      // pin near the station. Only a specific address — geocoding a bare brand
-      // ("Shell") would resolve to a random matching location worldwide.
-      const geoQuery = extractedData.address;
-      if (geoQuery) {
-        geocodeAddress(geoQuery).then(coords => {
-          if (coords) {
-            setLocation({ latitude: coords.latitude, longitude: coords.longitude });
-            setLocationMode('manual');
-            setShowMap(true);
-          }
-        });
-      }
-
-      setExtractedData(null);
-      setMessage({ type: 'success', text: t('receipt.autoFilled') });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
-    }
-  };
-
-  // --- Cancel Extraction ---
-  const handleCancelExtraction = () => {
-    setExtractedData(null);
-  };
-
-  // Reset currency when homeCurrency changes (initial load)
-  useEffect(() => {
-    setCurrency(homeCurrency);
-  }, [homeCurrency]);
-
-  // --- Fetch Vehicles ---
-  useEffect(() => {
-    if (!user) return;
-    const loadVehicles = async () => {
-      setIsLoadingVehicles(true);
-      try {
-        const activeList = await fetchVehicles(user.uid);
-        setVehicles(activeList);
-        const defaultVehicle = pickDefaultVehicle(activeList);
-        if (defaultVehicle) setSelectedVehicleId(defaultVehicle.id);
-      } catch (error) {
-        console.error("Error fetching vehicles:", error);
-      } finally {
-        setIsLoadingVehicles(false);
-      }
-    };
-    loadVehicles();
-  }, [user, t]);
-
-  // --- Fetch Last Odometer ---
-  useEffect(() => {
-    if (!selectedVehicleId) {
-      setLastOdometerReading(null);
-      return;
-    }
-    const fetchLastOdometer = async () => {
-      try {
-        const parsed = loggedAt ? new Date(loggedAt) : new Date();
-        const before = isNaN(parsed.getTime()) ? new Date() : parsed;
-        const reading = await getLastOdometerReading(selectedVehicleId, before);
-        setLastOdometerReading(reading);
-      } catch (error) {
-        console.error('Error fetching last odometer reading:', error);
-        setMessage({
-          type: 'error',
-          text: !navigator.onLine
-            ? t('quickLog.messages.offline', { defaultValue: 'You are offline. Please check your connection and try again.' })
-            : t('quickLog.messages.fetchOdometerError', { defaultValue: 'Failed to load last odometer reading.' }),
-        });
-      }
-    };
-    fetchLastOdometer();
-  }, [selectedVehicleId, loggedAt, t]);
-
-  // --- Fetch Exchange Rate when currency changes ---
-  useEffect(() => {
-    if (currency === homeCurrency) {
-      manualRateCurrency.current = null;
-      setExchangeRate(1.0);
-      return;
-    }
-    // A rate the user typed for this currency wins over a fetched one.
-    if (manualRateCurrency.current === currency) return;
-
-    let cancelled = false;
-    const getRate = async () => {
-      setIsFetchingRate(true);
-      try {
-        // Use the fuelling date (not today) so a back-dated entry gets that
-        // day's exchange rate. Fall back to now if the input isn't parseable yet.
-        const rateDate = loggedAt ? new Date(loggedAt) : new Date();
-        const rate = await fetchExchangeRate(isNaN(rateDate.getTime()) ? new Date() : rateDate, currency, homeCurrency);
-        // Ignore responses for a superseded currency/date, and never clobber
-        // a rate the user typed while the request was in flight.
-        if (!cancelled && manualRateCurrency.current !== currency) setExchangeRate(rate);
-      } catch (error) {
-        if (cancelled) return;
-        console.error("Failed to fetch rate:", error);
-        setMessage({ type: 'error', text: t('quickLog.messages.fetchRateError', { currency }) });
-      } finally {
-        if (!cancelled) setIsFetchingRate(false);
-      }
-    };
-
-    getRate();
-    return () => { cancelled = true; };
-  }, [currency, homeCurrency, loggedAt, t]);
-
-  // --- Fetch known brands effect ---
-  useEffect(() => {
-    if (!user) { setKnownBrands([]); return; }
-    const fetchBrands = async () => {
-      setIsLoadingBrands(true);
-      try {
-        setKnownBrands(await fetchRecentBrands(user.uid));
-      } catch (error) { console.error("Error fetching known brands:", error); }
-      finally { setIsLoadingBrands(false); }
-    };
-    fetchBrands();
-  }, [user, t]);
-
-  // --- Input Change Handler ---
-  const handleInputChange = (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { setter(e.target.value); };
-
-  const handleOdometerChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setOdometerKmInput(e.target.value);
-  };
-
-  // Recalculate distance whenever the odometer reading or the last known
-  // reading changes, so a late-arriving lastOdometerReading (e.g. slow
-  // network) still auto-fills the distance instead of being silently missed.
-  useEffect(() => {
-    if (!odometerKmInput || lastOdometerReading === null) return;
-    const parsedOdo = parseFloat(odometerKmInput);
-    if (isNaN(parsedOdo)) return;
-    const diff = calculateDistance(parsedOdo, lastOdometerReading);
-    setDistanceKmInput(diff !== null ? diff.toFixed(1) : '');
-  }, [odometerKmInput, lastOdometerReading]);
-
-  // --- Exchange Rate Change Handler ---
-  const handleRateChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    manualRateCurrency.current = currency;
-    setExchangeRate(isNaN(val) ? 0 : val);
-  };
-
-  // --- Function to get Geolocation wrapped in a Promise ---
-  const getCurrentLocation = (): Promise<LocationData | null> => {
-    return new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        console.warn("Geolocation is not supported by this browser.");
-        resolve(null);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            locationAccuracy: position.coords.accuracy,
-          });
-        },
-        (error) => {
-          console.warn(`Geolocation error (${error.code}): ${error.message}`);
-          resolve(null);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000
-        }
-      );
+  // --- Odometer: closest earlier reading, used to derive the distance ---
+  const odometerQuery = useLastOdometerReading(uid, vehicleId, fields.loggedAtDate);
+  const lastOdometerReading = vehicleId ? odometerQuery.data ?? null : null;
+  useOdometerDistance(fields, lastOdometerReading);
+  // Report each failed lookup once (state adjusted during render, not in an effect).
+  const [reportedOdometerError, setReportedOdometerError] = useState(0);
+  if (odometerQuery.isError && odometerQuery.errorUpdatedAt !== reportedOdometerError) {
+    setReportedOdometerError(odometerQuery.errorUpdatedAt);
+    setMessage({
+      type: 'error',
+      text: !navigator.onLine
+        ? t('quickLog.messages.offline', { defaultValue: 'You are offline. Please check your connection and try again.' })
+        : t('quickLog.messages.fetchOdometerError', { defaultValue: 'Failed to load last odometer reading.' }),
     });
-  };
+  }
 
-  // --- Resolve a station preview whenever a MANUAL pin is set/moved ---
-  // A manually placed pin is authoritative (no GPS accuracy gate). This is
-  // read-only (Overpass); the station document is only created/metered at
-  // submit time. GPS-mode location is resolved at submit (see handleSubmit),
-  // keeping the fast at-pump path unchanged.
-  useEffect(() => {
-    if (locationMode !== 'manual' || !location) return;
-
-    let cancelled = false;
-    setIsResolvingStation(true);
-    setStationWarning('');
-    (async () => {
-      try {
-        const nearest = await findNearestStation(location.latitude, location.longitude);
-        if (cancelled) return;
-        setMatchedStation(nearest);
-        if (nearest) {
-          // Only auto-fill an empty brand; never clobber what the user typed.
-          setBrand(prev => prev.trim() ? prev : nearest.name);
-        }
-      } catch (err) {
-        if (cancelled) return;
-        console.error('Station lookup failed:', err);
-        setMatchedStation(null);
-        setStationWarning(t('quickLog.messages.stationLookupWarning'));
-      } finally {
-        if (!cancelled) setIsResolvingStation(false);
-      }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, locationMode]);
-
-  // --- Map pin change handler ---
-  const handlePinChange = (coords: PickerCoords) => {
-    setLocation({ latitude: coords.latitude, longitude: coords.longitude });
-    setLocationMode('manual');
-  };
-
-
-  // --- Form Submit Handler ---
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Basic validation
-    if (!user) { setMessage({ type: 'error', text: t('quickLog.messages.mustBeLoggedIn') }); return; }
-    if (vehicles.length === 0) { setMessage({ type: 'error', text: t('quickLog.messages.addVehicleFirst') }); return; }
-    if (!selectedVehicleId) { setMessage({ type: 'error', text: t('quickLog.messages.selectVehicle') }); return; }
-    if (!cost || !distanceKmInput || !fuelAmountLiters) { setMessage({ type: 'error', text: t('quickLog.messages.fillRequired') }); return; }
-
-    const parsedCost = parseFloat(cost);
-    const parsedDistanceKm = parseFloat(distanceKmInput);
-    const parsedFuel = parseFloat(fuelAmountLiters);
-    const parsedOdometer = parseFloat(odometerKmInput);
-
-    if (isNaN(parsedCost) || isNaN(parsedDistanceKm) || isNaN(parsedFuel) || parsedCost <= 0 || parsedDistanceKm <= 0 || parsedFuel <= 0) {
-      setMessage({ type: 'error', text: t('quickLog.messages.validNumbers') });
-      return;
-    }
-
-    // --- Validate the fuelling date/time ---
-    const loggedDate = new Date(loggedAt);
-    if (isNaN(loggedDate.getTime())) {
-      setMessage({ type: 'error', text: t('quickLog.messages.invalidDate', { defaultValue: 'Please enter a valid date and time.' }) });
-      return;
-    }
-    if (loggedDate.getTime() > Date.now() + 60_000) {
-      setMessage({ type: 'error', text: t('quickLog.messages.futureDate', { defaultValue: 'The fuelling date/time cannot be in the future.' }) });
-      return;
-    }
-
-    setIsSaving(true);
-    setStationWarning('');
-
-    // Non-fatal problems collected during save (e.g. receipt upload or station
-    // linking failed). These don't block saving the log itself; we surface them
-    // to the user so they know something needs attention without the console.
-    const saveWarnings: string[] = [];
-
-    // --- Resolve location & station ---
-    // Manual pin: the user explicitly chose where they fuelled — use it as-is
-    // (no GPS accuracy gate). GPS mode: acquire a fresh fix at submit time, the
-    // same fast at-pump path as before. Either way the user could have overridden
-    // it on the map, which is what fixes late entries getting the wrong place.
-    let locationData: LocationData | null = null;
-    let linkedStationId: string | undefined;
-    let stationName: string | undefined;
-
-    if (locationMode === 'manual' && location) {
-      locationData = location;
-      try {
-        const nearest = matchedStation ?? await findNearestStation(location.latitude, location.longitude);
-        if (nearest) {
-          linkedStationId = await getOrCreateStation(nearest);
-          stationName = nearest.name;
-          if (!brand.trim()) setBrand(nearest.name);
-        }
-      } catch (err) {
-        console.error("Station lookup failed:", err);
-        saveWarnings.push(t('quickLog.messages.stationLookupWarning'));
-      }
-    } else {
-      setSavingStep('locating');
-      setMessage({ type: 'info', text: t('quickLog.messages.gettingLocation') });
-      locationData = await getCurrentLocation();
-      if (locationData) {
-        const accuracy = locationData.locationAccuracy ?? Infinity;
-        if (!isAccurateEnoughForStationMatch(accuracy)) {
-          setStationWarning(t('quickLog.messages.lowAccuracySkippedStation', {
-            accuracy: accuracy.toFixed(0),
-            defaultValue: 'GPS accuracy is low ({{accuracy}}m); skipping station detection.',
-          }));
-        } else {
-          try {
-            const nearest = await findNearestStation(locationData.latitude, locationData.longitude);
-            if (nearest) {
-              linkedStationId = await getOrCreateStation(nearest);
-              stationName = nearest.name;
-              if (!brand.trim()) setBrand(nearest.name);
-            }
-          } catch (err) {
-            console.error("Station lookup failed:", err);
-            setStationWarning(t('quickLog.messages.stationLookupWarning'));
-          }
-        }
-      }
-    }
-
-    setSavingStep('saving');
-    const locationMessage = locationData
-        ? (stationName
-            ? t('quickLog.messages.locationCapturedAt', { station: stationName })
-            : t('quickLog.messages.locationSet', { defaultValue: 'Location set.' }))
-        : t('quickLog.messages.locationNotSupported');
-
-    setMessage({ type: 'info', text: t('quickLog.messages.savingLog', { locationMsg: locationMessage }) });
-
-    try {
-      // --- Handle Receipt Upload (non-fatal) ---
-      let receiptUrl = "";
-      if (receiptFile && user) {
-        setMessage({ type: 'info', text: t('quickLog.messages.uploadingReceipt') });
-        try {
-          receiptUrl = await uploadReceipt(receiptFile, user.uid);
-        } catch (uploadError) {
-          console.error("Receipt upload failed: ", uploadError);
-          analytics.then(a => { if (a) logEvent(a, 'fuel_log_failed', { error_type: 'receipt_upload' }); });
-          saveWarnings.push(t('quickLog.messages.receiptUploadWarning'));
-        }
-      }
-
-      // Calculate cost in home currency
-      const costHomeCurrency = parsedCost * exchangeRate;
-
-      // Prepare data object, including location if available
-      const logData: Omit<FuelLogData, 'timestamp'> & { timestamp: Timestamp; userId: string } = {
-        userId: user.uid,
-        vehicleId: selectedVehicleId,
-        timestamp: Timestamp.fromDate(loggedDate),
-        brand: brand.trim() || stationName || 'Unknown',
-        cost: costHomeCurrency,
-        distanceKm: parsedDistanceKm,
-        fuelAmountLiters: parsedFuel,
-        currency: currency,
-        originalCost: parsedCost,
-        exchangeRate: exchangeRate,
-      };
-      if (receiptUrl) {
-        logData.receiptUrl = receiptUrl;
-      }
-      if (linkedStationId) {
-        logData.stationId = linkedStationId;
-      }
-      if (!isNaN(parsedOdometer)) {
-        logData.odometerKm = parsedOdometer;
-      }
-      if (locationData) {
-        logData.latitude = locationData.latitude;
-        logData.longitude = locationData.longitude;
-        // Manual pins have no accuracy figure — only store it for GPS fixes.
-        if (locationData.locationAccuracy !== undefined) {
-          logData.locationAccuracy = locationData.locationAccuracy;
-        }
-      }
-
-      // Save to Firestore — this is the only fatal step; if it throws the log
-      // wasn't recorded and we report a clear error below.
-      // addDoc only resolves once the *server* acknowledges the write, so
-      // offline we don't wait: Firestore has already queued it locally and
-      // will sync it on reconnect.
-      const pendingWrite = addDoc(collection(db, "fuelLogs"), logData);
-      const savedOffline = !navigator.onLine;
-      if (savedOffline) {
-        pendingWrite.catch(err => console.error('Queued fuel log failed to sync:', err));
-      } else {
-        await pendingWrite;
-      }
-
-      // Station price stats are maintained server-side by the
-      // updateStationStats Cloud Function, not by the client.
-
-      analytics.then(a => { if (a) logEvent(a, 'fuel_log_submitted', { vehicle_id: selectedVehicleId, has_receipt: !!receiptFile, currency, used_ai_autofill: extractedData !== null, has_station: !!linkedStationId }); });
-
-      // Clear form on success
-      setBrand(''); setCost(''); setDistanceKmInput(''); setFuelAmountLiters('');
-      setOdometerKmInput('');
-      setReceiptFile(null);
-      setLoggedAt(toDatetimeLocal(new Date()));
-      setLocation(null);
-      setLocationMode('gps');
-      setMatchedStation(null);
-      setShowMap(false);
-      if (savedOffline) {
-        saveWarnings.unshift(t('quickLog.messages.savedOffline', { defaultValue: "You're offline: it will sync when you're back online." }));
-      }
-      manualRateCurrency.current = null;
-      if (saveWarnings.length > 0) {
-        // Saved, but something non-critical needs the user's attention.
-        const base = locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation');
-        setMessage({ type: 'warning', text: `${base} ${saveWarnings.join(' ')}` });
-      } else {
-        setMessage({ type: 'success', text: locationData ? t('quickLog.messages.savedSuccess') : t('quickLog.messages.savedNoLocation') });
-      }
-
-      // Haptic feedback for mobile
-      if ('vibrate' in navigator) {
-        window.navigator.vibrate(50);
-      }
-
-    } catch (error) {
-      console.error("Error adding document: ", error);
-      analytics.then(a => { if (a) logEvent(a, 'fuel_log_failed', { error_type: 'firestore_write' }); });
-      setMessage({
-        type: 'error',
-        text: t('quickLog.messages.saveError', {
-          detail: error instanceof Error ? error.message : String(error),
-        }),
-      });
-    } finally {
-      setIsSaving(false);
-      setTimeout(() => {
-        setMessage({ type: '', text: '' });
-        setStationWarning('');
-      }, 5000);
-    }
-  };
-
-  // --- Render Logic ---
-  const messageStyle = message.type === 'error'
-    ? 'text-red-700 bg-red-100 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800'
-    : message.type === 'success'
-      ? 'text-green-700 bg-green-100 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800'
-      : message.type === 'warning'
-        ? 'text-yellow-700 bg-yellow-100 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-800'
-        : 'text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
-
-  const homeCurrencySymbol = COMMON_CURRENCIES.find(c => c.code === homeCurrency)?.symbol || homeCurrency;
+  const rate = useExchangeRate({ homeCurrency, rateDate: fields.loggedAtDate, setMessage, t });
+  const pin = useLocationPin({ setBrand: fields.setBrand, setStationWarning, t });
+  const receipt = useReceiptExtraction({ fields, pin, setMessage, t });
+  const { handleSubmit, isSaving, savingStep } = useQuickLogSubmit({
+    user, hasVehicles: vehicles.length > 0, vehicleId, fields, rate, pin, receipt, setMessage, setStationWarning, t,
+  });
+  const isLoadingBrands = !!uid && brandsQuery.isPending;
 
   return (
     <div className="min-h-screen pb-24 pt-6 px-4 relative transition-colors duration-500">
@@ -565,274 +76,54 @@ function QuickLogPage(): JSX.Element {
             {t('quickLog.title')}
           </h2>
 
-          {isLoadingVehicles ? (
-            <div className="text-center py-12 flex flex-col items-center">
-              <div className="w-12 h-12 rounded-full border-2 border-gray-200 dark:border-gray-700 border-t-brand-primary animate-spin"></div>
-              <p className="mt-4 text-sm font-medium text-gray-500 dark:text-gray-400 animate-pulse">{t('quickLog.loadingVehicles')}</p>
-            </div>
+          {!!uid && vehiclesQuery.isPending ? (
+            <LoadingVehicles />
           ) : vehicles.length === 0 ? (
-            <div className="border-[1.5px] border-dashed border-gray-300 dark:border-gray-700 bg-brand-primary/[0.04] rounded-xl p-8 text-center space-y-5 mb-6">
-              <div className="bg-white dark:bg-gray-800 w-14 h-14 rounded-lg flex items-center justify-center mx-auto text-amber-600 dark:text-amber-300 border border-gray-200 dark:border-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-7 h-7">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.091-1.124l-.303-4.919a1.125 1.125 0 0 0-1.121-1.056H11.25m9 4.5H16.5m-9-4.5V3.375c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125V9.75M8.25 14.25h11.25M8.25 14.25 5.25 9.75" />
-                </svg>
-              </div>
-              <div className="space-y-1">
-                <p className="text-gray-900 dark:text-gray-100 font-medium text-lg tracking-tight">{t('quickLog.noVehicles.heading')}</p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">{t('quickLog.noVehicles.subtext')}</p>
-              </div>
-              <Link to="/profile" className="brand-button-primary w-full">
-                {t('quickLog.noVehicles.cta')}
-              </Link>
-            </div>
+            <NoVehiclesPrompt />
           ) : (
             <form onSubmit={handleSubmit} noValidate className="space-y-6">
+              <VehicleAndBrandFields
+                vehicles={vehicles}
+                vehicleId={vehicleId}
+                onVehicleChange={setPickedVehicleId}
+                brand={fields.brand}
+                onBrandChange={fields.setBrand}
+                knownBrands={brandsQuery.data ?? NO_BRANDS}
+                isSaving={isSaving}
+                isLoadingBrands={isLoadingBrands}
+              />
 
-              {/* Section 1: Vehicle & Station */}
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor={vehicles.length > 3 ? 'vehicle' : undefined} className="nocturne-label">{t('quickLog.fields.vehicle')}</label>
-                  {vehicles.length <= 3 ? (
-                    <div className="nocturne-seg" role="radiogroup" aria-label={t('quickLog.fields.vehicle')}>
-                      {vehicles.map((v) => (
-                        <label key={v.id} className="nocturne-seg-opt relative">
-                          <input
-                            type="radio"
-                            name="vehicle"
-                            value={v.id}
-                            checked={selectedVehicleId === v.id}
-                            onChange={() => setSelectedVehicleId(v.id)}
-                            disabled={isSaving}
-                          />
-                          {v.name}
-                        </label>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      <select id="vehicle" value={selectedVehicleId} onChange={handleInputChange(setSelectedVehicleId as any)} className="nocturne-input appearance-none cursor-pointer" disabled={isSaving}>
-                        {vehicles.map((v) => ( <option key={v.id} value={v.id}>{v.name} ({v.make})</option> ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 dark:text-gray-400">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              <LocationSection pin={pin} isSaving={isSaving} />
 
-                <div>
-                  <label htmlFor="brand" className="nocturne-label flex items-center justify-between">
-                    <span>{t('quickLog.fields.fillingStation')}</span>
-                    <span className="text-gray-400 dark:text-gray-500 font-normal">{t('quickLog.fields.fillingStationOptional')}</span>
-                  </label>
-                  <input type="text" id="brand" value={brand} onChange={handleInputChange(setBrand)} placeholder={t('quickLog.fields.fillingStationPlaceholder')} className="nocturne-input" disabled={isSaving || isLoadingBrands} list="brand-suggestions" autoComplete="off" />
-                  <datalist id="brand-suggestions">{knownBrands.map((b) => ( <option key={b} value={b} /> ))}</datalist>
-                </div>
-              </div>
+              <FuelDetailsSection
+                fields={fields}
+                rate={rate}
+                homeCurrency={homeCurrency}
+                currencySymbol={currencySymbol}
+                lastOdometerReading={lastOdometerReading}
+                isSaving={isSaving}
+              />
 
-              {/* Section: Where (location) */}
-              <div className="nocturne-card p-4">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{t('quickLog.sections.location', { defaultValue: 'Location' })}</span>
-                  <button
-                    type="button"
-                    onClick={() => setShowMap(s => !s)}
-                    disabled={isSaving}
-                    className="text-xs font-medium text-amber-700 dark:text-amber-300 hover:text-brand-primary-hover dark:hover:text-brand-primary disabled:opacity-50"
-                  >
-                    {showMap
-                      ? t('quickLog.location.hideMap', { defaultValue: 'Hide map' })
-                      : t('quickLog.location.adjustOnMap', { defaultValue: 'Adjust on map' })}
-                  </button>
-                </div>
-
-                <div className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2 flex-wrap">
-                  {isResolvingStation ? (
-                    <span className="flex items-center gap-1.5 text-gray-500">
-                      <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                      {t('quickLog.location.resolving', { defaultValue: 'Finding nearest station…' })}
-                    </span>
-                  ) : location ? (
-                    <>
-                      <span className="font-medium text-gray-800 dark:text-gray-200">
-                        {matchedStation
-                          ? matchedStation.name
-                          : t('quickLog.location.coords', {
-                              lat: location.latitude.toFixed(4),
-                              lng: location.longitude.toFixed(4),
-                              defaultValue: '{{lat}}, {{lng}}',
-                            })}
-                      </span>
-                      <span className={`font-bold uppercase ${locationMode === 'manual' ? 'nocturne-tag' : 'nocturne-tag-neutral'}`}>
-                        {locationMode === 'manual'
-                          ? t('quickLog.location.manualBadge', { defaultValue: 'Pinned' })
-                          : t('quickLog.location.gpsBadge', { defaultValue: 'GPS' })}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-gray-500">{t('quickLog.location.none', { defaultValue: 'No location yet — adjust on map to set one.' })}</span>
-                  )}
-                </div>
-
-                {showMap && (
-                  <LocationPicker
-                    value={location ? { latitude: location.latitude, longitude: location.longitude } : null}
-                    onChange={handlePinChange}
-                    defaultCenter={location ? { latitude: location.latitude, longitude: location.longitude } : undefined}
-                  />
-                )}
-              </div>
-
-              {/* Section 2: Transaction Details */}
-              <div className="space-y-4">
-                  <div>
-                    <label htmlFor="loggedAt" className="nocturne-label">{t('quickLog.fields.dateTime', { defaultValue: 'Date & time of fuelling' })}</label>
-                    <input
-                      type="datetime-local"
-                      id="loggedAt"
-                      value={loggedAt}
-                      max={toDatetimeLocal(new Date())}
-                      onChange={(e) => setLoggedAt(e.target.value)}
-                      className="nocturne-input"
-                      disabled={isSaving}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-5 gap-3">
-                    <div className="col-span-3">
-                      <label htmlFor="cost" className="nocturne-label">{t('quickLog.fields.totalCost')}</label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span className="text-gray-500 dark:text-gray-400 text-sm font-medium">{homeCurrencySymbol}</span>
-                        </div>
-                        <input type="number" inputMode="decimal" id="cost" value={cost} onChange={handleInputChange(setCost)} placeholder="0.00" step="0.01" min="0.01" required className="nocturne-input pl-8 fuel-numeral" disabled={isSaving} />
-                      </div>
-                    </div>
-                    <div className="col-span-2">
-                      <label htmlFor="currency" className="nocturne-label">{t('quickLog.fields.currency')}</label>
-                      <div className="relative">
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                        <select id="currency" value={currency} onChange={handleInputChange(setCurrency as any)} className="nocturne-input appearance-none cursor-pointer" disabled={isSaving}>
-                          {COMMON_CURRENCIES.map((curr) => ( <option key={curr.code} value={curr.code}>{curr.code}</option> ))}
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {currency !== homeCurrency && (
-                    <div className="nocturne-card p-4 space-y-3">
-                      <div className="flex justify-between items-center">
-                        <label htmlFor="exchangeRate" className="block text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          {t('quickLog.fields.exchangeRate', { currency, homeCurrency })}
-                        </label>
-                        {isFetchingRate && <span className="text-[10px] bg-amber-100 dark:bg-amber-800 text-amber-700 dark:text-amber-100 px-2 py-0.5 rounded-md animate-pulse">{t('quickLog.fields.fetching')}</span>}
-                      </div>
-                      <input type="number" inputMode="decimal" id="exchangeRate" value={exchangeRate} onChange={handleRateChange} step="0.0001" min="0.0001" className="nocturne-input fuel-numeral" disabled={isSaving} />
-                      <p className="text-xs text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1 mb-0">
-                        {t('quickLog.fields.converted', { symbol: homeCurrencySymbol, amount: (parseFloat(cost || '0') * exchangeRate).toFixed(2) })}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-3 gap-3 pt-2">
-                    <div>
-                        <label htmlFor="odometer" className="nocturne-label text-[10px]">{t('quickLog.fields.odometer')}</label>
-                        <input type="number" inputMode="decimal" id="odometer" value={odometerKmInput} onChange={handleOdometerChange} placeholder="0" step="1" min="0" className="nocturne-input fuel-numeral" disabled={isSaving} />
-                      </div>
-                    <div>
-                      <label htmlFor="distance" className="nocturne-label text-[10px]">{t('quickLog.fields.distance')}</label>
-                      <div className="relative">
-                        <input type="number" inputMode="decimal" id="distance" value={distanceKmInput} onChange={handleInputChange(setDistanceKmInput)} placeholder="0.0" step="0.1" min="0.1" required className="nocturne-input fuel-numeral pr-9" disabled={isSaving} />
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase">km</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <label htmlFor="fuelAmount" className="nocturne-label text-[10px]">{t('quickLog.fields.fuel')}</label>
-                      <div className="relative">
-                        <input type="number" inputMode="decimal" id="fuelAmount" value={fuelAmountLiters} onChange={handleInputChange(setFuelAmountLiters)} placeholder="0.00" step="0.01" min="0.01" required className="nocturne-input fuel-numeral pr-7" disabled={isSaving} />
-                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase">L</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {odometerKmInput && (
-                    <div className="mt-2">
-                      {lastOdometerReading === null ? (
-                        <p className="text-[11px] text-amber-700 dark:text-amber-300 font-medium flex items-center gap-1.5">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
-                          {t('quickLog.fields.odometerHintBaseline')}
-                        </p>
-                      ) : (
-                        <p className={`text-[11px] font-medium flex items-center gap-1.5 ${parseFloat(odometerKmInput) < lastOdometerReading ? 'text-red-500' : 'text-brand-primary dark:text-brand-primary-glow'}`}>
-                          {parseFloat(odometerKmInput) < lastOdometerReading ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
-                          )}
-                          {parseFloat(odometerKmInput) < lastOdometerReading 
-                            ? t('quickLog.fields.odometerErrorLower', { last: lastOdometerReading })
-                            : t('quickLog.fields.odometerHintCalculating', { last: lastOdometerReading })}
-                        </p>
-                      )}
-                    </div>
-                  )}
-              </div>
-
-              {/* Section 3: Receipt Digitization */}
               <div>
                 <ReceiptAISection
-                  receiptFile={receiptFile}
-                  setReceiptFile={setReceiptFile}
-                  isExtracting={isExtracting}
-                  extractedData={extractedData}
-                  setExtractedData={setExtractedData}
-                  handleExtractData={handleExtractData}
-                  handleConfirmExtraction={handleConfirmExtraction}
-                  handleCancelExtraction={handleCancelExtraction}
+                  receiptFile={receipt.receiptFile}
+                  setReceiptFile={receipt.setReceiptFile}
+                  isExtracting={receipt.isExtracting}
+                  extractedData={receipt.extractedData}
+                  setExtractedData={receipt.setExtractedData}
+                  handleExtractData={receipt.handleExtractData}
+                  handleConfirmExtraction={receipt.handleConfirmExtraction}
+                  handleCancelExtraction={receipt.handleCancelExtraction}
                 />
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-2 relative">
-                <button type="submit" disabled={isSaving || isLoadingBrands} className="relative w-full brand-button-primary py-3 text-base">
-                    <span className={`flex items-center justify-center gap-2 ${isSaving ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
-                      {t('quickLog.submit.save')}
-                    </span>
-                    {isSaving && (
-                      <span className="absolute inset-0 flex items-center justify-center gap-2">
-                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        {t(`quickLog.submit.${savingStep}`)}
-                      </span>
-                    )}
-                </button>
-              </div>
-
-              {/* Messages */}
-              <div className="space-y-3">
-                {stationWarning && (
-                  <div className="p-4 rounded-2xl border text-sm font-medium flex items-start gap-3 shadow-sm text-yellow-800 bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-800/50 animate-[squish_0.3s_ease-out]">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0 mt-0.5 text-yellow-600 dark:text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>
-                    <span>{stationWarning}</span>
-                  </div>
-                )}
-
-                {message.text && (
-                  <div className={`p-4 rounded-2xl border text-sm font-medium flex items-center justify-center gap-2 shadow-sm animate-[squish_0.3s_ease-out] ${messageStyle} ${isSaving && message.type === 'info' ? 'animate-pulse' : ''}`}>
-                    {message.type === 'success' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>}
-                    {message.type === 'error' && <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>}
-                    <span>{message.text}</span>
-                  </div>
-                )}
-              </div>
+              <SaveControls
+                isSaving={isSaving}
+                disabled={isSaving || isLoadingBrands}
+                savingStep={savingStep}
+                stationWarning={stationWarning}
+                message={message}
+              />
             </form>
           )}
         </div>
@@ -842,4 +133,3 @@ function QuickLogPage(): JSX.Element {
 }
 
 export default QuickLogPage;
-

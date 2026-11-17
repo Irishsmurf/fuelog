@@ -33,6 +33,13 @@ const log = (id: string, brand = 'Esso') => ({
 }) as unknown as Log;
 const cursor = { id: 'cursor-1' };
 
+/** The export button renders (disabled) before the first page loads. */
+async function enabledExportButton() {
+  const button = await screen.findByRole('button', { name: /exportPdf/ });
+  await waitFor(() => expect(button).toBeEnabled());
+  return button;
+}
+
 function renderPage() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(<QueryClientProvider client={client}><HistoryPage /></QueryClientProvider>);
@@ -64,7 +71,7 @@ describe('HistoryPage (data layer)', () => {
     vi.mocked(fetchAllLogs).mockResolvedValue({ logs: all as never, truncated: false });
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: /exportPdf/ }));
+    fireEvent.click(await enabledExportButton());
 
     await waitFor(() => expect(exportLogsToPDF).toHaveBeenCalled());
     expect(fetchAllLogs).toHaveBeenCalledWith('u1', expect.any(Object));
@@ -75,7 +82,7 @@ describe('HistoryPage (data layer)', () => {
     vi.mocked(fetchLogsPage).mockResolvedValue({ logs: [log('a'), log('b')], nextCursor: null, brands: ['Esso'] });
     renderPage();
 
-    fireEvent.click(await screen.findByRole('button', { name: /exportPdf/ }));
+    fireEvent.click(await enabledExportButton());
 
     await waitFor(() => expect(exportLogsToPDF).toHaveBeenCalled());
     expect(fetchAllLogs).not.toHaveBeenCalled();

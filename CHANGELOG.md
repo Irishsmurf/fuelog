@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.5.0](https://github.com/Irishsmurf/fuelog/compare/v2.4.0...v2.5.0) (2026-11-18)
+
+
+### Features
+
+* **quicklog:** record full/partial fills and missed fill-ups ([#332](https://github.com/Irishsmurf/fuelog/issues/332)) ([5784e1c](https://github.com/Irishsmurf/fuelog/commit/5784e1ca8ccf78d4f4154ccd9f768a042041f236))
+
+
+### Bug Fixes
+
+* **release:** generate the sbom reliably and allow backfilling a release ([#334](https://github.com/Irishsmurf/fuelog/issues/334)) ([3c862d3](https://github.com/Irishsmurf/fuelog/commit/3c862d3277ca9ff21dd0ce4237e60ef8336e5fbc))
+
 ## [2.4.0](https://github.com/Irishsmurf/fuelog/compare/v2.3.0...v2.4.0) (2026-11-17)
 
 

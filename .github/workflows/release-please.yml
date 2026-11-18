@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  # Attach an SBOM to an existing release (e.g. one whose SBOM step failed).
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to attach sbom.json to (e.g. v2.4.0)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -11,33 +18,49 @@ permissions:
 
 jobs:
   release-please:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: google-github-actions/release-please-action@v4
         id: release
         with:
           release-type: node
 
-      # The steps below will only run if a new release was actually published
+  sbom:
+    needs: release-please
+    # Runs after a new release is published, or on manual dispatch for an existing tag.
+    if: >-
+      always() &&
+      ((github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
+       github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || needs.release-please.outputs.tag_name }}
+    steps:
       - name: Checkout code
-        if: ${{ steps.release.outputs.release_created }}
         uses: actions/checkout@v6
+        with:
+          ref: ${{ env.TAG }}
 
       - name: Setup Node
-        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
-          
+
       - name: Generate SBOM
-        if: ${{ steps.release.outputs.release_created }}
         run: |
           npm ci
-          # npm >= 10.3 supports `npm sbom`
-          npx @cyclonedx/cyclonedx-npm --output-format JSON --output-file sbom.json
+          # Pinned so a new major can't silently change the output or fail the release.
+          # Manual backfills of older tags tolerate `npm ls` problems those tags shipped with
+          # (v2.4.0 had a firebase peer mismatch); new releases stay strict.
+          EXTRA=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then EXTRA="--ignore-npm-errors"; fi
+          npx -y @cyclonedx/cyclonedx-npm@7.0.1 $EXTRA --output-format JSON --output-file sbom.json
 
       - name: Upload SBOM to GitHub Release
-        if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} sbom.json
+        run: gh release upload "$TAG" sbom.json --clobber

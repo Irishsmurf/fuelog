@@ -284,7 +284,9 @@ function HistoryPage(): JSX.Element {
             vehicleId: log.vehicleId || '',
             latitude: log.latitude?.toString() || '',
             longitude: log.longitude?.toString() || '',
-            loggedAt: log.timestamp ? toDatetimeLocal(log.timestamp.toDate()) : ''
+            loggedAt: log.timestamp ? toDatetimeLocal(log.timestamp.toDate()) : '',
+            fillType: log.fillType ?? 'full',
+            missedPrevious: log.missedPrevious ?? false,
         });
         setEditReceiptFile(null);
         setModalError(null); setIsModalOpen(true);
@@ -357,6 +359,14 @@ function HistoryPage(): JSX.Element {
             // never pass `undefined` (which updateDoc rejects) or an empty string.
             if (editFormData.vehicleId) {
                 updatedData.vehicleId = editFormData.vehicleId;
+            }
+            // Legacy logs have neither field: only write them once set or changed,
+            // so opening and saving an old log doesn't silently stamp it 'full'.
+            if (editingLog.fillType !== undefined || editFormData.fillType === 'partial') {
+                updatedData.fillType = editFormData.fillType ?? 'full';
+            }
+            if (editingLog.missedPrevious !== undefined || editFormData.missedPrevious) {
+                updatedData.missedPrevious = !!editFormData.missedPrevious;
             }
             if (editReceiptFile && user) {
                 // Only write receiptUrl when a new receipt was uploaded. Firestore's
@@ -530,7 +540,7 @@ function HistoryPage(): JSX.Element {
                                             </td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.odometerKm?.toFixed(0) || '-'}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.distanceKm?.toFixed(1)}</td>
-                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.fuelAmountLiters?.toFixed(2)}</td>
+                                            <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 text-right font-mono tracking-tighter">{log.fuelAmountLiters?.toFixed(2)}{log.fillType === 'partial' && <span className="ml-1.5 align-middle rounded px-1 py-0.5 text-[10px] font-sans tracking-normal bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">{t('quickLog.fields.fillType_partial')}</span>}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatKmL(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatL100km(log.distanceKm, log.fuelAmountLiters)}</td>
                                             <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-medium text-right font-mono tracking-tighter">{formatMPG(log.distanceKm, log.fuelAmountLiters)}</td>
@@ -651,6 +661,20 @@ function HistoryPage(): JSX.Element {
                                <div><label htmlFor="edit-odometerKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.odometer')}</label><input type="number" inputMode="decimal" name="odometerKm" id="edit-odometerKm" value={editFormData.odometerKm} onChange={handleEditFormChange} step="1" min="0" className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                                <div><label htmlFor="edit-distanceKm" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.distance')}</label><input type="number" inputMode="decimal" name="distanceKm" id="edit-distanceKm" value={editFormData.distanceKm} onChange={handleEditFormChange} step="0.1" min="0.1" required className="mt-1 w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>
                             </div>                            <div><label htmlFor="edit-fuelAmountLiters" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('history.edit.fuel')}</label><input type="number" inputMode="decimal" name="fuelAmountLiters" id="edit-fuelAmountLiters" value={editFormData.fuelAmountLiters} onChange={handleEditFormChange} step="0.01" min="0.01" required className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" /></div>                            
+                            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                                <div className="nocturne-seg" role="radiogroup" aria-label={t('quickLog.fields.fillType')}>
+                                    {(['full', 'partial'] as const).map((type) => (
+                                        <label key={type} className="nocturne-seg-opt relative">
+                                            <input type="radio" name="edit-fillType" value={type} checked={(editFormData.fillType ?? 'full') === type} onChange={() => setEditFormData(prev => ({ ...prev, fillType: type }))} />
+                                            {t(`quickLog.fields.fillType_${type}`)}
+                                        </label>
+                                    ))}
+                                </div>
+                                <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input type="checkbox" id="edit-missedPrevious" checked={!!editFormData.missedPrevious} onChange={(e) => setEditFormData(prev => ({ ...prev, missedPrevious: e.target.checked }))} className="h-4 w-4 accent-brand-primary" />
+                                    {t('quickLog.fields.missedPrevious')}
+                                </label>
+                            </div>
                             {/* Location Editing */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('history.edit.location', { defaultValue: 'Location' })}</label>

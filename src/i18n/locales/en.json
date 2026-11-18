@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "Date & time of fuelling"
+      "dateTime": "Date & time of fuelling",
+      "fillType": "Fill",
+      "fillType_full": "Full tank",
+      "fillType_partial": "Partial",
+      "missedPrevious": "I missed logging a fill-up before this one"
     },
     "submit": {
       "save": "Save Fuel Log",

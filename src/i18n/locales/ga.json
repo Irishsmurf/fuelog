@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "Dáta & am an bhreoslaithe"
+      "dateTime": "Dáta & am an bhreoslaithe",
+      "fillType": "Líonadh",
+      "fillType_full": "Umar lán",
+      "fillType_partial": "Páirteach",
+      "missedPrevious": "Níor logáil mé líonadh roimh an gceann seo"
     },
     "submit": {
       "save": "Sábháil Iontráil Breosla",

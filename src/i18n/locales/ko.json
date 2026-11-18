@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "주유 날짜 및 시간"
+      "dateTime": "주유 날짜 및 시간",
+      "fillType": "주유",
+      "fillType_full": "가득 주유",
+      "fillType_partial": "부분 주유",
+      "missedPrevious": "이전 주유 기록을 빠뜨렸어요"
     },
     "submit": {
       "save": "기록 저장",

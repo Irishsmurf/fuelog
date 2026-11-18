@@ -94,6 +94,21 @@ export default function FuelDetailsSection({ fields: f, rate, homeCurrency, curr
         </div>
       </div>
 
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <div className="nocturne-seg" role="radiogroup" aria-label={t('quickLog.fields.fillType')}>
+          {(['full', 'partial'] as const).map((type) => (
+            <label key={type} className="nocturne-seg-opt relative">
+              <input type="radio" name="fillType" value={type} checked={f.fillType === type} onChange={() => f.setFillType(type)} disabled={isSaving} />
+              {t(`quickLog.fields.fillType_${type}`)}
+            </label>
+          ))}
+        </div>
+        <label className="inline-flex items-center gap-2 text-[13px] text-gray-700 dark:text-gray-300 cursor-pointer">
+          <input type="checkbox" id="missedPrevious" checked={f.missedPrevious} onChange={(e) => f.setMissedPrevious(e.target.checked)} disabled={isSaving} className="h-4 w-4 accent-brand-primary" />
+          {t('quickLog.fields.missedPrevious')}
+        </label>
+      </div>
+
       {f.odometerKm && (
         <div className="mt-2">
           <OdometerHint odometerKm={f.odometerKm} lastReading={lastOdometerReading} />

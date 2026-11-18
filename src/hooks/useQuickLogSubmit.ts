@@ -157,6 +157,8 @@ export function useQuickLogSubmit(o: Options) {
         currency: rate.currency,
         originalCost: v.cost,
         exchangeRate: rate.exchangeRate,
+        fillType: fields.fillType,
+        missedPrevious: fields.missedPrevious,
         source: 'app',
         schemaVersion: CURRENT_SCHEMA_VERSION,
       };

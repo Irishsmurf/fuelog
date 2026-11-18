@@ -79,7 +79,11 @@
       "odometerHintBaseline": "First odometer entry for this vehicle. Enter distance manually to establish a baseline.",
       "odometerHintCalculating": "Calculated from last log (Odo: {{last}} Km).",
       "odometerErrorLower": "Odometer must be greater than previous ({{last}} Km).",
-      "dateTime": "Dato og tid for fylling"
+      "dateTime": "Dato og tid for fylling",
+      "fillType": "Fylling",
+      "fillType_full": "Full tank",
+      "fillType_partial": "Delvis",
+      "missedPrevious": "Jeg glemte å loggføre en fylling før denne"
     },
     "submit": {
       "save": "Lagre drivstofflogg",

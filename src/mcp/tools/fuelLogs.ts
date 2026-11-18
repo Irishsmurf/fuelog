@@ -70,6 +70,8 @@ export function registerFuelLogTools(server: McpServer, userId: string, identity
       timestamp: z.string().optional().describe('ISO 8601 datetime for the entry (defaults to now)'),
       latitude: z.number().optional().describe('GPS latitude'),
       longitude: z.number().optional().describe('GPS longitude'),
+      fillType: z.enum(['full', 'partial']).optional().describe("'full' (tank filled up) or 'partial'; efficiency is only exact between full fills"),
+      missedPrevious: z.boolean().optional().describe('True if a fill-up before this one was not logged'),
     },
   }, async (args) => {
     if (!hasScope(identity, 'write:logs')) return UNAUTHORIZED;
@@ -88,6 +90,8 @@ export function registerFuelLogTools(server: McpServer, userId: string, identity
       ...(args.vehicleId && { vehicleId: args.vehicleId }),
       ...(args.latitude !== undefined && { latitude: args.latitude }),
       ...(args.longitude !== undefined && { longitude: args.longitude }),
+      ...(args.fillType && { fillType: args.fillType }),
+      ...(args.missedPrevious !== undefined && { missedPrevious: args.missedPrevious }),
       source: 'mcp',
       schemaVersion: CURRENT_SCHEMA_VERSION,
     };

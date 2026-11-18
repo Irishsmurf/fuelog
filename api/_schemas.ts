@@ -29,6 +29,8 @@ export const logCreateSchema = z.object({
   odometerKm: nonNegative.optional(),
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
+  fillType: z.enum(['full', 'partial']).optional(),
+  missedPrevious: z.boolean().optional(),
 });
 
 export const logUpdateSchema = logCreateSchema.partial();

@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import { calculateDistance } from '../utils/calculations';
 import { toDatetimeLocal } from '../utils/formatDate';
+import type { FillType } from '@fuelog/core';
 
 export function useQuickLogFields() {
   const [brand, setBrand] = useState<string>('');
@@ -9,6 +10,10 @@ export function useQuickLogFields() {
   const [distanceKm, setDistanceKm] = useState<string>('');
   const [odometerKm, setOdometerKm] = useState<string>('');
   const [fuelAmountLiters, setFuelAmountLiters] = useState<string>('');
+  // Efficiency is only exact between two full fills; a partial fill or a
+  // skipped log makes the distance/fuel pairing approximate.
+  const [fillType, setFillType] = useState<FillType>('full');
+  const [missedPrevious, setMissedPrevious] = useState<boolean>(false);
   // Defaults to "now" but is fully editable so a delayed entry keeps the real
   // fuelling time rather than the submission time.
   const [loggedAt, setLoggedAt] = useState<string>(() => toDatetimeLocal(new Date()));
@@ -22,12 +27,14 @@ export function useQuickLogFields() {
   const reset = () => {
     setBrand(''); setCost(''); setDistanceKm(''); setFuelAmountLiters('');
     setOdometerKm('');
+    setFillType('full'); setMissedPrevious(false);
     setLoggedAt(toDatetimeLocal(new Date()));
   };
 
   return {
     brand, setBrand, cost, setCost, distanceKm, setDistanceKm, odometerKm, setOdometerKm,
-    fuelAmountLiters, setFuelAmountLiters, loggedAt, setLoggedAt, loggedAtDate, reset,
+    fuelAmountLiters, setFuelAmountLiters, fillType, setFillType, missedPrevious, setMissedPrevious,
+    loggedAt, setLoggedAt, loggedAtDate, reset,
   };
 }
 

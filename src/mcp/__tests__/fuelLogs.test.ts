@@ -88,5 +88,15 @@ describe('MCP log_fuel', () => {
     await tools.log_fuel({ brand: 'Esso', cost: 60, distanceKm: 500, fuelAmountLiters: 40 });
     expect(added).toHaveLength(1);
     expect(added[0]).toMatchObject({ userId: 'u1', brand: 'Esso', source: 'mcp', schemaVersion: 2 });
+    expect(added[0]).not.toHaveProperty('fillType');
+  });
+
+  it('passes fillType and missedPrevious through', async () => {
+    added.length = 0;
+    const tools: Record<string, ToolHandler> = {};
+    const server = { registerTool: (name: string, _def: unknown, fn: ToolHandler) => { tools[name] = fn; } };
+    registerFuelLogTools(server as unknown as McpServer, 'u1', { userId: 'u1', scopes: ['write:logs'], tokenId: 't' });
+    await tools.log_fuel({ brand: 'Esso', cost: 30, distanceKm: 200, fuelAmountLiters: 20, fillType: 'partial', missedPrevious: true });
+    expect(added[0]).toMatchObject({ fillType: 'partial', missedPrevious: true });
   });
 });

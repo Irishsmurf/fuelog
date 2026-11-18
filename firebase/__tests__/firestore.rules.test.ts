@@ -149,6 +149,9 @@ describe('fuelLogs', () => {
     await assertSucceeds(setDoc(doc(db, 'fuelLogs/v2'), { ...validLog(ALICE), source: 'app', schemaVersion: 2 }));
     await assertFails(setDoc(doc(db, 'fuelLogs/v2bad'), { ...validLog(ALICE), source: 'scraper' }));
     await assertFails(setDoc(doc(db, 'fuelLogs/v2bad2'), { ...validLog(ALICE), schemaVersion: '2' }));
+    await assertSucceeds(setDoc(doc(db, 'fuelLogs/v2fill'), { ...validLog(ALICE), fillType: 'partial', missedPrevious: true }));
+    await assertFails(setDoc(doc(db, 'fuelLogs/v2bad3'), { ...validLog(ALICE), fillType: 'half' }));
+    await assertFails(setDoc(doc(db, 'fuelLogs/v2bad4'), { ...validLog(ALICE), missedPrevious: 'yes' }));
   });
 
   it('keeps legacy logs (missing optional fields) editable', async () => {
